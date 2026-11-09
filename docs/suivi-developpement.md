@@ -9,7 +9,7 @@ Checklist de toutes les parties du cahier des charges et des règles, pour qu'au
 - [x] Squelette Cloud Functions
 - [x] **L'APK Android compile avec succès** (`flutter build apk --debug`, 2026-11-09) — minSdk 23 fixé dans android/app/build.gradle.kts (attention : l'outil de migration Gradle de Flutter peut réécrire ce fichier lors d'un futur `flutter build`, à vérifier si ça revient)
 - [ ] Plan Firebase Blaze — volontairement repoussé à la fin (décision du 2026-11-09), donc Cloud Functions pas encore déployées/testables en conditions réelles malgré le code prêt et relu
-- [ ] Firebase Storage activé — **action manuelle restante** : https://console.firebase.google.com/project/djama-1c7f8/storage, bouton "Get started", région europe-west1. Aucune commande CLI ne peut faire ce premier clic.
+- [x] Firebase Storage activé (2026-11-10, mode production) — règles de sécurité réelles déployées (photos approuvées uniquement, vérification d'identité jamais visible par un autre membre)
 - [ ] Fournisseur Google activé dans Firebase Authentication — **action manuelle restante** : console > Authentication > Sign-in method > Google > Activer. Nécessaire pour que "Continuer avec Google" fonctionne (le SHA-1 de debug est déjà enregistré).
 - [x] Plan Blaze activé (2026-11-09) — toutes les Cloud Functions déployées en production (europe-west1)
 - [x] Navigation de premier niveau (AuthGate : onboarding → auth → vérification e-mail → app). go_router à brancher pour la navigation interne (Découvrir/Likes/Messages/Communauté) à l'étape suivante.
