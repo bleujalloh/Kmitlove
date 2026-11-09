@@ -38,9 +38,11 @@ Checklist de toutes les parties du cahier des charges et des règles, pour qu'au
 
 ## 4.2 Profil
 
-- [ ] Création/édition de toutes les informations (section 4.2)
-- [ ] Upload photo + statut "en attente de validation" (délai 48h, regles-messagerie-securite.md)
+- [x] Création du profil (toutes les informations texte de la section 4.2), validation 18 ans sur la vraie date de naissance
+- [ ] **Accès en modification depuis les paramètres** — le formulaire supporte déjà l'édition (`ProfilEditScreen(existing: ...)`) mais rien n'y mène encore ; à faire avec l'écran Paramètres
+- [ ] Upload photo + statut "en attente de validation" (délai 48h, regles-messagerie-securite.md) — bloqué par Firebase Storage pas encore activé
 - [ ] Badge de vérification d'identité (regles-complementaires-concurrents.md)
+- [x] Revue indépendante passée (2026-11-09) : erreur réseau non affichée, corrigée
 
 ## 4.3 Test de compatibilité kamite
 

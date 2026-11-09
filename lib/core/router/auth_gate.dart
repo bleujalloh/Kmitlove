@@ -12,6 +12,8 @@ import '../../features/filtrage/presentation/screens/filtrage_result_screen.dart
 import '../../features/filtrage/presentation/screens/filtrage_screen.dart';
 import '../../features/onboarding/presentation/screens/onboarding_screen.dart';
 import '../../features/onboarding/presentation/screens/placeholder_home_screen.dart';
+import '../../features/profil/presentation/profil_controller.dart';
+import '../../features/profil/presentation/screens/profil_edit_screen.dart';
 import '../providers/firebase_providers.dart';
 
 enum _LoggedOutView { onboarding, signUp, signIn, resetPassword }
@@ -79,7 +81,16 @@ class AuthGate extends ConsumerWidget {
               if (pendingResult != null && pendingResult.$1) {
                 return const FiltrageResultScreen();
               }
-              return const PlaceholderHomeScreen();
+
+              final profilAsync = ref.watch(profilProvider);
+              return profilAsync.when(
+                loading: () => const Scaffold(body: Center(child: CircularProgressIndicator())),
+                error: (e, st) => Scaffold(body: Center(child: Text('Erreur : $e'))),
+                data: (profil) {
+                  if (profil == null) return const ProfilEditScreen();
+                  return const PlaceholderHomeScreen();
+                },
+              );
             }
             if (filtrageStatus == 'rejected_pending_retry' || filtrageStatus == 'review_requested') {
               return FiltragePendingScreen(status: status!);
