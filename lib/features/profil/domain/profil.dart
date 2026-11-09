@@ -47,6 +47,28 @@ class LifestyleHabit {
   }
 }
 
+/// Qualités que le membre choisit de mettre en avant sur sa fiche,
+/// comme sur les applications de rencontre courantes — liste fermée
+/// pour que ça reste rapide à remplir et comparable entre profils.
+class PersonalQuality {
+  static const all = [
+    'Drôle',
+    'Ambitieux(se)',
+    'Calme',
+    'Aventurier(ère)',
+    'Romantique',
+    'Généreux(se)',
+    'Sincère',
+    'Spirituel(le)',
+    'Attentionné(e)',
+    'Déterminé(e)',
+    'Créatif(ve)',
+    'Loyal(e)',
+    'Patient(e)',
+    'Optimiste',
+  ];
+}
+
 class ChildrenStatus {
   static const hasChildren = 'a_des_enfants';
   static const wantsChildren = 'veut_des_enfants';
@@ -92,6 +114,7 @@ class Profil {
     this.drinkingHabit,
     this.childrenStatus,
     this.lookingFor,
+    this.qualities = const [],
   });
 
   final String displayName;
@@ -117,6 +140,7 @@ class Profil {
   final String? drinkingHabit;
   final String? childrenStatus;
   final String? lookingFor;
+  final List<String> qualities;
 
   Map<String, dynamic> toMap() => {
         'displayName': displayName,
@@ -138,6 +162,7 @@ class Profil {
         'drinkingHabit': drinkingHabit,
         'childrenStatus': childrenStatus,
         'lookingFor': lookingFor,
+        'qualities': qualities,
       };
 
   factory Profil.fromMap(Map<String, dynamic> map) => Profil(
@@ -160,5 +185,6 @@ class Profil {
         drinkingHabit: map['drinkingHabit'] as String?,
         childrenStatus: map['childrenStatus'] as String?,
         lookingFor: map['lookingFor'] as String?,
+        qualities: List<String>.from(map['qualities'] as List? ?? []),
       );
 }

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../../../core/theme/app_theme.dart';
+import '../../../../core/widgets/kamite_motif.dart';
 
 /// Écran d'accueil et charte communautaire — fidèle au prototype visuel
 /// validé (artifact Kamalove, Main.dc.html).
@@ -24,13 +25,15 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
           children: [
             Container(
               width: double.infinity,
-              padding: const EdgeInsets.fromLTRB(28, 16, 28, 22),
+              padding: const EdgeInsets.fromLTRB(28, 8, 28, 18),
               decoration: const BoxDecoration(
                 border: Border(bottom: BorderSide(color: AppColors.border)),
               ),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
+                  const KamiteMotif(height: 150),
+                  const SizedBox(height: 8),
                   Text(
                     'Kamalove',
                     style: Theme.of(context).textTheme.headlineSmall?.copyWith(
@@ -43,8 +46,6 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                     'rencontres et communauté kamites',
                     style: TextStyle(color: AppColors.muted, fontSize: 13),
                   ),
-                  const SizedBox(height: 14),
-                  Container(width: 36, height: 3, color: AppColors.accent),
                 ],
               ),
             ),

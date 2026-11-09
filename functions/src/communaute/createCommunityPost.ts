@@ -7,6 +7,7 @@ type PostType =
   | "publication"
   | "annonce_publique"
   | "annonce_privee"
+  | "annonce_libre"
   | "evenement_public"
   | "evenement_prive";
 
@@ -14,9 +15,14 @@ const VALID_TYPES: PostType[] = [
   "publication",
   "annonce_publique",
   "annonce_privee",
+  "annonce_libre",
   "evenement_public",
   "evenement_prive",
 ];
+
+// Annonce libre : un 4e type d'annonce, texte libre sans lieu ni date,
+// modérée et comptée comme les autres annonces (docs/regles-annonces-evenements.md).
+const ANNONCE_TYPES: PostType[] = ["annonce_publique", "annonce_privee", "annonce_libre"];
 
 interface CreatePostData {
   type: PostType;
@@ -52,7 +58,7 @@ export const createCommunityPost = onCall({ region: REGION }, async (request) =>
 
   const db = getFirestore();
   const isEvent = data.type === "evenement_public" || data.type === "evenement_prive";
-  const isAnnonce = data.type === "annonce_publique" || data.type === "annonce_privee";
+  const isAnnonce = ANNONCE_TYPES.includes(data.type);
   const needsPreciseLocation = isEvent || data.type === "annonce_privee";
 
   if (isEvent) {
@@ -85,7 +91,7 @@ export const createCommunityPost = onCall({ region: REGION }, async (request) =>
     const activeSnap = await db
       .collection("community_posts")
       .where("authorUid", "==", uid)
-      .where("type", "in", ["annonce_publique", "annonce_privee"])
+      .where("type", "in", ANNONCE_TYPES)
       .orderBy("createdAt", "desc")
       .limit(20)
       .get();

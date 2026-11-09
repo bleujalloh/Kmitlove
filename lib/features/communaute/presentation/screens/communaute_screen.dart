@@ -67,6 +67,8 @@ class CommunauteScreen extends ConsumerWidget {
         return 'Annonce publique';
       case 'annonce_privee':
         return 'Annonce privée';
+      case 'annonce_libre':
+        return 'Annonce libre';
       case 'evenement_public':
         return 'Événement public';
       case 'evenement_prive':

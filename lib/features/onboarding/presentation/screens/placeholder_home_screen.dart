@@ -1,3 +1,4 @@
+import 'package:cloud_functions/cloud_functions.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -92,14 +93,48 @@ class PlaceholderHomeScreen extends ConsumerWidget {
               Consumer(
                 builder: (context, ref, _) {
                   final isAdmin = ref.watch(isAdminProvider).value ?? false;
-                  if (!isAdmin) return const SizedBox.shrink();
+                  if (isAdmin) {
+                    return Padding(
+                      padding: const EdgeInsets.only(top: 10),
+                      child: OutlinedButton(
+                        onPressed: () => Navigator.of(context).push(
+                          MaterialPageRoute(builder: (_) => const AdminScreen()),
+                        ),
+                        child: const Text('Administration'),
+                      ),
+                    );
+                  }
+                  // Ne fonctionne qu'une seule fois pour tout le projet —
+                  // disparaît dès qu'un admin existe quelque part.
                   return Padding(
                     padding: const EdgeInsets.only(top: 10),
-                    child: OutlinedButton(
-                      onPressed: () => Navigator.of(context).push(
-                        MaterialPageRoute(builder: (_) => const AdminScreen()),
-                      ),
-                      child: const Text('Administration'),
+                    child: TextButton(
+                      onPressed: () async {
+                        try {
+                          await ref.read(adminRepositoryProvider).bootstrapFirstAdmin();
+                          ref.invalidate(isAdminProvider);
+                          if (context.mounted) {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(content: Text('Tu es maintenant administrateur.')),
+                            );
+                          }
+                        } on FirebaseFunctionsException catch (e) {
+                          if (context.mounted) {
+                            final message = e.code == 'already-exists'
+                                ? 'Un administrateur existe déjà sur ce projet.'
+                                : "Impossible de devenir admin, réessaie (${e.code}).";
+                            ScaffoldMessenger.of(context)
+                                .showSnackBar(SnackBar(content: Text(message)));
+                          }
+                        } catch (_) {
+                          if (context.mounted) {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(content: Text('Erreur réseau, réessaie.')),
+                            );
+                          }
+                        }
+                      },
+                      child: const Text('Devenir le premier administrateur'),
                     ),
                   );
                 },

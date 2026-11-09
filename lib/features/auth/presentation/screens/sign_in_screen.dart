@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../../core/theme/app_theme.dart';
+import '../../../../core/widgets/google_mark.dart';
+import '../../../../core/widgets/kamite_motif.dart';
 import '../auth_controller.dart';
 
 class SignInScreen extends ConsumerStatefulWidget {
@@ -43,11 +45,22 @@ class _SignInScreenState extends ConsumerState<SignInScreen> {
     final authState = ref.watch(authControllerProvider);
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Se connecter')),
       body: SafeArea(
         child: ListView(
-          padding: const EdgeInsets.all(28),
+          padding: const EdgeInsets.fromLTRB(28, 8, 28, 28),
           children: [
+            const KamiteMotif(height: 110, compact: true),
+            const SizedBox(height: 8),
+            const Text(
+              'Content de te revoir',
+              style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold, color: AppColors.ink),
+            ),
+            const SizedBox(height: 4),
+            const Text(
+              'Connecte-toi à ton compte Kamalove',
+              style: TextStyle(fontSize: 13, color: AppColors.muted),
+            ),
+            const SizedBox(height: 24),
             Form(
               key: _formKey,
               child: Column(
@@ -93,21 +106,27 @@ class _SignInScreenState extends ConsumerState<SignInScreen> {
                         : const Text('Se connecter'),
                   ),
                   const SizedBox(height: 18),
+                  Row(
+                    children: const [
+                      Expanded(child: Divider(color: AppColors.border)),
+                      Padding(
+                        padding: EdgeInsets.symmetric(horizontal: 10),
+                        child: Text('ou', style: TextStyle(color: AppColors.muted, fontSize: 12)),
+                      ),
+                      Expanded(child: Divider(color: AppColors.border)),
+                    ],
+                  ),
+                  const SizedBox(height: 18),
                   OutlinedButton.icon(
                     onPressed: authState.isLoading
                         ? null
                         : () => ref.read(authControllerProvider.notifier).signInWithGoogle(),
-                    icon: const Icon(Icons.g_mobiledata),
+                    icon: const GoogleMark(),
                     label: const Text('Continuer avec Google'),
                   ),
-                  const SizedBox(height: 10),
-                  OutlinedButton.icon(
-                    onPressed: authState.isLoading
-                        ? null
-                        : () => ref.read(authControllerProvider.notifier).signInWithApple(),
-                    icon: const Icon(Icons.apple),
-                    label: const Text('Continuer avec Apple'),
-                  ),
+                  // Connexion Apple volontairement masquée : le compte
+                  // Apple Developer n'est pas encore ouvert, le bouton ne
+                  // ferait qu'échouer (docs/suivi-developpement.md).
                   const SizedBox(height: 14),
                   TextButton(
                     onPressed: widget.onGoToSignUp,

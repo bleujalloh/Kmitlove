@@ -34,6 +34,12 @@ String readableAuthError(Object error) {
   if (code.contains('too-many-requests')) {
     return 'Trop de tentatives, réessaie dans quelques minutes.';
   }
+  if (code.contains('operation-not-allowed')) {
+    return "La connexion par e-mail n'est pas encore activée côté serveur (à faire dans la console Firebase).";
+  }
+  if (code.contains('network-request-failed')) {
+    return 'Pas de connexion internet, vérifie ton réseau.';
+  }
   return 'Une erreur est survenue, réessaie.';
 }
 

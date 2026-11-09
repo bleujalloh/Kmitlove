@@ -36,10 +36,45 @@ ThemeData buildAppTheme() {
         ),
       ),
     ),
+    outlinedButtonTheme: OutlinedButtonThemeData(
+      style: OutlinedButton.styleFrom(
+        foregroundColor: AppColors.ink,
+        side: const BorderSide(color: AppColors.border, width: 1.4),
+        padding: const EdgeInsets.symmetric(vertical: 15),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+      ),
+    ),
+    // Champs de formulaire remplis et arrondis partout dans l'app, plutôt
+    // que le soulignement Material par défaut — c'est ce changement,
+    // appliqué une fois ici, qui évite que chaque écran de saisie ait
+    // l'air "nu" (inscription, profil, création d'annonce...).
+    inputDecorationTheme: InputDecorationTheme(
+      filled: true,
+      fillColor: AppColors.backgroundSoft,
+      contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+      labelStyle: const TextStyle(color: AppColors.muted),
+      border: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(14),
+        borderSide: const BorderSide(color: AppColors.border),
+      ),
+      enabledBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(14),
+        borderSide: const BorderSide(color: AppColors.border),
+      ),
+      focusedBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(14),
+        borderSide: const BorderSide(color: AppColors.accent, width: 1.6),
+      ),
+      errorBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(14),
+        borderSide: const BorderSide(color: AppColors.accent),
+      ),
+    ),
     appBarTheme: const AppBarTheme(
       backgroundColor: AppColors.background,
       foregroundColor: AppColors.ink,
       elevation: 0,
+      titleTextStyle: TextStyle(color: AppColors.ink, fontSize: 19, fontWeight: FontWeight.bold),
     ),
   );
 }

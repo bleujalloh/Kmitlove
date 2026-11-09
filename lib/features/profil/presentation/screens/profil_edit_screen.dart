@@ -45,6 +45,7 @@ class _ProfilEditScreenState extends ConsumerState<ProfilEditScreen> {
   String? _smokingHabit;
   String? _drinkingHabit;
   String? _childrenStatus;
+  final Set<String> _qualities = {};
 
   @override
   void initState() {
@@ -56,6 +57,7 @@ class _ProfilEditScreenState extends ConsumerState<ProfilEditScreen> {
     _smokingHabit = widget.existing?.smokingHabit;
     _drinkingHabit = widget.existing?.drinkingHabit;
     _childrenStatus = widget.existing?.childrenStatus;
+    _qualities.addAll(widget.existing?.qualities ?? []);
   }
 
   @override
@@ -141,6 +143,7 @@ class _ProfilEditScreenState extends ConsumerState<ProfilEditScreen> {
       childrenStatus: _childrenStatus,
       lookingFor:
           _lookingForController.text.trim().isEmpty ? null : _lookingForController.text.trim(),
+      qualities: _qualities.toList(),
     );
 
     await ref.read(profilControllerProvider.notifier).save(profil);
@@ -306,6 +309,25 @@ class _ProfilEditScreenState extends ConsumerState<ProfilEditScreen> {
                 decoration: const InputDecoration(
                   labelText: 'Ce que tu recherches chez l\'autre (facultatif)',
                 ),
+              ),
+              const SizedBox(height: 14),
+              const Text('Tes qualités (facultatif, choisis-en quelques-unes)',
+                  style: TextStyle(fontSize: 13, color: AppColors.muted)),
+              const SizedBox(height: 8),
+              Wrap(
+                spacing: 8,
+                runSpacing: 8,
+                children: PersonalQuality.all.map((q) {
+                  final selected = _qualities.contains(q);
+                  return FilterChip(
+                    label: Text(q),
+                    selected: selected,
+                    selectedColor: AppColors.accentSoft,
+                    onSelected: (v) => setState(
+                      () => v ? _qualities.add(q) : _qualities.remove(q),
+                    ),
+                  );
+                }).toList(),
               ),
               if (state.hasError) ...[
                 const SizedBox(height: 8),

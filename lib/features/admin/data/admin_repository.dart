@@ -17,6 +17,13 @@ class AdminRepository {
     return result.claims?['admin'] == true;
   }
 
+  /// Ne fonctionne qu'une seule fois pour tout le projet — voir
+  /// functions/src/admin/bootstrapFirstAdmin.ts.
+  Future<void> bootstrapFirstAdmin() async {
+    await _functions.httpsCallable('bootstrapFirstAdmin').call();
+    await _auth.currentUser?.getIdTokenResult(true);
+  }
+
   Future<List<Map<String, dynamic>>> listModerationRequests() async {
     final result = await _functions.httpsCallable('adminListModerationRequests').call();
     final data = result.data as Map<Object?, Object?>;

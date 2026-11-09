@@ -8,6 +8,7 @@ const _typeLabels = {
   'publication': 'Publication (fil)',
   'annonce_publique': 'Annonce publique',
   'annonce_privee': 'Annonce privée',
+  'annonce_libre': 'Annonce libre (texte libre, sans lieu ni date)',
   'evenement_public': 'Événement public',
   'evenement_prive': 'Événement privé',
 };

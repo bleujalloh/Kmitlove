@@ -29,6 +29,7 @@ export {
   adminListIdentityVerifications,
   adminReviewIdentityVerification,
 } from "./identite/adminReviewIdentity";
+export { bootstrapFirstAdmin } from "./admin/bootstrapFirstAdmin";
 
 // Les prochaines fonctions (compatibilité, matchs, jetons, Premium,
 // modération) seront ajoutées ici une par une — voir

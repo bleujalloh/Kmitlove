@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../../core/theme/app_theme.dart';
+import '../../../../core/widgets/google_mark.dart';
+import '../../../../core/widgets/kamite_motif.dart';
 import '../auth_controller.dart';
 
 class SignUpScreen extends ConsumerStatefulWidget {
@@ -45,11 +47,22 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
     final authState = ref.watch(authControllerProvider);
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Créer un compte')),
       body: SafeArea(
         child: ListView(
-          padding: const EdgeInsets.all(28),
+          padding: const EdgeInsets.fromLTRB(28, 8, 28, 28),
           children: [
+            const KamiteMotif(height: 110, compact: true),
+            const SizedBox(height: 8),
+            const Text(
+              'Créer un compte',
+              style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold, color: AppColors.ink),
+            ),
+            const SizedBox(height: 4),
+            const Text(
+              'Rejoins la communauté Kamalove',
+              style: TextStyle(fontSize: 13, color: AppColors.muted),
+            ),
+            const SizedBox(height: 24),
             Form(
               key: _formKey,
               child: Column(
@@ -99,6 +112,25 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
                             child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white),
                           )
                         : const Text("S'inscrire"),
+                  ),
+                  const SizedBox(height: 18),
+                  Row(
+                    children: const [
+                      Expanded(child: Divider(color: AppColors.border)),
+                      Padding(
+                        padding: EdgeInsets.symmetric(horizontal: 10),
+                        child: Text('ou', style: TextStyle(color: AppColors.muted, fontSize: 12)),
+                      ),
+                      Expanded(child: Divider(color: AppColors.border)),
+                    ],
+                  ),
+                  const SizedBox(height: 18),
+                  OutlinedButton.icon(
+                    onPressed: authState.isLoading
+                        ? null
+                        : () => ref.read(authControllerProvider.notifier).signInWithGoogle(),
+                    icon: const GoogleMark(),
+                    label: const Text('Continuer avec Google'),
                   ),
                   const SizedBox(height: 14),
                   TextButton(
