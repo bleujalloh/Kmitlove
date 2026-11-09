@@ -53,7 +53,11 @@ Principe : on ne vérifie jamais l'origine, la couleur de peau ou l'ascendance. 
 - **Tests automatiques sur la logique sensible** (calcul du score du questionnaire, calcul de compatibilité, droits Premium, règles de sécurité Firestore) — pas besoin de tout tester, mais ce qui touche à l'argent, à la sécurité ou à l'accès ne doit jamais partir sans test.
 - **Avant toute mise à jour d'une dépendance majeure** (Flutter, Firebase), vérifier que l'application démarre et que les parcours critiques (inscription, swipe, match, message) fonctionnent toujours.
 
-## 6. Règles anti-contournement spécifiques
+## 6. Règles détaillées de l'espace Communauté (annonces et événements)
+
+Voir le document dédié [regles-annonces-evenements.md](regles-annonces-evenements.md) : qui peut créer une annonce ou un événement, modération mixte (pré-modération obligatoire pour tout événement physique, post-modération pour les publications simples du fil), règles de contenu, masquage des adresses, gestion des no-shows, et escalade en cas d'abus.
+
+## 7. Règles anti-contournement spécifiques
 
 - Le seuil et les réponses du questionnaire ne sont **jamais présents dans le code de l'application** envoyée sur les téléphones (sinon n'importe qui peut décompiler l'app et trouver les réponses).
 - Limiter la création de comptes multiples (par appareil, par e-mail, éventuellement par numéro de téléphone à terme).
