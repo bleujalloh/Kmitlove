@@ -1,0 +1,35 @@
+rules_version = '2';
+
+// Principe du moindre privilège (docs/regles-du-projet.md section 2) :
+// tout est interdit par défaut, on ouvre explicitement ce qui est nécessaire.
+// La logique sensible (score, matchs, Premium, modération) reste dans les
+// Cloud Functions ; ces règles ne couvrent que la lecture/écriture directe.
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function isOwner(userId) {
+      return isSignedIn() && request.auth.uid == userId;
+    }
+
+    // Profil public d'un membre : lisible par les membres connectés,
+    // modifiable uniquement par son propriétaire. Les champs sensibles
+    // (position précise, résultat du questionnaire de filtrage) ne sont
+    // jamais stockés dans ce document — voir docs/architecture-technique.md.
+    match /users/{userId} {
+      allow read: if isSignedIn();
+      allow create, update: if isOwner(userId);
+      allow delete: if false; // la suppression de compte passe par une Cloud Function (anonymisation RGPD)
+    }
+
+    // Tout le reste (matchs, messages, annonces, événements, jetons,
+    // signalements, admin) est ajouté au fur et à mesure de leur
+    // implémentation, jamais ouvert "par défaut".
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}

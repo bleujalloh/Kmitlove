@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "741720031453",
+    "project_id": "djama-1c7f8",
+    "storage_bucket": "djama-1c7f8.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:741720031453:android:810cb7643416501a841b34",
+        "android_client_info": {
+          "package_name": "com.kamalove.kamalove"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDAEeGVmpnsVyYz_M2WQOa4knxd2o_fsvQ"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
