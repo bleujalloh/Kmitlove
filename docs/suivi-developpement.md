@@ -74,12 +74,13 @@ Checklist de toutes les parties du cahier des charges et des règles, pour qu'au
 
 ## 4.6 Matchs et messagerie
 
-- [ ] Création de match (Cloud Function, vérifie les deux likes)
-- [ ] Expiration d'un match sans message sous 7 jours
-- [ ] Messagerie temps réel (Firestore)
-- [ ] Indicateur de lecture (activé par défaut, désactivable + réciprocité)
-- [ ] Photos en message floutées par défaut à la première réception
-- [ ] Blocage / signalement (flux commun, regles-economie-et-compatibilite.md section 3)
+- [x] Création de match (fait dans recordSwipe, Découvrir)
+- [ ] Expiration d'un match sans message sous 7 jours (pas de Cloud Scheduler configuré — nécessite le plan Blaze et sa mise en place, pas fait volontairement pour l'instant)
+- [x] Messagerie temps réel (Firestore direct, règles renforcées)
+- [x] Indicateur de lecture (activé par défaut, désactivable + réciprocité)
+- [ ] Photos en message floutées par défaut à la première réception — bloqué par Storage non activé
+- [x] Blocage (immédiat, coupe la conversation des deux côtés) / signalement (motif obligatoire, anonyme pour la personne signalée)
+- [x] Revue indépendante passée (2026-11-09) : accusé de lecture falsifiable, date de message non garantie serveur, blocage non lié à un vrai match, lectures/écritures non groupées — toutes corrigées
 
 ## 4.7 Communauté
 
