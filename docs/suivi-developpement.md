@@ -57,11 +57,13 @@ Checklist de toutes les parties du cahier des charges et des règles, pour qu'au
 
 ## 4.4 Découvrir
 
-- [ ] Candidats précalculés (Cloud Scheduler, architecture-technique.md section 4)
-- [ ] Écran swipe (déjà prototypé)
-- [ ] Filtres (âge ±8 ans par défaut, distance 5-100 km, intention)
-- [ ] Limite 20 likes/jour gratuit, illimité Premium
-- [ ] Masquage des comptes inactifs (30 jours)
+- [x] Génération de candidats à la demande côté serveur (pas encore précalculée par Cloud Scheduler — simplification V1 assumée, à revoir si lent à l'échelle, voir architecture-technique.md section 4)
+- [x] Écran swipe connecté aux vraies Cloud Functions (like/pass/super-like, détection de match avec pop-up)
+- [x] Filtrage réciproque des préférences de genre, exclusion des profils déjà swipés, exclusion des comptes non activés
+- [ ] Filtres manuels (âge ±8 ans par défaut, distance 5-100 km, intention) — pas encore d'UI de filtre, ni de position géographique du tout
+- [x] Limite 20 likes/jour gratuit (serveur), illimité Premium pas encore branché (Premium non construit)
+- [x] Masquage des comptes inactifs (30 jours) — champ `lastActiveAt` pas encore alimenté par l'app, donc personne n'est exclu pour l'instant ; **à faire** : écrire `lastActiveAt` à la connexion
+- [x] Revue indépendante passée (2026-11-09) : bug bloquant (transaction Firestore lecture-après-écriture, empêchait tout like), double-tap, lectures séquentielles, schéma matchs, cast fragile — tous corrigés
 
 ## 4.5 Likes
 
