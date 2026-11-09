@@ -12,7 +12,20 @@
           "package_name": "com.kamalove.kamalove"
         }
       },
-      "oauth_client": [],
+      "oauth_client": [
+        {
+          "client_id": "741720031453-6f744qr3v12so6uo0if6p9enoqjrnu8d.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.kamalove.kamalove",
+            "certificate_hash": "3cbd1d4b6bed431d678269e14d8e06e611d6916b"
+          }
+        },
+        {
+          "client_id": "741720031453-khnmn8gbfousa7k8meihcmlhgf4ersd0.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
       "api_key": [
         {
           "current_key": "AIzaSyDAEeGVmpnsVyYz_M2WQOa4knxd2o_fsvQ"
@@ -20,7 +33,19 @@
       ],
       "services": {
         "appinvite_service": {
-          "other_platform_oauth_client": []
+          "other_platform_oauth_client": [
+            {
+              "client_id": "741720031453-khnmn8gbfousa7k8meihcmlhgf4ersd0.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "741720031453-0o7t0pq3k9gbal9985rv90bpn6jri0p7.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.kamalove.kamalove"
+              }
+            }
+          ]
         }
       }
     }

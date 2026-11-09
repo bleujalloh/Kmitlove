@@ -63,6 +63,8 @@ class DefaultFirebaseOptions {
     messagingSenderId: '741720031453',
     projectId: 'djama-1c7f8',
     storageBucket: 'djama-1c7f8.firebasestorage.app',
+    androidClientId: '741720031453-6f744qr3v12so6uo0if6p9enoqjrnu8d.apps.googleusercontent.com',
+    iosClientId: '741720031453-0o7t0pq3k9gbal9985rv90bpn6jri0p7.apps.googleusercontent.com',
     iosBundleId: 'com.kamalove.kamalove',
   );
 
