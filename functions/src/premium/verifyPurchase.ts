@@ -94,7 +94,7 @@ export const verifyPurchase = onCall(
     }
 
     const keyJson = googlePlayServiceAccountJson.value();
-    if (!keyJson) {
+    if (!keyJson || keyJson === "NOT_CONFIGURED") {
       throw new HttpsError(
         "failed-precondition",
         "Vérification des achats non configurée côté serveur.",

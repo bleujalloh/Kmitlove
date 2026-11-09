@@ -65,4 +65,5 @@ class DefaultFirebaseOptions {
     storageBucket: 'djama-1c7f8.firebasestorage.app',
     iosBundleId: 'com.kamalove.kamalove',
   );
+
 }
