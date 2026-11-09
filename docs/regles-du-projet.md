@@ -47,6 +47,10 @@ Principe : on ne vérifie jamais l'origine, la couleur de peau ou l'ascendance. 
 - **Commits** : messages clairs en français, un commit = un changement cohérent (pas de "fourre-tout").
 - **Pas de push direct sur `main` sans relecture**, même seul — se relire avant de merger évite les régressions silencieuses.
 
+## 4 bis. Revue indépendante avant validation
+
+Toute tranche de développement significative (une fonctionnalité complète, pas chaque petite modification) est relue par un agent indépendant avant d'être considérée comme validée — jamais seulement par celui qui a écrit le code. Les problèmes trouvés sont corrigés avant de passer à la tranche suivante, pas accumulés "pour plus tard".
+
 ## 5. Règles de non-régression
 
 - **Aucune fonctionnalité qui marchait avant ne doit casser silencieusement.** Avant de merger un changement, on vérifie que les fonctionnalités déjà en place fonctionnent toujours.

@@ -23,16 +23,18 @@ Checklist de toutes les parties du cahier des charges et des règles, pour qu'au
 - [x] Réinitialisation du mot de passe
 - [x] Validation de l'âge minimum (case à cocher) — badge vérifié d'identité à faire plus tard
 - [x] Acceptation CGU/charte (écran onboarding réel, fidèle au prototype)
-- [ ] Suppression du compte — code client prêt (`AuthRepository.deleteAccount`), la Cloud Function `deleteAccount` (anonymisation RGPD) reste à écrire
+- [x] Suppression du compte (Cloud Function `deleteAccount` : données + compte Auth supprimés ensemble, côté serveur)
 
 ## Filtrage à l'inscription (regles-du-projet.md section 1)
 
-- [ ] Banque de questions en base (Firestore, admin peut en ajouter)
-- [ ] Tirage aléatoire des questions côté serveur
-- [ ] Cloud Function de correction + seuil 80-90 %
-- [ ] Écran questionnaire (déjà prototypé visuellement)
-- [ ] Compte en attente + nouvel essai après délai + recours humain
-- [ ] Anti-contournement (limite comptes par appareil/e-mail)
+- [x] Tirage aléatoire des questions côté serveur (Cloud Function `startFiltrageAttempt`)
+- [x] Cloud Function de correction + seuil 85 % (`submitFiltrageAttempt`)
+- [x] Écran questionnaire (intro, questions, résultat) relié à de vraies Cloud Functions
+- [x] Compte en attente + nouvel essai après délai (7 jours) + recours humain (`requestFiltrageReview`)
+- [x] Anti-contournement : reprise de la tentative en cours au lieu d'un nouveau tirage (corrigé après revue indépendante)
+- [ ] Banque de questions **chargée dans Firestore** — le contenu est rédigé (docs/banque-questions-filtrage.md), reste à l'importer dans `filtrage_question_bank` avant de pouvoir tester réellement
+- [ ] Limite de comptes par appareil/e-mail (nécessite App Check / un dispositif anti-abus, pas encore fait)
+- [x] Revue indépendante passée sur cette fonctionnalité (2026-11-09) : 5 problèmes trouvés et corrigés (course d'affichage, double soumission, contournement du délai, suppression de compte, nonce Apple)
 
 ## 4.2 Profil
 
