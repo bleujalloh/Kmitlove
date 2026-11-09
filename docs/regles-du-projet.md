@@ -57,7 +57,11 @@ Principe : on ne vérifie jamais l'origine, la couleur de peau ou l'ascendance. 
 
 Voir le document dédié [regles-annonces-evenements.md](regles-annonces-evenements.md) : qui peut créer une annonce ou un événement, modération mixte (pré-modération obligatoire pour tout événement physique, post-modération pour les publications simples du fil), règles de contenu, masquage des adresses, gestion des no-shows, et escalade en cas d'abus.
 
-## 7. Règles anti-contournement spécifiques
+## 7. Règles détaillées — Photos et messagerie
+
+Voir le document dédié [regles-messagerie-securite.md](regles-messagerie-securite.md) : validation humaine systématique de toute photo de profil (pas d'IA de modération au lancement), règles de la messagerie privée (réservée aux matchs, indicateur de lecture activé par défaut, gestion des photos échangées en message), et flux commun de signalement/blocage.
+
+## 8. Règles anti-contournement spécifiques
 
 - Le seuil et les réponses du questionnaire ne sont **jamais présents dans le code de l'application** envoyée sur les téléphones (sinon n'importe qui peut décompiler l'app et trouver les réponses).
 - Limiter la création de comptes multiples (par appareil, par e-mail, éventuellement par numéro de téléphone à terme).
