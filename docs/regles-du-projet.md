@@ -65,7 +65,11 @@ Voir le document dédié [regles-messagerie-securite.md](regles-messagerie-secur
 
 Voir le document dédié [regles-economie-et-compatibilite.md](regles-economie-et-compatibilite.md) : jetons à l'unité pour relancer un profil passé (indépendants de l'abonnement Premium), calcul précis du score de compatibilité (similarité par question, seuil de validité par thème, recalcul automatique, anti-triche), et règles de suite du signalement (priorité selon la gravité, confidentialité pendant l'instruction, droit de recours, conservation des preuves).
 
-## 9. Règles anti-contournement spécifiques
+## 9. Règles complémentaires issues de la comparaison avec Tinder, Bumble, Happn, Meetic
+
+Voir le document dédié [regles-complementaires-concurrents.md](regles-complementaires-concurrents.md) : bouton d'urgence pendant un rendez-vous, flou par défaut des photos reçues en message, badge de vérification ouvert à tous, résiliation en 3 clics et portabilité des données (obligations légales), expiration des matchs inactifs, limites de likes gratuits, masquage des comptes inactifs, règles du Boost, et le choix explicite de ne pas reproduire le suivi de position passive de Happn.
+
+## 10. Règles anti-contournement spécifiques
 
 - Le seuil et les réponses du questionnaire ne sont **jamais présents dans le code de l'application** envoyée sur les téléphones (sinon n'importe qui peut décompiler l'app et trouver les réponses).
 - Limiter la création de comptes multiples (par appareil, par e-mail, éventuellement par numéro de téléphone à terme).
