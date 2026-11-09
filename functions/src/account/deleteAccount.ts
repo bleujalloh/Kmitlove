@@ -5,14 +5,16 @@ import { getAuth } from "firebase-admin/auth";
 import { REGION } from "../config";
 
 /**
- * Supprime les données applicatives ET le compte d'authentification, en
- * une seule opération atomique côté serveur (docs/regles-du-projet.md
- * section 2 — droit à l'oubli RGPD). Le compte Auth est supprimé ici,
- * avec les droits admin, pour ne jamais dépendre d'une "connexion
- * récente" côté client (qui peut échouer et laisser un compte orphelin
- * après que les données ont déjà été effacées). À étendre au fur et à
- * mesure que de nouvelles collections apparaissent (profil, photos,
- * messages...).
+ * Supprime les données applicatives PUIS le compte d'authentification
+ * (docs/regles-du-projet.md section 2 — droit à l'oubli RGPD).
+ *
+ * Les données sont purgées en premier parce que la priorité légale est
+ * que les données personnelles disparaissent, même si la suppression du
+ * compte Auth échouait ensuite — ce second cas est rattrapable
+ * manuellement sans aucun risque de confidentialité puisque les données
+ * sont déjà parties. Chaque étape est idempotente (supprimer un document
+ * ou un compte déjà supprimé ne fait rien) : si le client réessaie après
+ * une erreur, l'appel peut être refait sans effet de bord.
  */
 export const deleteAccount = onCall({ region: REGION }, async (request) => {
   if (!request.auth) {
@@ -24,8 +26,13 @@ export const deleteAccount = onCall({ region: REGION }, async (request) => {
   const batch = db.batch();
   batch.delete(db.collection("user_status").doc(uid));
   batch.delete(db.collection("users").doc(uid));
-  await batch.commit();
 
+  const attemptsSnap = await db.collection("filtrage_attempts").where("uid", "==", uid).get();
+  for (const doc of attemptsSnap.docs) {
+    batch.delete(doc.ref);
+  }
+
+  await batch.commit();
   await getAuth().deleteUser(uid);
 
   return { ok: true };

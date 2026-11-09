@@ -47,18 +47,30 @@ export const startFiltrageAttempt = onCall({ region: REGION }, async (request) =
           db.collection("filtrage_question_bank").doc(id).get(),
         ),
       );
-      return {
-        attemptId: currentAttemptId,
-        questions: questionDocs.map((doc) => {
-          const data = doc.data()!;
-          return {
-            id: doc.id,
-            theme: data.theme as string,
-            question: data.question as string,
-            options: data.options as string[],
-          };
-        }),
-      };
+      // Si une question tirée a été retirée de la banque depuis (ménage
+      // de contenu, question désactivée...), on ne plante pas : on
+      // abandonne cette tentative cassée et on repart sur un tirage
+      // neuf plutôt que de bloquer l'utilisateur sans recours.
+      const allQuestionsStillExist = questionDocs.every((doc) => doc.exists);
+      if (allQuestionsStillExist) {
+        return {
+          attemptId: currentAttemptId,
+          questions: questionDocs.map((doc) => {
+            const data = doc.data()!;
+            return {
+              id: doc.id,
+              theme: data.theme as string,
+              question: data.question as string,
+              options: data.options as string[],
+            };
+          }),
+        };
+      }
+      await existingAttemptSnap.ref.delete();
+      await db.collection("user_status").doc(uid).set(
+        { filtrageCurrentAttemptId: null },
+        { merge: true },
+      );
     }
   }
 
