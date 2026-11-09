@@ -134,9 +134,39 @@ service cloud.firestore {
       allow update: if false;
     }
 
-    // Tout le reste (messages, annonces, événements, jetons,
-    // signalements, admin) est ajouté au fur et à mesure de leur
-    // implémentation, jamais ouvert "par défaut".
+    // Communauté : publications, annonces, événements (cahier des
+    // charges section 4.7). Toute création passe par createCommunityPost
+    // (modération mixte, limite d'annonces actives, réservation des
+    // événements aux membres vérifiés — docs/regles-annonces-evenements.md),
+    // jamais une écriture directe. La lecture est ouverte une fois publié,
+    // ou réservée à l'auteur tant que ce n'est pas encore validé.
+    match /community_posts/{postId} {
+      allow read: if isSignedIn() &&
+        (resource.data.status == 'published' || resource.data.authorUid == request.auth.uid);
+      allow write: if false;
+
+      // Demandes de participation (événements, annonces privées) :
+      // visibles par leur auteur et par l'organisateur de la publication,
+      // jamais modifiables directement — l'acceptation/le refus et le
+      // suivi de présence passent par des Cloud Functions
+      // (docs/regles-annonces-evenements.md section 2).
+      match /participations/{requesterUid} {
+        allow read: if isSignedIn() &&
+          (requesterUid == request.auth.uid ||
+            get(/databases/$(database)/documents/community_posts/$(postId)).data.authorUid == request.auth.uid);
+        allow write: if false;
+      }
+
+      // Lieu précis d'un événement/d'une annonce privée : jamais lu
+      // directement, uniquement via getEventLocation (vérifie que
+      // l'appelant est organisateur ou participant accepté).
+      match /private/{document=**} {
+        allow read, write: if false;
+      }
+    }
+
+    // Tout le reste (jetons, admin...) est ajouté au fur et à mesure de
+    // leur implémentation, jamais ouvert "par défaut".
     match /{document=**} {
       allow read, write: if false;
     }

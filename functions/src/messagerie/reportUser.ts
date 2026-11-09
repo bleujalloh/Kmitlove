@@ -2,21 +2,14 @@ import { onCall, HttpsError } from "firebase-functions/v2/https";
 import { getFirestore, FieldValue } from "firebase-admin/firestore";
 
 import { REGION } from "../config";
+import { REPORT_REASONS } from "../shared/reportReasons";
 
 interface ReportData {
   targetUid: string;
-  reason: string; // 'faux_profil' | 'comportement_abusif' | 'contenu_inapproprie' | 'arnaque' | 'autre'
+  reason: string;
   details?: string;
   matchId?: string;
 }
-
-const VALID_REASONS = [
-  "faux_profil",
-  "comportement_abusif",
-  "contenu_inapproprie",
-  "arnaque",
-  "autre",
-];
 
 /**
  * Signalement d'un membre (docs/regles-economie-et-compatibilite.md
@@ -31,7 +24,7 @@ export const reportUser = onCall({ region: REGION }, async (request) => {
   const uid = request.auth.uid;
   const { targetUid, reason, details, matchId } = request.data as ReportData;
 
-  if (!targetUid || !VALID_REASONS.includes(reason)) {
+  if (!targetUid || !REPORT_REASONS.includes(reason as (typeof REPORT_REASONS)[number])) {
     throw new HttpsError("invalid-argument", "Motif de signalement invalide.");
   }
 

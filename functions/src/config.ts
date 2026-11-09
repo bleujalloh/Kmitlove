@@ -26,3 +26,19 @@ export const FREE_DAILY_LIKE_LIMIT = 20;
 export const DISCOVER_CANDIDATE_POOL_SIZE = 50; // avant filtrage
 export const DISCOVER_CANDIDATES_RETURNED = 10; // après filtrage, envoyés au client
 export const INACTIVE_ACCOUNT_DAYS = 30;
+
+// docs/regles-annonces-evenements.md
+export const MAX_ACTIVE_ANNONCES_PER_USER = 3;
+// Filtre automatique très simple en l'absence d'IA de modération — un
+// premier garde-fou, pas une détection fiable (docs/regles-annonces-evenements.md
+// section 3). À étoffer ou remplacer par un vrai outil plus tard.
+export const ANNONCE_FLAGGED_KEYWORDS = [
+  "paypal",
+  "virement",
+  "escort",
+  "tarif",
+  "€/h",
+  "cb uniquement",
+  "promo",
+  "boutique en ligne",
+];
