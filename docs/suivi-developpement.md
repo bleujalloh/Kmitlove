@@ -84,11 +84,14 @@ Checklist de toutes les parties du cahier des charges et des règles, pour qu'au
 
 ## 4.7 Communauté
 
-- [ ] Publications (post-modération)
-- [ ] Annonces publiques/privées (pré-modération légère + revue humaine si doute), max 3 actives
-- [ ] Événements (pré-modération humaine obligatoire), réservés aux membres vérifiés
-- [ ] Capacité, liste d'attente, QR code de participation
-- [ ] Bouton d'urgence sur événement accepté
+- [x] Publications (post-modération, publiées immédiatement)
+- [x] Annonces publiques/privées (filtre de mots-clés très simple + revue humaine si doute), max 3 actives
+- [x] Événements (toujours en attente de revue humaine), réservés aux membres `isVerified` — **ce flag n'est mis à jour par rien encore** : la vérification d'identité (selfie/vidéo) n'est pas construite, donc personne ne peut créer d'événement pour l'instant. Noté comme blocage.
+- [x] Capacité (avec validation de type), liste d'attente si complet
+- [x] Code de présence à l'entrée **à la place d'un vrai QR code scanné** (simplification assumée : saisie manuelle d'un code, pas de caméra/scanner — à revoir si besoin d'un vrai QR)
+- [ ] Bouton d'urgence sur événement accepté (prévu dans regles-complementaires-concurrents.md, pas encore construit)
+- [ ] **Pas d'espace admin pour traiter les `pending_review`** — les publications en attente (annonces douteuses, tous les événements) n'ont actuellement aucune interface pour être validées/refusées ; à faire avec la section 6 (administration)
+- [x] Revue indépendante passée (2026-11-09) : capacité non validée (type), demande de participation sur un type qui n'en a pas besoin, listes de motifs dupliquées, requête non bornée, check-in sans écran — toutes corrigées
 
 ## 4.8 Sécurité et modération (transverse)
 
