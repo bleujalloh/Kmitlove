@@ -8,6 +8,7 @@ import '../../../compatibilite/presentation/screens/compat_screen.dart';
 import '../../../decouvrir/presentation/screens/decouvrir_screen.dart';
 import '../../../likes/presentation/screens/likes_screen.dart';
 import '../../../communaute/presentation/screens/communaute_screen.dart';
+import '../../../identite/presentation/screens/identite_screen.dart';
 import '../../../messages/presentation/screens/matches_list_screen.dart';
 import '../../../premium/presentation/screens/premium_screen.dart';
 
@@ -80,6 +81,13 @@ class PlaceholderHomeScreen extends ConsumerWidget {
                   MaterialPageRoute(builder: (_) => const CompatScreen()),
                 ),
                 child: const Text('Faire le test de compatibilité'),
+              ),
+              const SizedBox(height: 10),
+              OutlinedButton(
+                onPressed: () => Navigator.of(context).push(
+                  MaterialPageRoute(builder: (_) => const IdentiteScreen()),
+                ),
+                child: const Text('Vérification d\'identité'),
               ),
               Consumer(
                 builder: (context, ref, _) {

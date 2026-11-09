@@ -25,3 +25,12 @@ final pendingCommunityPostsProvider =
     FutureProvider.autoDispose<List<Map<String, dynamic>>>((ref) {
   return ref.read(adminRepositoryProvider).listPendingCommunityPosts();
 });
+
+final pendingPhotosProvider = FutureProvider.autoDispose<List<Map<String, dynamic>>>((ref) {
+  return ref.read(adminRepositoryProvider).listPendingPhotos();
+});
+
+final pendingIdentityVerificationsProvider =
+    FutureProvider.autoDispose<List<Map<String, dynamic>>>((ref) {
+  return ref.read(adminRepositoryProvider).listIdentityVerifications();
+});

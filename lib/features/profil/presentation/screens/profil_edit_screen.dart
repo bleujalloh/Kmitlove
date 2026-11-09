@@ -4,12 +4,12 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../../core/theme/app_theme.dart';
 import '../../domain/profil.dart';
 import '../profil_controller.dart';
+import 'photos_section.dart';
 
 const _genders = ['Femme', 'Homme', 'Autre'];
 
-/// Création/édition du profil (cahier des charges section 4.2). Pas de
-/// photo ici — Firebase Storage n'est pas encore activé côté Firebase
-/// (docs/suivi-developpement.md), ajoutée dès que possible.
+/// Création/édition du profil (cahier des charges section 4.2), avec les
+/// photos (validation humaine/délai 48h, docs/regles-messagerie-securite.md).
 class ProfilEditScreen extends ConsumerStatefulWidget {
   const ProfilEditScreen({super.key, this.existing});
 
@@ -33,11 +33,18 @@ class _ProfilEditScreenState extends ConsumerState<ProfilEditScreen> {
   late final _culturalOriginsController =
       TextEditingController(text: widget.existing?.culturalOrigins.join(', '));
   late final _valuesController = TextEditingController(text: widget.existing?.values);
+  late final _heightController =
+      TextEditingController(text: widget.existing?.heightCm?.toString());
+  late final _educationController = TextEditingController(text: widget.existing?.educationLevel);
+  late final _lookingForController = TextEditingController(text: widget.existing?.lookingFor);
 
   DateTime? _birthDate;
   String _gender = _genders.first;
   final Set<String> _seekingGenders = {};
   String _relationshipIntent = RelationshipIntent.serieuse;
+  String? _smokingHabit;
+  String? _drinkingHabit;
+  String? _childrenStatus;
 
   @override
   void initState() {
@@ -46,6 +53,9 @@ class _ProfilEditScreenState extends ConsumerState<ProfilEditScreen> {
     _gender = widget.existing?.gender ?? _genders.first;
     _seekingGenders.addAll(widget.existing?.seekingGenders ?? []);
     _relationshipIntent = widget.existing?.relationshipIntent ?? RelationshipIntent.serieuse;
+    _smokingHabit = widget.existing?.smokingHabit;
+    _drinkingHabit = widget.existing?.drinkingHabit;
+    _childrenStatus = widget.existing?.childrenStatus;
   }
 
   @override
@@ -59,6 +69,9 @@ class _ProfilEditScreenState extends ConsumerState<ProfilEditScreen> {
     _interestsController.dispose();
     _culturalOriginsController.dispose();
     _valuesController.dispose();
+    _heightController.dispose();
+    _educationController.dispose();
+    _lookingForController.dispose();
     super.dispose();
   }
 
@@ -120,6 +133,14 @@ class _ProfilEditScreenState extends ConsumerState<ProfilEditScreen> {
       interests: _splitCsv(_interestsController.text),
       culturalOrigins: _splitCsv(_culturalOriginsController.text),
       values: _valuesController.text.trim().isEmpty ? null : _valuesController.text.trim(),
+      heightCm: int.tryParse(_heightController.text.trim()),
+      educationLevel:
+          _educationController.text.trim().isEmpty ? null : _educationController.text.trim(),
+      smokingHabit: _smokingHabit,
+      drinkingHabit: _drinkingHabit,
+      childrenStatus: _childrenStatus,
+      lookingFor:
+          _lookingForController.text.trim().isEmpty ? null : _lookingForController.text.trim(),
     );
 
     await ref.read(profilControllerProvider.notifier).save(profil);
@@ -137,6 +158,8 @@ class _ProfilEditScreenState extends ConsumerState<ProfilEditScreen> {
           child: ListView(
             padding: const EdgeInsets.all(24),
             children: [
+              const PhotosSection(),
+              const SizedBox(height: 20),
               TextFormField(
                 controller: _nameController,
                 decoration: const InputDecoration(labelText: 'Prénom ou pseudonyme'),
@@ -232,6 +255,57 @@ class _ProfilEditScreenState extends ConsumerState<ProfilEditScreen> {
                     .map((v) => DropdownMenuItem(value: v, child: Text(RelationshipIntent.label(v))))
                     .toList(),
                 onChanged: (v) => setState(() => _relationshipIntent = v ?? _relationshipIntent),
+              ),
+              const SizedBox(height: 24),
+              const Text(
+                'TA FICHE',
+                style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: AppColors.accent, letterSpacing: 0.5),
+              ),
+              const SizedBox(height: 14),
+              TextFormField(
+                controller: _heightController,
+                keyboardType: TextInputType.number,
+                decoration: const InputDecoration(labelText: 'Taille en cm (facultatif)'),
+              ),
+              const SizedBox(height: 14),
+              TextFormField(
+                controller: _educationController,
+                decoration: const InputDecoration(labelText: "Niveau d'études (facultatif)"),
+              ),
+              const SizedBox(height: 14),
+              DropdownButtonFormField<String>(
+                initialValue: _smokingHabit,
+                decoration: const InputDecoration(labelText: 'Tabac (facultatif)'),
+                items: LifestyleHabit.all
+                    .map((v) => DropdownMenuItem(value: v, child: Text(LifestyleHabit.label(v))))
+                    .toList(),
+                onChanged: (v) => setState(() => _smokingHabit = v),
+              ),
+              const SizedBox(height: 14),
+              DropdownButtonFormField<String>(
+                initialValue: _drinkingHabit,
+                decoration: const InputDecoration(labelText: 'Alcool (facultatif)'),
+                items: LifestyleHabit.all
+                    .map((v) => DropdownMenuItem(value: v, child: Text(LifestyleHabit.label(v))))
+                    .toList(),
+                onChanged: (v) => setState(() => _drinkingHabit = v),
+              ),
+              const SizedBox(height: 14),
+              DropdownButtonFormField<String>(
+                initialValue: _childrenStatus,
+                decoration: const InputDecoration(labelText: 'Enfants (facultatif)'),
+                items: ChildrenStatus.all
+                    .map((v) => DropdownMenuItem(value: v, child: Text(ChildrenStatus.label(v))))
+                    .toList(),
+                onChanged: (v) => setState(() => _childrenStatus = v),
+              ),
+              const SizedBox(height: 14),
+              TextFormField(
+                controller: _lookingForController,
+                maxLines: 3,
+                decoration: const InputDecoration(
+                  labelText: 'Ce que tu recherches chez l\'autre (facultatif)',
+                ),
               ),
               if (state.hasError) ...[
                 const SizedBox(height: 8),

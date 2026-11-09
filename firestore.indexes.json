@@ -26,6 +26,14 @@
       ]
     },
     {
+      "collectionGroup": "photos",
+      "queryScope": "COLLECTION_GROUP",
+      "fields": [
+        { "fieldPath": "status", "order": "ASCENDING" },
+        { "fieldPath": "uploadedAt", "order": "ASCENDING" }
+      ]
+    },
+    {
       "collectionGroup": "moderation_requests",
       "queryScope": "COLLECTION",
       "fields": [

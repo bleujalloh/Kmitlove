@@ -23,6 +23,19 @@ service cloud.firestore {
       allow read: if isSignedIn();
       allow create, update: if isOwner(userId);
       allow delete: if false; // la suppression de compte passe par une Cloud Function (anonymisation RGPD)
+
+      // Photos de profil : visibles par tous une fois approuvées, par le
+      // propriétaire tant qu'elles sont en attente (docs/regles-messagerie-securite.md
+      // section 1). Le statut initial doit être "pending" à la création —
+      // seule la Cloud Function planifiée (ou l'admin) peut l'approuver,
+      // jamais le propriétaire directement.
+      match /photos/{photoId} {
+        allow read: if isSignedIn() && (userId == request.auth.uid || resource.data.status == 'approved');
+        allow create: if isOwner(userId) && request.resource.data.status == 'pending'
+          && request.resource.data.uploadedAt == request.time;
+        allow update: if false;
+        allow delete: if isOwner(userId);
+      }
     }
 
     // Statut d'activation du compte (filtrage, suspension, premium...).

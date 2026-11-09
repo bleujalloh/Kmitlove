@@ -53,3 +53,8 @@ export const JETON_PACK_PRODUCTS: Record<string, number> = {
   kamalove_jetons_5: 5,
   kamalove_jetons_15: 15,
 };
+
+// docs/regles-messagerie-securite.md section 1 — délai maximal garanti
+// avant approbation automatique d'une photo, faute de modérateur
+// disponible en permanence.
+export const PHOTO_AUTO_APPROVE_HOURS = 48;

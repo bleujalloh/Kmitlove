@@ -48,4 +48,30 @@ class AdminRepository {
         .httpsCallable('adminReviewCommunityPost')
         .call({'postId': postId, 'approve': approve});
   }
+
+  Future<List<Map<String, dynamic>>> listPendingPhotos() async {
+    final result = await _functions.httpsCallable('adminListPendingPhotos').call();
+    final data = result.data as Map<Object?, Object?>;
+    return (data['photos'] as List).map((p) => Map<String, dynamic>.from(p as Map)).toList();
+  }
+
+  Future<void> reviewPhoto(String userId, String photoId, bool approve) {
+    return _functions
+        .httpsCallable('adminReviewPhoto')
+        .call({'userId': userId, 'photoId': photoId, 'approve': approve});
+  }
+
+  Future<List<Map<String, dynamic>>> listIdentityVerifications() async {
+    final result = await _functions.httpsCallable('adminListIdentityVerifications').call();
+    final data = result.data as Map<Object?, Object?>;
+    return (data['verifications'] as List)
+        .map((v) => Map<String, dynamic>.from(v as Map))
+        .toList();
+  }
+
+  Future<void> reviewIdentityVerification(String uid, bool approve) {
+    return _functions
+        .httpsCallable('adminReviewIdentityVerification')
+        .call({'uid': uid, 'approve': approve});
+  }
 }

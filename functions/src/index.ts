@@ -22,6 +22,13 @@ export { useJetonToResurface } from "./premium/useJeton";
 export { adminListModerationRequests, adminResolveModerationRequest } from "./admin/moderationRequests";
 export { resolveFiltrageReview } from "./admin/resolveFiltrageReview";
 export { adminListPendingCommunityPosts, adminReviewCommunityPost } from "./admin/reviewCommunityPost";
+export { autoApprovePhotos } from "./photos/autoApprovePhotos";
+export { adminListPendingPhotos, adminReviewPhoto } from "./photos/adminReviewPhoto";
+export { submitIdentityVerification } from "./identite/submitIdentityVerification";
+export {
+  adminListIdentityVerifications,
+  adminReviewIdentityVerification,
+} from "./identite/adminReviewIdentity";
 
 // Les prochaines fonctions (compatibilité, matchs, jetons, Premium,
 // modération) seront ajoutées ici une par une — voir

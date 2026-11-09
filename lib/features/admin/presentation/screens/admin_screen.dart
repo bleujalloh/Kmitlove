@@ -14,16 +14,22 @@ class AdminScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     return DefaultTabController(
-      length: 2,
+      length: 4,
       child: Scaffold(
         appBar: AppBar(
           title: const Text('Administration'),
           bottom: const TabBar(
-            tabs: [Tab(text: 'Signalements'), Tab(text: 'Publications en attente')],
+            isScrollable: true,
+            tabs: [
+              Tab(text: 'Signalements'),
+              Tab(text: 'Publications'),
+              Tab(text: 'Photos'),
+              Tab(text: 'Identité'),
+            ],
           ),
         ),
         body: const TabBarView(
-          children: [_ModerationTab(), _PendingPostsTab()],
+          children: [_ModerationTab(), _PendingPostsTab(), _PendingPhotosTab(), _IdentityTab()],
         ),
       ),
     );
@@ -154,6 +160,112 @@ class _PendingPostsTab extends ConsumerWidget {
                             .read(adminRepositoryProvider)
                             .reviewCommunityPost(p['id'] as String, false)
                             .then((_) => ref.invalidate(pendingCommunityPostsProvider)),
+                        style: TextButton.styleFrom(foregroundColor: AppColors.accent),
+                        child: const Text('Refuser'),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            );
+          },
+        );
+      },
+    );
+  }
+}
+
+class _PendingPhotosTab extends ConsumerWidget {
+  const _PendingPhotosTab();
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final photosAsync = ref.watch(pendingPhotosProvider);
+    return photosAsync.when(
+      loading: () => const Center(child: CircularProgressIndicator()),
+      error: (e, st) => const Center(child: Text('Impossible de charger les photos.')),
+      data: (photos) {
+        if (photos.isEmpty) return const Center(child: Text('Rien en attente.'));
+        return ListView.separated(
+          padding: const EdgeInsets.all(16),
+          itemCount: photos.length,
+          separatorBuilder: (_, _) => const Divider(),
+          itemBuilder: (context, i) {
+            final p = photos[i];
+            return Padding(
+              padding: const EdgeInsets.symmetric(vertical: 8),
+              child: Row(
+                children: [
+                  Expanded(child: Text('Membre : ${p['userId']}')),
+                  TextButton(
+                    onPressed: () => ref
+                        .read(adminRepositoryProvider)
+                        .reviewPhoto(p['userId'] as String, p['id'] as String, true)
+                        .then((_) => ref.invalidate(pendingPhotosProvider)),
+                    child: const Text('Valider'),
+                  ),
+                  TextButton(
+                    onPressed: () => ref
+                        .read(adminRepositoryProvider)
+                        .reviewPhoto(p['userId'] as String, p['id'] as String, false)
+                        .then((_) => ref.invalidate(pendingPhotosProvider)),
+                    style: TextButton.styleFrom(foregroundColor: AppColors.accent),
+                    child: const Text('Refuser'),
+                  ),
+                ],
+              ),
+            );
+          },
+        );
+      },
+    );
+  }
+}
+
+class _IdentityTab extends ConsumerWidget {
+  const _IdentityTab();
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final verificationsAsync = ref.watch(pendingIdentityVerificationsProvider);
+    return verificationsAsync.when(
+      loading: () => const Center(child: CircularProgressIndicator()),
+      error: (e, st) => const Center(child: Text('Impossible de charger les demandes.')),
+      data: (verifications) {
+        if (verifications.isEmpty) return const Center(child: Text('Rien en attente.'));
+        return ListView.separated(
+          padding: const EdgeInsets.all(16),
+          itemCount: verifications.length,
+          separatorBuilder: (_, _) => const Divider(),
+          itemBuilder: (context, i) {
+            final v = verifications[i];
+            final url = v['url'] as String?;
+            return Padding(
+              padding: const EdgeInsets.symmetric(vertical: 8),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text('Membre : ${v['uid']}', style: const TextStyle(fontWeight: FontWeight.bold)),
+                  if (url != null)
+                    Padding(
+                      padding: const EdgeInsets.symmetric(vertical: 8),
+                      child: Image.network(url, height: 160, fit: BoxFit.cover),
+                    ),
+                  Wrap(
+                    spacing: 8,
+                    children: [
+                      TextButton(
+                        onPressed: () => ref
+                            .read(adminRepositoryProvider)
+                            .reviewIdentityVerification(v['uid'] as String, true)
+                            .then((_) => ref.invalidate(pendingIdentityVerificationsProvider)),
+                        child: const Text('Vérifier'),
+                      ),
+                      TextButton(
+                        onPressed: () => ref
+                            .read(adminRepositoryProvider)
+                            .reviewIdentityVerification(v['uid'] as String, false)
+                            .then((_) => ref.invalidate(pendingIdentityVerificationsProvider)),
                         style: TextButton.styleFrom(foregroundColor: AppColors.accent),
                         child: const Text('Refuser'),
                       ),

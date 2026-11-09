@@ -8,9 +8,25 @@ service firebase.storage {
     // la lecture publique n'est ouverte qu'une fois la photo validée
     // (ce statut est géré en base par une Cloud Function, pas ici).
     match /profile_photos/{userId}/{fileName} {
-      allow read: if request.auth != null;
+      // Lecture publique seulement si la photo est vraiment "approved"
+      // en base (docs/regles-messagerie-securite.md section 1) — sans ce
+      // contrôle, connaître/deviner le chemin suffirait à voir une photo
+      // encore en attente ou refusée.
+      allow read: if request.auth != null && (
+        request.auth.uid == userId ||
+        firestore.get(/databases/(default)/documents/users/$(userId)/photos/$(fileName.split('.')[0])).data.status == 'approved'
+      );
       allow write: if request.auth != null && request.auth.uid == userId
                    && request.resource.size < 10 * 1024 * 1024;
+    }
+
+    // Pièce de vérification d'identité (selfie/vidéo, docs/regles-complementaires-concurrents.md
+    // section 1) : jamais visible par un autre membre, seule la Cloud
+    // Function de revue admin y accède (Admin SDK, hors de ces règles).
+    match /identity_verifications/{userId}/{fileName} {
+      allow read: if request.auth != null && request.auth.uid == userId;
+      allow write: if request.auth != null && request.auth.uid == userId
+                   && request.resource.size < 20 * 1024 * 1024;
     }
 
     match /{allPaths=**} {

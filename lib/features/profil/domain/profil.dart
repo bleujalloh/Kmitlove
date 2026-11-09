@@ -23,6 +23,54 @@ class RelationshipIntent {
   }
 }
 
+/// Habitude de vie à trois niveaux, réutilisée pour le tabac et l'alcool
+/// — comme sur les applications de rencontre courantes (Tinder, Bumble,
+/// Hinge).
+class LifestyleHabit {
+  static const jamais = 'jamais';
+  static const parfois = 'parfois';
+  static const souvent = 'souvent';
+
+  static const all = [jamais, parfois, souvent];
+
+  static String label(String value) {
+    switch (value) {
+      case jamais:
+        return 'Jamais';
+      case parfois:
+        return 'Parfois';
+      case souvent:
+        return 'Souvent';
+      default:
+        return value;
+    }
+  }
+}
+
+class ChildrenStatus {
+  static const hasChildren = 'a_des_enfants';
+  static const wantsChildren = 'veut_des_enfants';
+  static const doesNotWantChildren = 'ne_veut_pas_denfants';
+  static const notSure = 'ne_sait_pas_encore';
+
+  static const all = [hasChildren, wantsChildren, doesNotWantChildren, notSure];
+
+  static String label(String value) {
+    switch (value) {
+      case hasChildren:
+        return 'A déjà des enfants';
+      case wantsChildren:
+        return 'Veut des enfants';
+      case doesNotWantChildren:
+        return 'Ne veut pas d\'enfants';
+      case notSure:
+        return 'Ne sait pas encore';
+      default:
+        return value;
+    }
+  }
+}
+
 class Profil {
   const Profil({
     required this.displayName,
@@ -38,6 +86,12 @@ class Profil {
     this.interests = const [],
     this.culturalOrigins = const [],
     this.values,
+    this.heightCm,
+    this.educationLevel,
+    this.smokingHabit,
+    this.drinkingHabit,
+    this.childrenStatus,
+    this.lookingFor,
   });
 
   final String displayName;
@@ -54,6 +108,16 @@ class Profil {
   final List<String> culturalOrigins;
   final String? values;
 
+  /// Les champs suivants complètent la fiche comme sur les applications
+  /// de rencontre courantes — tous facultatifs, pour ne jamais bloquer
+  /// la création de profil sur une information secondaire.
+  final int? heightCm;
+  final String? educationLevel;
+  final String? smokingHabit;
+  final String? drinkingHabit;
+  final String? childrenStatus;
+  final String? lookingFor;
+
   Map<String, dynamic> toMap() => {
         'displayName': displayName,
         'birthDate': birthDate.toIso8601String(),
@@ -68,6 +132,12 @@ class Profil {
         'interests': interests,
         'culturalOrigins': culturalOrigins,
         'values': values,
+        'heightCm': heightCm,
+        'educationLevel': educationLevel,
+        'smokingHabit': smokingHabit,
+        'drinkingHabit': drinkingHabit,
+        'childrenStatus': childrenStatus,
+        'lookingFor': lookingFor,
       };
 
   factory Profil.fromMap(Map<String, dynamic> map) => Profil(
@@ -84,5 +154,11 @@ class Profil {
         interests: List<String>.from(map['interests'] as List? ?? []),
         culturalOrigins: List<String>.from(map['culturalOrigins'] as List? ?? []),
         values: map['values'] as String?,
+        heightCm: (map['heightCm'] as num?)?.toInt(),
+        educationLevel: map['educationLevel'] as String?,
+        smokingHabit: map['smokingHabit'] as String?,
+        drinkingHabit: map['drinkingHabit'] as String?,
+        childrenStatus: map['childrenStatus'] as String?,
+        lookingFor: map['lookingFor'] as String?,
       );
 }
