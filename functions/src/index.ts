@@ -11,6 +11,8 @@ export { getDiscoverCandidates } from "./decouvrir/getCandidates";
 export { recordSwipe } from "./decouvrir/recordSwipe";
 export { getLikes } from "./likes/getLikes";
 export { retractLike } from "./likes/retractLike";
+export { onMessageCreated } from "./messagerie/onMessageCreated";
+export { reportUser } from "./messagerie/reportUser";
 
 // Les prochaines fonctions (compatibilité, matchs, jetons, Premium,
 // modération) seront ajoutées ici une par une — voir

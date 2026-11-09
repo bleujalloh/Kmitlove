@@ -5,6 +5,7 @@ import '../../../auth/presentation/auth_controller.dart';
 import '../../../compatibilite/presentation/screens/compat_screen.dart';
 import '../../../decouvrir/presentation/screens/decouvrir_screen.dart';
 import '../../../likes/presentation/screens/likes_screen.dart';
+import '../../../messages/presentation/screens/matches_list_screen.dart';
 
 /// Écran temporaire après connexion + vérification d'e-mail, en attendant
 /// le questionnaire de filtrage (docs/suivi-developpement.md) et la vraie
@@ -47,6 +48,13 @@ class PlaceholderHomeScreen extends ConsumerWidget {
                   MaterialPageRoute(builder: (_) => const LikesScreen()),
                 ),
                 child: const Text('Likes'),
+              ),
+              const SizedBox(height: 10),
+              OutlinedButton(
+                onPressed: () => Navigator.of(context).push(
+                  MaterialPageRoute(builder: (_) => const MatchesListScreen()),
+                ),
+                child: const Text('Messages'),
               ),
               const SizedBox(height: 10),
               OutlinedButton(
