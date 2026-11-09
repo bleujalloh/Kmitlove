@@ -22,7 +22,11 @@ android {
         applicationId = "com.kamalove.kamalove"
         // You can update the following values to match your application needs.
         // For more information, see: https://flutter.dev/to/review-gradle-config.
-        minSdk = 23 // requis par les versions récentes de Firebase Auth / Google Sign-In
+        // flutter.minSdkVersion vaut déjà 24 dans cette version de Flutter,
+        // suffisant pour Firebase Auth/Google Sign-In (qui exigent 23) —
+        // inutile de forcer une valeur, l'outil de migration de Flutter la
+        // réécrirait de toute façon à chaque build.
+        minSdk = flutter.minSdkVersion
         targetSdk = flutter.targetSdkVersion
         versionCode = flutter.versionCode
         versionName = flutter.versionName
