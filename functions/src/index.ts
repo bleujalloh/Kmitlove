@@ -19,6 +19,9 @@ export { getEventLocation } from "./communaute/getEventLocation";
 export { reportCommunityPost } from "./communaute/reportCommunityPost";
 export { verifyPurchase } from "./premium/verifyPurchase";
 export { useJetonToResurface } from "./premium/useJeton";
+export { adminListModerationRequests, adminResolveModerationRequest } from "./admin/moderationRequests";
+export { resolveFiltrageReview } from "./admin/resolveFiltrageReview";
+export { adminListPendingCommunityPosts, adminReviewCommunityPost } from "./admin/reviewCommunityPost";
 
 // Les prochaines fonctions (compatibilité, matchs, jetons, Premium,
 // modération) seront ajoutées ici une par une — voir

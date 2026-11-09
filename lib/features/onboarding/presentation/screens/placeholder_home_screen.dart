@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../admin/presentation/admin_controller.dart';
+import '../../../admin/presentation/screens/admin_screen.dart';
 import '../../../auth/presentation/auth_controller.dart';
 import '../../../compatibilite/presentation/screens/compat_screen.dart';
 import '../../../decouvrir/presentation/screens/decouvrir_screen.dart';
@@ -78,6 +80,21 @@ class PlaceholderHomeScreen extends ConsumerWidget {
                   MaterialPageRoute(builder: (_) => const CompatScreen()),
                 ),
                 child: const Text('Faire le test de compatibilité'),
+              ),
+              Consumer(
+                builder: (context, ref, _) {
+                  final isAdmin = ref.watch(isAdminProvider).value ?? false;
+                  if (!isAdmin) return const SizedBox.shrink();
+                  return Padding(
+                    padding: const EdgeInsets.only(top: 10),
+                    child: OutlinedButton(
+                      onPressed: () => Navigator.of(context).push(
+                        MaterialPageRoute(builder: (_) => const AdminScreen()),
+                      ),
+                      child: const Text('Administration'),
+                    ),
+                  );
+                },
               ),
             ],
           ),
