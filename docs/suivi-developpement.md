@@ -120,6 +120,18 @@ Checklist de toutes les parties du cahier des charges et des règles, pour qu'au
 - [x] Revue indépendante passée (2026-11-09) : index Firestore manquants (les fonctions auraient toutes échoué), confusion entre signalement et révision de filtrage, délai de relance non réinitialisé après une révision admin — toutes corrigées
 - [x] Revue indépendante passée (2026-11-09) : jeton de paiement réutilisable entre comptes (faille), achat finalisé à tort en cas d'erreur transitoire, écriture inutile pour les membres Premium — toutes corrigées
 
+## Suivi 2026-11-10 — corrections remontées par l'utilisateur sur appareil réel
+
+- [x] Bug bloquant : inscription par e-mail échouait ("Une erreur est survenue, réessaie.") — cause : le fournisseur Email/Password n'était pas activé dans Firebase Authentication. Message d'erreur désormais explicite (`operation-not-allowed` détecté) si ça se reproduit. **Vérifier que le fournisseur Email/Password est bien activé dans la console (même écran que Google : Authentication > Sign-in method).**
+- [x] Icône Google Sign-In cassée (`Icons.g_mobiledata`) remplacée par un badge "G" propre et fiable (`core/widgets/google_mark.dart`) — l'asset officiel multicolore de Google pourra remplacer ce badge plus tard sans changer le reste.
+- [x] Bouton Apple masqué sur l'écran de connexion (compte développeur Apple non ouvert, le bouton n'aurait fait qu'échouer)
+- [x] Identité visuelle de marque ("vitrine") ajoutée : motif vectoriel maison (disque solaire, pyramides, frise géométrique — `core/widgets/kamite_motif.dart`), utilisé sur l'onboarding et les écrans d'inscription/connexion, qui étaient plats. Thème des champs de formulaire unifié (remplis, arrondis) sur toute l'app en un seul endroit (`core/theme/app_theme.dart`).
+- [x] Panel admin invisible — en fait déjà construit (section 6) mais personne n'avait le rôle `admin` pour le voir. Ajout d'un bootstrap à usage unique (`bootstrapFirstAdmin`, verrouillé par transaction Firestore) : le premier compte qui clique "Devenir le premier administrateur" obtient le rôle, impossible ensuite pour quiconque d'autre.
+- [x] Annonce libre (4e type de publication communauté, texte libre sans lieu ni date) ajoutée à la demande
+- [x] Qualités personnelles sur le profil (liste de tags à choisir, comme les vraies apps) ajoutées
+- [ ] **Paiement Stripe non configuré — décision assumée, pas un oubli** : les abonnements/achats intégrés dans une app mobile doivent obligatoirement passer par les systèmes natifs Google Play / Apple (politique des stores, pas un choix technique) — Stripe ne peut pas servir à ça sur mobile. C'est pour ça qu'on a construit `verifyPurchase` avec l'API Google Play plutôt que Stripe. Si un jour il faut un paiement web (site vitrine, pas l'app), Stripe redeviendrait pertinent à ce moment-là.
+- [x] Revue indépendante passée (2026-11-10, deux passes) : race condition sur le bootstrap admin (deux comptes auraient pu devenir admin simultanément), gestion d'erreur trop générique, puis un verrou qui aurait pu bloquer définitivement le bootstrap en cas d'échec partiel — toutes corrigées
+
 ## RGPD / légal (transverse, à ne pas traiter en dernier)
 
 - [ ] Export des données personnelles (portabilité)
