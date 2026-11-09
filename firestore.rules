@@ -54,6 +54,22 @@ service cloud.firestore {
       allow read, write: if false;
     }
 
+    // Banque de questions du test de compatibilité : lisible par tous les
+    // membres connectés (pas de "bonne réponse" à cacher, contrairement
+    // au filtrage), jamais modifiable depuis le client.
+    match /compat_question_bank/{questionId} {
+      allow read: if isSignedIn();
+      allow write: if false;
+    }
+
+    // Réponses au test de compatibilité : visibles et modifiables
+    // uniquement par leur auteur, jamais par un autre membre — même le
+    // calcul de compatibilité ne les expose jamais, seul le score final
+    // est communiqué (docs/regles-economie-et-compatibilite.md section 2).
+    match /compat_answers/{userId} {
+      allow read, write: if isOwner(userId);
+    }
+
     // Tout le reste (matchs, messages, annonces, événements, jetons,
     // signalements, admin) est ajouté au fur et à mesure de leur
     // implémentation, jamais ouvert "par défaut".

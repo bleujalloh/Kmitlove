@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../auth/presentation/auth_controller.dart';
+import '../../../compatibilite/presentation/screens/compat_screen.dart';
 
 /// Écran temporaire après connexion + vérification d'e-mail, en attendant
 /// le questionnaire de filtrage (docs/suivi-developpement.md) et la vraie
@@ -21,12 +22,24 @@ class PlaceholderHomeScreen extends ConsumerWidget {
           ),
         ],
       ),
-      body: const Center(
+      body: Center(
         child: Padding(
-          padding: EdgeInsets.all(24),
-          child: Text(
-            "Compte connecté et e-mail vérifié.\nProchaine étape : le questionnaire de filtrage.",
-            textAlign: TextAlign.center,
+          padding: const EdgeInsets.all(24),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              const Text(
+                "Compte activé et profil créé.\nProchaine étape : Découvrir, Likes, Messages, Communauté.",
+                textAlign: TextAlign.center,
+              ),
+              const SizedBox(height: 20),
+              OutlinedButton(
+                onPressed: () => Navigator.of(context).push(
+                  MaterialPageRoute(builder: (_) => const CompatScreen()),
+                ),
+                child: const Text('Faire le test de compatibilité'),
+              ),
+            ],
           ),
         ),
       ),
