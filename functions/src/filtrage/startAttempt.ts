@@ -32,6 +32,36 @@ export const startFiltrageAttempt = onCall({ region: REGION }, async (request) =
     );
   }
 
+  // Une tentative déjà en cours (ex. app fermée avant la fin) est reprise
+  // à l'identique, jamais redémarrée avec un nouveau tirage — sinon on
+  // pourrait relancer autant de fois que nécessaire pour tomber sur un
+  // jeu de questions plus facile, sans aucun délai (docs/regles-du-projet.md
+  // section 1, anti-contournement).
+  const currentAttemptId = status?.filtrageCurrentAttemptId as string | undefined;
+  if (currentAttemptId) {
+    const existingAttemptSnap = await db.collection("filtrage_attempts").doc(currentAttemptId).get();
+    const existingAttempt = existingAttemptSnap.data();
+    if (existingAttempt && !existingAttempt.submittedAt) {
+      const questionDocs = await Promise.all(
+        (existingAttempt.questionIds as string[]).map((id) =>
+          db.collection("filtrage_question_bank").doc(id).get(),
+        ),
+      );
+      return {
+        attemptId: currentAttemptId,
+        questions: questionDocs.map((doc) => {
+          const data = doc.data()!;
+          return {
+            id: doc.id,
+            theme: data.theme as string,
+            question: data.question as string,
+            options: data.options as string[],
+          };
+        }),
+      };
+    }
+  }
+
   const bankSnap = await db
     .collection("filtrage_question_bank")
     .where("active", "==", true)

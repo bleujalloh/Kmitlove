@@ -26,15 +26,23 @@ export const submitFiltrageAttempt = onCall({ region: REGION }, async (request) 
 
   const db = getFirestore();
   const attemptRef = db.collection("filtrage_attempts").doc(attemptId);
-  const attemptSnap = await attemptRef.get();
-  const attempt = attemptSnap.data();
 
-  if (!attempt || attempt.uid !== uid) {
-    throw new HttpsError("not-found", "Tentative introuvable.");
-  }
-  if (attempt.submittedAt) {
-    throw new HttpsError("failed-precondition", "Cette tentative a déjà été soumise.");
-  }
+  // Lecture + vérification "pas déjà soumise" + marquage dans UNE seule
+  // transaction : sans ça, deux appels simultanés (ex. retry réseau côté
+  // client) peuvent tous les deux lire submittedAt=null avant que l'un
+  // des deux n'écrive, et donc corriger/écraser le résultat deux fois.
+  const attempt = await db.runTransaction(async (tx) => {
+    const snap = await tx.get(attemptRef);
+    const data = snap.data();
+    if (!data || data.uid !== uid) {
+      throw new HttpsError("not-found", "Tentative introuvable.");
+    }
+    if (data.submittedAt) {
+      throw new HttpsError("failed-precondition", "Cette tentative a déjà été soumise.");
+    }
+    tx.update(attemptRef, { submittedAt: FieldValue.serverTimestamp() });
+    return data;
+  });
 
   const questionIds: string[] = attempt.questionIds;
   const questionDocs = await Promise.all(
@@ -56,11 +64,7 @@ export const submitFiltrageAttempt = onCall({ region: REGION }, async (request) 
   const score = correctCount / questionIds.length;
   const passed = score >= FILTRAGE_PASS_THRESHOLD;
 
-  await attemptRef.update({
-    submittedAt: FieldValue.serverTimestamp(),
-    score,
-    passed,
-  });
+  await attemptRef.update({ score, passed });
 
   const statusRef = db.collection("user_status").doc(uid);
   if (passed) {

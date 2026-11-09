@@ -6,7 +6,9 @@ import '../../features/auth/presentation/screens/reset_password_screen.dart';
 import '../../features/auth/presentation/screens/sign_in_screen.dart';
 import '../../features/auth/presentation/screens/sign_up_screen.dart';
 import '../../features/auth/presentation/screens/verify_email_screen.dart';
+import '../../features/filtrage/presentation/filtrage_controller.dart';
 import '../../features/filtrage/presentation/screens/filtrage_pending_screen.dart';
+import '../../features/filtrage/presentation/screens/filtrage_result_screen.dart';
 import '../../features/filtrage/presentation/screens/filtrage_screen.dart';
 import '../../features/onboarding/presentation/screens/onboarding_screen.dart';
 import '../../features/onboarding/presentation/screens/placeholder_home_screen.dart';
@@ -69,6 +71,14 @@ class AuthGate extends ConsumerWidget {
           data: (status) {
             final filtrageStatus = status?['filtrageStatus'] as String?;
             if (filtrageStatus == 'active') {
+              // Le serveur a déjà activé le compte au moment où il répond
+              // à submitFiltrageAttempt, mais le résultat local (écran de
+              // bienvenue) peut ne pas encore avoir été affiché — on laisse
+              // la priorité à l'écran de résultat pendant qu'il existe.
+              final pendingResult = ref.watch(filtrageControllerProvider).value?.result;
+              if (pendingResult != null && pendingResult.$1) {
+                return const FiltrageResultScreen();
+              }
               return const PlaceholderHomeScreen();
             }
             if (filtrageStatus == 'rejected_pending_retry' || filtrageStatus == 'review_requested') {

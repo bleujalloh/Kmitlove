@@ -42,7 +42,15 @@ class FiltrageResultScreen extends ConsumerWidget {
                   style: const TextStyle(color: AppColors.muted, height: 1.5),
                 ),
                 const SizedBox(height: 28),
-                if (!passed)
+                if (passed)
+                  SizedBox(
+                    width: double.infinity,
+                    child: ElevatedButton(
+                      onPressed: () => ref.read(filtrageControllerProvider.notifier).reset(),
+                      child: const Text('Continuer'),
+                    ),
+                  )
+                else
                   SizedBox(
                     width: double.infinity,
                     child: OutlinedButton(
