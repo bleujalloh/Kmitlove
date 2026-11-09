@@ -7,19 +7,7 @@ import {
   DISCOVER_CANDIDATES_RETURNED,
   INACTIVE_ACCOUNT_DAYS,
 } from "../config";
-
-function computeAge(birthDateIso: string): number {
-  const birth = new Date(birthDateIso);
-  const now = new Date();
-  let age = now.getFullYear() - birth.getFullYear();
-  if (
-    now.getMonth() < birth.getMonth() ||
-    (now.getMonth() === birth.getMonth() && now.getDate() < birth.getDate())
-  ) {
-    age -= 1;
-  }
-  return age;
-}
+import { computeAge } from "../shared/age";
 
 /**
  * Génère un paquet de candidats pour l'écran Découvrir (cahier des
