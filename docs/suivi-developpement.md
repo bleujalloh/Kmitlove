@@ -101,10 +101,15 @@ Checklist de toutes les parties du cahier des charges et des règles, pour qu'au
 
 ## 5-6. Modèle économique et administration
 
-- [ ] Abonnement Premium (paiement, résiliation en 3 clics, transparence renouvellement)
-- [ ] Jetons à l'unité (achat, consommation, anti-abus)
-- [ ] Boost (30 min, 1x/semaine Premium)
-- [ ] Espace admin complet (section 6 du cahier des charges) : utilisateurs, suspensions, signalements, modération photos/annonces, événements, abonnements, statistiques, journaux
+- [x] Abonnement Premium — achat via Google Play (API Subscriptions v2), vérification serveur, crédit anti-fraude (registre global des jetons de paiement)
+- [ ] Vérification Apple/App Store — **pas construite**, compte développeur Apple pas ouvert (99$/an). Le code est structuré pour l'accueillir de la même façon (functions/src/premium/verifyPurchase.ts), mais aucun achat iOS ne peut être crédité tant que ce n'est pas fait.
+- [ ] **Révocation/expiration de Premium** — `isPremium` passe à `true` à l'achat mais rien ne le repasse à `false` en cas d'annulation/non-renouvellement/remboursement. Nécessite les Realtime Developer Notifications (webhook Pub/Sub de Google Play), pas mis en place — **à faire avant un vrai lancement payant**, sinon un abonnement annulé reste actif indéfiniment.
+- [ ] Résiliation en 3 clics — dépend du flux natif Google Play/App Store (géré par eux une fois l'app en ligne), rien à construire côté app pour l'abonnement lui-même, mais à vérifier que le parcours réel respecte bien la règle une fois publié
+- [ ] Transparence sur le renouvellement automatique avant achat — pas d'écran dédié, à ajouter dans l'UI du PremiumScreen
+- [x] Jetons à l'unité (achat consommable, relance d'un profil passé via `useJetonToResurface`, un seul rachat par profil)
+- [ ] Boost (30 min, 1x/semaine Premium) — pas construit
+- [ ] Espace admin complet (section 6 du cahier des charges) : utilisateurs, suspensions, signalements, modération photos/annonces, événements, abonnements, statistiques, journaux — **rien construit**, tout le contenu `pending_review` (annonces douteuses, tous les événements) et tous les `moderation_requests` (signalements) n'ont aujourd'hui aucune interface pour être traités
+- [x] Revue indépendante passée (2026-11-09) : jeton de paiement réutilisable entre comptes (faille), achat finalisé à tort en cas d'erreur transitoire, écriture inutile pour les membres Premium — toutes corrigées
 
 ## RGPD / légal (transverse, à ne pas traiter en dernier)
 
