@@ -67,8 +67,10 @@ Checklist de toutes les parties du cahier des charges et des règles, pour qu'au
 
 ## 4.5 Likes
 
-- [ ] Écran "m'ont liké" / "mes likes" (déjà prototypé)
-- [ ] Teaser Premium pour débloquer
+- [x] Écran "m'ont liké" / "mes likes" connecté (getLikes/retractLike côté serveur)
+- [x] Teaser Premium pour débloquer "qui m'a liké" (gating déjà en place via `user_status.isPremium`, qu'il reste à faire passer à `true` une fois Premium construit)
+- [x] Retirer un like (impossible si déjà match)
+- [x] Revue indépendante passée (2026-11-09) : cast fragile, erreur de retrait non affichée, incohérence de modération avec Découvrir, perf — tous corrigés ; `computeAge` extrait en helper partagé (functions/src/shared/age.ts)
 
 ## 4.6 Matchs et messagerie
 
