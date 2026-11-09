@@ -42,3 +42,14 @@ export const ANNONCE_FLAGGED_KEYWORDS = [
   "promo",
   "boutique en ligne",
 ];
+
+// docs/regles-economie-et-compatibilite.md section 1 et cahier des
+// charges section 5. Identifiants à créer dans Google Play Console
+// (et App Store Connect une fois le compte développeur Apple ouvert) —
+// doivent correspondre exactement à ceux déclarés côté client.
+export const ANDROID_PACKAGE_NAME = "com.kamalove.kamalove";
+export const PREMIUM_SUBSCRIPTION_PRODUCT_ID = "kamalove_premium_monthly";
+export const JETON_PACK_PRODUCTS: Record<string, number> = {
+  kamalove_jetons_5: 5,
+  kamalove_jetons_15: 15,
+};

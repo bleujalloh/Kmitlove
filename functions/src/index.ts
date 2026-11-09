@@ -17,6 +17,8 @@ export { createCommunityPost } from "./communaute/createCommunityPost";
 export { requestParticipation, respondToParticipation, checkInParticipant } from "./communaute/participation";
 export { getEventLocation } from "./communaute/getEventLocation";
 export { reportCommunityPost } from "./communaute/reportCommunityPost";
+export { verifyPurchase } from "./premium/verifyPurchase";
+export { useJetonToResurface } from "./premium/useJeton";
 
 // Les prochaines fonctions (compatibilité, matchs, jetons, Premium,
 // modération) seront ajoutées ici une par une — voir

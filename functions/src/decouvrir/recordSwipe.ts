@@ -53,23 +53,27 @@ export const recordSwipe = onCall({ region: REGION }, async (request) => {
 
     if (isLikeAction) {
       const status = statusSnap.data();
-      const today = todayKey();
-      const countedToday = status?.swipeCountDate === today ? (status?.swipeCount ?? 0) : 0;
+      const isPremium = status?.isPremium === true;
 
-      // La limite ne s'applique qu'à la formule gratuite — Premium sera
-      // branché ici une fois construit (docs/suivi-developpement.md).
-      if (countedToday >= FREE_DAILY_LIKE_LIMIT) {
-        throw new HttpsError(
-          "resource-exhausted",
-          "Limite de likes quotidienne atteinte, reviens demain ou passe en Premium.",
+      // La limite ne s'applique qu'à la formule gratuite (cahier des
+      // charges section 5 : likes illimités en Premium) — et pour un
+      // membre Premium, on ne tient même plus le compteur, qui ne sert
+      // à rien dans son cas.
+      if (!isPremium) {
+        const today = todayKey();
+        const countedToday = status?.swipeCountDate === today ? (status?.swipeCount ?? 0) : 0;
+        if (countedToday >= FREE_DAILY_LIKE_LIMIT) {
+          throw new HttpsError(
+            "resource-exhausted",
+            "Limite de likes quotidienne atteinte, reviens demain ou passe en Premium.",
+          );
+        }
+        tx.set(
+          statusRef,
+          { swipeCountDate: today, swipeCount: countedToday + 1 },
+          { merge: true },
         );
       }
-
-      tx.set(
-        statusRef,
-        { swipeCountDate: today, swipeCount: countedToday + 1 },
-        { merge: true },
-      );
     }
 
     tx.set(swipeRef, {
