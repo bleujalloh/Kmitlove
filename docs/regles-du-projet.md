@@ -61,7 +61,11 @@ Voir le document dédié [regles-annonces-evenements.md](regles-annonces-eveneme
 
 Voir le document dédié [regles-messagerie-securite.md](regles-messagerie-securite.md) : validation humaine systématique de toute photo de profil (pas d'IA de modération au lancement), règles de la messagerie privée (réservée aux matchs, indicateur de lecture activé par défaut, gestion des photos échangées en message), et flux commun de signalement/blocage.
 
-## 8. Règles anti-contournement spécifiques
+## 8. Règles détaillées — Jetons, compatibilité et suites du signalement
+
+Voir le document dédié [regles-economie-et-compatibilite.md](regles-economie-et-compatibilite.md) : jetons à l'unité pour relancer un profil passé (indépendants de l'abonnement Premium), calcul précis du score de compatibilité (similarité par question, seuil de validité par thème, recalcul automatique, anti-triche), et règles de suite du signalement (priorité selon la gravité, confidentialité pendant l'instruction, droit de recours, conservation des preuves).
+
+## 9. Règles anti-contournement spécifiques
 
 - Le seuil et les réponses du questionnaire ne sont **jamais présents dans le code de l'application** envoyée sur les téléphones (sinon n'importe qui peut décompiler l'app et trouver les réponses).
 - Limiter la création de comptes multiples (par appareil, par e-mail, éventuellement par numéro de téléphone à terme).

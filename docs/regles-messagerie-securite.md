@@ -2,20 +2,22 @@
 
 Ce document complète [regles-du-projet.md](regles-du-projet.md) et [regles-annonces-evenements.md](regles-annonces-evenements.md) pour deux zones restantes : les photos de profil et la messagerie privée.
 
-## 1. Photos de profil — validation humaine systématique
+## 1. Photos de profil — validation humaine avec délai maximal garanti
 
-Décision : **pas de détection automatique par IA au lancement** (pas d'outil de ce type en place actuellement). Toute photo de profil passe donc par une **validation humaine obligatoire avant d'être visible par les autres membres**.
+Décision : pas de détection automatique par IA au lancement (pas d'outil de ce type en place actuellement), **et** pas de validation humaine purement systématique non plus, parce que l'administrateur ne sera pas disponible en permanence. Solution retenue : **un délai maximal garanti, avec approbation automatique si personne n'a traité la photo à temps.**
 
 Processus :
 
 1. Le membre met en ligne une photo → elle est stockée mais marquée **"en attente de validation"**.
-2. Le membre voit sa propre photo en attente sur son profil (pas de boîte noire), avec la mention claire "en cours de vérification".
+2. Le membre voit sa propre photo en attente sur son profil, avec la mention claire "en cours de vérification".
 3. Les autres membres ne voient jamais une photo en attente — ni sur le swipe, ni sur les likes, ni dans la communauté.
-4. Un modérateur valide ou refuse la photo depuis l'espace admin. **Délai cible : 24h** (annoncé à l'utilisateur pour qu'il ne soit pas surpris).
-5. Si refusée : notification au membre avec le motif (ex. "photo de groupe", "visage non visible", "contenu inapproprié"), possibilité de soumettre une nouvelle photo.
-6. Un membre sans aucune photo validée n'apparaît pas dans "Découvrir" — on ne montre pas de profil sans photo vérifiée, pour la sécurité de tous.
+4. Un modérateur peut valider ou refuser la photo depuis l'espace admin à tout moment.
+5. **Si personne ne l'a traitée sous 48h**, la photo devient **automatiquement visible** — pour qu'un nouveau membre ne reste jamais bloqué indéfiniment faute de modérateur disponible.
+6. Une photo auto-approuvée par expiration du délai reste **signalable comme toute autre photo** après coup ; un signalement confirmé entraîne son retrait immédiat, que la validation ait été humaine ou automatique par délai.
+7. Si refusée explicitement par un modérateur : notification au membre avec le motif (ex. "photo de groupe", "visage non visible", "contenu inapproprié"), possibilité de soumettre une nouvelle photo.
+8. Un membre sans aucune photo (en attente, validée ou auto-approuvée) n'apparaît pas dans "Découvrir".
 
-**Limite à surveiller dès le lancement** : la validation 100% humaine ne tient pas à très grande échelle (des centaines de photos par jour deviennent vite ingérables pour une petite équipe). À prévoir pour plus tard : un premier filtre automatique (détection de contenu explicite) qui ne remplace pas la validation humaine mais réduit son volume — à réévaluer quand le nombre d'inscriptions quotidiennes dépasse ce qu'un modérateur peut traiter en 24h.
+**Limite assumée** : ce système accepte qu'une photo problématique reste visible jusqu'à 48h avant d'être retirée si elle est signalée, en échange de ne jamais bloquer un membre faute de disponibilité humaine. À réévaluer (filtre automatique type Google Cloud Vision, ou recrutement de plusieurs modérateurs) si ce compromis devient insuffisant avec la croissance du nombre d'inscriptions.
 
 ## 2. Messagerie privée
 
