@@ -70,7 +70,24 @@ service cloud.firestore {
       allow read, write: if isOwner(userId);
     }
 
-    // Tout le reste (matchs, messages, annonces, événements, jetons,
+    // Swipes (likes/passes) : jamais lus/écrits directement — la limite
+    // quotidienne de likes et la détection de match doivent être
+    // appliquées côté serveur, pas déclarées par le client
+    // (docs/regles-complementaires-concurrents.md section 3).
+    match /swipes/{swipeId} {
+      allow read, write: if false;
+    }
+
+    // Matchs : lisibles par les deux membres concernés une fois créés
+    // par la Cloud Function, jamais créés/modifiés depuis le client.
+    // `members` permet une requête "mes matchs" (array-contains), ce
+    // qu'un simple uid1/uid2 ne permettrait pas côté client.
+    match /matches/{matchId} {
+      allow read: if isSignedIn() && request.auth.uid in resource.data.members;
+      allow write: if false;
+    }
+
+    // Tout le reste (messages, annonces, événements, jetons,
     // signalements, admin) est ajouté au fur et à mesure de leur
     // implémentation, jamais ouvert "par défaut".
     match /{document=**} {

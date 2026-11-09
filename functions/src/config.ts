@@ -20,3 +20,9 @@ export const COMPAT_THEME_WEIGHTS: Record<string, number> = {
 export const COMPAT_MIN_THEME_COVERAGE = 0.6;
 export const COMPAT_SCALE_MIN = 1;
 export const COMPAT_SCALE_MAX = 5;
+
+// docs/regles-complementaires-concurrents.md section 3
+export const FREE_DAILY_LIKE_LIMIT = 20;
+export const DISCOVER_CANDIDATE_POOL_SIZE = 50; // avant filtrage
+export const DISCOVER_CANDIDATES_RETURNED = 10; // après filtrage, envoyés au client
+export const INACTIVE_ACCOUNT_DAYS = 30;

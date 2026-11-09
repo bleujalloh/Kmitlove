@@ -1,0 +1,77 @@
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+
+import '../../auth/presentation/auth_controller.dart';
+import '../data/decouvrir_repository.dart';
+import '../domain/candidate.dart';
+
+final decouvrirRepositoryProvider = Provider<DecouvrirRepository>((ref) {
+  return DecouvrirRepository(ref.watch(cloudFunctionsProvider));
+});
+
+class DecouvrirState {
+  const DecouvrirState({required this.candidates, this.justMatchedWith, this.errorMessage});
+
+  final List<Candidate> candidates;
+  final Candidate? justMatchedWith;
+  final String? errorMessage;
+}
+
+String _readableSwipeError(Object error) {
+  final text = error.toString();
+  if (text.contains('resource-exhausted')) {
+    return 'Limite de likes quotidienne atteinte, reviens demain ou passe en Premium.';
+  }
+  if (text.contains('already-exists')) {
+    return 'Ce profil a déjà été swipé.';
+  }
+  return 'Une erreur est survenue, réessaie.';
+}
+
+class DecouvrirController extends AsyncNotifier<DecouvrirState> {
+  bool _swipeInFlight = false;
+
+  @override
+  Future<DecouvrirState> build() async {
+    final candidates = await ref.read(decouvrirRepositoryProvider).getCandidates();
+    return DecouvrirState(candidates: candidates);
+  }
+
+  Future<void> swipe(String action) async {
+    if (_swipeInFlight) return; // ignore un double-tap pendant l'appel réseau en cours
+    final current = state.value;
+    if (current == null || current.candidates.isEmpty) return;
+    final target = current.candidates.first;
+    final remaining = current.candidates.sublist(1);
+
+    _swipeInFlight = true;
+    try {
+      final matched = await ref.read(decouvrirRepositoryProvider).swipe(target.uid, action);
+      state = AsyncData(
+        DecouvrirState(candidates: remaining, justMatchedWith: matched ? target : null),
+      );
+    } catch (e) {
+      // Le profil est retiré de la pile dans tous les cas (on ne le
+      // représente pas), mais la liste de candidats reste affichée —
+      // seul un message d'erreur s'ajoute, sans faire planter tout
+      // l'état de l'écran comme le ferait un AsyncError ici.
+      state = AsyncData(
+        DecouvrirState(candidates: remaining, errorMessage: _readableSwipeError(e)),
+      );
+    } finally {
+      _swipeInFlight = false;
+    }
+  }
+
+  Future<void> refresh() async {
+    state = const AsyncLoading();
+    try {
+      final candidates = await ref.read(decouvrirRepositoryProvider).getCandidates();
+      state = AsyncData(DecouvrirState(candidates: candidates));
+    } catch (e, st) {
+      state = AsyncError(e, st);
+    }
+  }
+}
+
+final decouvrirControllerProvider =
+    AsyncNotifierProvider<DecouvrirController, DecouvrirState>(DecouvrirController.new);

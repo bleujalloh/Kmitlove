@@ -7,6 +7,8 @@ export { startFiltrageAttempt } from "./filtrage/startAttempt";
 export { submitFiltrageAttempt } from "./filtrage/submitAttempt";
 export { requestFiltrageReview } from "./filtrage/requestReview";
 export { computeCompatibility } from "./compatibilite/computeCompatibility";
+export { getDiscoverCandidates } from "./decouvrir/getCandidates";
+export { recordSwipe } from "./decouvrir/recordSwipe";
 
 // Les prochaines fonctions (compatibilité, matchs, jetons, Premium,
 // modération) seront ajoutées ici une par une — voir

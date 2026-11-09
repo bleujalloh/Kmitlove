@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../auth/presentation/auth_controller.dart';
 import '../../../compatibilite/presentation/screens/compat_screen.dart';
+import '../../../decouvrir/presentation/screens/decouvrir_screen.dart';
 
 /// Écran temporaire après connexion + vérification d'e-mail, en attendant
 /// le questionnaire de filtrage (docs/suivi-developpement.md) et la vraie
@@ -33,6 +34,13 @@ class PlaceholderHomeScreen extends ConsumerWidget {
                 textAlign: TextAlign.center,
               ),
               const SizedBox(height: 20),
+              ElevatedButton(
+                onPressed: () => Navigator.of(context).push(
+                  MaterialPageRoute(builder: (_) => const DecouvrirScreen()),
+                ),
+                child: const Text('Découvrir'),
+              ),
+              const SizedBox(height: 10),
               OutlinedButton(
                 onPressed: () => Navigator.of(context).push(
                   MaterialPageRoute(builder: (_) => const CompatScreen()),
