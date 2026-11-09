@@ -9,11 +9,13 @@ Checklist de toutes les parties du cahier des charges et des règles, pour qu'au
 - [x] Squelette Cloud Functions
 - [x] **L'APK Android compile avec succès** (`flutter build apk --debug`, 2026-11-09) — minSdk 23 fixé dans android/app/build.gradle.kts (attention : l'outil de migration Gradle de Flutter peut réécrire ce fichier lors d'un futur `flutter build`, à vérifier si ça revient)
 - [ ] Plan Firebase Blaze — volontairement repoussé à la fin (décision du 2026-11-09), donc Cloud Functions pas encore déployées/testables en conditions réelles malgré le code prêt et relu
-- [ ] Firebase Storage activé (action manuelle requise — console web, région à choisir)
+- [ ] Firebase Storage activé — **action manuelle restante** : https://console.firebase.google.com/project/djama-1c7f8/storage, bouton "Get started", région europe-west1. Aucune commande CLI ne peut faire ce premier clic.
+- [ ] Fournisseur Google activé dans Firebase Authentication — **action manuelle restante** : console > Authentication > Sign-in method > Google > Activer. Nécessaire pour que "Continuer avec Google" fonctionne (le SHA-1 de debug est déjà enregistré).
+- [x] Plan Blaze activé (2026-11-09) — toutes les Cloud Functions déployées en production (europe-west1)
 - [x] Navigation de premier niveau (AuthGate : onboarding → auth → vérification e-mail → app). go_router à brancher pour la navigation interne (Découvrir/Likes/Messages/Communauté) à l'étape suivante.
 - [ ] Firebase App Check (anti-bot, section 2 regles-du-projet.md)
 - [ ] Projets Firebase séparés dev/staging/prod (actuellement un seul projet — à faire avant la mise en production réelle)
-- [ ] SHA-1 de signature enregistré dans Firebase (nécessaire pour que Google Sign-In fonctionne réellement sur Android — action à faire au moment des tests sur appareil)
+- [x] SHA-1 de signature debug enregistré dans Firebase (2026-11-09) — **il faudra refaire la même chose avec le SHA-1 de la clé de signature de release** avant de publier sur le Play Store, sinon Google Sign-In cassera en production
 
 ## 4.1 Authentification
 
@@ -41,10 +43,12 @@ Checklist de toutes les parties du cahier des charges et des règles, pour qu'au
 ## 4.2 Profil
 
 - [x] Création du profil (toutes les informations texte de la section 4.2), validation 18 ans sur la vraie date de naissance
+- [x] Fiche étoffée comme les applications de rencontre courantes (2026-11-09) : taille, niveau d'études, tabac/alcool, enfants, "ce que tu recherches chez l'autre" — tous facultatifs
 - [ ] **Accès en modification depuis les paramètres** — le formulaire supporte déjà l'édition (`ProfilEditScreen(existing: ...)`) mais rien n'y mène encore ; à faire avec l'écran Paramètres
-- [ ] Upload photo + statut "en attente de validation" (délai 48h, regles-messagerie-securite.md) — bloqué par Firebase Storage pas encore activé
-- [ ] Badge de vérification d'identité (regles-complementaires-concurrents.md)
-- [x] Revue indépendante passée (2026-11-09) : erreur réseau non affichée, corrigée
+- [x] Upload de photos (jusqu'à 6), statut "en attente" visible, suppression — le code est prêt mais **ne fonctionnera qu'une fois Storage activé** (action manuelle restante, voir Fondations)
+- [x] Modération planifiée des photos (`autoApprovePhotos`, toutes les heures, approuve après 48h si aucun modérateur n'a traité) + onglet admin pour valider/refuser manuellement avant ce délai
+- [x] Vérification d'identité par selfie (ouverte à tout membre, pas réservée aux organisateurs) + onglet admin avec aperçu de la photo (URL signée temporaire) — **ne fonctionnera qu'une fois Storage activé**
+- [x] Revue indépendante passée (2026-11-09, deux passes) : erreur réseau non affichée ; puis date falsifiable, lecture Storage non alignée sur le vrai statut, lot de modération non borné, ordre de suppression, URL recalculée à chaque reconstruction — toutes corrigées
 
 ## 4.3 Test de compatibilité kamite
 
