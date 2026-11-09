@@ -1,0 +1,69 @@
+import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_riverpod/legacy.dart';
+
+import '../../features/auth/presentation/screens/reset_password_screen.dart';
+import '../../features/auth/presentation/screens/sign_in_screen.dart';
+import '../../features/auth/presentation/screens/sign_up_screen.dart';
+import '../../features/auth/presentation/screens/verify_email_screen.dart';
+import '../../features/onboarding/presentation/screens/onboarding_screen.dart';
+import '../../features/onboarding/presentation/screens/placeholder_home_screen.dart';
+import '../providers/firebase_providers.dart';
+
+enum _LoggedOutView { onboarding, signUp, signIn, resetPassword }
+
+final _loggedOutViewProvider = StateProvider<_LoggedOutView>((ref) => _LoggedOutView.onboarding);
+
+/// Point d'entrée de toute la navigation : décide quel écran afficher
+/// selon l'état de connexion, sans dépendre d'URL/deep-link pour l'instant
+/// (go_router sera branché pour la navigation interne à l'app une fois
+/// connecté — Découvrir/Likes/Messages/Communauté).
+class AuthGate extends ConsumerWidget {
+  const AuthGate({super.key});
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final authState = ref.watch(authStateProvider);
+
+    return authState.when(
+      loading: () => const Scaffold(body: Center(child: CircularProgressIndicator())),
+      error: (e, st) => Scaffold(body: Center(child: Text('Erreur : $e'))),
+      data: (user) {
+        if (user == null) {
+          final view = ref.watch(_loggedOutViewProvider);
+          switch (view) {
+            case _LoggedOutView.onboarding:
+              return OnboardingScreen(
+                onAccepted: () =>
+                    ref.read(_loggedOutViewProvider.notifier).state = _LoggedOutView.signUp,
+              );
+            case _LoggedOutView.signUp:
+              return SignUpScreen(
+                onGoToSignIn: () =>
+                    ref.read(_loggedOutViewProvider.notifier).state = _LoggedOutView.signIn,
+              );
+            case _LoggedOutView.signIn:
+              return SignInScreen(
+                onGoToSignUp: () =>
+                    ref.read(_loggedOutViewProvider.notifier).state = _LoggedOutView.signUp,
+                onGoToResetPassword: () => ref.read(_loggedOutViewProvider.notifier).state =
+                    _LoggedOutView.resetPassword,
+              );
+            case _LoggedOutView.resetPassword:
+              return const ResetPasswordScreen();
+          }
+        }
+
+        if (!user.emailVerified) {
+          return VerifyEmailScreen(
+            onVerified: () => ref.invalidate(authStateProvider),
+          );
+        }
+
+        // Prochaine étape (docs/suivi-developpement.md) : questionnaire de
+        // filtrage avant d'arriver ici, puis création du profil.
+        return const PlaceholderHomeScreen();
+      },
+    );
+  }
+}
