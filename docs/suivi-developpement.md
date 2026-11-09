@@ -48,9 +48,12 @@ Checklist de toutes les parties du cahier des charges et des règles, pour qu'au
 
 ## 4.3 Test de compatibilité kamite
 
-- [ ] Questionnaire (5 thèmes)
-- [ ] Cloud Function de calcul (formule précise, regles-economie-et-compatibilite.md section 2)
-- [ ] Recalcul automatique si modification des réponses
+- [x] Questionnaire (5 thèmes, reformulé en affirmations notées 1-5 — voir docs/banque-questions-compatibilite.md)
+- [x] Cloud Function de calcul (formule précise, pondération, seuil de couverture par thème, anti-triche par validation des valeurs)
+- [x] Recalcul automatique si modification des réponses (le score est recalculé à chaque appel, jamais mis en cache côté serveur pour l'instant — donc toujours à jour par construction)
+- [ ] Banque de questions **chargée dans Firestore** (contenu rédigé, pas encore importé — même situation que le filtrage)
+- [ ] Contrôle de visibilité des réponses par l'utilisateur (section 4.3 du cahier des charges le permet, pas encore construit — réponses jamais visibles par les autres de toute façon, donc non bloquant)
+- [x] Revue indépendante passée (2026-11-09) : réponses non validées (valeurs hors échelle) et absence de retour d'erreur à la sauvegarde, corrigés
 
 ## 4.4 Découvrir
 
