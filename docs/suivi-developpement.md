@@ -108,7 +108,12 @@ Checklist de toutes les parties du cahier des charges et des règles, pour qu'au
 - [ ] Transparence sur le renouvellement automatique avant achat — pas d'écran dédié, à ajouter dans l'UI du PremiumScreen
 - [x] Jetons à l'unité (achat consommable, relance d'un profil passé via `useJetonToResurface`, un seul rachat par profil)
 - [ ] Boost (30 min, 1x/semaine Premium) — pas construit
-- [ ] Espace admin complet (section 6 du cahier des charges) : utilisateurs, suspensions, signalements, modération photos/annonces, événements, abonnements, statistiques, journaux — **rien construit**, tout le contenu `pending_review` (annonces douteuses, tous les événements) et tous les `moderation_requests` (signalements) n'ont aujourd'hui aucune interface pour être traités
+- [x] Espace admin minimal (section 6) : traitement des signalements (classer/avertir/suspendre), des révisions de filtrage (activer/maintenir le refus), validation/refus des annonces et événements en attente
+- [ ] Rôle admin : custom claim Firebase Auth `admin: true` à poser **manuellement** sur le premier compte (console Firebase/Admin SDK) — aucune fonction ne le fait, volontairement (pas de façon de "s'auto-nommer admin" depuis l'app)
+- [ ] Gestion des utilisateurs (lister/consulter un profil depuis l'admin) — pas construit
+- [ ] Gestion des abonnements, statistiques, journaux d'activité détaillés — pas construits (chaque action admin trace déjà qui/quand/quoi sur le document concerné, mais pas de vue d'ensemble dédiée)
+- [ ] Modération photo — sans objet tant que Storage n'est pas activé
+- [x] Revue indépendante passée (2026-11-09) : index Firestore manquants (les fonctions auraient toutes échoué), confusion entre signalement et révision de filtrage, délai de relance non réinitialisé après une révision admin — toutes corrigées
 - [x] Revue indépendante passée (2026-11-09) : jeton de paiement réutilisable entre comptes (faille), achat finalisé à tort en cas d'erreur transitoire, écriture inutile pour les membres Premium — toutes corrigées
 
 ## RGPD / légal (transverse, à ne pas traiter en dernier)
