@@ -8,21 +8,22 @@ Checklist de toutes les parties du cahier des charges et des règles, pour qu'au
 - [x] Firebase connecté (projet djama-1c7f8), règles Firestore/Storage par défaut déployées
 - [x] Squelette Cloud Functions
 - [ ] Firebase Storage activé (action manuelle requise — console web, région à choisir)
-- [~] Navigation (go_router) avec gardes (onboarding → auth → filtrage → app)
+- [x] Navigation de premier niveau (AuthGate : onboarding → auth → vérification e-mail → app). go_router à brancher pour la navigation interne (Découvrir/Likes/Messages/Communauté) à l'étape suivante.
 - [ ] Firebase App Check (anti-bot, section 2 regles-du-projet.md)
 - [ ] Projets Firebase séparés dev/staging/prod (actuellement un seul projet — à faire avant la mise en production réelle)
+- [ ] SHA-1 de signature enregistré dans Firebase (nécessaire pour que Google Sign-In fonctionne réellement sur Android — action à faire au moment des tests sur appareil)
 
 ## 4.1 Authentification
 
-- [~] Inscription par e-mail
-- [ ] Connexion par e-mail
-- [ ] Connexion Google
-- [ ] Connexion Apple
-- [ ] Vérification de l'adresse e-mail
-- [ ] Réinitialisation du mot de passe
-- [ ] Validation de l'âge minimum (case à cocher + badge vérifié plus tard)
-- [ ] Acceptation CGU/charte (écran déjà prototypé)
-- [ ] Suppression du compte (Cloud Function, anonymisation RGPD)
+- [x] Inscription par e-mail (+ validation 8 caractères, case "18 ans ou plus")
+- [x] Connexion par e-mail
+- [x] Connexion Google (code en place — nécessite le SHA-1 enregistré pour fonctionner sur appareil réel)
+- [x] Connexion Apple (code en place — nécessite un compte Apple Developer pour fonctionner réellement)
+- [x] Vérification de l'adresse e-mail (écran d'attente avec rafraîchissement automatique)
+- [x] Réinitialisation du mot de passe
+- [x] Validation de l'âge minimum (case à cocher) — badge vérifié d'identité à faire plus tard
+- [x] Acceptation CGU/charte (écran onboarding réel, fidèle au prototype)
+- [ ] Suppression du compte — code client prêt (`AuthRepository.deleteAccount`), la Cloud Function `deleteAccount` (anonymisation RGPD) reste à écrire
 
 ## Filtrage à l'inscription (regles-du-projet.md section 1)
 
