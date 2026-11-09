@@ -6,6 +6,8 @@ import '../../features/auth/presentation/screens/reset_password_screen.dart';
 import '../../features/auth/presentation/screens/sign_in_screen.dart';
 import '../../features/auth/presentation/screens/sign_up_screen.dart';
 import '../../features/auth/presentation/screens/verify_email_screen.dart';
+import '../../features/filtrage/presentation/screens/filtrage_pending_screen.dart';
+import '../../features/filtrage/presentation/screens/filtrage_screen.dart';
 import '../../features/onboarding/presentation/screens/onboarding_screen.dart';
 import '../../features/onboarding/presentation/screens/placeholder_home_screen.dart';
 import '../providers/firebase_providers.dart';
@@ -60,9 +62,24 @@ class AuthGate extends ConsumerWidget {
           );
         }
 
-        // Prochaine étape (docs/suivi-developpement.md) : questionnaire de
-        // filtrage avant d'arriver ici, puis création du profil.
-        return const PlaceholderHomeScreen();
+        final statusAsync = ref.watch(userStatusProvider);
+        return statusAsync.when(
+          loading: () => const Scaffold(body: Center(child: CircularProgressIndicator())),
+          error: (e, st) => Scaffold(body: Center(child: Text('Erreur : $e'))),
+          data: (status) {
+            final filtrageStatus = status?['filtrageStatus'] as String?;
+            if (filtrageStatus == 'active') {
+              return const PlaceholderHomeScreen();
+            }
+            if (filtrageStatus == 'rejected_pending_retry' || filtrageStatus == 'review_requested') {
+              return FiltragePendingScreen(status: status!);
+            }
+            // Pas encore de statut, ou tentative en cours : le questionnaire
+            // gère lui-même son propre état interne (intro → questions →
+            // résultat), voir filtrage_controller.dart.
+            return const FiltrageScreen();
+          },
+        );
       },
     );
   }

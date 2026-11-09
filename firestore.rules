@@ -25,6 +25,35 @@ service cloud.firestore {
       allow delete: if false; // la suppression de compte passe par une Cloud Function (anonymisation RGPD)
     }
 
+    // Statut d'activation du compte (filtrage, suspension, premium...).
+    // Lisible par son propriétaire pour afficher l'état à l'écran,
+    // jamais modifiable depuis le client — uniquement par les Cloud
+    // Functions via l'Admin SDK (docs/regles-du-projet.md section 1 et 2).
+    match /user_status/{userId} {
+      allow read: if isOwner(userId);
+      allow write: if false;
+    }
+
+    // Tentatives du questionnaire de filtrage : jamais de lecture/écriture
+    // directe. Le client ne voit les questions (sans la bonne réponse) et
+    // le résultat qu'à travers les Cloud Functions appelables.
+    match /filtrage_attempts/{attemptId} {
+      allow read, write: if false;
+    }
+
+    // Banque de questions : jamais accessible au client (ni les questions,
+    // pour éviter le bourrage, ni évidemment les bonnes réponses).
+    match /filtrage_question_bank/{questionId} {
+      allow read, write: if false;
+    }
+
+    // Demandes de révision humaine (filtrage, signalements...) : jamais
+    // lues/écrites directement, uniquement via Cloud Functions, l'espace
+    // admin y accède avec les droits serveur.
+    match /moderation_requests/{requestId} {
+      allow read, write: if false;
+    }
+
     // Tout le reste (matchs, messages, annonces, événements, jetons,
     // signalements, admin) est ajouté au fur et à mesure de leur
     // implémentation, jamais ouvert "par défaut".
