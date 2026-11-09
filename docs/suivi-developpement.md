@@ -7,6 +7,8 @@ Checklist de toutes les parties du cahier des charges et des règles, pour qu'au
 - [x] Projet Flutter créé, structure par fonctionnalité, Riverpod, thème
 - [x] Firebase connecté (projet djama-1c7f8), règles Firestore/Storage par défaut déployées
 - [x] Squelette Cloud Functions
+- [x] **L'APK Android compile avec succès** (`flutter build apk --debug`, 2026-11-09) — minSdk 23 fixé dans android/app/build.gradle.kts (attention : l'outil de migration Gradle de Flutter peut réécrire ce fichier lors d'un futur `flutter build`, à vérifier si ça revient)
+- [ ] Plan Firebase Blaze — volontairement repoussé à la fin (décision du 2026-11-09), donc Cloud Functions pas encore déployées/testables en conditions réelles malgré le code prêt et relu
 - [ ] Firebase Storage activé (action manuelle requise — console web, région à choisir)
 - [x] Navigation de premier niveau (AuthGate : onboarding → auth → vérification e-mail → app). go_router à brancher pour la navigation interne (Découvrir/Likes/Messages/Communauté) à l'étape suivante.
 - [ ] Firebase App Check (anti-bot, section 2 regles-du-projet.md)
