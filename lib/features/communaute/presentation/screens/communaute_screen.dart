@@ -7,7 +7,7 @@ import 'create_post_screen.dart';
 import 'post_detail_screen.dart';
 
 /// Écran Communauté — fidèle au prototype visuel validé (artifact
-/// Kamalove, Communaute.dc.html).
+/// MERUT, Communaute.dc.html).
 class CommunauteScreen extends ConsumerWidget {
   const CommunauteScreen({super.key});
 

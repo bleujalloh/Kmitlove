@@ -6,7 +6,7 @@ import '../../data/likes_repository.dart';
 import '../../domain/mini_profile.dart';
 import '../likes_controller.dart';
 
-/// Écran Likes — fidèle au prototype visuel validé (artifact Kamalove,
+/// Écran Likes — fidèle au prototype visuel validé (artifact MERUT,
 /// Likes.dc.html). "Qui m'a liké" en détail est réservé à Premium (pas
 /// encore construit, voir docs/suivi-developpement.md) : en attendant,
 /// seul le nombre est affiché avec un teaser.

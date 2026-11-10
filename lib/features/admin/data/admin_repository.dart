@@ -81,4 +81,14 @@ class AdminRepository {
         .httpsCallable('adminReviewIdentityVerification')
         .call({'uid': uid, 'approve': approve});
   }
+
+  Future<List<Map<String, dynamic>>> listUsers({String? query}) async {
+    final result = await _functions.httpsCallable('adminListUsers').call({'query': query});
+    final data = result.data as Map<Object?, Object?>;
+    return (data['users'] as List).map((u) => Map<String, dynamic>.from(u as Map)).toList();
+  }
+
+  Future<void> setSuspension(String uid, bool suspend) {
+    return _functions.httpsCallable('adminSetSuspension').call({'uid': uid, 'suspend': suspend});
+  }
 }

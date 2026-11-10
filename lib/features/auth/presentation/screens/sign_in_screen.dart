@@ -57,7 +57,7 @@ class _SignInScreenState extends ConsumerState<SignInScreen> {
             ),
             const SizedBox(height: 4),
             const Text(
-              'Connecte-toi à ton compte Kamalove',
+              'Connecte-toi à ton compte MERUT',
               style: TextStyle(fontSize: 13, color: AppColors.muted),
             ),
             const SizedBox(height: 24),

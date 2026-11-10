@@ -7,6 +7,7 @@ class ChatMessage {
     required this.text,
     required this.createdAt,
     required this.readBy,
+    this.imageStoragePath,
   });
 
   final String id;
@@ -14,6 +15,9 @@ class ChatMessage {
   final String text;
   final DateTime? createdAt;
   final List<String> readBy;
+  final String? imageStoragePath;
+
+  bool get hasImage => imageStoragePath != null;
 
   factory ChatMessage.fromDoc(DocumentSnapshot<Map<String, dynamic>> doc) {
     final data = doc.data()!;
@@ -21,9 +25,10 @@ class ChatMessage {
     return ChatMessage(
       id: doc.id,
       fromUid: data['fromUid'] as String,
-      text: data['text'] as String,
+      text: data['text'] as String? ?? '',
       createdAt: ts?.toDate(),
       readBy: List<String>.from(data['readBy'] as List? ?? []),
+      imageStoragePath: data['imageStoragePath'] as String?,
     );
   }
 }

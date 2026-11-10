@@ -109,7 +109,7 @@ class _ProfilEditScreenState extends ConsumerState<ProfilEditScreen> {
     }
     if (!_isAdult(_birthDate!)) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Kamalove est réservé aux personnes de 18 ans et plus.')),
+        const SnackBar(content: Text('MERUT est réservé aux personnes de 18 ans et plus.')),
       );
       return;
     }

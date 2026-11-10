@@ -54,7 +54,19 @@ export const JETON_PACK_PRODUCTS: Record<string, number> = {
   kamalove_jetons_15: 15,
 };
 
+// Nom du sujet Pub/Sub pour les notifications temps réel Google Play
+// (RTDN) — à lier dans Play Console > Monétisation > Notifications en
+// temps réel (action manuelle, voir docs/suivi-developpement.md).
+export const PLAY_RTDN_TOPIC = "play-billing-rtdn";
+
 // docs/regles-messagerie-securite.md section 1 — délai maximal garanti
 // avant approbation automatique d'une photo, faute de modérateur
 // disponible en permanence.
 export const PHOTO_AUTO_APPROVE_HOURS = 48;
+
+// docs/regles-complementaires-concurrents.md section 3
+export const MATCH_EXPIRY_DAYS = 7;
+
+// docs/regles-annonces-evenements.md / Boost (cahier des charges section 5)
+export const BOOST_DURATION_MINUTES = 30;
+export const BOOST_FREE_WEEKLY_FOR_PREMIUM = 1;

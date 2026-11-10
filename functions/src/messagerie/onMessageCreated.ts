@@ -14,7 +14,15 @@ export const onMessageCreated = onDocumentCreated(
     const data = event.data?.data();
     if (!data) return;
 
-    const preview = typeof data.text === "string" ? data.text.slice(0, 120) : "";
+    // Une photo (sendImageMessage) a un texte vide — sans repli, la liste
+    // des conversations afficherait "Dites bonjour" comme si rien n'avait
+    // été envoyé, alors qu'une photo attend d'être vue.
+    const hasImage = typeof data.imageStoragePath === "string";
+    const preview = typeof data.text === "string" && data.text.length > 0
+      ? data.text.slice(0, 120)
+      : hasImage
+        ? "Photo"
+        : "";
 
     await event.data!.ref.parent.parent!.update({
       lastMessageAt: FieldValue.serverTimestamp(),

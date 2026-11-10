@@ -6,7 +6,7 @@ import '../../domain/candidate.dart';
 import '../decouvrir_controller.dart';
 
 /// Écran Découvrir (swipe) — fidèle au prototype visuel validé (artifact
-/// Kamalove, Decouvrir.dc.html). Le score de compatibilité par carte sera
+/// MERUT, Decouvrir.dc.html). Le score de compatibilité par carte sera
 /// branché une fois l'appel computeCompatibility relié ici (actuellement
 /// construit mais pas encore affiché à cet endroit, voir suivi-developpement.md).
 class DecouvrirScreen extends ConsumerWidget {
@@ -91,6 +91,14 @@ class DecouvrirScreen extends ConsumerWidget {
                         'Découvrir',
                         style: TextStyle(fontSize: 19, fontWeight: FontWeight.bold, color: AppColors.ink),
                       ),
+                      IconButton(
+                        icon: const Icon(Icons.tune, color: AppColors.ink),
+                        onPressed: () => showModalBottomSheet(
+                          context: context,
+                          isScrollControlled: true,
+                          builder: (_) => const _FiltersSheet(),
+                        ),
+                      ),
                     ],
                   ),
                 ),
@@ -165,8 +173,12 @@ class _CandidateCard extends StatelessWidget {
                     style: const TextStyle(fontSize: 22, fontWeight: FontWeight.bold, color: AppColors.ink),
                   ),
                   const SizedBox(height: 4),
-                  Text('${candidate.city}, ${candidate.country}',
-                      style: const TextStyle(color: AppColors.muted, fontSize: 13)),
+                  Text(
+                    candidate.distanceKm != null
+                        ? '${candidate.city}, ${candidate.country} · à ${candidate.distanceKm} km'
+                        : '${candidate.city}, ${candidate.country}',
+                    style: const TextStyle(color: AppColors.muted, fontSize: 13),
+                  ),
                   const SizedBox(height: 12),
                   Text(candidate.bio, style: const TextStyle(fontSize: 13.5, color: Color(0xFF4A4038))),
                   const SizedBox(height: 12),
@@ -192,6 +204,98 @@ class _CandidateCard extends StatelessWidget {
             ),
           ],
         ),
+      ),
+    );
+  }
+}
+
+class _FiltersSheet extends ConsumerStatefulWidget {
+  const _FiltersSheet();
+
+  @override
+  ConsumerState<_FiltersSheet> createState() => _FiltersSheetState();
+}
+
+class _FiltersSheetState extends ConsumerState<_FiltersSheet> {
+  late RangeValues _ageRange;
+  late double _distance;
+  bool _requestingLocation = false;
+
+  @override
+  void initState() {
+    super.initState();
+    final current = ref.read(discoverFiltersProvider);
+    _ageRange = RangeValues(
+      (current.minAge ?? 18).toDouble(),
+      (current.maxAge ?? 60).toDouble(),
+    );
+    _distance = current.maxDistanceKm.toDouble();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: EdgeInsets.fromLTRB(24, 20, 24, 24 + MediaQuery.of(context).viewInsets.bottom),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Text('Filtres', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+          const SizedBox(height: 18),
+          Text('Âge : ${_ageRange.start.round()} - ${_ageRange.end.round()} ans',
+              style: const TextStyle(fontWeight: FontWeight.w600)),
+          RangeSlider(
+            values: _ageRange,
+            min: 18,
+            max: 80,
+            divisions: 62,
+            activeColor: AppColors.accent,
+            onChanged: (v) => setState(() => _ageRange = v),
+          ),
+          const SizedBox(height: 10),
+          Text('Distance max : ${_distance.round()} km', style: const TextStyle(fontWeight: FontWeight.w600)),
+          Slider(
+            value: _distance,
+            min: 5,
+            max: 100,
+            divisions: 19,
+            activeColor: AppColors.accent,
+            onChanged: (v) => setState(() => _distance = v),
+          ),
+          const SizedBox(height: 6),
+          OutlinedButton.icon(
+            onPressed: _requestingLocation
+                ? null
+                : () async {
+                    setState(() => _requestingLocation = true);
+                    final ok = await ref.read(locationServiceProvider).updateMyLocation();
+                    if (mounted) setState(() => _requestingLocation = false);
+                    if (context.mounted) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(
+                          content: Text(ok
+                              ? 'Position mise à jour.'
+                              : "Position indisponible (permission refusée ?)."),
+                        ),
+                      );
+                    }
+                  },
+            icon: const Icon(Icons.my_location),
+            label: Text(_requestingLocation ? 'Localisation...' : 'Mettre à jour ma position'),
+          ),
+          const SizedBox(height: 14),
+          ElevatedButton(
+            onPressed: () {
+              ref.read(discoverFiltersProvider.notifier).state = DiscoverFilters(
+                minAge: _ageRange.start.round(),
+                maxAge: _ageRange.end.round(),
+                maxDistanceKm: _distance.round(),
+              );
+              Navigator.of(context).pop();
+            },
+            child: const Text('Appliquer'),
+          ),
+        ],
       ),
     );
   }

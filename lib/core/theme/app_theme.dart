@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
-/// Palette validée sur le prototype visuel (artifact Kamalove) :
+/// Palette validée sur le prototype visuel (artifact MERUT, anciennement
+/// "Kamalove") :
 /// fond clair, encre pour le texte, un seul accent vif.
 class AppColors {
   static const background = Color(0xFFFFFFFF);

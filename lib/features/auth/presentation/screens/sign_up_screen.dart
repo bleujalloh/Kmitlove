@@ -59,7 +59,7 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
             ),
             const SizedBox(height: 4),
             const Text(
-              'Rejoins la communauté Kamalove',
+              'Rejoins la communauté MERUT',
               style: TextStyle(fontSize: 13, color: AppColors.muted),
             ),
             const SizedBox(height: 24),

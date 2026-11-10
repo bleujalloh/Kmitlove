@@ -35,12 +35,16 @@ String readableAuthError(Object error) {
     return 'Trop de tentatives, réessaie dans quelques minutes.';
   }
   if (code.contains('operation-not-allowed')) {
-    return "La connexion par e-mail n'est pas encore activée côté serveur (à faire dans la console Firebase).";
+    return "Ce mode de connexion n'est pas encore activé côté serveur (à vérifier dans la console Firebase).";
   }
   if (code.contains('network-request-failed')) {
     return 'Pas de connexion internet, vérifie ton réseau.';
   }
-  return 'Une erreur est survenue, réessaie.';
+  // Code technique ajouté entre parenthèses seulement ici (cas non reconnu)
+  // pour qu'une simple capture d'écran suffise à diagnostiquer la suite,
+  // sans avoir besoin d'un terminal/adb logcat.
+  final shortCode = RegExp(r'firebase_auth/[a-z0-9-]+').stringMatch(code);
+  return 'Une erreur est survenue, réessaie.${shortCode != null ? ' ($shortCode)' : ''}';
 }
 
 class AuthController extends AsyncNotifier<void> {
@@ -109,6 +113,14 @@ class AuthController extends AsyncNotifier<void> {
 
   Future<void> signOut() => ref.read(authRepositoryProvider).signOut();
 }
+
+/// Déclenche une seule fois par session l'enregistrement de
+/// "dernière activité" (docs/regles-complementaires-concurrents.md
+/// section 3 — masquage des comptes inactifs). Observé (watch) depuis
+/// l'accueil pour s'exécuter dès qu'un membre atteint l'app.
+final activityHeartbeatProvider = FutureProvider<void>((ref) async {
+  await ref.read(cloudFunctionsProvider).httpsCallable('recordActivity').call();
+});
 
 final authControllerProvider = AsyncNotifierProvider<AuthController, void>(
   AuthController.new,

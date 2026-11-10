@@ -2,6 +2,7 @@ import { onSchedule } from "firebase-functions/v2/scheduler";
 import { getFirestore, Timestamp } from "firebase-admin/firestore";
 
 import { REGION, PHOTO_AUTO_APPROVE_HOURS } from "../config";
+import { updateRefsInChunks } from "../shared/batchWrite";
 
 /**
  * Approuve automatiquement toute photo encore "pending" après le délai
@@ -24,16 +25,10 @@ export const autoApprovePhotos = onSchedule(
 
     if (snap.empty) return;
 
-    // Un lot Firestore est limité à 500 écritures : on découpe plutôt
-    // que de risquer un retard indéfini si le retard de modération
-    // dépasse cette taille.
-    const chunkSize = 500;
-    for (let i = 0; i < snap.docs.length; i += chunkSize) {
-      const batch = db.batch();
-      for (const doc of snap.docs.slice(i, i + chunkSize)) {
-        batch.update(doc.ref, { status: "approved", approvedBy: "auto_delay" });
-      }
-      await batch.commit();
-    }
+    await updateRefsInChunks(
+      db,
+      snap.docs.map((d) => d.ref),
+      { status: "approved", approvedBy: "auto_delay" },
+    );
   },
 );

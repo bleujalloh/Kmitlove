@@ -11,6 +11,7 @@ import '../../../likes/presentation/screens/likes_screen.dart';
 import '../../../communaute/presentation/screens/communaute_screen.dart';
 import '../../../identite/presentation/screens/identite_screen.dart';
 import '../../../messages/presentation/screens/matches_list_screen.dart';
+import '../../../parametres/presentation/screens/parametres_screen.dart';
 import '../../../premium/presentation/screens/premium_screen.dart';
 
 /// Écran temporaire après connexion + vérification d'e-mail, en attendant
@@ -21,13 +22,16 @@ class PlaceholderHomeScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    ref.watch(activityHeartbeatProvider); // une fois par session, voir auth_controller.dart
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Kamalove'),
+        title: const Text('MERUT'),
         actions: [
           IconButton(
-            icon: const Icon(Icons.logout),
-            onPressed: () => ref.read(authControllerProvider.notifier).signOut(),
+            icon: const Icon(Icons.settings_outlined),
+            onPressed: () => Navigator.of(context).push(
+              MaterialPageRoute(builder: (_) => const ParametresScreen()),
+            ),
           ),
         ],
       ),

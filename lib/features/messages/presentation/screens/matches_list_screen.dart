@@ -6,7 +6,7 @@ import '../messages_controller.dart';
 import 'chat_screen.dart';
 
 /// Écran Messages — fidèle au prototype visuel validé (artifact
-/// Kamalove, Messages.dc.html).
+/// MERUT, Messages.dc.html).
 class MatchesListScreen extends ConsumerWidget {
   const MatchesListScreen({super.key});
 

@@ -1,5 +1,9 @@
+import 'dart:io';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:cloud_functions/cloud_functions.dart';
+import 'package:firebase_storage/firebase_storage.dart';
+import 'package:uuid/uuid.dart';
 
 import '../domain/message.dart';
 
@@ -9,10 +13,11 @@ import '../domain/message.dart';
 /// (docs/regles-messagerie-securite.md). Seul le signalement, qui doit
 /// rester anonyme pour la personne signalée, passe par une Cloud Function.
 class MessagesRepository {
-  MessagesRepository(this._firestore, this._functions);
+  MessagesRepository(this._firestore, this._functions, this._storage);
 
   final FirebaseFirestore _firestore;
   final FirebaseFunctions _functions;
+  final FirebaseStorage _storage;
 
   Stream<List<MatchSummary>> watchMatches(String uid) {
     return _firestore
@@ -62,6 +67,25 @@ class MessagesRepository {
       'createdAt': FieldValue.serverTimestamp(),
       'readBy': [fromUid],
     });
+  }
+
+  /// Photo envoyée en conversation : floutée par défaut côté affichage
+  /// tant qu'elle n'a pas été révélée (chat_screen.dart) —
+  /// docs/regles-messagerie-securite.md section 2.
+  Future<void> sendImageMessage(String matchId, String fromUid, File file) async {
+    final storagePath = 'chat_photos/$matchId/${const Uuid().v4()}.jpg';
+    await _storage.ref(storagePath).putFile(file);
+    await _firestore.collection('matches').doc(matchId).collection('messages').add({
+      'fromUid': fromUid,
+      'text': '',
+      'imageStoragePath': storagePath,
+      'createdAt': FieldValue.serverTimestamp(),
+      'readBy': [fromUid],
+    });
+  }
+
+  Future<String> getImageDownloadUrl(String storagePath) {
+    return _storage.ref(storagePath).getDownloadURL();
   }
 
   Future<void> markManyRead(String matchId, List<String> messageIds, String uid) async {

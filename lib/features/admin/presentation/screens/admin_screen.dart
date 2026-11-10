@@ -2,22 +2,56 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../../core/theme/app_theme.dart';
+import '../../../auth/presentation/auth_controller.dart';
 import '../admin_controller.dart';
 
-/// Espace admin minimal (cahier des charges section 6) : traitement des
-/// signalements/révisions de filtrage et des annonces/événements en
-/// attente. Ne couvre pas tout (pas de gestion des utilisateurs, des
-/// abonnements, ni de statistiques) — voir docs/suivi-developpement.md.
+/// Espace admin (cahier des charges section 6) : signalements, révisions
+/// de filtrage, annonces/événements en attente, photos, vérification
+/// d'identité et gestion des utilisateurs. Ne couvre pas encore les
+/// abonnements ni les statistiques — voir docs/suivi-developpement.md.
 class AdminScreen extends ConsumerWidget {
   const AdminScreen({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     return DefaultTabController(
-      length: 4,
+      length: 5,
       child: Scaffold(
         appBar: AppBar(
           title: const Text('Administration'),
+          actions: [
+            Consumer(
+              builder: (context, ref, _) => IconButton(
+                tooltip: 'Charger les banques de questions',
+                icon: const Icon(Icons.cloud_upload_outlined),
+                onPressed: () async {
+                  try {
+                    final result = await ref
+                        .read(cloudFunctionsProvider)
+                        .httpsCallable('adminSeedQuestionBanks')
+                        .call();
+                    final data = result.data as Map<Object?, Object?>;
+                    if (context.mounted) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(
+                          content: Text(
+                            'Banques chargées : ${data['filtrageCount']} questions de filtrage, '
+                            '${data['compatCount']} de compatibilité.',
+                          ),
+                        ),
+                      );
+                    }
+                  } catch (_) {
+                    if (context.mounted) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(content: Text('Échec du chargement, réessaie.')),
+                      );
+                    }
+                  }
+                },
+              ),
+            ),
+          ],
           bottom: const TabBar(
             isScrollable: true,
             tabs: [
@@ -25,11 +59,18 @@ class AdminScreen extends ConsumerWidget {
               Tab(text: 'Publications'),
               Tab(text: 'Photos'),
               Tab(text: 'Identité'),
+              Tab(text: 'Utilisateurs'),
             ],
           ),
         ),
         body: const TabBarView(
-          children: [_ModerationTab(), _PendingPostsTab(), _PendingPhotosTab(), _IdentityTab()],
+          children: [
+            _ModerationTab(),
+            _PendingPostsTab(),
+            _PendingPhotosTab(),
+            _IdentityTab(),
+            _UsersTab(),
+          ],
         ),
       ),
     );
@@ -277,6 +318,66 @@ class _IdentityTab extends ConsumerWidget {
           },
         );
       },
+    );
+  }
+}
+
+class _UsersTab extends ConsumerWidget {
+  const _UsersTab();
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final usersAsync = ref.watch(adminUsersProvider);
+    return Column(
+      children: [
+        Padding(
+          padding: const EdgeInsets.all(16),
+          child: TextField(
+            decoration: const InputDecoration(
+              labelText: 'Rechercher par prénom/pseudonyme',
+              prefixIcon: Icon(Icons.search),
+            ),
+            onSubmitted: (v) => ref.read(adminUserSearchProvider.notifier).state = v,
+          ),
+        ),
+        Expanded(
+          child: usersAsync.when(
+            loading: () => const Center(child: CircularProgressIndicator()),
+            error: (e, st) => const Center(child: Text('Impossible de charger les membres.')),
+            data: (users) {
+              if (users.isEmpty) return const Center(child: Text('Aucun membre trouvé.'));
+              return ListView.separated(
+                itemCount: users.length,
+                separatorBuilder: (_, _) => const Divider(height: 1),
+                itemBuilder: (context, i) {
+                  final u = users[i];
+                  final suspended = u['filtrageStatus'] == 'suspended';
+                  return ListTile(
+                    title: Text(u['displayName'] as String? ?? ''),
+                    subtitle: Text(
+                      '${u['city'] ?? ''}, ${u['country'] ?? ''} — ${u['filtrageStatus'] ?? 'inconnu'}'
+                      '${u['isPremium'] == true ? ' · Premium' : ''}'
+                      '${u['isVerified'] == true ? ' · Vérifié' : ''}',
+                    ),
+                    trailing: TextButton(
+                      onPressed: () async {
+                        await ref
+                            .read(adminRepositoryProvider)
+                            .setSuspension(u['uid'] as String, !suspended);
+                        ref.invalidate(adminUsersProvider);
+                      },
+                      style: TextButton.styleFrom(
+                        foregroundColor: suspended ? Colors.green : AppColors.accent,
+                      ),
+                      child: Text(suspended ? 'Réactiver' : 'Suspendre'),
+                    ),
+                  );
+                },
+              );
+            },
+          ),
+        ),
+      ],
     );
   }
 }

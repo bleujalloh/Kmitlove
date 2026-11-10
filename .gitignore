@@ -43,6 +43,7 @@ app.*.map.json
 /android/app/debug
 /android/app/profile
 /android/app/release
+/android/.kotlin/
 
 # Secrets — jamais dans le dépôt (voir docs/regles-du-projet.md section 2)
 *serviceAccountKey*.json

@@ -20,6 +20,19 @@ service firebase.storage {
                    && request.resource.size < 10 * 1024 * 1024;
     }
 
+    // Photos échangées en messagerie : lisibles/déposables uniquement
+    // par les deux membres du match concerné (docs/regles-messagerie-securite.md
+    // section 2). Le flou par défaut à la première réception est géré
+    // côté client (pas de notion de statut ici), voir chat_screen.dart.
+    match /chat_photos/{matchId}/{fileName} {
+      function isMatchMember() {
+        return request.auth != null && request.auth.uid in
+          firestore.get(/databases/(default)/documents/matches/$(matchId)).data.members;
+      }
+      allow read: if isMatchMember();
+      allow write: if isMatchMember() && request.resource.size < 10 * 1024 * 1024;
+    }
+
     // Pièce de vérification d'identité (selfie/vidéo, docs/regles-complementaires-concurrents.md
     // section 1) : jamais visible par un autre membre, seule la Cloud
     // Function de revue admin y accède (Admin SDK, hors de ces règles).

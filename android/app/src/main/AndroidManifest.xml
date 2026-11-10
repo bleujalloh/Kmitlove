@@ -1,6 +1,12 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- Distance approximative dans Découvrir (cahier des charges 4.4) —
+         jamais la position exacte, jamais en arrière-plan (pas de
+         ACCESS_BACKGROUND_LOCATION, contrairement au suivi passif de
+         Happn qu'on a explicitement exclu, voir regles-complementaires-concurrents.md). -->
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION"/>
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION"/>
     <application
-        android:label="kamalove"
+        android:label="MERUT"
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher">
         <activity

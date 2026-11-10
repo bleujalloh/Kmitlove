@@ -1,11 +1,25 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_riverpod/legacy.dart';
 
 import '../../auth/presentation/auth_controller.dart';
 import '../data/decouvrir_repository.dart';
+import '../data/location_service.dart';
 import '../domain/candidate.dart';
 
 final decouvrirRepositoryProvider = Provider<DecouvrirRepository>((ref) {
   return DecouvrirRepository(ref.watch(cloudFunctionsProvider));
+});
+
+final locationServiceProvider = Provider<LocationService>((ref) {
+  return LocationService(ref.watch(cloudFunctionsProvider));
+});
+
+/// Filtres manuels de Découvrir (docs/regles-complementaires-concurrents.md
+/// section 3) — tranche d'âge et distance. Réinitialisés à chaque
+/// lancement de l'app ; la persistance (les garder d'une session à
+/// l'autre) pourra être ajoutée plus tard si besoin.
+final discoverFiltersProvider = StateProvider<DiscoverFilters>((ref) {
+  return const DiscoverFilters();
 });
 
 class DecouvrirState {
@@ -32,7 +46,8 @@ class DecouvrirController extends AsyncNotifier<DecouvrirState> {
 
   @override
   Future<DecouvrirState> build() async {
-    final candidates = await ref.read(decouvrirRepositoryProvider).getCandidates();
+    final filters = ref.watch(discoverFiltersProvider);
+    final candidates = await ref.read(decouvrirRepositoryProvider).getCandidates(filters);
     return DecouvrirState(candidates: candidates);
   }
 
@@ -65,7 +80,8 @@ class DecouvrirController extends AsyncNotifier<DecouvrirState> {
   Future<void> refresh() async {
     state = const AsyncLoading();
     try {
-      final candidates = await ref.read(decouvrirRepositoryProvider).getCandidates();
+      final filters = ref.read(discoverFiltersProvider);
+      final candidates = await ref.read(decouvrirRepositoryProvider).getCandidates(filters);
       state = AsyncData(DecouvrirState(candidates: candidates));
     } catch (e, st) {
       state = AsyncError(e, st);

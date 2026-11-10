@@ -1,3 +1,6 @@
+import 'dart:io';
+
+import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../core/providers/firebase_providers.dart';
@@ -6,7 +9,18 @@ import '../data/messages_repository.dart';
 import '../domain/message.dart';
 
 final messagesRepositoryProvider = Provider<MessagesRepository>((ref) {
-  return MessagesRepository(ref.watch(firestoreProvider), ref.watch(cloudFunctionsProvider));
+  return MessagesRepository(
+    ref.watch(firestoreProvider),
+    ref.watch(cloudFunctionsProvider),
+    FirebaseStorage.instance,
+  );
+});
+
+/// Mise en cache de l'URL de téléchargement d'une photo de message, par
+/// chemin Storage — même raisonnement que pour les photos de profil
+/// (profil/presentation/photo_controller.dart).
+final messageImageUrlProvider = FutureProvider.family<String, String>((ref, storagePath) {
+  return ref.watch(messagesRepositoryProvider).getImageDownloadUrl(storagePath);
 });
 
 final matchesProvider = StreamProvider<List<MatchSummary>>((ref) {
@@ -39,6 +53,12 @@ class MessagesController {
     final user = ref.read(firebaseAuthProvider).currentUser;
     if (user == null || text.trim().isEmpty) return;
     await ref.read(messagesRepositoryProvider).sendMessage(matchId, user.uid, text.trim());
+  }
+
+  Future<void> sendImage(String matchId, File file) async {
+    final user = ref.read(firebaseAuthProvider).currentUser;
+    if (user == null) return;
+    await ref.read(messagesRepositoryProvider).sendImageMessage(matchId, user.uid, file);
   }
 
   Future<void> markManyRead(String matchId, List<String> messageIds) async {

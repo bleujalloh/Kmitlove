@@ -7,7 +7,7 @@ import 'filtrage_intro_screen.dart';
 import 'filtrage_result_screen.dart';
 
 /// Écran du questionnaire de filtrage — fidèle au prototype visuel validé
-/// (artifact Kamalove, Questionnaire.dc.html), étendu à plusieurs questions.
+/// (artifact MERUT, Questionnaire.dc.html), étendu à plusieurs questions.
 class FiltrageScreen extends ConsumerWidget {
   const FiltrageScreen({super.key});
 

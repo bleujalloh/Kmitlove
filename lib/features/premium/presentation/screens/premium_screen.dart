@@ -1,16 +1,38 @@
+import 'package:cloud_functions/cloud_functions.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../../core/theme/app_theme.dart';
+import '../../../auth/presentation/auth_controller.dart';
 import '../premium_controller.dart';
 
 /// Écran Premium / jetons (cahier des charges section 5). Les produits
 /// n'apparaîtront que lorsque les fiches seront créées dans Google Play
-/// Console / App Store Connect (pas encore fait, comptes développeur pas
-/// ouverts — docs/suivi-developpement.md) : écran fonctionnel mais vide
-/// tant que ce n'est pas configuré, ce n'est pas un bug.
+/// Console / App Store Connect (pas encore fait — docs/suivi-developpement.md) :
+/// écran fonctionnel mais vide tant que ce n'est pas configuré, ce n'est
+/// pas un bug.
 class PremiumScreen extends ConsumerWidget {
   const PremiumScreen({super.key});
+
+  Future<void> _activateBoost(BuildContext context, WidgetRef ref) async {
+    try {
+      await ref.read(cloudFunctionsProvider).httpsCallable('activateBoost').call();
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Boost activé pour 30 minutes !')),
+        );
+      }
+    } on FirebaseFunctionsException catch (e) {
+      if (context.mounted) {
+        final message = e.code == 'permission-denied'
+            ? 'Le Boost est réservé aux membres Premium.'
+            : e.code == 'resource-exhausted'
+                ? 'Ton Boost gratuit de la semaine a déjà été utilisé.'
+                : 'Impossible d\'activer le Boost, réessaie.';
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(message)));
+      }
+    }
+  }
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -19,55 +41,92 @@ class PremiumScreen extends ConsumerWidget {
 
     return Scaffold(
       appBar: AppBar(title: const Text('Premium & jetons')),
-      body: productsAsync.when(
-        loading: () => const Center(child: CircularProgressIndicator()),
-        error: (e, st) => const Center(child: Text('Boutique indisponible pour le moment.')),
-        data: (products) {
-          if (products.isEmpty) {
-            return const Center(
-              child: Padding(
-                padding: EdgeInsets.all(24),
-                child: Text(
-                  "Aucune offre disponible pour l'instant.",
-                  textAlign: TextAlign.center,
-                  style: TextStyle(color: AppColors.muted),
-                ),
+      body: Column(
+        children: [
+          Padding(
+            padding: const EdgeInsets.fromLTRB(20, 16, 20, 4),
+            child: Container(
+              padding: const EdgeInsets.all(16),
+              decoration: BoxDecoration(
+                color: AppColors.accentSoft,
+                borderRadius: BorderRadius.circular(16),
               ),
-            );
-          }
-          return ListView.separated(
-            padding: const EdgeInsets.all(20),
-            itemCount: products.length,
-            separatorBuilder: (_, _) => const SizedBox(height: 12),
-            itemBuilder: (context, i) {
-              final product = products[i];
-              return Container(
-                padding: const EdgeInsets.all(16),
-                decoration: BoxDecoration(
-                  border: Border.all(color: AppColors.border),
-                  borderRadius: BorderRadius.circular(16),
-                ),
-                child: Row(
-                  children: [
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(product.title, style: const TextStyle(fontWeight: FontWeight.bold)),
-                          Text(product.description, style: const TextStyle(fontSize: 12, color: AppColors.muted)),
-                        ],
+              child: Row(
+                children: [
+                  const Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text('Boost', style: TextStyle(fontWeight: FontWeight.bold)),
+                        Text(
+                          '30 minutes de visibilité prioritaire, inclus 1x/semaine en Premium',
+                          style: TextStyle(fontSize: 12, color: AppColors.muted),
+                        ),
+                      ],
+                    ),
+                  ),
+                  ElevatedButton(
+                    onPressed: () => _activateBoost(context, ref),
+                    child: const Text('Activer'),
+                  ),
+                ],
+              ),
+            ),
+          ),
+          Expanded(
+            child: productsAsync.when(
+              loading: () => const Center(child: CircularProgressIndicator()),
+              error: (e, st) => const Center(child: Text('Boutique indisponible pour le moment.')),
+              data: (products) {
+                if (products.isEmpty) {
+                  return const Center(
+                    child: Padding(
+                      padding: EdgeInsets.all(24),
+                      child: Text(
+                        "Aucune offre d'abonnement disponible pour l'instant.",
+                        textAlign: TextAlign.center,
+                        style: TextStyle(color: AppColors.muted),
                       ),
                     ),
-                    ElevatedButton(
-                      onPressed: () => ref.read(premiumRepositoryProvider).buy(product),
-                      child: Text(product.price),
-                    ),
-                  ],
-                ),
-              );
-            },
-          );
-        },
+                  );
+                }
+                return ListView.separated(
+                  padding: const EdgeInsets.all(20),
+                  itemCount: products.length,
+                  separatorBuilder: (_, _) => const SizedBox(height: 12),
+                  itemBuilder: (context, i) {
+                    final product = products[i];
+                    return Container(
+                      padding: const EdgeInsets.all(16),
+                      decoration: BoxDecoration(
+                        border: Border.all(color: AppColors.border),
+                        borderRadius: BorderRadius.circular(16),
+                      ),
+                      child: Row(
+                        children: [
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(product.title, style: const TextStyle(fontWeight: FontWeight.bold)),
+                                Text(product.description,
+                                    style: const TextStyle(fontSize: 12, color: AppColors.muted)),
+                              ],
+                            ),
+                          ),
+                          ElevatedButton(
+                            onPressed: () => ref.read(premiumRepositoryProvider).buy(product),
+                            child: Text(product.price),
+                          ),
+                        ],
+                      ),
+                    );
+                  },
+                );
+              },
+            ),
+          ),
+        ],
       ),
     );
   }

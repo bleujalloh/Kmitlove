@@ -26,7 +26,7 @@ class FiltrageIntroScreen extends ConsumerWidget {
                 ),
                 const SizedBox(height: 12),
                 const Text(
-                  "Avant d'accéder à Kamalove, quelques questions sur la culture, l'histoire et les valeurs kamites. Jamais sur ton apparence ou ton origine.",
+                  "Avant d'accéder à MERUT, quelques questions sur la culture, l'histoire et les valeurs kamites. Jamais sur ton apparence ou ton origine.",
                   textAlign: TextAlign.center,
                   style: TextStyle(color: AppColors.muted, height: 1.5),
                 ),

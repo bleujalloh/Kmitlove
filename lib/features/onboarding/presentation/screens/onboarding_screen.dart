@@ -4,7 +4,7 @@ import '../../../../core/theme/app_theme.dart';
 import '../../../../core/widgets/kamite_motif.dart';
 
 /// Écran d'accueil et charte communautaire — fidèle au prototype visuel
-/// validé (artifact Kamalove, Main.dc.html).
+/// validé (artifact MERUT, Main.dc.html).
 class OnboardingScreen extends StatefulWidget {
   const OnboardingScreen({super.key, required this.onAccepted});
 
@@ -35,7 +35,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                   const KamiteMotif(height: 150),
                   const SizedBox(height: 8),
                   Text(
-                    'Kamalove',
+                    'MERUT',
                     style: Theme.of(context).textTheme.headlineSmall?.copyWith(
                           fontWeight: FontWeight.bold,
                           color: AppColors.ink,

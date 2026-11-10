@@ -1,4 +1,5 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_riverpod/legacy.dart';
 
 import '../../../core/providers/firebase_providers.dart';
 import '../../auth/presentation/auth_controller.dart';
@@ -33,4 +34,11 @@ final pendingPhotosProvider = FutureProvider.autoDispose<List<Map<String, dynami
 final pendingIdentityVerificationsProvider =
     FutureProvider.autoDispose<List<Map<String, dynamic>>>((ref) {
   return ref.read(adminRepositoryProvider).listIdentityVerifications();
+});
+
+final adminUserSearchProvider = StateProvider.autoDispose<String>((ref) => '');
+
+final adminUsersProvider = FutureProvider.autoDispose<List<Map<String, dynamic>>>((ref) {
+  final query = ref.watch(adminUserSearchProvider);
+  return ref.read(adminRepositoryProvider).listUsers(query: query.isEmpty ? null : query);
 });

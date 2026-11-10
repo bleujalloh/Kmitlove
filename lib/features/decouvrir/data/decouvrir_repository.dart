@@ -11,8 +11,10 @@ class DecouvrirRepository {
 
   final FirebaseFunctions _functions;
 
-  Future<List<Candidate>> getCandidates() async {
-    final result = await _functions.httpsCallable('getDiscoverCandidates').call();
+  Future<List<Candidate>> getCandidates([DiscoverFilters? filters]) async {
+    final result = await _functions
+        .httpsCallable('getDiscoverCandidates')
+        .call(filters?.toMap() ?? const {});
     final data = result.data as Map<Object?, Object?>;
     final list = data['candidates'] as List;
     return list

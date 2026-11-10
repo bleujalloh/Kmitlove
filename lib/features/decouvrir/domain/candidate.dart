@@ -8,6 +8,7 @@ class Candidate {
     required this.bio,
     required this.interests,
     required this.relationshipIntent,
+    this.distanceKm,
   });
 
   final String uid;
@@ -18,6 +19,7 @@ class Candidate {
   final String bio;
   final List<String> interests;
   final String relationshipIntent;
+  final int? distanceKm;
 
   factory Candidate.fromMap(Map<String, dynamic> map) => Candidate(
         uid: map['uid'] as String,
@@ -28,5 +30,26 @@ class Candidate {
         bio: map['bio'] as String,
         interests: List<String>.from(map['interests'] as List? ?? []),
         relationshipIntent: map['relationshipIntent'] as String,
+        distanceKm: (map['distanceKm'] as num?)?.toInt(),
+      );
+}
+
+class DiscoverFilters {
+  const DiscoverFilters({this.minAge, this.maxAge, this.maxDistanceKm = 100});
+
+  final int? minAge;
+  final int? maxAge;
+  final int maxDistanceKm;
+
+  Map<String, dynamic> toMap() => {
+        if (minAge != null) 'minAge': minAge,
+        if (maxAge != null) 'maxAge': maxAge,
+        'maxDistanceKm': maxDistanceKm,
+      };
+
+  DiscoverFilters copyWith({int? minAge, int? maxAge, int? maxDistanceKm}) => DiscoverFilters(
+        minAge: minAge ?? this.minAge,
+        maxAge: maxAge ?? this.maxAge,
+        maxDistanceKm: maxDistanceKm ?? this.maxDistanceKm,
       );
 }
