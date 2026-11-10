@@ -37,6 +37,22 @@ class DecouvrirScreen extends ConsumerWidget {
     });
 
     return Scaffold(
+      // Sans AppBar, ni bouton retour automatique ni titre cohérent avec
+      // le reste de l'app — seul écran dans ce cas, bug remonté sur
+      // appareil réel le 11/11.
+      appBar: AppBar(
+        title: Text(context.l10n.navDiscover),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.tune),
+            onPressed: () => showModalBottomSheet(
+              context: context,
+              isScrollControlled: true,
+              builder: (_) => const _FiltersSheet(),
+            ),
+          ),
+        ],
+      ),
       body: SafeArea(
         child: state.when(
           loading: () => const Center(child: CircularProgressIndicator()),
@@ -82,26 +98,7 @@ class DecouvrirScreen extends ConsumerWidget {
             final candidate = data.candidates.first;
             return Column(
               children: [
-                Padding(
-                  padding: const EdgeInsets.fromLTRB(20, 4, 20, 10),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Text(
-                        context.l10n.navDiscover,
-                        style: const TextStyle(fontSize: 19, fontWeight: FontWeight.bold, color: AppColors.ink),
-                      ),
-                      IconButton(
-                        icon: const Icon(Icons.tune, color: AppColors.ink),
-                        onPressed: () => showModalBottomSheet(
-                          context: context,
-                          isScrollControlled: true,
-                          builder: (_) => const _FiltersSheet(),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
+                const SizedBox(height: 10),
                 Expanded(child: _CandidateCard(candidate: candidate)),
                 Padding(
                   padding: const EdgeInsets.fromLTRB(20, 6, 20, 24),
