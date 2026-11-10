@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../../core/theme/app_theme.dart';
 import '../../../../l10n/l10n_extensions.dart';
+import '../../../auth/presentation/auth_controller.dart';
 import '../filtrage_controller.dart';
 import 'filtrage_intro_screen.dart';
 import 'filtrage_result_screen.dart';
@@ -43,6 +44,15 @@ class FiltrageScreen extends ConsumerWidget {
                 ElevatedButton(
                   onPressed: () => ref.read(filtrageControllerProvider.notifier).startAttempt(),
                   child: Text(context.l10n.retryButton),
+                ),
+                const SizedBox(height: 12),
+                // Sans ça, un échec persistant (ex. banque de questions
+                // vide côté serveur) enfermait le membre sur cet écran
+                // sans aucune issue — ni retour, ni déconnexion possible
+                // (bug remonté sur appareil réel le 11/11).
+                TextButton(
+                  onPressed: () => ref.read(authControllerProvider.notifier).signOut(),
+                  child: Text(context.l10n.signOut),
                 ),
               ],
             ),
