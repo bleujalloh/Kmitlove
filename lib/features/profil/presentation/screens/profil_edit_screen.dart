@@ -90,11 +90,21 @@ class _ProfilEditScreenState extends ConsumerState<ProfilEditScreen> {
   }
 
   Future<void> _pickBirthDate() async {
+    // Bug remonté sur appareil réel (11/11) : le sélecteur proposait des
+    // dates jusqu'à aujourd'hui, alors que seules les dates donnant 18
+    // ans ou plus sont jamais acceptées à la validation (_isAdult
+    // ci-dessus) — mieux vaut ne jamais proposer une date qu'on refusera
+    // de toute façon après coup.
+    final eighteenYearsAgo = DateTime(
+      DateTime.now().year - 18,
+      DateTime.now().month,
+      DateTime.now().day,
+    );
     final picked = await showDatePicker(
       context: context,
       initialDate: _birthDate ?? DateTime(2000, 1, 1),
       firstDate: DateTime(1920),
-      lastDate: DateTime.now(),
+      lastDate: eighteenYearsAgo,
     );
     if (picked != null) setState(() => _birthDate = picked);
   }
