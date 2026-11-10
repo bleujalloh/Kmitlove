@@ -87,7 +87,8 @@
 
   "filtrageIntroTitle": "Vérification d'engagement",
   "filtrageIntroBody": "Avant d'accéder à MERUT, quelques questions sur la culture, l'histoire et les valeurs kamites. Jamais sur ton apparence ou ton origine.",
-  "filtrageStartFailed": "Impossible de démarrer le questionnaire pour le moment.",
+  "filtrageStartFailedWithCode": "Impossible de démarrer le questionnaire pour le moment. ({code})",
+  "@filtrageStartFailedWithCode": {"placeholders": {"code": {"type": "String"}}},
   "filtrageHeaderTitle": "VÉRIFICATION D'ENGAGEMENT",
   "questionCounter": "Question {current}/{total}",
   "@questionCounter": {"placeholders": {"current": {"type": "int"}, "total": {"type": "int"}}},
@@ -369,5 +370,10 @@
   "showReadReceiptsTitle": "Indicateur de lecture",
   "showReadReceiptsHint": "Montrer aux autres quand tu as lu leurs messages (réciproque : désactivé aussi de leur côté)",
   "compatVisibilityTitle": "Visibilité du score de compatibilité",
-  "compatVisibilityHint": "Autoriser les autres membres à voir un score de compatibilité avec toi sur Découvrir"
+  "compatVisibilityHint": "Autoriser les autres membres à voir un score de compatibilité avec toi sur Découvrir",
+
+  "confirmAdultDialogTitle": "Confirmation d'âge",
+  "confirmAdultDialogBody": "MERUT est réservé aux personnes de 18 ans et plus. Confirmes-tu avoir 18 ans ou plus ?",
+  "confirmAdultDialogDecline": "Non, annuler",
+  "confirmAdultDialogAccept": "Oui, je confirme"
 }

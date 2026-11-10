@@ -82,7 +82,7 @@
 
   "filtrageIntroTitle": "Commitment check",
   "filtrageIntroBody": "Before accessing MERUT, a few questions about kamite culture, history and values. Never about your appearance or origin.",
-  "filtrageStartFailed": "Can't start the questionnaire right now.",
+  "filtrageStartFailedWithCode": "Can't start the questionnaire right now. ({code})",
   "filtrageHeaderTitle": "COMMITMENT CHECK",
   "questionCounter": "Question {current}/{total}",
   "filtrageDisclaimer": "This questionnaire is only about culture, history and values — never about your appearance or origin. A minimum score is required to activate your account; if you don't pass, you can ask a moderator for a review.",
@@ -346,5 +346,10 @@
   "showReadReceiptsTitle": "Read receipts",
   "showReadReceiptsHint": "Show others when you've read their messages (mutual: also off on their side)",
   "compatVisibilityTitle": "Compatibility score visibility",
-  "compatVisibilityHint": "Let other members see a compatibility score with you on Discover"
+  "compatVisibilityHint": "Let other members see a compatibility score with you on Discover",
+
+  "confirmAdultDialogTitle": "Age confirmation",
+  "confirmAdultDialogBody": "MERUT is reserved for people 18 and older. Do you confirm you are 18 or older?",
+  "confirmAdultDialogDecline": "No, cancel",
+  "confirmAdultDialogAccept": "Yes, I confirm"
 }

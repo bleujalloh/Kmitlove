@@ -243,7 +243,9 @@ class AppLocalizationsEn extends AppLocalizations {
       'Before accessing MERUT, a few questions about kamite culture, history and values. Never about your appearance or origin.';
 
   @override
-  String get filtrageStartFailed => 'Can\'t start the questionnaire right now.';
+  String filtrageStartFailedWithCode(String code) {
+    return 'Can\'t start the questionnaire right now. ($code)';
+  }
 
   @override
   String get filtrageHeaderTitle => 'COMMITMENT CHECK';
@@ -1039,4 +1041,17 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get compatVisibilityHint =>
       'Let other members see a compatibility score with you on Discover';
+
+  @override
+  String get confirmAdultDialogTitle => 'Age confirmation';
+
+  @override
+  String get confirmAdultDialogBody =>
+      'MERUT is reserved for people 18 and older. Do you confirm you are 18 or older?';
+
+  @override
+  String get confirmAdultDialogDecline => 'No, cancel';
+
+  @override
+  String get confirmAdultDialogAccept => 'Yes, I confirm';
 }

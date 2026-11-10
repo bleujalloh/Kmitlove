@@ -244,8 +244,9 @@ class AppLocalizationsFr extends AppLocalizations {
       'Avant d\'accéder à MERUT, quelques questions sur la culture, l\'histoire et les valeurs kamites. Jamais sur ton apparence ou ton origine.';
 
   @override
-  String get filtrageStartFailed =>
-      'Impossible de démarrer le questionnaire pour le moment.';
+  String filtrageStartFailedWithCode(String code) {
+    return 'Impossible de démarrer le questionnaire pour le moment. ($code)';
+  }
 
   @override
   String get filtrageHeaderTitle => 'VÉRIFICATION D\'ENGAGEMENT';
@@ -1052,4 +1053,17 @@ class AppLocalizationsFr extends AppLocalizations {
   @override
   String get compatVisibilityHint =>
       'Autoriser les autres membres à voir un score de compatibilité avec toi sur Découvrir';
+
+  @override
+  String get confirmAdultDialogTitle => 'Confirmation d\'âge';
+
+  @override
+  String get confirmAdultDialogBody =>
+      'MERUT est réservé aux personnes de 18 ans et plus. Confirmes-tu avoir 18 ans ou plus ?';
+
+  @override
+  String get confirmAdultDialogDecline => 'Non, annuler';
+
+  @override
+  String get confirmAdultDialogAccept => 'Oui, je confirme';
 }

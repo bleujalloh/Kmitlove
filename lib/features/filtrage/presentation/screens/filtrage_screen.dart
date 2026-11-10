@@ -1,3 +1,4 @@
+import 'package:cloud_functions/cloud_functions.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -6,6 +7,15 @@ import '../../../../l10n/l10n_extensions.dart';
 import '../filtrage_controller.dart';
 import 'filtrage_intro_screen.dart';
 import 'filtrage_result_screen.dart';
+
+/// Code technique court ajouté au message d'erreur générique (jamais le
+/// message brut) — même raisonnement que readableAuthError, pour qu'une
+/// simple capture d'écran suffise à diagnostiquer sans terminal.
+String _shortDiagnosticCode(Object e) {
+  if (e is FirebaseFunctionsException) return e.code;
+  final text = e.toString();
+  return text.length > 60 ? text.substring(0, 60) : text;
+}
 
 /// Écran du questionnaire de filtrage — fidèle au prototype visuel validé
 /// (artifact MERUT, Questionnaire.dc.html), étendu à plusieurs questions.
@@ -25,7 +35,10 @@ class FiltrageScreen extends ConsumerWidget {
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                Text(context.l10n.filtrageStartFailed),
+                Text(
+                  context.l10n.filtrageStartFailedWithCode(_shortDiagnosticCode(e)),
+                  textAlign: TextAlign.center,
+                ),
                 const SizedBox(height: 12),
                 ElevatedButton(
                   onPressed: () => ref.read(filtrageControllerProvider.notifier).startAttempt(),

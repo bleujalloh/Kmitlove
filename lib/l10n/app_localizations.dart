@@ -524,11 +524,11 @@ abstract class AppLocalizations {
   /// **'Avant d\'accéder à MERUT, quelques questions sur la culture, l\'histoire et les valeurs kamites. Jamais sur ton apparence ou ton origine.'**
   String get filtrageIntroBody;
 
-  /// No description provided for @filtrageStartFailed.
+  /// No description provided for @filtrageStartFailedWithCode.
   ///
   /// In fr, this message translates to:
-  /// **'Impossible de démarrer le questionnaire pour le moment.'**
-  String get filtrageStartFailed;
+  /// **'Impossible de démarrer le questionnaire pour le moment. ({code})'**
+  String filtrageStartFailedWithCode(String code);
 
   /// No description provided for @filtrageHeaderTitle.
   ///
@@ -1981,6 +1981,30 @@ abstract class AppLocalizations {
   /// In fr, this message translates to:
   /// **'Autoriser les autres membres à voir un score de compatibilité avec toi sur Découvrir'**
   String get compatVisibilityHint;
+
+  /// No description provided for @confirmAdultDialogTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Confirmation d\'âge'**
+  String get confirmAdultDialogTitle;
+
+  /// No description provided for @confirmAdultDialogBody.
+  ///
+  /// In fr, this message translates to:
+  /// **'MERUT est réservé aux personnes de 18 ans et plus. Confirmes-tu avoir 18 ans ou plus ?'**
+  String get confirmAdultDialogBody;
+
+  /// No description provided for @confirmAdultDialogDecline.
+  ///
+  /// In fr, this message translates to:
+  /// **'Non, annuler'**
+  String get confirmAdultDialogDecline;
+
+  /// No description provided for @confirmAdultDialogAccept.
+  ///
+  /// In fr, this message translates to:
+  /// **'Oui, je confirme'**
+  String get confirmAdultDialogAccept;
 }
 
 class _AppLocalizationsDelegate
