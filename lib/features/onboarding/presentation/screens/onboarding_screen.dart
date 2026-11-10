@@ -16,7 +16,11 @@ class OnboardingScreen extends StatefulWidget {
 }
 
 class _OnboardingScreenState extends State<OnboardingScreen> {
-  bool _accepted = true;
+  // Décoché par défaut : la charte/CGU ne sont pas réputées acceptées
+  // tant que le membre ne coche pas lui-même la case (bug trouvé sur
+  // appareil réel le 10/11 — la case partait cochée, rendant
+  // l'acceptation purement décorative).
+  bool _accepted = false;
 
   @override
   Widget build(BuildContext context) {
