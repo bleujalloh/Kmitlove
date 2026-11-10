@@ -14,6 +14,14 @@
       },
       "oauth_client": [
         {
+          "client_id": "741720031453-4pksdshuijoaclsivqorajt2iddphq3b.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.kamalove.kamalove",
+            "certificate_hash": "4203a1016084164405987291492636ba22ff412c"
+          }
+        },
+        {
           "client_id": "741720031453-6f744qr3v12so6uo0if6p9enoqjrnu8d.apps.googleusercontent.com",
           "client_type": 1,
           "android_info": {
