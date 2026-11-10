@@ -1,3 +1,5 @@
+import '../../../l10n/app_localizations.dart';
+
 class CompatQuestion {
   const CompatQuestion({required this.id, required this.theme, required this.question});
 
@@ -14,10 +16,19 @@ class CompatQuestion {
   }
 }
 
-const compatThemeLabels = {
-  'vision_couple': 'Vision du couple',
-  'valeurs_culture': 'Valeurs et culture',
-  'famille': 'Famille',
-  'mode_vie': 'Mode de vie',
-  'communication': 'Communication',
-};
+String compatThemeLabel(String theme, AppLocalizations l10n) {
+  switch (theme) {
+    case 'vision_couple':
+      return l10n.compatThemeVisionCouple;
+    case 'valeurs_culture':
+      return l10n.compatThemeValeursCulture;
+    case 'famille':
+      return l10n.compatThemeFamille;
+    case 'mode_vie':
+      return l10n.compatThemeModeVie;
+    case 'communication':
+      return l10n.compatThemeCommunication;
+    default:
+      return theme;
+  }
+}

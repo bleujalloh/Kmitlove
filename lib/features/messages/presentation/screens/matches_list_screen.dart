@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../../core/theme/app_theme.dart';
+import '../../../../l10n/l10n_extensions.dart';
 import '../messages_controller.dart';
 import 'chat_screen.dart';
 
@@ -15,13 +16,13 @@ class MatchesListScreen extends ConsumerWidget {
     final matchesAsync = ref.watch(matchesProvider);
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Messages')),
+      appBar: AppBar(title: Text(context.l10n.navMessages)),
       body: matchesAsync.when(
         loading: () => const Center(child: CircularProgressIndicator()),
-        error: (e, st) => const Center(child: Text('Impossible de charger les conversations.')),
+        error: (e, st) => Center(child: Text(context.l10n.conversationsLoadFailed)),
         data: (matches) {
           if (matches.isEmpty) {
-            return const Center(child: Text('Pas encore de match — va faire un tour sur Découvrir.'));
+            return Center(child: Text(context.l10n.noMatchesYet));
           }
           return ListView.separated(
             itemCount: matches.length,
@@ -37,7 +38,7 @@ class MatchesListScreen extends ConsumerWidget {
                 subtitle: Text(
                   m.lastMessagePreview?.isNotEmpty == true
                       ? m.lastMessagePreview!
-                      : 'Dites bonjour 👋',
+                      : context.l10n.sayHelloPreview,
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                 ),

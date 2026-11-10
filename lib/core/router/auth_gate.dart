@@ -15,6 +15,7 @@ import '../../features/onboarding/presentation/screens/onboarding_screen.dart';
 import '../../features/onboarding/presentation/screens/placeholder_home_screen.dart';
 import '../../features/profil/presentation/profil_controller.dart';
 import '../../features/profil/presentation/screens/profil_edit_screen.dart';
+import '../../l10n/l10n_extensions.dart';
 import '../providers/firebase_providers.dart';
 
 enum _LoggedOutView { onboarding, signUp, signIn, resetPassword }
@@ -34,7 +35,7 @@ class AuthGate extends ConsumerWidget {
 
     return authState.when(
       loading: () => const Scaffold(body: Center(child: CircularProgressIndicator())),
-      error: (e, st) => Scaffold(body: Center(child: Text('Erreur : $e'))),
+      error: (e, st) => Scaffold(body: Center(child: Text(context.l10n.unexpectedError(e.toString())))),
       data: (user) {
         if (user == null) {
           final view = ref.watch(_loggedOutViewProvider);
@@ -70,7 +71,7 @@ class AuthGate extends ConsumerWidget {
         final statusAsync = ref.watch(userStatusProvider);
         return statusAsync.when(
           loading: () => const Scaffold(body: Center(child: CircularProgressIndicator())),
-          error: (e, st) => Scaffold(body: Center(child: Text('Erreur : $e'))),
+          error: (e, st) => Scaffold(body: Center(child: Text(context.l10n.unexpectedError(e.toString())))),
           data: (status) {
             final filtrageStatus = status?['filtrageStatus'] as String?;
             if (filtrageStatus == 'active') {
@@ -86,7 +87,8 @@ class AuthGate extends ConsumerWidget {
               final profilAsync = ref.watch(profilProvider);
               return profilAsync.when(
                 loading: () => const Scaffold(body: Center(child: CircularProgressIndicator())),
-                error: (e, st) => Scaffold(body: Center(child: Text('Erreur : $e'))),
+                error: (e, st) =>
+                    Scaffold(body: Center(child: Text(context.l10n.unexpectedError(e.toString())))),
                 data: (profil) {
                   if (profil == null) return const ProfilEditScreen();
                   return const PlaceholderHomeScreen();

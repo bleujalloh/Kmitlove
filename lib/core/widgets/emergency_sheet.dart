@@ -3,19 +3,20 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../features/auth/presentation/auth_controller.dart';
 import '../../features/profil/presentation/profil_controller.dart';
+import '../../l10n/app_localizations.dart';
+import '../../l10n/l10n_extensions.dart';
 import '../theme/app_theme.dart';
 
 /// Numéros d'urgence connus avec certitude seulement — mieux vaut un
 /// repli honnête (112, qui fonctionne via la plupart des réseaux mobiles)
 /// qu'un numéro précis mais non vérifié pour un pays qu'on ne maîtrise
 /// pas, vu ce qui est en jeu (docs/regles-complementaires-concurrents.md
-/// section 1).
-const Map<String, String> _knownEmergencyNumbers = {
-  'France': '17 (Police/Gendarmerie) · 112 (urgences Europe)',
-  'Belgique': '101 (Police) · 112 (urgences Europe)',
-};
-const String _fallbackEmergencyNumbers =
-    '112 (fonctionne dans la plupart des pays via un réseau mobile) — vérifie aussi le numéro d\'urgence local de ton pays de résidence';
+/// section 1). Les clés restent les noms de pays tels que stockés dans le
+/// profil (saisis en français) ; seul le libellé affiché est traduit.
+Map<String, String> _knownEmergencyNumbers(AppLocalizations l10n) => {
+      'France': l10n.emergencyNumbersFrance,
+      'Belgique': l10n.emergencyNumbersBelgium,
+    };
 
 /// Bouton "Signaler un danger immédiat" + numéros d'urgence toujours
 /// visibles, indépendamment de tout signalement (docs/regles-
@@ -54,7 +55,7 @@ class _EmergencySheetContentState extends ConsumerState<_EmergencySheetContent> 
     } catch (_) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text("Échec de l'envoi, réessaie — ou appelle directement un numéro ci-dessous.")),
+          SnackBar(content: Text(context.l10n.emergencySendFailed)),
         );
       }
     } finally {
@@ -65,7 +66,8 @@ class _EmergencySheetContentState extends ConsumerState<_EmergencySheetContent> 
   @override
   Widget build(BuildContext context) {
     final country = ref.watch(profilProvider).value?.country;
-    final numbers = (country != null ? _knownEmergencyNumbers[country] : null) ?? _fallbackEmergencyNumbers;
+    final knownNumbers = _knownEmergencyNumbers(context.l10n);
+    final numbers = (country != null ? knownNumbers[country] : null) ?? context.l10n.emergencyNumbersFallback;
 
     return SafeArea(
       child: Padding(
@@ -75,23 +77,22 @@ class _EmergencySheetContentState extends ConsumerState<_EmergencySheetContent> 
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Row(
-              children: const [
-                Icon(Icons.warning_amber_rounded, color: AppColors.accent),
-                SizedBox(width: 10),
-                Text('Sécurité', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+              children: [
+                const Icon(Icons.warning_amber_rounded, color: AppColors.accent),
+                const SizedBox(width: 10),
+                Text(context.l10n.safetyTitle, style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
               ],
             ),
             const SizedBox(height: 14),
-            Text('Numéros d\'urgence', style: Theme.of(context).textTheme.titleSmall),
+            Text(context.l10n.emergencyNumbersTitle, style: Theme.of(context).textTheme.titleSmall),
             const SizedBox(height: 6),
             Text(numbers, style: const TextStyle(color: AppColors.muted, fontSize: 13.5, height: 1.4)),
             const SizedBox(height: 20),
             const Divider(),
             const SizedBox(height: 12),
-            const Text(
-              'Si quelqu\'un te met en danger immédiat, préviens la modération en priorité absolue. '
-              'Ce bouton n\'appelle jamais les secours à ta place — compose un numéro ci-dessus si tu es en danger maintenant.',
-              style: TextStyle(fontSize: 13, height: 1.4),
+            Text(
+              context.l10n.emergencySheetDisclaimer,
+              style: const TextStyle(fontSize: 13, height: 1.4),
             ),
             const SizedBox(height: 16),
             SizedBox(
@@ -102,7 +103,7 @@ class _EmergencySheetContentState extends ConsumerState<_EmergencySheetContent> 
                     ? const SizedBox(
                         width: 16, height: 16, child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white))
                     : Icon(_sent ? Icons.check : Icons.campaign_outlined),
-                label: Text(_sent ? 'Modération prévenue' : 'Signaler un danger immédiat'),
+                label: Text(_sent ? context.l10n.moderationNotified : context.l10n.reportImmediateDanger),
               ),
             ),
           ],

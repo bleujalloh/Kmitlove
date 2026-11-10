@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../../core/theme/app_theme.dart';
+import '../../../../l10n/l10n_extensions.dart';
 import '../filtrage_controller.dart';
 
 /// Affiché quand le compte attend un nouvel essai ou une révision humaine
@@ -34,17 +35,17 @@ class FiltragePendingScreen extends ConsumerWidget {
                 ),
                 const SizedBox(height: 18),
                 Text(
-                  reviewRequested ? 'Révision en cours' : 'Nouvel essai bientôt disponible',
+                  reviewRequested ? context.l10n.reviewInProgressTitle : context.l10n.nextAttemptSoonTitle,
                   style: const TextStyle(fontSize: 20, fontWeight: FontWeight.w600, color: AppColors.ink),
                   textAlign: TextAlign.center,
                 ),
                 const SizedBox(height: 12),
                 Text(
                   reviewRequested
-                      ? "Un modérateur va revoir ta situation. Tu reçois une notification dès que c'est traité."
+                      ? context.l10n.reviewInProgressBody
                       : canRetryNow
-                          ? 'Tu peux retenter le questionnaire dès maintenant.'
-                          : "Tu peux retenter le questionnaire à partir du ${_formatDate(nextRetryAt.toDate())}.",
+                          ? context.l10n.canRetryNow
+                          : context.l10n.canRetryFrom(_formatDate(nextRetryAt.toDate())),
                   textAlign: TextAlign.center,
                   style: const TextStyle(color: AppColors.muted, height: 1.5),
                 ),
@@ -54,7 +55,7 @@ class FiltragePendingScreen extends ConsumerWidget {
                     width: double.infinity,
                     child: ElevatedButton(
                       onPressed: () => ref.read(filtrageControllerProvider.notifier).startAttempt(),
-                      child: const Text('Retenter le questionnaire'),
+                      child: Text(context.l10n.retryFiltrageButton),
                     ),
                   ),
               ],

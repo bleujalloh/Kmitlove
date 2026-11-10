@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../../core/theme/app_theme.dart';
+import '../../../../l10n/l10n_extensions.dart';
 import '../filtrage_controller.dart';
 
 class FiltrageResultScreen extends ConsumerWidget {
@@ -29,15 +30,15 @@ class FiltrageResultScreen extends ConsumerWidget {
                 ),
                 const SizedBox(height: 18),
                 Text(
-                  passed ? 'Bienvenue dans la communauté' : "Ce n'est pas passé cette fois",
+                  passed ? context.l10n.filtragePassedTitle : context.l10n.filtrageFailedTitle,
                   style: const TextStyle(fontSize: 20, fontWeight: FontWeight.w600, color: AppColors.ink),
                   textAlign: TextAlign.center,
                 ),
                 const SizedBox(height: 12),
                 Text(
                   passed
-                      ? 'Ton engagement envers la culture et les valeurs kamites est confirmé. Ton compte est activé.'
-                      : "Score obtenu : ${(score * 100).round()} %. Tu peux retenter dans quelques jours, ou demander une révision par un modérateur si tu penses qu'il y a une erreur.",
+                      ? context.l10n.filtragePassedBody
+                      : context.l10n.filtrageFailedBody((score * 100).round()),
                   textAlign: TextAlign.center,
                   style: const TextStyle(color: AppColors.muted, height: 1.5),
                 ),
@@ -47,7 +48,7 @@ class FiltrageResultScreen extends ConsumerWidget {
                     width: double.infinity,
                     child: ElevatedButton(
                       onPressed: () => ref.read(filtrageControllerProvider.notifier).reset(),
-                      child: const Text('Continuer'),
+                      child: Text(context.l10n.continueButton),
                     ),
                   )
                 else
@@ -58,7 +59,7 @@ class FiltrageResultScreen extends ConsumerWidget {
                         await ref.read(filtrageRepositoryProvider).requestReview();
                         ref.read(filtrageControllerProvider.notifier).reset();
                       },
-                      child: const Text('Demander une révision humaine'),
+                      child: Text(context.l10n.requestHumanReview),
                     ),
                   ),
               ],

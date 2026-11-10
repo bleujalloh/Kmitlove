@@ -2,11 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../../core/theme/app_theme.dart';
+import '../../../../l10n/l10n_extensions.dart';
 import '../../domain/profil.dart';
 import '../profil_controller.dart';
 import 'photos_section.dart';
-
-const _genders = ['Femme', 'Homme', 'Autre'];
 
 /// Création/édition du profil (cahier des charges section 4.2), avec les
 /// photos (validation humaine/délai 48h, docs/regles-messagerie-securite.md).
@@ -39,7 +38,7 @@ class _ProfilEditScreenState extends ConsumerState<ProfilEditScreen> {
   late final _lookingForController = TextEditingController(text: widget.existing?.lookingFor);
 
   DateTime? _birthDate;
-  String _gender = _genders.first;
+  String _gender = Gender.femme;
   final Set<String> _seekingGenders = {};
   String _relationshipIntent = RelationshipIntent.serieuse;
   String? _smokingHabit;
@@ -51,7 +50,7 @@ class _ProfilEditScreenState extends ConsumerState<ProfilEditScreen> {
   void initState() {
     super.initState();
     _birthDate = widget.existing?.birthDate;
-    _gender = widget.existing?.gender ?? _genders.first;
+    _gender = widget.existing?.gender ?? Gender.femme;
     _seekingGenders.addAll(widget.existing?.seekingGenders ?? []);
     _relationshipIntent = widget.existing?.relationshipIntent ?? RelationshipIntent.serieuse;
     _smokingHabit = widget.existing?.smokingHabit;
@@ -104,18 +103,18 @@ class _ProfilEditScreenState extends ConsumerState<ProfilEditScreen> {
     if (!_formKey.currentState!.validate()) return;
     if (_birthDate == null) {
       ScaffoldMessenger.of(context)
-          .showSnackBar(const SnackBar(content: Text('Indique ta date de naissance.')));
+          .showSnackBar(SnackBar(content: Text(context.l10n.birthDateRequired)));
       return;
     }
     if (!_isAdult(_birthDate!)) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('MERUT est réservé aux personnes de 18 ans et plus.')),
+        SnackBar(content: Text(context.l10n.mustBeAdult)),
       );
       return;
     }
     if (_seekingGenders.isEmpty) {
       ScaffoldMessenger.of(context)
-          .showSnackBar(const SnackBar(content: Text('Choisis au moins une préférence de recherche.')));
+          .showSnackBar(SnackBar(content: Text(context.l10n.pickSeekingPreference)));
       return;
     }
 
@@ -154,7 +153,7 @@ class _ProfilEditScreenState extends ConsumerState<ProfilEditScreen> {
     final state = ref.watch(profilControllerProvider);
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Ton profil')),
+      appBar: AppBar(title: Text(context.l10n.yourProfile)),
       body: SafeArea(
         child: Form(
           key: _formKey,
@@ -165,17 +164,17 @@ class _ProfilEditScreenState extends ConsumerState<ProfilEditScreen> {
               const SizedBox(height: 20),
               TextFormField(
                 controller: _nameController,
-                decoration: const InputDecoration(labelText: 'Prénom ou pseudonyme'),
-                validator: (v) => (v == null || v.trim().isEmpty) ? 'Requis' : null,
+                decoration: InputDecoration(labelText: context.l10n.firstNameOrNickname),
+                validator: (v) => (v == null || v.trim().isEmpty) ? context.l10n.requiredField : null,
               ),
               const SizedBox(height: 14),
               InkWell(
                 onTap: _pickBirthDate,
                 child: InputDecorator(
-                  decoration: const InputDecoration(labelText: 'Date de naissance'),
+                  decoration: InputDecoration(labelText: context.l10n.birthDateLabel),
                   child: Text(
                     _birthDate == null
-                        ? 'Choisir une date'
+                        ? context.l10n.chooseDate
                         : '${_birthDate!.day}/${_birthDate!.month}/${_birthDate!.year}',
                   ),
                 ),
@@ -183,18 +182,20 @@ class _ProfilEditScreenState extends ConsumerState<ProfilEditScreen> {
               const SizedBox(height: 14),
               DropdownButtonFormField<String>(
                 initialValue: _gender,
-                decoration: const InputDecoration(labelText: 'Genre'),
-                items: _genders.map((g) => DropdownMenuItem(value: g, child: Text(g))).toList(),
+                decoration: InputDecoration(labelText: context.l10n.genderLabel),
+                items: Gender.all
+                    .map((g) => DropdownMenuItem(value: g, child: Text(Gender.label(g, context.l10n))))
+                    .toList(),
                 onChanged: (v) => setState(() => _gender = v ?? _gender),
               ),
               const SizedBox(height: 14),
-              const Text('Je recherche', style: TextStyle(fontSize: 13, color: AppColors.muted)),
+              Text(context.l10n.iAmSeeking, style: const TextStyle(fontSize: 13, color: AppColors.muted)),
               Wrap(
                 spacing: 8,
-                children: _genders.map((g) {
+                children: Gender.all.map((g) {
                   final selected = _seekingGenders.contains(g);
                   return FilterChip(
-                    label: Text(g),
+                    label: Text(Gender.label(g, context.l10n)),
                     selected: selected,
                     selectedColor: AppColors.accentSoft,
                     onSelected: (v) => setState(
@@ -206,99 +207,100 @@ class _ProfilEditScreenState extends ConsumerState<ProfilEditScreen> {
               const SizedBox(height: 14),
               TextFormField(
                 controller: _countryController,
-                decoration: const InputDecoration(labelText: 'Pays'),
-                validator: (v) => (v == null || v.trim().isEmpty) ? 'Requis' : null,
+                decoration: InputDecoration(labelText: context.l10n.countryLabel),
+                validator: (v) => (v == null || v.trim().isEmpty) ? context.l10n.requiredField : null,
               ),
               const SizedBox(height: 14),
               TextFormField(
                 controller: _cityController,
-                decoration: const InputDecoration(labelText: 'Ville'),
-                validator: (v) => (v == null || v.trim().isEmpty) ? 'Requis' : null,
+                decoration: InputDecoration(labelText: context.l10n.cityLabel),
+                validator: (v) => (v == null || v.trim().isEmpty) ? context.l10n.requiredField : null,
               ),
               const SizedBox(height: 14),
               TextFormField(
                 controller: _bioController,
                 maxLines: 4,
-                decoration: const InputDecoration(labelText: 'Description personnelle'),
-                validator: (v) => (v == null || v.trim().isEmpty) ? 'Requis' : null,
+                decoration: InputDecoration(labelText: context.l10n.bioLabel),
+                validator: (v) => (v == null || v.trim().isEmpty) ? context.l10n.requiredField : null,
               ),
               const SizedBox(height: 14),
               TextFormField(
                 controller: _professionController,
-                decoration: const InputDecoration(labelText: 'Profession (facultatif)'),
+                decoration: InputDecoration(labelText: context.l10n.professionLabel),
               ),
               const SizedBox(height: 14),
               TextFormField(
                 controller: _languagesController,
-                decoration: const InputDecoration(labelText: 'Langues parlées (séparées par des virgules)'),
+                decoration: InputDecoration(labelText: context.l10n.languagesLabel),
               ),
               const SizedBox(height: 14),
               TextFormField(
                 controller: _interestsController,
-                decoration: const InputDecoration(labelText: "Centres d'intérêt (séparés par des virgules)"),
+                decoration: InputDecoration(labelText: context.l10n.interestsLabel),
               ),
               const SizedBox(height: 14),
               TextFormField(
                 controller: _culturalOriginsController,
-                decoration: const InputDecoration(
-                  labelText: 'Origines culturelles déclarées (facultatif)',
+                decoration: InputDecoration(
+                  labelText: context.l10n.culturalOriginsLabel,
                 ),
               ),
               const SizedBox(height: 14),
               TextFormField(
                 controller: _valuesController,
                 maxLines: 3,
-                decoration: const InputDecoration(labelText: 'Présentation de tes valeurs (facultatif)'),
+                decoration: InputDecoration(labelText: context.l10n.valuesLabel),
               ),
               const SizedBox(height: 14),
               DropdownButtonFormField<String>(
                 initialValue: _relationshipIntent,
-                decoration: const InputDecoration(labelText: 'Intention relationnelle'),
+                decoration: InputDecoration(labelText: context.l10n.relationshipIntentLabel),
                 items: RelationshipIntent.all
-                    .map((v) => DropdownMenuItem(value: v, child: Text(RelationshipIntent.label(v))))
+                    .map((v) =>
+                        DropdownMenuItem(value: v, child: Text(RelationshipIntent.label(v, context.l10n))))
                     .toList(),
                 onChanged: (v) => setState(() => _relationshipIntent = v ?? _relationshipIntent),
               ),
               const SizedBox(height: 24),
-              const Text(
-                'TA FICHE',
-                style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: AppColors.accent, letterSpacing: 0.5),
+              Text(
+                context.l10n.yourFicheSectionTitle,
+                style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: AppColors.accent, letterSpacing: 0.5),
               ),
               const SizedBox(height: 14),
               TextFormField(
                 controller: _heightController,
                 keyboardType: TextInputType.number,
-                decoration: const InputDecoration(labelText: 'Taille en cm (facultatif)'),
+                decoration: InputDecoration(labelText: context.l10n.heightLabel),
               ),
               const SizedBox(height: 14),
               TextFormField(
                 controller: _educationController,
-                decoration: const InputDecoration(labelText: "Niveau d'études (facultatif)"),
+                decoration: InputDecoration(labelText: context.l10n.educationLevelLabel),
               ),
               const SizedBox(height: 14),
               DropdownButtonFormField<String>(
                 initialValue: _smokingHabit,
-                decoration: const InputDecoration(labelText: 'Tabac (facultatif)'),
+                decoration: InputDecoration(labelText: context.l10n.smokingLabel),
                 items: LifestyleHabit.all
-                    .map((v) => DropdownMenuItem(value: v, child: Text(LifestyleHabit.label(v))))
+                    .map((v) => DropdownMenuItem(value: v, child: Text(LifestyleHabit.label(v, context.l10n))))
                     .toList(),
                 onChanged: (v) => setState(() => _smokingHabit = v),
               ),
               const SizedBox(height: 14),
               DropdownButtonFormField<String>(
                 initialValue: _drinkingHabit,
-                decoration: const InputDecoration(labelText: 'Alcool (facultatif)'),
+                decoration: InputDecoration(labelText: context.l10n.drinkingLabel),
                 items: LifestyleHabit.all
-                    .map((v) => DropdownMenuItem(value: v, child: Text(LifestyleHabit.label(v))))
+                    .map((v) => DropdownMenuItem(value: v, child: Text(LifestyleHabit.label(v, context.l10n))))
                     .toList(),
                 onChanged: (v) => setState(() => _drinkingHabit = v),
               ),
               const SizedBox(height: 14),
               DropdownButtonFormField<String>(
                 initialValue: _childrenStatus,
-                decoration: const InputDecoration(labelText: 'Enfants (facultatif)'),
+                decoration: InputDecoration(labelText: context.l10n.childrenLabel),
                 items: ChildrenStatus.all
-                    .map((v) => DropdownMenuItem(value: v, child: Text(ChildrenStatus.label(v))))
+                    .map((v) => DropdownMenuItem(value: v, child: Text(ChildrenStatus.label(v, context.l10n))))
                     .toList(),
                 onChanged: (v) => setState(() => _childrenStatus = v),
               ),
@@ -306,13 +308,13 @@ class _ProfilEditScreenState extends ConsumerState<ProfilEditScreen> {
               TextFormField(
                 controller: _lookingForController,
                 maxLines: 3,
-                decoration: const InputDecoration(
-                  labelText: 'Ce que tu recherches chez l\'autre (facultatif)',
+                decoration: InputDecoration(
+                  labelText: context.l10n.lookingForLabel,
                 ),
               ),
               const SizedBox(height: 14),
-              const Text('Tes qualités (facultatif, choisis-en quelques-unes)',
-                  style: TextStyle(fontSize: 13, color: AppColors.muted)),
+              Text(context.l10n.qualitiesSectionHint,
+                  style: const TextStyle(fontSize: 13, color: AppColors.muted)),
               const SizedBox(height: 8),
               Wrap(
                 spacing: 8,
@@ -320,7 +322,7 @@ class _ProfilEditScreenState extends ConsumerState<ProfilEditScreen> {
                 children: PersonalQuality.all.map((q) {
                   final selected = _qualities.contains(q);
                   return FilterChip(
-                    label: Text(q),
+                    label: Text(PersonalQuality.label(q, context.l10n)),
                     selected: selected,
                     selectedColor: AppColors.accentSoft,
                     onSelected: (v) => setState(
@@ -331,9 +333,9 @@ class _ProfilEditScreenState extends ConsumerState<ProfilEditScreen> {
               ),
               if (state.hasError) ...[
                 const SizedBox(height: 8),
-                const Text(
-                  "Impossible d'enregistrer ton profil, vérifie ta connexion et réessaie.",
-                  style: TextStyle(color: AppColors.accent, fontSize: 13),
+                Text(
+                  context.l10n.profileSaveFailed,
+                  style: const TextStyle(color: AppColors.accent, fontSize: 13),
                 ),
               ],
               const SizedBox(height: 24),
@@ -345,7 +347,7 @@ class _ProfilEditScreenState extends ConsumerState<ProfilEditScreen> {
                         width: 18,
                         child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white),
                       )
-                    : const Text('Enregistrer mon profil'),
+                    : Text(context.l10n.saveMyProfile),
               ),
             ],
           ),

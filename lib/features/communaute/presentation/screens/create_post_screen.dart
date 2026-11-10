@@ -2,16 +2,18 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../../core/theme/app_theme.dart';
+import '../../../../l10n/l10n_extensions.dart';
+import '../../domain/community_post.dart';
 import '../communaute_controller.dart';
 
-const _typeLabels = {
-  'publication': 'Publication (fil)',
-  'annonce_publique': 'Annonce publique',
-  'annonce_privee': 'Annonce privée',
-  'annonce_libre': 'Annonce libre (texte libre, sans lieu ni date)',
-  'evenement_public': 'Événement public',
-  'evenement_prive': 'Événement privé',
-};
+const _postTypes = [
+  'publication',
+  'annonce_publique',
+  'annonce_privee',
+  'annonce_libre',
+  'evenement_public',
+  'evenement_prive',
+];
 
 class CreatePostScreen extends ConsumerStatefulWidget {
   const CreatePostScreen({super.key});
@@ -45,12 +47,12 @@ class _CreatePostScreenState extends ConsumerState<CreatePostScreen> {
     if (_textController.text.trim().isEmpty) return;
     if (_isEvent && (_eventDate == null || _capacityController.text.trim().isEmpty)) {
       ScaffoldMessenger.of(context)
-          .showSnackBar(const SnackBar(content: Text('Date et capacité requises pour un événement.')));
+          .showSnackBar(SnackBar(content: Text(context.l10n.eventDateAndCapacityRequired)));
       return;
     }
     if (_needsLocation && _locationController.text.trim().isEmpty) {
       ScaffoldMessenger.of(context)
-          .showSnackBar(const SnackBar(content: Text('Lieu précis requis.')));
+          .showSnackBar(SnackBar(content: Text(context.l10n.preciseLocationRequired)));
       return;
     }
 
@@ -72,8 +74,8 @@ class _CreatePostScreenState extends ConsumerState<CreatePostScreen> {
         SnackBar(
           content: Text(
             status == 'pending_review'
-                ? 'Envoyé — en attente de validation par un modérateur.'
-                : 'Publié !',
+                ? context.l10n.postPendingReview
+                : context.l10n.postPublished,
           ),
         ),
       );
@@ -81,33 +83,33 @@ class _CreatePostScreenState extends ConsumerState<CreatePostScreen> {
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context)
-            .showSnackBar(SnackBar(content: Text('Impossible de publier : ${_readableError(e)}')));
+            .showSnackBar(SnackBar(content: Text(context.l10n.postFailed(_readableError(e, context)))));
       }
     } finally {
       if (mounted) setState(() => _submitting = false);
     }
   }
 
-  String _readableError(Object e) {
+  String _readableError(Object e, BuildContext context) {
     final text = e.toString();
-    if (text.contains('resource-exhausted')) return 'tu as déjà 3 annonces actives.';
-    if (text.contains('permission-denied')) return 'réservé aux membres vérifiés.';
-    return 'réessaie.';
+    if (text.contains('resource-exhausted')) return context.l10n.postErrorTooManyActive;
+    if (text.contains('permission-denied')) return context.l10n.postErrorVerifiedOnly;
+    return context.l10n.postErrorGeneric;
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Nouvelle publication')),
+      appBar: AppBar(title: Text(context.l10n.newPostTitle)),
       body: SafeArea(
         child: ListView(
           padding: const EdgeInsets.all(24),
           children: [
             DropdownButtonFormField<String>(
               initialValue: _type,
-              decoration: const InputDecoration(labelText: 'Type'),
-              items: _typeLabels.entries
-                  .map((e) => DropdownMenuItem(value: e.key, child: Text(e.value)))
+              decoration: InputDecoration(labelText: context.l10n.typeLabel),
+              items: _postTypes
+                  .map((t) => DropdownMenuItem(value: t, child: Text(postTypeLabel(t, context.l10n))))
                   .toList(),
               onChanged: (v) => setState(() => _type = v ?? _type),
             ),
@@ -115,14 +117,14 @@ class _CreatePostScreenState extends ConsumerState<CreatePostScreen> {
               const SizedBox(height: 14),
               TextFormField(
                 controller: _titleController,
-                decoration: const InputDecoration(labelText: 'Titre de l\'événement'),
+                decoration: InputDecoration(labelText: context.l10n.eventTitleLabel),
               ),
             ],
             const SizedBox(height: 14),
             TextFormField(
               controller: _textController,
               maxLines: 4,
-              decoration: const InputDecoration(labelText: 'Description'),
+              decoration: InputDecoration(labelText: context.l10n.descriptionLabel),
             ),
             if (_isEvent) ...[
               const SizedBox(height: 14),
@@ -137,9 +139,9 @@ class _CreatePostScreenState extends ConsumerState<CreatePostScreen> {
                   if (picked != null) setState(() => _eventDate = picked);
                 },
                 child: InputDecorator(
-                  decoration: const InputDecoration(labelText: 'Date'),
+                  decoration: InputDecoration(labelText: context.l10n.dateLabel),
                   child: Text(_eventDate == null
-                      ? 'Choisir une date'
+                      ? context.l10n.chooseDate
                       : '${_eventDate!.day}/${_eventDate!.month}/${_eventDate!.year}'),
                 ),
               ),
@@ -147,15 +149,15 @@ class _CreatePostScreenState extends ConsumerState<CreatePostScreen> {
               TextFormField(
                 controller: _capacityController,
                 keyboardType: TextInputType.number,
-                decoration: const InputDecoration(labelText: 'Capacité (nombre de places)'),
+                decoration: InputDecoration(labelText: context.l10n.capacityLabel),
               ),
             ],
             if (_needsLocation) ...[
               const SizedBox(height: 14),
               TextFormField(
                 controller: _locationController,
-                decoration: const InputDecoration(
-                  labelText: 'Lieu précis (masqué jusqu\'à acceptation)',
+                decoration: InputDecoration(
+                  labelText: context.l10n.preciseLocationLabel,
                 ),
               ),
             ],
@@ -167,9 +169,9 @@ class _CreatePostScreenState extends ConsumerState<CreatePostScreen> {
                   color: AppColors.backgroundSoft,
                   borderRadius: BorderRadius.circular(12),
                 ),
-                child: const Text(
-                  'Les événements physiques sont réservés aux membres vérifiés et passent toujours par une revue humaine avant publication.',
-                  style: TextStyle(fontSize: 12, color: AppColors.muted),
+                child: Text(
+                  context.l10n.eventVerifiedOnlyHint,
+                  style: const TextStyle(fontSize: 12, color: AppColors.muted),
                 ),
               ),
             ],
@@ -182,7 +184,7 @@ class _CreatePostScreenState extends ConsumerState<CreatePostScreen> {
                       width: 18,
                       child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white),
                     )
-                  : const Text('Publier'),
+                  : Text(context.l10n.publishButton),
             ),
           ],
         ),

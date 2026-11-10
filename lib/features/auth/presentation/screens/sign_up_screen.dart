@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../../core/theme/app_theme.dart';
 import '../../../../core/widgets/google_mark.dart';
 import '../../../../core/widgets/kamite_motif.dart';
+import '../../../../l10n/l10n_extensions.dart';
 import '../auth_controller.dart';
 
 class SignUpScreen extends ConsumerStatefulWidget {
@@ -32,7 +33,7 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
     if (!_formKey.currentState!.validate()) return;
     if (!_isAdult) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Tu dois confirmer avoir 18 ans ou plus.')),
+        SnackBar(content: Text(context.l10n.mustConfirmAdult)),
       );
       return;
     }
@@ -53,14 +54,14 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
           children: [
             const KamiteMotif(height: 110, compact: true),
             const SizedBox(height: 8),
-            const Text(
-              'Créer un compte',
-              style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold, color: AppColors.ink),
+            Text(
+              context.l10n.signUpTitle,
+              style: const TextStyle(fontSize: 22, fontWeight: FontWeight.bold, color: AppColors.ink),
             ),
             const SizedBox(height: 4),
-            const Text(
-              'Rejoins la communauté MERUT',
-              style: TextStyle(fontSize: 13, color: AppColors.muted),
+            Text(
+              context.l10n.signUpSubtitle,
+              style: const TextStyle(fontSize: 13, color: AppColors.muted),
             ),
             const SizedBox(height: 24),
             Form(
@@ -71,17 +72,17 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
                   TextFormField(
                     controller: _emailController,
                     keyboardType: TextInputType.emailAddress,
-                    decoration: const InputDecoration(labelText: 'Adresse e-mail'),
+                    decoration: InputDecoration(labelText: context.l10n.emailLabel),
                     validator: (v) =>
-                        (v == null || !v.contains('@')) ? 'E-mail invalide' : null,
+                        (v == null || !v.contains('@')) ? context.l10n.invalidEmail : null,
                   ),
                   const SizedBox(height: 14),
                   TextFormField(
                     controller: _passwordController,
                     obscureText: true,
-                    decoration: const InputDecoration(labelText: 'Mot de passe'),
+                    decoration: InputDecoration(labelText: context.l10n.passwordLabel),
                     validator: (v) =>
-                        (v == null || v.length < 8) ? '8 caractères minimum' : null,
+                        (v == null || v.length < 8) ? context.l10n.passwordMinLength : null,
                   ),
                   const SizedBox(height: 14),
                   CheckboxListTile(
@@ -90,15 +91,15 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
                     controlAffinity: ListTileControlAffinity.leading,
                     contentPadding: EdgeInsets.zero,
                     activeColor: AppColors.accent,
-                    title: const Text(
-                      "Je confirme avoir 18 ans ou plus.",
-                      style: TextStyle(fontSize: 13),
+                    title: Text(
+                      context.l10n.confirmAdult,
+                      style: const TextStyle(fontSize: 13),
                     ),
                   ),
                   if (authState.hasError) ...[
                     const SizedBox(height: 8),
                     Text(
-                      readableAuthError(authState.error!),
+                      readableAuthError(authState.error!, context.l10n),
                       style: const TextStyle(color: AppColors.accent, fontSize: 13),
                     ),
                   ],
@@ -111,17 +112,18 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
                             width: 18,
                             child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white),
                           )
-                        : const Text("S'inscrire"),
+                        : Text(context.l10n.signUp),
                   ),
                   const SizedBox(height: 18),
                   Row(
-                    children: const [
-                      Expanded(child: Divider(color: AppColors.border)),
+                    children: [
+                      const Expanded(child: Divider(color: AppColors.border)),
                       Padding(
-                        padding: EdgeInsets.symmetric(horizontal: 10),
-                        child: Text('ou', style: TextStyle(color: AppColors.muted, fontSize: 12)),
+                        padding: const EdgeInsets.symmetric(horizontal: 10),
+                        child: Text(context.l10n.orSeparator,
+                            style: const TextStyle(color: AppColors.muted, fontSize: 12)),
                       ),
-                      Expanded(child: Divider(color: AppColors.border)),
+                      const Expanded(child: Divider(color: AppColors.border)),
                     ],
                   ),
                   const SizedBox(height: 18),
@@ -130,12 +132,12 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
                         ? null
                         : () => ref.read(authControllerProvider.notifier).signInWithGoogle(),
                     icon: const GoogleMark(),
-                    label: const Text('Continuer avec Google'),
+                    label: Text(context.l10n.continueWithGoogle),
                   ),
                   const SizedBox(height: 14),
                   TextButton(
                     onPressed: widget.onGoToSignIn,
-                    child: const Text('Déjà un compte ? Se connecter'),
+                    child: Text(context.l10n.alreadyHaveAccount),
                   ),
                 ],
               ),

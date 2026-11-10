@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../features/auth/presentation/auth_controller.dart';
+import '../../l10n/l10n_extensions.dart';
 
 /// Bouton de recours contre une sanction (docs/regles-messagerie-
 /// securite.md section 3) — réutilisé par ParametresScreen (pour un
@@ -26,13 +27,13 @@ class _SanctionAppealButtonState extends ConsumerState<SanctionAppealButton> {
       await ref.read(cloudFunctionsProvider).httpsCallable('requestSanctionAppeal').call();
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Recours envoyé, un modérateur va l\'examiner.')),
+          SnackBar(content: Text(context.l10n.appealSent)),
         );
       }
     } catch (_) {
       if (mounted) {
         ScaffoldMessenger.of(context)
-            .showSnackBar(const SnackBar(content: Text('Impossible d\'envoyer le recours, réessaie.')));
+            .showSnackBar(SnackBar(content: Text(context.l10n.appealSendFailed)));
       }
     } finally {
       if (mounted) setState(() => _sending = false);
@@ -43,7 +44,7 @@ class _SanctionAppealButtonState extends ConsumerState<SanctionAppealButton> {
   Widget build(BuildContext context) {
     return OutlinedButton(
       onPressed: widget.appealPending || _sending ? null : _requestAppeal,
-      child: Text(widget.appealPending ? 'Recours en cours de traitement' : 'Contester cette sanction'),
+      child: Text(widget.appealPending ? context.l10n.appealPending : context.l10n.contestSanction),
     );
   }
 }

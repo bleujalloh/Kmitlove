@@ -1,4 +1,10 @@
+import '../../../l10n/app_localizations.dart';
+
 /// Intentions relationnelles possibles (cahier des charges section 4.2).
+/// Les valeurs stockées (`serieuse`, `famille`...) sont des codes stables,
+/// jamais affichés directement — `label()` ne fait que choisir le texte
+/// dans la langue courante, donc un profil existant reste lisible quelle
+/// que soit la langue active au moment de l'affichage.
 class RelationshipIntent {
   static const serieuse = 'relation_serieuse';
   static const famille = 'relation_durable_famille';
@@ -7,18 +13,40 @@ class RelationshipIntent {
 
   static const all = [serieuse, famille, decouverte, mariage];
 
-  static String label(String value) {
+  static String label(String value, AppLocalizations l10n) {
     switch (value) {
       case serieuse:
-        return 'Relation sérieuse';
+        return l10n.relationshipIntentSerieuse;
       case famille:
-        return 'Relation durable en vue d\'une famille';
+        return l10n.relationshipIntentFamille;
       case decouverte:
-        return 'Découverte amoureuse';
+        return l10n.relationshipIntentDecouverte;
       case mariage:
-        return 'Mariage';
+        return l10n.relationshipIntentMariage;
       default:
         return value;
+    }
+  }
+}
+
+/// Genres possibles (profil et préférence de recherche) — les valeurs
+/// stockées restent ces mots français (comme `PersonalQuality` plus bas),
+/// `label()` ne traduit que l'affichage.
+class Gender {
+  static const femme = 'Femme';
+  static const homme = 'Homme';
+  static const autre = 'Autre';
+
+  static const all = [femme, homme, autre];
+
+  static String label(String value, AppLocalizations l10n) {
+    switch (value) {
+      case femme:
+        return l10n.genderWoman;
+      case homme:
+        return l10n.genderMan;
+      default:
+        return l10n.genderOther;
     }
   }
 }
@@ -33,14 +61,14 @@ class LifestyleHabit {
 
   static const all = [jamais, parfois, souvent];
 
-  static String label(String value) {
+  static String label(String value, AppLocalizations l10n) {
     switch (value) {
       case jamais:
-        return 'Jamais';
+        return l10n.lifestyleHabitNever;
       case parfois:
-        return 'Parfois';
+        return l10n.lifestyleHabitSometimes;
       case souvent:
-        return 'Souvent';
+        return l10n.lifestyleHabitOften;
       default:
         return value;
     }
@@ -49,24 +77,39 @@ class LifestyleHabit {
 
 /// Qualités que le membre choisit de mettre en avant sur sa fiche,
 /// comme sur les applications de rencontre courantes — liste fermée
-/// pour que ça reste rapide à remplir et comparable entre profils.
+/// pour que ça reste rapide à remplir et comparable entre profils. Les
+/// valeurs stockées restent ces mots français (changer ça casserait les
+/// profils déjà enregistrés) ; `label()` ne traduit que l'affichage.
 class PersonalQuality {
-  static const all = [
-    'Drôle',
-    'Ambitieux(se)',
-    'Calme',
-    'Aventurier(ère)',
-    'Romantique',
-    'Généreux(se)',
-    'Sincère',
-    'Spirituel(le)',
-    'Attentionné(e)',
-    'Déterminé(e)',
-    'Créatif(ve)',
-    'Loyal(e)',
-    'Patient(e)',
-    'Optimiste',
+  // Source unique : `all` et `label()` sont tous deux dérivés de cette
+  // seule liste, pour qu'il soit impossible d'ajouter/renommer une
+  // qualité d'un côté sans l'autre (contrairement à deux listes
+  // indépendantes à tenir manuellement synchronisées).
+  static final List<(String value, String Function(AppLocalizations) label)> _entries = [
+    ('Drôle', (l10n) => l10n.qualityFunny),
+    ('Ambitieux(se)', (l10n) => l10n.qualityAmbitious),
+    ('Calme', (l10n) => l10n.qualityCalm),
+    ('Aventurier(ère)', (l10n) => l10n.qualityAdventurous),
+    ('Romantique', (l10n) => l10n.qualityRomantic),
+    ('Généreux(se)', (l10n) => l10n.qualityGenerous),
+    ('Sincère', (l10n) => l10n.qualitySincere),
+    ('Spirituel(le)', (l10n) => l10n.qualitySpiritual),
+    ('Attentionné(e)', (l10n) => l10n.qualityCaring),
+    ('Déterminé(e)', (l10n) => l10n.qualityDetermined),
+    ('Créatif(ve)', (l10n) => l10n.qualityCreative),
+    ('Loyal(e)', (l10n) => l10n.qualityLoyal),
+    ('Patient(e)', (l10n) => l10n.qualityPatient),
+    ('Optimiste', (l10n) => l10n.qualityOptimistic),
   ];
+
+  static List<String> get all => _entries.map((e) => e.$1).toList();
+
+  static String label(String value, AppLocalizations l10n) {
+    for (final entry in _entries) {
+      if (entry.$1 == value) return entry.$2(l10n);
+    }
+    return value;
+  }
 }
 
 class ChildrenStatus {
@@ -77,16 +120,16 @@ class ChildrenStatus {
 
   static const all = [hasChildren, wantsChildren, doesNotWantChildren, notSure];
 
-  static String label(String value) {
+  static String label(String value, AppLocalizations l10n) {
     switch (value) {
       case hasChildren:
-        return 'A déjà des enfants';
+        return l10n.childrenStatusHas;
       case wantsChildren:
-        return 'Veut des enfants';
+        return l10n.childrenStatusWants;
       case doesNotWantChildren:
-        return 'Ne veut pas d\'enfants';
+        return l10n.childrenStatusDoesNotWant;
       case notSure:
-        return 'Ne sait pas encore';
+        return l10n.childrenStatusNotSure;
       default:
         return value;
     }

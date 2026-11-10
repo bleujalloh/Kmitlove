@@ -6,6 +6,7 @@ import 'package:image_picker/image_picker.dart';
 
 import '../../../../core/providers/firebase_providers.dart';
 import '../../../../core/theme/app_theme.dart';
+import '../../../../l10n/l10n_extensions.dart';
 import '../../../auth/presentation/auth_controller.dart';
 import '../../../profil/presentation/photo_controller.dart';
 import '../../data/identite_repository.dart';
@@ -39,13 +40,13 @@ class _IdentiteScreenState extends ConsumerState<IdentiteScreen> {
       await ref.read(identiteRepositoryProvider).submitSelfie(uid, File(picked.path));
       if (mounted) {
         ScaffoldMessenger.of(context)
-            .showSnackBar(const SnackBar(content: Text('Envoyé, un modérateur va vérifier.')));
+            .showSnackBar(SnackBar(content: Text(context.l10n.identitySubmitted)));
         Navigator.of(context).pop();
       }
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context)
-            .showSnackBar(const SnackBar(content: Text("Impossible d'envoyer, réessaie.")));
+            .showSnackBar(SnackBar(content: Text(context.l10n.identitySubmitFailed)));
       }
     } finally {
       if (mounted) setState(() => _submitting = false);
@@ -55,7 +56,7 @@ class _IdentiteScreenState extends ConsumerState<IdentiteScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Vérification d\'identité')),
+      appBar: AppBar(title: Text(context.l10n.identityVerificationTitle)),
       body: SafeArea(
         child: Padding(
           padding: const EdgeInsets.all(24),
@@ -64,16 +65,16 @@ class _IdentiteScreenState extends ConsumerState<IdentiteScreen> {
             children: [
               const Icon(Icons.verified_outlined, size: 56, color: AppColors.accent),
               const SizedBox(height: 18),
-              const Text(
-                'Prends un selfie clair, visage visible, pour obtenir le badge vérifié et pouvoir organiser des événements physiques.',
+              Text(
+                context.l10n.identityIntro,
                 textAlign: TextAlign.center,
-                style: TextStyle(color: AppColors.muted, height: 1.5),
+                style: const TextStyle(color: AppColors.muted, height: 1.5),
               ),
               const SizedBox(height: 10),
-              const Text(
-                'Jamais vu par un autre membre — uniquement par un modérateur, et jamais obligatoire pour le reste de l\'app.',
+              Text(
+                context.l10n.identityPrivacyHint,
                 textAlign: TextAlign.center,
-                style: TextStyle(color: AppColors.muted, fontSize: 12, height: 1.5),
+                style: const TextStyle(color: AppColors.muted, fontSize: 12, height: 1.5),
               ),
               const SizedBox(height: 28),
               ElevatedButton(
@@ -84,7 +85,7 @@ class _IdentiteScreenState extends ConsumerState<IdentiteScreen> {
                         width: 18,
                         child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white),
                       )
-                    : const Text('Prendre un selfie'),
+                    : Text(context.l10n.takeASelfie),
               ),
             ],
           ),

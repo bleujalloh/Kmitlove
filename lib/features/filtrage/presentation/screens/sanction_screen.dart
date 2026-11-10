@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../../core/theme/app_theme.dart';
 import '../../../../core/widgets/sanction_appeal_button.dart';
+import '../../../../l10n/l10n_extensions.dart';
 import '../../../auth/presentation/auth_controller.dart';
 
 /// Affiché à la place de tout le reste de l'app quand le compte est
@@ -34,30 +35,30 @@ class SanctionScreen extends ConsumerWidget {
                 const Icon(Icons.block, size: 56, color: AppColors.accent),
                 const SizedBox(height: 18),
                 Text(
-                  banned ? 'Compte suspendu définitivement' : 'Compte suspendu temporairement',
+                  banned ? context.l10n.bannedTitle : context.l10n.suspendedTitle,
                   style: const TextStyle(fontSize: 20, fontWeight: FontWeight.w600, color: AppColors.ink),
                   textAlign: TextAlign.center,
                 ),
                 const SizedBox(height: 12),
                 Text(
                   !banned && suspendedUntil != null
-                      ? "Ton compte redevient actif à partir du ${_formatDate(suspendedUntil.toDate())}."
-                      : "Cette décision fait suite à un ou plusieurs signalements confirmés.",
+                      ? context.l10n.suspendedUntilDate(_formatDate(suspendedUntil.toDate()))
+                      : context.l10n.sanctionFollowsReports,
                   textAlign: TextAlign.center,
                   style: const TextStyle(color: AppColors.muted, height: 1.5),
                 ),
                 const SizedBox(height: 8),
-                const Text(
-                  "Si tu penses que c'est une erreur, tu peux demander qu'un modérateur réexamine cette décision.",
+                Text(
+                  context.l10n.sanctionAppealHint,
                   textAlign: TextAlign.center,
-                  style: TextStyle(color: AppColors.muted, height: 1.5),
+                  style: const TextStyle(color: AppColors.muted, height: 1.5),
                 ),
                 const SizedBox(height: 24),
                 SanctionAppealButton(appealPending: appealPending),
                 const SizedBox(height: 12),
                 TextButton(
                   onPressed: () => ref.read(authControllerProvider.notifier).signOut(),
-                  child: const Text('Se déconnecter'),
+                  child: Text(context.l10n.signOut),
                 ),
               ],
             ),

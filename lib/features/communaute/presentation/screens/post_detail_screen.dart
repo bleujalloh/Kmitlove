@@ -4,16 +4,10 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../../core/providers/firebase_providers.dart';
 import '../../../../core/theme/app_theme.dart';
 import '../../../../core/widgets/emergency_sheet.dart';
+import '../../../../core/widgets/report_reasons.dart';
+import '../../../../l10n/l10n_extensions.dart';
 import '../../domain/community_post.dart';
 import '../communaute_controller.dart';
-
-const _reportReasons = {
-  'faux_profil': 'Faux profil',
-  'comportement_abusif': 'Comportement abusif',
-  'contenu_inapproprie': 'Contenu inapproprié',
-  'arnaque': 'Arnaque',
-  'autre': 'Autre',
-};
 
 class PostDetailScreen extends ConsumerStatefulWidget {
   const PostDetailScreen({super.key, required this.post});
@@ -36,18 +30,19 @@ class _PostDetailScreenState extends ConsumerState<PostDetailScreen> {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text(widget.post.title ?? 'Publication'),
+        title: Text(widget.post.title ?? context.l10n.postTypeGeneric),
         actions: [
           PopupMenuButton<String>(
             onSelected: (reason) async {
               await ref.read(communauteControllerProvider).report(widget.post.id, reason);
               if (context.mounted) {
                 ScaffoldMessenger.of(context)
-                    .showSnackBar(const SnackBar(content: Text('Signalement envoyé.')));
+                    .showSnackBar(SnackBar(content: Text(context.l10n.reportSent)));
               }
             },
-            itemBuilder: (_) => _reportReasons.entries
-                .map((e) => PopupMenuItem(value: e.key, child: Text('Signaler : ${e.value}')))
+            itemBuilder: (_) => reportReasonLabels(context.l10n)
+                .entries
+                .map((e) => PopupMenuItem(value: e.key, child: Text(context.l10n.reportWithReason(e.value))))
                 .toList(),
           ),
         ],
@@ -60,7 +55,13 @@ class _PostDetailScreenState extends ConsumerState<PostDetailScreen> {
             if (widget.post.isEvent) ...[
               const SizedBox(height: 14),
               Text(
-                '${widget.post.eventDate != null ? "${widget.post.eventDate!.day}/${widget.post.eventDate!.month}/${widget.post.eventDate!.year}" : ''} · ${widget.post.participantsCount}/${widget.post.capacity ?? '-'} participants',
+                context.l10n.eventDateAndParticipants(
+                  widget.post.eventDate != null
+                      ? "${widget.post.eventDate!.day}/${widget.post.eventDate!.month}/${widget.post.eventDate!.year}"
+                      : '',
+                  widget.post.participantsCount,
+                  widget.post.capacity?.toString() ?? '-',
+                ),
                 style: const TextStyle(color: AppColors.muted, fontSize: 13),
               ),
             ],
@@ -75,14 +76,14 @@ class _PostDetailScreenState extends ConsumerState<PostDetailScreen> {
                     return ElevatedButton(
                       onPressed: () =>
                           ref.read(communauteControllerProvider).requestParticipation(widget.post.id),
-                      child: const Text('Demander à participer'),
+                      child: Text(context.l10n.requestToParticipate),
                     );
                   }
                   if (status == 'accepted') {
                     return Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        const Text('Demande acceptée !', style: TextStyle(fontWeight: FontWeight.bold)),
+                        Text(context.l10n.requestAccepted, style: const TextStyle(fontWeight: FontWeight.bold)),
                         const SizedBox(height: 8),
                         OutlinedButton(
                           onPressed: () async {
@@ -91,7 +92,7 @@ class _PostDetailScreenState extends ConsumerState<PostDetailScreen> {
                                 .getPreciseLocation(widget.post.id);
                             setState(() => _preciseLocation = loc);
                           },
-                          child: const Text('Voir le lieu précis'),
+                          child: Text(context.l10n.seePreciseLocation),
                         ),
                         if (_preciseLocation != null)
                           Padding(
@@ -101,7 +102,7 @@ class _PostDetailScreenState extends ConsumerState<PostDetailScreen> {
                         if (participation?['checkinCode'] != null)
                           Padding(
                             padding: const EdgeInsets.only(top: 8),
-                            child: Text('Code de présence : ${participation?['checkinCode']}'),
+                            child: Text(context.l10n.checkinCodeLabel(participation?['checkinCode'] as String)),
                           ),
                         const SizedBox(height: 8),
                         // Toujours visible sur un événement accepté
@@ -110,13 +111,13 @@ class _PostDetailScreenState extends ConsumerState<PostDetailScreen> {
                         TextButton.icon(
                           onPressed: () => showEmergencySheet(context, ref, eventPostId: widget.post.id),
                           icon: const Icon(Icons.warning_amber_rounded, color: AppColors.accent),
-                          label: const Text('Signaler un danger immédiat',
-                              style: TextStyle(color: AppColors.accent)),
+                          label: Text(context.l10n.reportImmediateDanger,
+                              style: const TextStyle(color: AppColors.accent)),
                         ),
                       ],
                     );
                   }
-                  return Text('Statut : $status', style: const TextStyle(color: AppColors.muted));
+                  return Text(context.l10n.statusLabel(status), style: const TextStyle(color: AppColors.muted));
                 },
               ),
             if (isOrganizer && widget.post.needsParticipationRequest) _OrganizerPanel(post: widget.post),
@@ -137,20 +138,20 @@ class _OrganizerPanel extends ConsumerWidget {
     final participationsAsync = ref.watch(participationsProvider(post.id));
     return participationsAsync.when(
       loading: () => const CircularProgressIndicator(),
-      error: (e, st) => const Text('Impossible de charger les demandes.'),
+      error: (e, st) => Text(context.l10n.requestsLoadFailed),
       data: (participations) {
         final pending = participations.where((p) => p['status'] == 'pending').toList();
         final accepted = participations
             .where((p) => p['status'] == 'accepted' && p['checkedIn'] != true)
             .toList();
         if (pending.isEmpty && accepted.isEmpty) {
-          return const Text('Aucune demande en attente.');
+          return Text(context.l10n.noPendingRequests);
         }
         return Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             if (pending.isNotEmpty) ...[
-              const Text('Demandes en attente', style: TextStyle(fontWeight: FontWeight.bold)),
+              Text(context.l10n.pendingRequestsTitle, style: const TextStyle(fontWeight: FontWeight.bold)),
               const SizedBox(height: 8),
               for (final p in pending)
                 Padding(
@@ -162,13 +163,13 @@ class _OrganizerPanel extends ConsumerWidget {
                         onPressed: () => ref
                             .read(communauteControllerProvider)
                             .respond(post.id, p['uid'] as String, true),
-                        child: const Text('Accepter'),
+                        child: Text(context.l10n.acceptButton),
                       ),
                       TextButton(
                         onPressed: () => ref
                             .read(communauteControllerProvider)
                             .respond(post.id, p['uid'] as String, false),
-                        child: const Text('Refuser'),
+                        child: Text(context.l10n.declineButton),
                       ),
                     ],
                   ),
@@ -176,7 +177,7 @@ class _OrganizerPanel extends ConsumerWidget {
             ],
             if (accepted.isNotEmpty) ...[
               const SizedBox(height: 12),
-              const Text("Valider l'entrée", style: TextStyle(fontWeight: FontWeight.bold)),
+              Text(context.l10n.validateEntryTitle, style: const TextStyle(fontWeight: FontWeight.bold)),
               const SizedBox(height: 8),
               for (final p in accepted)
                 Padding(
@@ -186,7 +187,7 @@ class _OrganizerPanel extends ConsumerWidget {
                       Expanded(child: Text(p['uid'] as String)),
                       TextButton(
                         onPressed: () => _checkInDialog(context, ref, post.id, p['uid'] as String),
-                        child: const Text('Entrer le code'),
+                        child: Text(context.l10n.enterCodeButton),
                       ),
                     ],
                   ),
@@ -204,14 +205,14 @@ void _checkInDialog(BuildContext context, WidgetRef ref, String postId, String t
   showDialog(
     context: context,
     builder: (dialogContext) => AlertDialog(
-      title: const Text("Code de présence"),
+      title: Text(context.l10n.checkinCodeTitle),
       content: TextField(
         controller: codeController,
-        decoration: const InputDecoration(labelText: 'Code donné par le participant'),
+        decoration: InputDecoration(labelText: context.l10n.checkinCodeFieldLabel),
         textCapitalization: TextCapitalization.characters,
       ),
       actions: [
-        TextButton(onPressed: () => Navigator.of(dialogContext).pop(), child: const Text('Annuler')),
+        TextButton(onPressed: () => Navigator.of(dialogContext).pop(), child: Text(context.l10n.cancelButton)),
         TextButton(
           onPressed: () async {
             Navigator.of(dialogContext).pop();
@@ -221,16 +222,16 @@ void _checkInDialog(BuildContext context, WidgetRef ref, String postId, String t
                   .checkIn(postId, targetUid, codeController.text.trim());
               if (context.mounted) {
                 ScaffoldMessenger.of(context)
-                    .showSnackBar(const SnackBar(content: Text('Entrée validée.')));
+                    .showSnackBar(SnackBar(content: Text(context.l10n.checkinValidated)));
               }
             } catch (_) {
               if (context.mounted) {
                 ScaffoldMessenger.of(context)
-                    .showSnackBar(const SnackBar(content: Text('Code invalide.')));
+                    .showSnackBar(SnackBar(content: Text(context.l10n.checkinInvalidCode)));
               }
             }
           },
-          child: const Text('Valider'),
+          child: Text(context.l10n.validateButton),
         ),
       ],
     ),

@@ -13,6 +13,7 @@ import '../../../identite/presentation/screens/identite_screen.dart';
 import '../../../messages/presentation/screens/matches_list_screen.dart';
 import '../../../parametres/presentation/screens/parametres_screen.dart';
 import '../../../premium/presentation/screens/premium_screen.dart';
+import '../../../../l10n/l10n_extensions.dart';
 
 /// Écran temporaire après connexion + vérification d'e-mail, en attendant
 /// le questionnaire de filtrage (docs/suivi-developpement.md) et la vraie
@@ -41,8 +42,8 @@ class PlaceholderHomeScreen extends ConsumerWidget {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              const Text(
-                "Compte activé et profil créé.\nProchaine étape : Découvrir, Likes, Messages, Communauté.",
+              Text(
+                context.l10n.homeWelcomeHint,
                 textAlign: TextAlign.center,
               ),
               const SizedBox(height: 20),
@@ -50,49 +51,49 @@ class PlaceholderHomeScreen extends ConsumerWidget {
                 onPressed: () => Navigator.of(context).push(
                   MaterialPageRoute(builder: (_) => const DecouvrirScreen()),
                 ),
-                child: const Text('Découvrir'),
+                child: Text(context.l10n.navDiscover),
               ),
               const SizedBox(height: 10),
               OutlinedButton(
                 onPressed: () => Navigator.of(context).push(
                   MaterialPageRoute(builder: (_) => const LikesScreen()),
                 ),
-                child: const Text('Likes'),
+                child: Text(context.l10n.navLikes),
               ),
               const SizedBox(height: 10),
               OutlinedButton(
                 onPressed: () => Navigator.of(context).push(
                   MaterialPageRoute(builder: (_) => const MatchesListScreen()),
                 ),
-                child: const Text('Messages'),
+                child: Text(context.l10n.navMessages),
               ),
               const SizedBox(height: 10),
               OutlinedButton(
                 onPressed: () => Navigator.of(context).push(
                   MaterialPageRoute(builder: (_) => const CommunauteScreen()),
                 ),
-                child: const Text('Communauté'),
+                child: Text(context.l10n.navCommunity),
               ),
               const SizedBox(height: 10),
               OutlinedButton(
                 onPressed: () => Navigator.of(context).push(
                   MaterialPageRoute(builder: (_) => const PremiumScreen()),
                 ),
-                child: const Text('Premium & jetons'),
+                child: Text(context.l10n.navPremium),
               ),
               const SizedBox(height: 10),
               OutlinedButton(
                 onPressed: () => Navigator.of(context).push(
                   MaterialPageRoute(builder: (_) => const CompatScreen()),
                 ),
-                child: const Text('Faire le test de compatibilité'),
+                child: Text(context.l10n.navCompatTest),
               ),
               const SizedBox(height: 10),
               OutlinedButton(
                 onPressed: () => Navigator.of(context).push(
                   MaterialPageRoute(builder: (_) => const IdentiteScreen()),
                 ),
-                child: const Text('Vérification d\'identité'),
+                child: Text(context.l10n.navIdentityVerification),
               ),
               Consumer(
                 builder: (context, ref, _) {
@@ -104,7 +105,7 @@ class PlaceholderHomeScreen extends ConsumerWidget {
                         onPressed: () => Navigator.of(context).push(
                           MaterialPageRoute(builder: (_) => const AdminScreen()),
                         ),
-                        child: const Text('Administration'),
+                        child: Text(context.l10n.navAdmin),
                       ),
                     );
                   }
@@ -119,26 +120,26 @@ class PlaceholderHomeScreen extends ConsumerWidget {
                           ref.invalidate(isAdminProvider);
                           if (context.mounted) {
                             ScaffoldMessenger.of(context).showSnackBar(
-                              const SnackBar(content: Text('Tu es maintenant administrateur.')),
+                              SnackBar(content: Text(context.l10n.becomeAdminSuccess)),
                             );
                           }
                         } on FirebaseFunctionsException catch (e) {
                           if (context.mounted) {
                             final message = e.code == 'already-exists'
-                                ? 'Un administrateur existe déjà sur ce projet.'
-                                : "Impossible de devenir admin, réessaie (${e.code}).";
+                                ? context.l10n.becomeAdminAlreadyExists
+                                : context.l10n.becomeAdminFailed(e.code);
                             ScaffoldMessenger.of(context)
                                 .showSnackBar(SnackBar(content: Text(message)));
                           }
                         } catch (_) {
                           if (context.mounted) {
                             ScaffoldMessenger.of(context).showSnackBar(
-                              const SnackBar(content: Text('Erreur réseau, réessaie.')),
+                              SnackBar(content: Text(context.l10n.networkErrorRetry)),
                             );
                           }
                         }
                       },
-                      child: const Text('Devenir le premier administrateur'),
+                      child: Text(context.l10n.becomeFirstAdmin),
                     ),
                   );
                 },

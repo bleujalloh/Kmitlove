@@ -81,3 +81,11 @@ export const PRIORITY_REVIEW_REPORT_THRESHOLD = 3;
 // Même raisonnement que FILTRAGE_RETRY_DELAY_DAYS : empêche de re-soumettre
 // un recours en boucle immédiatement après un refus.
 export const SANCTION_APPEAL_RETRY_DELAY_DAYS = 7;
+
+// "Limite de comptes par appareil" (docs/suivi-developpement.md,
+// Fondations) — un identifiant d'appareil n'est qu'un indice (il est
+// trivialement réinitialisable à la réinstallation, et peut être partagé
+// légitimement par un foyer), donc jamais utilisé pour bloquer une
+// inscription : seulement pour mettre en revue prioritaire un compte une
+// fois ce seuil atteint depuis le même appareil (shared/deviceSignal.ts).
+export const MULTI_ACCOUNT_DEVICE_THRESHOLD = 3;

@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../../core/theme/app_theme.dart';
 import '../../../../core/widgets/google_mark.dart';
 import '../../../../core/widgets/kamite_motif.dart';
+import '../../../../l10n/l10n_extensions.dart';
 import '../auth_controller.dart';
 
 class SignInScreen extends ConsumerStatefulWidget {
@@ -51,14 +52,14 @@ class _SignInScreenState extends ConsumerState<SignInScreen> {
           children: [
             const KamiteMotif(height: 110, compact: true),
             const SizedBox(height: 8),
-            const Text(
-              'Content de te revoir',
-              style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold, color: AppColors.ink),
+            Text(
+              context.l10n.signInTitle,
+              style: const TextStyle(fontSize: 22, fontWeight: FontWeight.bold, color: AppColors.ink),
             ),
             const SizedBox(height: 4),
-            const Text(
-              'Connecte-toi à ton compte MERUT',
-              style: TextStyle(fontSize: 13, color: AppColors.muted),
+            Text(
+              context.l10n.signInSubtitle,
+              style: const TextStyle(fontSize: 13, color: AppColors.muted),
             ),
             const SizedBox(height: 24),
             Form(
@@ -69,28 +70,28 @@ class _SignInScreenState extends ConsumerState<SignInScreen> {
                   TextFormField(
                     controller: _emailController,
                     keyboardType: TextInputType.emailAddress,
-                    decoration: const InputDecoration(labelText: 'Adresse e-mail'),
+                    decoration: InputDecoration(labelText: context.l10n.emailLabel),
                     validator: (v) =>
-                        (v == null || !v.contains('@')) ? 'E-mail invalide' : null,
+                        (v == null || !v.contains('@')) ? context.l10n.invalidEmail : null,
                   ),
                   const SizedBox(height: 14),
                   TextFormField(
                     controller: _passwordController,
                     obscureText: true,
-                    decoration: const InputDecoration(labelText: 'Mot de passe'),
-                    validator: (v) => (v == null || v.isEmpty) ? 'Mot de passe requis' : null,
+                    decoration: InputDecoration(labelText: context.l10n.passwordLabel),
+                    validator: (v) => (v == null || v.isEmpty) ? context.l10n.passwordRequired : null,
                   ),
                   Align(
                     alignment: Alignment.centerRight,
                     child: TextButton(
                       onPressed: widget.onGoToResetPassword,
-                      child: const Text('Mot de passe oublié ?'),
+                      child: Text(context.l10n.forgotPassword),
                     ),
                   ),
                   if (authState.hasError) ...[
                     const SizedBox(height: 4),
                     Text(
-                      readableAuthError(authState.error!),
+                      readableAuthError(authState.error!, context.l10n),
                       style: const TextStyle(color: AppColors.accent, fontSize: 13),
                     ),
                   ],
@@ -103,17 +104,18 @@ class _SignInScreenState extends ConsumerState<SignInScreen> {
                             width: 18,
                             child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white),
                           )
-                        : const Text('Se connecter'),
+                        : Text(context.l10n.signIn),
                   ),
                   const SizedBox(height: 18),
                   Row(
-                    children: const [
-                      Expanded(child: Divider(color: AppColors.border)),
+                    children: [
+                      const Expanded(child: Divider(color: AppColors.border)),
                       Padding(
-                        padding: EdgeInsets.symmetric(horizontal: 10),
-                        child: Text('ou', style: TextStyle(color: AppColors.muted, fontSize: 12)),
+                        padding: const EdgeInsets.symmetric(horizontal: 10),
+                        child: Text(context.l10n.orSeparator,
+                            style: const TextStyle(color: AppColors.muted, fontSize: 12)),
                       ),
-                      Expanded(child: Divider(color: AppColors.border)),
+                      const Expanded(child: Divider(color: AppColors.border)),
                     ],
                   ),
                   const SizedBox(height: 18),
@@ -122,7 +124,7 @@ class _SignInScreenState extends ConsumerState<SignInScreen> {
                         ? null
                         : () => ref.read(authControllerProvider.notifier).signInWithGoogle(),
                     icon: const GoogleMark(),
-                    label: const Text('Continuer avec Google'),
+                    label: Text(context.l10n.continueWithGoogle),
                   ),
                   // Connexion Apple volontairement masquée : le compte
                   // Apple Developer n'est pas encore ouvert, le bouton ne
@@ -130,7 +132,7 @@ class _SignInScreenState extends ConsumerState<SignInScreen> {
                   const SizedBox(height: 14),
                   TextButton(
                     onPressed: widget.onGoToSignUp,
-                    child: const Text('Pas encore de compte ? Créer un compte'),
+                    child: Text(context.l10n.noAccountYet),
                   ),
                 ],
               ),

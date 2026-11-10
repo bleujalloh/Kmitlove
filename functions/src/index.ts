@@ -31,6 +31,7 @@ export {
 } from "./identite/adminReviewIdentity";
 export { bootstrapFirstAdmin } from "./admin/bootstrapFirstAdmin";
 export { recordActivity } from "./account/recordActivity";
+export { registerDeviceSignal } from "./account/registerDeviceSignal";
 export { expireMatches } from "./scheduled/expireMatches";
 export { exportMyData } from "./rgpd/exportMyData";
 export { updateMyLocation } from "./account/updateMyLocation";

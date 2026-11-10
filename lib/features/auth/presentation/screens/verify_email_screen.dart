@@ -5,6 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../../core/providers/firebase_providers.dart';
 import '../../../../core/theme/app_theme.dart';
+import '../../../../l10n/l10n_extensions.dart';
 import '../auth_controller.dart';
 
 /// Attente de la vérification d'e-mail (section 4.1 du cahier des charges).
@@ -49,14 +50,14 @@ class _VerifyEmailScreenState extends ConsumerState<VerifyEmailScreen> {
     if (mounted) {
       setState(() => _sending = false);
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text("E-mail de vérification renvoyé.")),
+        SnackBar(content: Text(context.l10n.verificationEmailResent)),
       );
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    final email = ref.read(firebaseAuthProviderForDisplay);
+    final email = ref.read(firebaseAuthProviderForDisplay) ?? context.l10n.yourAddressFallback;
 
     return Scaffold(
       body: SafeArea(
@@ -69,20 +70,20 @@ class _VerifyEmailScreenState extends ConsumerState<VerifyEmailScreen> {
                 const Icon(Icons.mark_email_unread_outlined, size: 56, color: AppColors.accent),
                 const SizedBox(height: 18),
                 Text(
-                  'Vérifie ta boîte mail',
+                  context.l10n.checkYourInbox,
                   style: Theme.of(context).textTheme.titleLarge,
                   textAlign: TextAlign.center,
                 ),
                 const SizedBox(height: 10),
                 Text(
-                  'Un lien de confirmation a été envoyé à $email. Clique sur le lien, cette page se met à jour automatiquement.',
+                  context.l10n.verificationEmailSentTo(email),
                   textAlign: TextAlign.center,
                   style: const TextStyle(color: AppColors.muted),
                 ),
                 const SizedBox(height: 22),
                 TextButton(
                   onPressed: _sending ? null : _resend,
-                  child: Text(_sending ? 'Envoi...' : "Je n'ai rien reçu, renvoyer l'e-mail"),
+                  child: Text(_sending ? context.l10n.sendingEllipsis : context.l10n.resendEmail),
                 ),
               ],
             ),
@@ -93,6 +94,6 @@ class _VerifyEmailScreenState extends ConsumerState<VerifyEmailScreen> {
   }
 }
 
-final firebaseAuthProviderForDisplay = Provider<String>((ref) {
-  return ref.watch(firebaseAuthProvider).currentUser?.email ?? 'ton adresse';
+final firebaseAuthProviderForDisplay = Provider<String?>((ref) {
+  return ref.watch(firebaseAuthProvider).currentUser?.email;
 });

@@ -8,7 +8,6 @@ Checklist de toutes les parties du cahier des charges et des règles, pour qu'au
 - [x] Firebase connecté (projet djama-1c7f8), règles Firestore/Storage par défaut déployées
 - [x] Squelette Cloud Functions
 - [x] **L'APK Android compile avec succès** (`flutter build apk --debug`, 2026-11-09) — minSdk 23 fixé dans android/app/build.gradle.kts (attention : l'outil de migration Gradle de Flutter peut réécrire ce fichier lors d'un futur `flutter build`, à vérifier si ça revient)
-- [ ] Plan Firebase Blaze — volontairement repoussé à la fin (décision du 2026-11-09), donc Cloud Functions pas encore déployées/testables en conditions réelles malgré le code prêt et relu
 - [x] Firebase Storage activé (2026-11-10, mode production) — règles de sécurité réelles déployées (photos approuvées uniquement, vérification d'identité jamais visible par un autre membre)
 - [x] Fournisseur Google activé dans Firebase Authentication (2026-11-10) — OAuth client Android confirmé et lié au SHA-1 de debug, config régénérée. **Fonctionnel pour le debug ; il faudra refaire la même vérification avec le SHA-1 de la clé de release avant publication sur le Play Store.**
 - [x] Plan Blaze activé (2026-11-09) — toutes les Cloud Functions déployées en production (europe-west1)
@@ -37,7 +36,7 @@ Checklist de toutes les parties du cahier des charges et des règles, pour qu'au
 - [x] Compte en attente + nouvel essai après délai (7 jours) + recours humain (`requestFiltrageReview`)
 - [x] Anti-contournement : reprise de la tentative en cours au lieu d'un nouveau tirage (corrigé après revue indépendante)
 - [x] Banque de questions chargée dans Firestore — Cloud Function `adminSeedQuestionBanks` (bouton dans l'onglet admin) importe les deux banques (filtrage + compatibilité) ; à déclencher une fois depuis l'app par un admin
-- [ ] Limite de comptes par appareil/e-mail (nécessite App Check / un dispositif anti-abus, pas encore fait)
+- [x] Limite de comptes par appareil (e-mail déjà garanti unique par Firebase Auth lui-même) — signal best-effort (`registerDeviceSignal`), jamais bloquant pour l'inscription (un appareil partagé en famille reste possible) : au-delà de 3 comptes depuis le même appareil, le plus récent passe en revue prioritaire comme un signalement classique
 - [x] Revue indépendante passée sur cette fonctionnalité (2026-11-09) : 5 problèmes trouvés et corrigés (course d'affichage, double soumission, contournement du délai, suppression de compte, nonce Apple)
 
 ## 4.2 Profil
@@ -56,7 +55,8 @@ Checklist de toutes les parties du cahier des charges et des règles, pour qu'au
 - [x] Cloud Function de calcul (formule précise, pondération, seuil de couverture par thème, anti-triche par validation des valeurs)
 - [x] Recalcul automatique si modification des réponses (le score est recalculé à chaque appel, jamais mis en cache côté serveur pour l'instant — donc toujours à jour par construction)
 - [x] Banque de questions chargée dans Firestore — même mécanisme que le filtrage (`adminSeedQuestionBanks`)
-- [ ] Contrôle de visibilité des réponses par l'utilisateur (section 4.3 du cahier des charges le permet, pas encore construit — réponses jamais visibles par les autres de toute façon, donc non bloquant)
+- [x] Contrôle de visibilité par l'utilisateur — réglage dans Paramètres ("Visibilité du score de compatibilité") : désactivé, plus personne ne voit jamais un score avec ce membre (`computeCompatibility` renvoie toujours `null`)
+- [x] Score de compatibilité affiché sur la carte Découvrir (était calculé côté serveur mais jamais relié à l'écran — fait maintenant, badge discret en haut de la carte)
 - [x] Revue indépendante passée (2026-11-09) : réponses non validées (valeurs hors échelle) et absence de retour d'erreur à la sauvegarde, corrigés
 
 ## 4.4 Découvrir
@@ -90,11 +90,11 @@ Checklist de toutes les parties du cahier des charges et des règles, pour qu'au
 
 - [x] Publications (post-modération, publiées immédiatement)
 - [x] Annonces publiques/privées (filtre de mots-clés très simple + revue humaine si doute), max 3 actives
-- [x] Événements (toujours en attente de revue humaine), réservés aux membres `isVerified` — **ce flag n'est mis à jour par rien encore** : la vérification d'identité (selfie/vidéo) n'est pas construite, donc personne ne peut créer d'événement pour l'instant. Noté comme blocage.
+- [x] Événements (toujours en attente de revue humaine), réservés aux membres `isVerified` — ce flag est posé par `adminReviewIdentity` (section 4.2) à l'approbation du selfie, donc le blocage initialement noté ici est levé : un membre vérifié peut créer un événement.
 - [x] Capacité (avec validation de type), liste d'attente si complet
 - [x] Code de présence à l'entrée **à la place d'un vrai QR code scanné** (simplification assumée : saisie manuelle d'un code, pas de caméra/scanner — à revoir si besoin d'un vrai QR)
-- [ ] Bouton d'urgence sur événement accepté (prévu dans regles-complementaires-concurrents.md, pas encore construit)
-- [ ] **Pas d'espace admin pour traiter les `pending_review`** — les publications en attente (annonces douteuses, tous les événements) n'ont actuellement aucune interface pour être validées/refusées ; à faire avec la section 6 (administration)
+- [x] Bouton d'urgence sur événement accepté — construit avec le reste de la section 4.8 (voir plus bas)
+- [x] Espace admin pour traiter les `pending_review` (annonces douteuses, événements) — construit avec l'espace admin de la section 6
 - [x] Revue indépendante passée (2026-11-09) : capacité non validée (type), demande de participation sur un type qui n'en a pas besoin, listes de motifs dupliquées, requête non bornée, check-in sans écran — toutes corrigées
 
 ## 4.8 Sécurité et modération (transverse)
@@ -160,3 +160,10 @@ Checklist de toutes les parties du cahier des charges et des règles, pour qu'au
   - deux mécanismes de suspension (suspension manuelle `adminSetSuspension` et escalade automatique) ne tenaient pas le même état à jour, pouvant laisser un compte caché indéfiniment ou au contraire rétrograder un bannissement ;
   - plusieurs actions admin (résoudre un recours, suspendre/réactiver) n'étaient pas protégées contre un double clic, pouvant compter deux fois le même signalement confirmé.
 - [x] Limite assumée, documentée dans le code (`filtrage/startAttempt.ts`) : deux appels concurrents à `startFiltrageAttempt` sans tentative déjà en cours peuvent chacun créer leur propre tentative ; sans faille de sécurité (aucune ne permet de contourner le filtrage ou les sanctions), juste une tentative en double possible dans de rares cas — une correction complète demanderait de renvoyer au second appel la tentative créée par le premier plutôt que d'en créer une seconde.
+
+## Suivi 2026-11-10 (suite) — bilingue français/anglais + petites rubriques restantes
+
+- [x] **Application bilingue (français/anglais)** — infrastructure complète (`flutter_localizations`, fichiers `lib/l10n/app_fr.arb` et `app_en.arb`, ~350 textes extraits), sélecteur de langue dans Paramètres (suit la langue de l'appareil par défaut, réglable manuellement, repli sur le français sinon). Couvre tous les écrans vus par un membre (inscription, profil, filtrage, compatibilité, Découvrir, Likes, messagerie, communauté, Premium, Paramètres, sécurité). **Portée volontairement limitée** : l'espace admin reste en français uniquement (utilisé par toi seul) ; le contenu des questionnaires (filtrage + compatibilité) reste en français uniquement pour l'instant — ce sont des centaines de questions sur la culture kamite, les traduire correctement est un travail de contenu à part, distinct de la traduction de l'interface, à faire si/quand l'app s'ouvre à un public non francophone.
+- [x] Score de compatibilité relié à l'écran Découvrir (calculé mais jamais affiché jusqu'ici) + réglage de visibilité correspondant — détail dans la section 4.3 ci-dessus
+- [x] Limite de comptes par appareil — détail dans la section Filtrage ci-dessus
+- [x] Revue indépendante passée : signal anti-abus qui bloquait l'inscription au lieu d'être sans effet sur elle, traduction qui pouvait rester figée en français sur un appareil anglais malgré le réglage "suivre l'appareil", score de compatibilité recalculé sans limite pour chaque profil vu en Découvrir (coût serveur), nom de langue dupliqué à deux endroits pouvant diverger, deux listes "qualités du profil" à tenir manuellement synchronisées — toutes corrigées. **Une seconde passe de revue a été interrompue par une limite d'usage du compte (réinitialisation 21h, heure de Paris) avant de pouvoir vérifier les corrections elles-mêmes** : à relancer en priorité à la prochaine session avant d'aller plus loin.

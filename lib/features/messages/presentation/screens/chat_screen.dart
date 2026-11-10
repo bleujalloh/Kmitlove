@@ -8,16 +8,10 @@ import 'package:image_picker/image_picker.dart';
 import '../../../../core/providers/firebase_providers.dart';
 import '../../../../core/theme/app_theme.dart';
 import '../../../../core/widgets/emergency_sheet.dart';
+import '../../../../core/widgets/report_reasons.dart';
+import '../../../../l10n/l10n_extensions.dart';
 import '../../domain/message.dart';
 import '../messages_controller.dart';
-
-const _reportReasons = {
-  'faux_profil': 'Faux profil',
-  'comportement_abusif': 'Comportement abusif',
-  'contenu_inapproprie': 'Contenu inapproprié',
-  'arnaque': 'Arnaque',
-  'autre': 'Autre',
-};
 
 class ChatScreen extends ConsumerStatefulWidget {
   const ChatScreen({
@@ -49,18 +43,18 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
       final confirmed = await showDialog<bool>(
         context: context,
         builder: (dialogContext) => AlertDialog(
-          title: const Text('Avant d\'envoyer une photo'),
-          content: const Text(
-            'Respecte la charte communautaire : pas de contenu inapproprié. La personne en face peut te signaler.',
+          title: Text(context.l10n.beforeSendingPhotoTitle),
+          content: Text(
+            context.l10n.beforeSendingPhotoBody,
           ),
           actions: [
             TextButton(
               onPressed: () => Navigator.of(dialogContext).pop(false),
-              child: const Text('Annuler'),
+              child: Text(context.l10n.cancelButton),
             ),
             TextButton(
               onPressed: () => Navigator.of(dialogContext).pop(true),
-              child: const Text('Continuer'),
+              child: Text(context.l10n.continueButton),
             ),
           ],
         ),
@@ -103,7 +97,7 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
         title: Text(widget.otherDisplayName),
         actions: [
           IconButton(
-            tooltip: 'Sécurité',
+            tooltip: context.l10n.safetyTitle,
             icon: const Icon(Icons.warning_amber_rounded),
             onPressed: () => showEmergencySheet(context, ref, matchId: widget.matchId),
           ),
@@ -112,23 +106,23 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
               if (value == 'block') _confirmBlock(context);
               if (value == 'report') _openReportSheet(context);
             },
-            itemBuilder: (_) => const [
-              PopupMenuItem(value: 'block', child: Text('Bloquer')),
-              PopupMenuItem(value: 'report', child: Text('Signaler')),
+            itemBuilder: (_) => [
+              PopupMenuItem(value: 'block', child: Text(context.l10n.blockButton)),
+              PopupMenuItem(value: 'report', child: Text(context.l10n.reportButton)),
             ],
           ),
         ],
       ),
       body: isBlockedAsync.when(
         loading: () => const Center(child: CircularProgressIndicator()),
-        error: (e, st) => const Center(child: Text('Erreur.')),
+        error: (e, st) => Center(child: Text(context.l10n.genericError)),
         data: (blocked) {
           if (blocked) {
-            return const Center(
+            return Center(
               child: Padding(
-                padding: EdgeInsets.all(24),
+                padding: const EdgeInsets.all(24),
                 child: Text(
-                  'Cette conversation n\'est plus accessible.',
+                  context.l10n.conversationNoLongerAccessible,
                   textAlign: TextAlign.center,
                 ),
               ),
@@ -139,12 +133,12 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
               Expanded(
                 child: messagesAsync.when(
                   loading: () => const Center(child: CircularProgressIndicator()),
-                  error: (e, st) => const Center(child: Text('Impossible de charger les messages.')),
+                  error: (e, st) => Center(child: Text(context.l10n.messagesLoadFailed)),
                   data: (messages) {
                     WidgetsBinding.instance
                         .addPostFrameCallback((_) => _markVisibleMessagesAsRead(messages, myUid));
                     if (messages.isEmpty) {
-                      return const Center(child: Text('Dites bonjour 👋'));
+                      return Center(child: Text(context.l10n.sayHelloPreview));
                     }
                     // La liste est triée du plus récent au plus ancien : la
                     // première photo CHRONOLOGIQUEMENT de l'autre personne
@@ -195,7 +189,7 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
                                   Padding(
                                     padding: const EdgeInsets.only(top: 4, right: 4),
                                     child: Text(
-                                      read ? 'Lu' : 'Envoyé',
+                                      read ? context.l10n.readReceipt : context.l10n.sentReceipt,
                                       style: TextStyle(
                                         fontSize: 10,
                                         color: m.hasImage ? AppColors.muted : Colors.white70,
@@ -227,7 +221,7 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
                       Expanded(
                         child: TextField(
                           controller: _controller,
-                          decoration: const InputDecoration(hintText: 'Message...'),
+                          decoration: InputDecoration(hintText: context.l10n.messageHint),
                         ),
                       ),
                       IconButton(
@@ -252,16 +246,16 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
     showDialog(
       context: context,
       builder: (dialogContext) => AlertDialog(
-        title: const Text('Bloquer ce membre ?'),
-        content: const Text('La conversation deviendra inaccessible pour vous deux, immédiatement.'),
+        title: Text(context.l10n.blockMemberConfirmTitle),
+        content: Text(context.l10n.blockMemberConfirmBody),
         actions: [
-          TextButton(onPressed: () => Navigator.of(dialogContext).pop(), child: const Text('Annuler')),
+          TextButton(onPressed: () => Navigator.of(dialogContext).pop(), child: Text(context.l10n.cancelButton)),
           TextButton(
             onPressed: () async {
               Navigator.of(dialogContext).pop();
               await ref.read(messagesControllerProvider).block(widget.matchId);
             },
-            child: const Text('Bloquer'),
+            child: Text(context.l10n.blockButton),
           ),
         ],
       ),
@@ -274,7 +268,8 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
       builder: (sheetContext) => SafeArea(
         child: Column(
           mainAxisSize: MainAxisSize.min,
-          children: _reportReasons.entries
+          children: reportReasonLabels(context.l10n)
+              .entries
               .map((entry) => ListTile(
                     title: Text(entry.value),
                     onTap: () async {
@@ -287,7 +282,7 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
                           );
                       if (context.mounted) {
                         ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(content: Text('Signalement envoyé.')),
+                          SnackBar(content: Text(context.l10n.reportSent)),
                         );
                       }
                     },
@@ -345,13 +340,13 @@ class _MessageImage extends ConsumerWidget {
                 color: Colors.black26,
                 child: InkWell(
                   onTap: onReveal,
-                  child: const Center(
+                  child: Center(
                     child: Padding(
-                      padding: EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+                      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
                       child: Text(
-                        'Afficher la photo',
+                        context.l10n.showPhotoButton,
                         textAlign: TextAlign.center,
-                        style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+                        style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
                       ),
                     ),
                   ),

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../../core/theme/app_theme.dart';
+import '../../../../l10n/l10n_extensions.dart';
 import '../filtrage_controller.dart';
 import 'filtrage_intro_screen.dart';
 import 'filtrage_result_screen.dart';
@@ -24,11 +25,11 @@ class FiltrageScreen extends ConsumerWidget {
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                const Text('Impossible de démarrer le questionnaire pour le moment.'),
+                Text(context.l10n.filtrageStartFailed),
                 const SizedBox(height: 12),
                 ElevatedButton(
                   onPressed: () => ref.read(filtrageControllerProvider.notifier).startAttempt(),
-                  child: const Text('Réessayer'),
+                  child: Text(context.l10n.retryButton),
                 ),
               ],
             ),
@@ -66,9 +67,9 @@ class _QuestionView extends ConsumerWidget {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      const Text(
-                        "VÉRIFICATION D'ENGAGEMENT",
-                        style: TextStyle(
+                      Text(
+                        context.l10n.filtrageHeaderTitle,
+                        style: const TextStyle(
                           fontSize: 12,
                           fontWeight: FontWeight.w600,
                           color: AppColors.muted,
@@ -76,7 +77,7 @@ class _QuestionView extends ConsumerWidget {
                         ),
                       ),
                       Text(
-                        'Question ${attempt.currentIndex + 1}/${attempt.questions.length}',
+                        context.l10n.questionCounter(attempt.currentIndex + 1, attempt.questions.length),
                         style: const TextStyle(
                           fontSize: 12,
                           fontWeight: FontWeight.w600,
@@ -167,9 +168,9 @@ class _QuestionView extends ConsumerWidget {
                       border: Border.all(color: AppColors.border),
                       borderRadius: BorderRadius.circular(12),
                     ),
-                    child: const Text(
-                      "Ce questionnaire porte uniquement sur la culture, l'histoire et les valeurs — jamais sur ton apparence ou ton origine. Un score minimum est requis pour activer ton compte ; en cas d'échec, tu peux demander une révision par un modérateur.",
-                      style: TextStyle(fontSize: 12, height: 1.5, color: AppColors.muted),
+                    child: Text(
+                      context.l10n.filtrageDisclaimer,
+                      style: const TextStyle(fontSize: 12, height: 1.5, color: AppColors.muted),
                     ),
                   ),
                 ],
@@ -189,7 +190,7 @@ class _QuestionView extends ConsumerWidget {
                             controller.goToNextQuestion();
                           }
                         },
-                  child: Text(attempt.isLastQuestion ? 'Terminer' : 'Question suivante'),
+                  child: Text(attempt.isLastQuestion ? context.l10n.finishButton : context.l10n.nextQuestion),
                 ),
               ),
             ),

@@ -40,4 +40,24 @@ class CompatRepository {
     final data = result.data as Map<Object?, Object?>;
     return data['score'] as int?;
   }
+
+  /// Contrôle de visibilité (cahier des charges section 4.3) : stocké sur
+  /// le profil public comme `showReadReceipts` (même raisonnement, voir
+  /// messages_repository.dart) — visible par défaut, un membre peut
+  /// choisir de ne plus jamais être comparé à personne (computeCompatibility.ts
+  /// renvoie alors toujours `null` pour lui, jamais un faux score).
+  Future<void> setAnswersVisible(String uid, bool visible) {
+    return _firestore.collection('users').doc(uid).set(
+      {'compatAnswersVisible': visible},
+      SetOptions(merge: true),
+    );
+  }
+
+  Stream<bool> watchAnswersVisible(String uid) {
+    return _firestore
+        .collection('users')
+        .doc(uid)
+        .snapshots()
+        .map((s) => s.data()?['compatAnswersVisible'] as bool? ?? true);
+  }
 }

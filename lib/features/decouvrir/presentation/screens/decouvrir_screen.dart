@@ -2,13 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../../core/theme/app_theme.dart';
+import '../../../../l10n/l10n_extensions.dart';
+import '../../../compatibilite/presentation/compat_controller.dart';
 import '../../domain/candidate.dart';
 import '../decouvrir_controller.dart';
 
 /// Écran Découvrir (swipe) — fidèle au prototype visuel validé (artifact
-/// MERUT, Decouvrir.dc.html). Le score de compatibilité par carte sera
-/// branché une fois l'appel computeCompatibility relié ici (actuellement
-/// construit mais pas encore affiché à cet endroit, voir suivi-developpement.md).
+/// MERUT, Decouvrir.dc.html).
 class DecouvrirScreen extends ConsumerWidget {
   const DecouvrirScreen({super.key});
 
@@ -26,10 +26,10 @@ class DecouvrirScreen extends ConsumerWidget {
         showDialog(
           context: context,
           builder: (_) => AlertDialog(
-            title: const Text("C'est un match !"),
-            content: Text('Toi et ${matched.displayName} vous êtes mutuellement likés.'),
+            title: Text(context.l10n.itsAMatch),
+            content: Text(context.l10n.mutualLikeWith(matched.displayName)),
             actions: [
-              TextButton(onPressed: () => Navigator.of(context).pop(), child: const Text('Super')),
+              TextButton(onPressed: () => Navigator.of(context).pop(), child: Text(context.l10n.great)),
             ],
           ),
         );
@@ -46,11 +46,11 @@ class DecouvrirScreen extends ConsumerWidget {
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  const Text('Impossible de charger les profils.'),
+                  Text(context.l10n.profilesLoadFailed),
                   const SizedBox(height: 12),
                   ElevatedButton(
                     onPressed: () => ref.read(decouvrirControllerProvider.notifier).refresh(),
-                    child: const Text('Réessayer'),
+                    child: Text(context.l10n.retryButton),
                   ),
                 ],
               ),
@@ -64,14 +64,14 @@ class DecouvrirScreen extends ConsumerWidget {
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      const Text(
-                        "Plus de profils pour l'instant, repasse plus tard.",
+                      Text(
+                        context.l10n.noMoreProfiles,
                         textAlign: TextAlign.center,
                       ),
                       const SizedBox(height: 12),
                       ElevatedButton(
                         onPressed: () => ref.read(decouvrirControllerProvider.notifier).refresh(),
-                        child: const Text('Actualiser'),
+                        child: Text(context.l10n.refreshButton),
                       ),
                     ],
                   ),
@@ -87,9 +87,9 @@ class DecouvrirScreen extends ConsumerWidget {
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      const Text(
-                        'Découvrir',
-                        style: TextStyle(fontSize: 19, fontWeight: FontWeight.bold, color: AppColors.ink),
+                      Text(
+                        context.l10n.navDiscover,
+                        style: const TextStyle(fontSize: 19, fontWeight: FontWeight.bold, color: AppColors.ink),
                       ),
                       IconButton(
                         icon: const Icon(Icons.tune, color: AppColors.ink),
@@ -139,13 +139,14 @@ class DecouvrirScreen extends ConsumerWidget {
   }
 }
 
-class _CandidateCard extends StatelessWidget {
+class _CandidateCard extends ConsumerWidget {
   const _CandidateCard({required this.candidate});
 
   final Candidate candidate;
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final compatScore = ref.watch(compatScoreWithProvider(candidate.uid)).value;
     return Padding(
       padding: const EdgeInsets.fromLTRB(20, 0, 20, 10),
       child: Container(
@@ -168,15 +169,33 @@ class _CandidateCard extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(
-                    '${candidate.displayName}, ${candidate.age}',
-                    style: const TextStyle(fontSize: 22, fontWeight: FontWeight.bold, color: AppColors.ink),
+                  Row(
+                    children: [
+                      Expanded(
+                        child: Text(
+                          '${candidate.displayName}, ${candidate.age}',
+                          style: const TextStyle(fontSize: 22, fontWeight: FontWeight.bold, color: AppColors.ink),
+                        ),
+                      ),
+                      if (compatScore != null)
+                        Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                          decoration: BoxDecoration(
+                            color: AppColors.accentSoft,
+                            borderRadius: BorderRadius.circular(999),
+                          ),
+                          child: Text(
+                            context.l10n.compatScoreBadge(compatScore),
+                            style: const TextStyle(fontSize: 12, color: AppColors.accent, fontWeight: FontWeight.w700),
+                          ),
+                        ),
+                    ],
                   ),
                   const SizedBox(height: 4),
                   Text(
                     candidate.distanceKm != null
-                        ? '${candidate.city}, ${candidate.country} · à ${candidate.distanceKm} km'
-                        : '${candidate.city}, ${candidate.country}',
+                        ? context.l10n.cityCountryWithDistance(candidate.city, candidate.country, candidate.distanceKm!)
+                        : context.l10n.cityCountry(candidate.city, candidate.country),
                     style: const TextStyle(color: AppColors.muted, fontSize: 13),
                   ),
                   const SizedBox(height: 12),
@@ -240,9 +259,9 @@ class _FiltersSheetState extends ConsumerState<_FiltersSheet> {
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text('Filtres', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+          Text(context.l10n.filtersTitle, style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
           const SizedBox(height: 18),
-          Text('Âge : ${_ageRange.start.round()} - ${_ageRange.end.round()} ans',
+          Text(context.l10n.ageRangeLabel(_ageRange.start.round(), _ageRange.end.round()),
               style: const TextStyle(fontWeight: FontWeight.w600)),
           RangeSlider(
             values: _ageRange,
@@ -253,7 +272,7 @@ class _FiltersSheetState extends ConsumerState<_FiltersSheet> {
             onChanged: (v) => setState(() => _ageRange = v),
           ),
           const SizedBox(height: 10),
-          Text('Distance max : ${_distance.round()} km', style: const TextStyle(fontWeight: FontWeight.w600)),
+          Text(context.l10n.maxDistanceLabel(_distance.round()), style: const TextStyle(fontWeight: FontWeight.w600)),
           Slider(
             value: _distance,
             min: 5,
@@ -274,14 +293,14 @@ class _FiltersSheetState extends ConsumerState<_FiltersSheet> {
                       ScaffoldMessenger.of(context).showSnackBar(
                         SnackBar(
                           content: Text(ok
-                              ? 'Position mise à jour.'
-                              : "Position indisponible (permission refusée ?)."),
+                              ? context.l10n.locationUpdated
+                              : context.l10n.locationUnavailable),
                         ),
                       );
                     }
                   },
             icon: const Icon(Icons.my_location),
-            label: Text(_requestingLocation ? 'Localisation...' : 'Mettre à jour ma position'),
+            label: Text(_requestingLocation ? context.l10n.locatingEllipsis : context.l10n.updateMyLocation),
           ),
           const SizedBox(height: 14),
           ElevatedButton(
@@ -293,7 +312,7 @@ class _FiltersSheetState extends ConsumerState<_FiltersSheet> {
               );
               Navigator.of(context).pop();
             },
-            child: const Text('Appliquer'),
+            child: Text(context.l10n.applyButton),
           ),
         ],
       ),

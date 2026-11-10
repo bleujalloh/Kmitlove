@@ -7,9 +7,13 @@ import 'package:path_provider/path_provider.dart';
 import 'package:share_plus/share_plus.dart';
 
 import '../../../../core/providers/firebase_providers.dart';
+import '../../../../core/providers/locale_provider.dart';
 import '../../../../core/theme/app_theme.dart';
 import '../../../../core/widgets/sanction_appeal_button.dart';
+import '../../../../l10n/l10n_extensions.dart';
 import '../../../auth/presentation/auth_controller.dart';
+import '../../../compatibilite/presentation/compat_controller.dart';
+import '../../../messages/presentation/messages_controller.dart';
 import '../../../profil/presentation/profil_controller.dart';
 import '../../../profil/presentation/screens/profil_edit_screen.dart';
 
@@ -22,6 +26,12 @@ class ParametresScreen extends ConsumerStatefulWidget {
   @override
   ConsumerState<ParametresScreen> createState() => _ParametresScreenState();
 }
+
+/// Nom d'une langue dans elle-même (convention universelle : "Français"
+/// reste "Français" même en UI anglaise, et inversement) — seule source
+/// pour le sous-titre et le dialogue de choix, pour qu'ils ne puissent
+/// jamais diverger.
+String _languageDisplayName(String code) => code == 'fr' ? 'Français' : 'English';
 
 class _ParametresScreenState extends ConsumerState<ParametresScreen> {
   bool _exporting = false;
@@ -45,7 +55,7 @@ class _ParametresScreenState extends ConsumerState<ParametresScreen> {
     } catch (_) {
       if (mounted) {
         ScaffoldMessenger.of(context)
-            .showSnackBar(const SnackBar(content: Text("Impossible d'exporter, réessaie.")));
+            .showSnackBar(SnackBar(content: Text(context.l10n.exportFailed)));
       }
     } finally {
       if (mounted) setState(() => _exporting = false);
@@ -56,19 +66,19 @@ class _ParametresScreenState extends ConsumerState<ParametresScreen> {
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (dialogContext) => AlertDialog(
-        title: const Text('Supprimer définitivement ton compte ?'),
-        content: const Text(
-          'Ton profil, tes photos, tes messages, tes matchs, tes annonces et tes réponses sont supprimés sans retour possible.',
+        title: Text(context.l10n.deleteAccountConfirmTitle),
+        content: Text(
+          context.l10n.deleteAccountConfirmBody,
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(dialogContext).pop(false),
-            child: const Text('Annuler'),
+            child: Text(context.l10n.cancelButton),
           ),
           TextButton(
             onPressed: () => Navigator.of(dialogContext).pop(true),
             style: TextButton.styleFrom(foregroundColor: AppColors.accent),
-            child: const Text('Supprimer définitivement'),
+            child: Text(context.l10n.deletePermanentlyButton),
           ),
         ],
       ),
@@ -84,10 +94,53 @@ class _ParametresScreenState extends ConsumerState<ParametresScreen> {
       if (mounted) {
         setState(() => _deleting = false);
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Impossible de supprimer le compte, réessaie.')),
+          SnackBar(content: Text(context.l10n.deleteAccountFailed)),
         );
       }
     }
+  }
+
+  Future<void> _pickLanguage() async {
+    final current = ref.read(localeControllerProvider);
+    final choice = await showDialog<String>(
+      context: context,
+      builder: (dialogContext) => SimpleDialog(
+        title: Text(context.l10n.chooseLanguage),
+        children: [
+          SimpleDialogOption(
+            onPressed: () => Navigator.of(dialogContext).pop('system'),
+            child: Row(
+              children: [
+                Expanded(child: Text(context.l10n.systemLanguage)),
+                if (current == null) const Icon(Icons.check, color: AppColors.accent),
+              ],
+            ),
+          ),
+          SimpleDialogOption(
+            onPressed: () => Navigator.of(dialogContext).pop('fr'),
+            child: Row(
+              children: [
+                Expanded(child: Text(_languageDisplayName('fr'))),
+                if (current?.languageCode == 'fr') const Icon(Icons.check, color: AppColors.accent),
+              ],
+            ),
+          ),
+          SimpleDialogOption(
+            onPressed: () => Navigator.of(dialogContext).pop('en'),
+            child: Row(
+              children: [
+                Expanded(child: Text(_languageDisplayName('en'))),
+                if (current?.languageCode == 'en') const Icon(Icons.check, color: AppColors.accent),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+    if (choice == null) return;
+    await ref
+        .read(localeControllerProvider.notifier)
+        .setLocale(choice == 'system' ? null : Locale(choice));
   }
 
   @override
@@ -100,8 +153,11 @@ class _ParametresScreenState extends ConsumerState<ParametresScreen> {
     final warned = status?['sanctionLevel'] == 'warned';
     final appealPending = status?['appealPending'] == true;
 
+    final locale = ref.watch(localeControllerProvider);
+    final myUid = ref.watch(firebaseAuthProvider).currentUser?.uid ?? '';
+
     return Scaffold(
-      appBar: AppBar(title: const Text('Paramètres')),
+      appBar: AppBar(title: Text(context.l10n.settingsTitle)),
       body: SafeArea(
         child: ListView(
           children: [
@@ -117,14 +173,14 @@ class _ParametresScreenState extends ConsumerState<ParametresScreen> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const Text(
-                      'Ton compte a reçu un avertissement suite à un signalement confirmé.',
-                      style: TextStyle(fontWeight: FontWeight.bold, color: AppColors.accent),
+                    Text(
+                      context.l10n.warningBannerTitle,
+                      style: const TextStyle(fontWeight: FontWeight.bold, color: AppColors.accent),
                     ),
                     const SizedBox(height: 6),
-                    const Text(
-                      'Si tu penses que c\'est une erreur, tu peux demander qu\'un modérateur réexamine cette décision.',
-                      style: TextStyle(fontSize: 13),
+                    Text(
+                      context.l10n.sanctionAppealHint,
+                      style: const TextStyle(fontSize: 13),
                     ),
                     const SizedBox(height: 10),
                     SanctionAppealButton(appealPending: appealPending),
@@ -133,7 +189,7 @@ class _ParametresScreenState extends ConsumerState<ParametresScreen> {
               ),
             ListTile(
               leading: const Icon(Icons.person_outline),
-              title: const Text('Modifier mon profil'),
+              title: Text(context.l10n.editMyProfile),
               trailing: const Icon(Icons.chevron_right),
               onTap: () {
                 final profil = profilAsync.value;
@@ -144,18 +200,48 @@ class _ParametresScreenState extends ConsumerState<ParametresScreen> {
             ),
             const Divider(height: 1),
             ListTile(
+              leading: const Icon(Icons.language_outlined),
+              title: Text(context.l10n.language),
+              subtitle: Text(
+                locale == null ? context.l10n.systemLanguage : _languageDisplayName(locale.languageCode),
+              ),
+              trailing: const Icon(Icons.chevron_right),
+              onTap: _pickLanguage,
+            ),
+            const Divider(height: 1),
+            Padding(
+              padding: const EdgeInsets.fromLTRB(16, 16, 16, 4),
+              child: Text(
+                context.l10n.privacySectionTitle,
+                style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: AppColors.muted, letterSpacing: 0.5),
+              ),
+            ),
+            SwitchListTile(
+              title: Text(context.l10n.showReadReceiptsTitle),
+              subtitle: Text(context.l10n.showReadReceiptsHint),
+              value: ref.watch(showReadReceiptsProvider(myUid)).value ?? true,
+              onChanged: (v) => ref.read(messagesControllerProvider).toggleReadReceipts(v),
+            ),
+            SwitchListTile(
+              title: Text(context.l10n.compatVisibilityTitle),
+              subtitle: Text(context.l10n.compatVisibilityHint),
+              value: ref.watch(compatAnswersVisibleProvider).value ?? true,
+              onChanged: (v) => ref.read(compatControllerProvider.notifier).setAnswersVisible(v),
+            ),
+            const Divider(height: 1),
+            ListTile(
               leading: _exporting
                   ? const SizedBox(
                       width: 20, height: 20, child: CircularProgressIndicator(strokeWidth: 2))
                   : const Icon(Icons.download_outlined),
-              title: const Text('Exporter mes données'),
-              subtitle: const Text('Droit RGPD à la portabilité'),
+              title: Text(context.l10n.exportMyData),
+              subtitle: Text(context.l10n.gdprPortabilityRight),
               onTap: _exporting ? null : _exportData,
             ),
             const Divider(height: 1),
             ListTile(
               leading: const Icon(Icons.logout),
-              title: const Text('Se déconnecter'),
+              title: Text(context.l10n.signOut),
               onTap: () => ref.read(authControllerProvider.notifier).signOut(),
             ),
             const Divider(height: 1),
@@ -164,7 +250,7 @@ class _ParametresScreenState extends ConsumerState<ParametresScreen> {
                   ? const SizedBox(
                       width: 20, height: 20, child: CircularProgressIndicator(strokeWidth: 2))
                   : const Icon(Icons.delete_outline, color: AppColors.accent),
-              title: const Text('Supprimer mon compte', style: TextStyle(color: AppColors.accent)),
+              title: Text(context.l10n.deleteMyAccount, style: const TextStyle(color: AppColors.accent)),
               onTap: _deleting ? null : _confirmDeleteAccount,
             ),
           ],

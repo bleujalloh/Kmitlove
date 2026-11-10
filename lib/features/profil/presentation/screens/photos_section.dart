@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../../core/theme/app_theme.dart';
+import '../../../../l10n/l10n_extensions.dart';
 import '../../domain/profil_photo.dart';
 import '../photo_controller.dart';
 
@@ -18,11 +19,11 @@ class PhotosSection extends ConsumerWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Text('PHOTOS', style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: AppColors.accent, letterSpacing: 0.5)),
+        Text(context.l10n.photosSectionTitle, style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: AppColors.accent, letterSpacing: 0.5)),
         const SizedBox(height: 10),
         photosAsync.when(
           loading: () => const SizedBox(height: 90, child: Center(child: CircularProgressIndicator())),
-          error: (e, st) => const Text('Impossible de charger les photos.'),
+          error: (e, st) => Text(context.l10n.photosLoadFailed),
           data: (photos) => SizedBox(
             height: 110,
             child: ListView(
@@ -84,7 +85,7 @@ class _PhotoTile extends ConsumerWidget {
                     borderRadius: BorderRadius.circular(6),
                   ),
                   child: Text(
-                    photo.status == 'rejected' ? 'Refusée' : 'En attente',
+                    photo.status == 'rejected' ? context.l10n.photoRejected : context.l10n.photoPending,
                     textAlign: TextAlign.center,
                     style: const TextStyle(color: Colors.white, fontSize: 9),
                   ),
@@ -100,9 +101,9 @@ class _PhotoTile extends ConsumerWidget {
     showDialog(
       context: context,
       builder: (dialogContext) => AlertDialog(
-        title: const Text('Supprimer cette photo ?'),
+        title: Text(context.l10n.deletePhotoConfirmTitle),
         actions: [
-          TextButton(onPressed: () => Navigator.of(dialogContext).pop(), child: const Text('Annuler')),
+          TextButton(onPressed: () => Navigator.of(dialogContext).pop(), child: Text(context.l10n.cancelButton)),
           TextButton(
             onPressed: () async {
               Navigator.of(dialogContext).pop();
@@ -111,12 +112,12 @@ class _PhotoTile extends ConsumerWidget {
               } catch (_) {
                 if (context.mounted) {
                   ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text('Impossible de supprimer, réessaie.')),
+                    SnackBar(content: Text(context.l10n.photoDeleteFailed)),
                   );
                 }
               }
             },
-            child: const Text('Supprimer'),
+            child: Text(context.l10n.deleteButton),
           ),
         ],
       ),
@@ -156,7 +157,7 @@ class _AddPhotoTile extends ConsumerWidget {
           children: [
             ListTile(
               leading: const Icon(Icons.photo_library_outlined),
-              title: const Text('Choisir dans la galerie'),
+              title: Text(context.l10n.chooseFromGallery),
               onTap: () {
                 Navigator.of(sheetContext).pop();
                 _uploadWithFeedback(context, ref, fromCamera: false);
@@ -164,7 +165,7 @@ class _AddPhotoTile extends ConsumerWidget {
             ),
             ListTile(
               leading: const Icon(Icons.camera_alt_outlined),
-              title: const Text('Prendre une photo'),
+              title: Text(context.l10n.takeAPhoto),
               onTap: () {
                 Navigator.of(sheetContext).pop();
                 _uploadWithFeedback(context, ref, fromCamera: true);
@@ -183,7 +184,7 @@ Future<void> _uploadWithFeedback(BuildContext context, WidgetRef ref, {required 
   } catch (_) {
     if (context.mounted) {
       ScaffoldMessenger.of(context)
-          .showSnackBar(const SnackBar(content: Text("Impossible d'envoyer la photo, réessaie.")));
+          .showSnackBar(SnackBar(content: Text(context.l10n.photoUploadFailed)));
     }
   }
 }

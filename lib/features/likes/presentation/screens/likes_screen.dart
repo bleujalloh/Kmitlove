@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../../core/theme/app_theme.dart';
+import '../../../../l10n/l10n_extensions.dart';
 import '../../data/likes_repository.dart';
 import '../../domain/mini_profile.dart';
 import '../likes_controller.dart';
@@ -25,10 +26,10 @@ class _LikesScreenState extends ConsumerState<LikesScreen> {
     final likesAsync = ref.watch(likesProvider);
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Likes')),
+      appBar: AppBar(title: Text(context.l10n.navLikes)),
       body: likesAsync.when(
         loading: () => const Center(child: CircularProgressIndicator()),
-        error: (e, st) => const Center(child: Text('Impossible de charger les likes.')),
+        error: (e, st) => Center(child: Text(context.l10n.likesLoadFailed)),
         data: (likes) {
           return SafeArea(
             child: Column(
@@ -44,12 +45,12 @@ class _LikesScreenState extends ConsumerState<LikesScreen> {
                     child: Row(
                       children: [
                         _TabButton(
-                          label: "T'ont liké · ${likes.likesReceivedCount}",
+                          label: context.l10n.likedYouTab(likes.likesReceivedCount),
                           selected: _tab == 0,
                           onTap: () => setState(() => _tab = 0),
                         ),
                         _TabButton(
-                          label: 'Mes likes',
+                          label: context.l10n.myLikesTab,
                           selected: _tab == 1,
                           onTap: () => setState(() => _tab = 1),
                         ),
@@ -113,7 +114,7 @@ class _ReceivedTab extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     if (likes.likesReceivedCount == 0) {
-      return const Center(child: Text('Personne ne t\'a encore liké.'));
+      return Center(child: Text(context.l10n.noOneLikedYouYet));
     }
     if (likes.isPremium) {
       return _ProfileGrid(profiles: likes.likesReceived, onLongPress: null);
@@ -151,9 +152,9 @@ class _ReceivedTab extends StatelessWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const Text('Voir qui t\'a liké', style: TextStyle(fontWeight: FontWeight.bold)),
+                    Text(context.l10n.seeWhoLikedYou, style: const TextStyle(fontWeight: FontWeight.bold)),
                     Text(
-                      'Débloque les ${likes.likesReceivedCount} profils avec Premium',
+                      context.l10n.unlockProfilesWithPremium(likes.likesReceivedCount),
                       style: const TextStyle(fontSize: 12, color: AppColors.muted),
                     ),
                   ],
@@ -162,7 +163,7 @@ class _ReceivedTab extends StatelessWidget {
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 9),
                 decoration: BoxDecoration(color: AppColors.accent, borderRadius: BorderRadius.circular(999)),
-                child: const Text('9,99 €', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+                child: Text(context.l10n.premiumTeaserPrice, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
               ),
             ],
           ),
@@ -180,7 +181,7 @@ class _MyLikesTab extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     if (profiles.isEmpty) {
-      return const Center(child: Text("Tu n'as pas encore liké de profil en attente de réponse."));
+      return Center(child: Text(context.l10n.noPendingLikesYet));
     }
     return _ProfileGrid(
       profiles: profiles,
@@ -192,12 +193,12 @@ class _MyLikesTab extends ConsumerWidget {
     showDialog(
       context: context,
       builder: (dialogContext) => AlertDialog(
-        title: const Text('Retirer ce like ?'),
-        content: Text('Tu ne liked plus ${p.displayName}.'),
+        title: Text(context.l10n.retractLikeConfirmTitle),
+        content: Text(context.l10n.retractLikeConfirmBody(p.displayName)),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(dialogContext).pop(),
-            child: const Text('Annuler'),
+            child: Text(context.l10n.cancelButton),
           ),
           TextButton(
             onPressed: () async {
@@ -207,12 +208,12 @@ class _MyLikesTab extends ConsumerWidget {
               } catch (_) {
                 if (context.mounted) {
                   ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text("Impossible de retirer ce like, réessaie.")),
+                    SnackBar(content: Text(context.l10n.retractLikeFailed)),
                   );
                 }
               }
             },
-            child: const Text('Retirer'),
+            child: Text(context.l10n.retractButton),
           ),
         ],
       ),

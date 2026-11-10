@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../../core/theme/app_theme.dart';
+import '../../../../l10n/l10n_extensions.dart';
 import '../auth_controller.dart';
 
 class ResetPasswordScreen extends ConsumerStatefulWidget {
@@ -35,36 +36,36 @@ class _ResetPasswordScreenState extends ConsumerState<ResetPasswordScreen> {
     final authState = ref.watch(authControllerProvider);
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Réinitialiser le mot de passe')),
+      appBar: AppBar(title: Text(context.l10n.resetPasswordTitle)),
       body: SafeArea(
         child: Padding(
           padding: const EdgeInsets.all(28),
           child: _sent
-              ? const Text(
-                  "Si cette adresse existe, un e-mail de réinitialisation vient d'être envoyé. Pense à vérifier tes spams.",
-                  style: TextStyle(fontSize: 14, height: 1.5),
+              ? Text(
+                  context.l10n.resetPasswordSentHint,
+                  style: const TextStyle(fontSize: 14, height: 1.5),
                 )
               : Form(
                   key: _formKey,
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: [
-                      const Text(
-                        'Indique ton adresse e-mail, on t\'envoie un lien pour choisir un nouveau mot de passe.',
-                        style: TextStyle(fontSize: 14, color: AppColors.muted),
+                      Text(
+                        context.l10n.resetPasswordInstructions,
+                        style: const TextStyle(fontSize: 14, color: AppColors.muted),
                       ),
                       const SizedBox(height: 18),
                       TextFormField(
                         controller: _emailController,
                         keyboardType: TextInputType.emailAddress,
-                        decoration: const InputDecoration(labelText: 'Adresse e-mail'),
+                        decoration: InputDecoration(labelText: context.l10n.emailLabel),
                         validator: (v) =>
-                            (v == null || !v.contains('@')) ? 'E-mail invalide' : null,
+                            (v == null || !v.contains('@')) ? context.l10n.invalidEmail : null,
                       ),
                       if (authState.hasError) ...[
                         const SizedBox(height: 8),
                         Text(
-                          readableAuthError(authState.error!),
+                          readableAuthError(authState.error!, context.l10n),
                           style: const TextStyle(color: AppColors.accent, fontSize: 13),
                         ),
                       ],
@@ -77,7 +78,7 @@ class _ResetPasswordScreenState extends ConsumerState<ResetPasswordScreen> {
                                 width: 18,
                                 child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white),
                               )
-                            : const Text('Envoyer le lien'),
+                            : Text(context.l10n.sendLink),
                       ),
                     ],
                   ),

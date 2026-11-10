@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../../core/theme/app_theme.dart';
+import '../../../../l10n/l10n_extensions.dart';
 import '../../../auth/presentation/auth_controller.dart';
 import '../premium_controller.dart';
 
@@ -19,16 +20,16 @@ class PremiumScreen extends ConsumerWidget {
       await ref.read(cloudFunctionsProvider).httpsCallable('activateBoost').call();
       if (context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Boost activé pour 30 minutes !')),
+          SnackBar(content: Text(context.l10n.boostActivated)),
         );
       }
     } on FirebaseFunctionsException catch (e) {
       if (context.mounted) {
         final message = e.code == 'permission-denied'
-            ? 'Le Boost est réservé aux membres Premium.'
+            ? context.l10n.boostPremiumOnly
             : e.code == 'resource-exhausted'
-                ? 'Ton Boost gratuit de la semaine a déjà été utilisé.'
-                : 'Impossible d\'activer le Boost, réessaie.';
+                ? context.l10n.boostAlreadyUsed
+                : context.l10n.boostActivateFailed;
         ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(message)));
       }
     }
@@ -40,7 +41,7 @@ class PremiumScreen extends ConsumerWidget {
     final productsAsync = ref.watch(productsProvider);
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Premium & jetons')),
+      appBar: AppBar(title: Text(context.l10n.navPremium)),
       body: Column(
         children: [
           Padding(
@@ -53,21 +54,21 @@ class PremiumScreen extends ConsumerWidget {
               ),
               child: Row(
                 children: [
-                  const Expanded(
+                  Expanded(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text('Boost', style: TextStyle(fontWeight: FontWeight.bold)),
+                        Text(context.l10n.boostTitle, style: const TextStyle(fontWeight: FontWeight.bold)),
                         Text(
-                          '30 minutes de visibilité prioritaire, inclus 1x/semaine en Premium',
-                          style: TextStyle(fontSize: 12, color: AppColors.muted),
+                          context.l10n.boostDescription,
+                          style: const TextStyle(fontSize: 12, color: AppColors.muted),
                         ),
                       ],
                     ),
                   ),
                   ElevatedButton(
                     onPressed: () => _activateBoost(context, ref),
-                    child: const Text('Activer'),
+                    child: Text(context.l10n.activateButton),
                   ),
                 ],
               ),
@@ -76,16 +77,16 @@ class PremiumScreen extends ConsumerWidget {
           Expanded(
             child: productsAsync.when(
               loading: () => const Center(child: CircularProgressIndicator()),
-              error: (e, st) => const Center(child: Text('Boutique indisponible pour le moment.')),
+              error: (e, st) => Center(child: Text(context.l10n.shopUnavailable)),
               data: (products) {
                 if (products.isEmpty) {
-                  return const Center(
+                  return Center(
                     child: Padding(
-                      padding: EdgeInsets.all(24),
+                      padding: const EdgeInsets.all(24),
                       child: Text(
-                        "Aucune offre d'abonnement disponible pour l'instant.",
+                        context.l10n.noSubscriptionOffersYet,
                         textAlign: TextAlign.center,
-                        style: TextStyle(color: AppColors.muted),
+                        style: const TextStyle(color: AppColors.muted),
                       ),
                     ),
                   );

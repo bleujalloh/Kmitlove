@@ -1,6 +1,8 @@
+import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_riverpod/legacy.dart';
 
+import '../../../core/providers/locale_provider.dart';
 import '../../auth/presentation/auth_controller.dart';
 import '../data/decouvrir_repository.dart';
 import '../data/location_service.dart';
@@ -30,15 +32,16 @@ class DecouvrirState {
   final String? errorMessage;
 }
 
-String _readableSwipeError(Object error) {
+String _readableSwipeError(Object error, Locale? locale) {
+  final l10n = l10nFor(locale);
   final text = error.toString();
   if (text.contains('resource-exhausted')) {
-    return 'Limite de likes quotidienne atteinte, reviens demain ou passe en Premium.';
+    return l10n.dailyLikeLimitReached;
   }
   if (text.contains('already-exists')) {
-    return 'Ce profil a déjà été swipé.';
+    return l10n.profileAlreadySwiped;
   }
-  return 'Une erreur est survenue, réessaie.';
+  return l10n.genericError;
 }
 
 class DecouvrirController extends AsyncNotifier<DecouvrirState> {
@@ -70,7 +73,10 @@ class DecouvrirController extends AsyncNotifier<DecouvrirState> {
       // seul un message d'erreur s'ajoute, sans faire planter tout
       // l'état de l'écran comme le ferait un AsyncError ici.
       state = AsyncData(
-        DecouvrirState(candidates: remaining, errorMessage: _readableSwipeError(e)),
+        DecouvrirState(
+          candidates: remaining,
+          errorMessage: _readableSwipeError(e, ref.read(localeControllerProvider)),
+        ),
       );
     } finally {
       _swipeInFlight = false;

@@ -30,11 +30,21 @@ export const computeCompatibility = onCall({ region: REGION }, async (request) =
   const uid = request.auth.uid;
   const db = getFirestore();
 
-  const [mySnap, theirSnap, bankSnap] = await Promise.all([
+  const [mySnap, theirSnap, bankSnap, targetUserSnap] = await Promise.all([
     db.collection("compat_answers").doc(uid).get(),
     db.collection("compat_answers").doc(targetUid).get(),
     db.collection("compat_question_bank").where("active", "==", true).get(),
+    db.collection("users").doc(targetUid).get(),
   ]);
+
+  // Contrôle de visibilité (cahier des charges section 4.3, docs/suivi-
+  // developpement.md) : si la cible a explicitement désactivé sa
+  // visibilité, aucun score n'est jamais calculé pour elle, pour
+  // personne — visible par défaut (absence du champ), comme
+  // `showReadReceipts`.
+  if (targetUserSnap.data()?.compatAnswersVisible === false) {
+    return { score: null };
+  }
 
   // Les réponses sont écrites directement par le client (pas de "bonne
   // réponse" à cacher ici), donc jamais fiables sans validation : une

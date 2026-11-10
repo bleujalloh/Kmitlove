@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../../../../core/theme/app_theme.dart';
 import '../../../../core/widgets/kamite_motif.dart';
+import '../../../../l10n/l10n_extensions.dart';
 
 /// Écran d'accueil et charte communautaire — fidèle au prototype visuel
 /// validé (artifact MERUT, Main.dc.html).
@@ -42,9 +43,9 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                         ),
                   ),
                   const SizedBox(height: 6),
-                  const Text(
-                    'rencontres et communauté kamites',
-                    style: TextStyle(color: AppColors.muted, fontSize: 13),
+                  Text(
+                    context.l10n.onboardingTagline,
+                    style: const TextStyle(color: AppColors.muted, fontSize: 13),
                   ),
                 ],
               ),
@@ -53,19 +54,18 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
               child: ListView(
                 padding: const EdgeInsets.fromLTRB(28, 24, 28, 0),
                 children: [
-                  const Text(
-                    'Avant de commencer',
-                    style: TextStyle(
+                  Text(
+                    context.l10n.onboardingBeforeStart,
+                    style: const TextStyle(
                       fontSize: 19,
                       fontWeight: FontWeight.w600,
                       color: AppColors.ink,
                     ),
                   ),
                   const SizedBox(height: 10),
-                  const Text(
-                    "Cette application rassemble des personnes qui se reconnaissent dans l'identité et les valeurs kamites, pour des rencontres amoureuses sérieuses. "
-                    "L'adhésion repose sur ta connaissance et ton engagement envers cette culture — jamais sur ton origine ou ton apparence.",
-                    style: TextStyle(fontSize: 14, height: 1.5, color: Color(0xFF4A4038)),
+                  Text(
+                    context.l10n.onboardingIntro,
+                    style: const TextStyle(fontSize: 14, height: 1.5, color: Color(0xFF4A4038)),
                   ),
                   const SizedBox(height: 22),
                   Container(
@@ -76,28 +76,22 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                     ),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
-                      children: const [
+                      children: [
                         Text(
-                          'CHARTE COMMUNAUTAIRE',
-                          style: TextStyle(
+                          context.l10n.onboardingCharterTitle,
+                          style: const TextStyle(
                             fontSize: 12,
                             fontWeight: FontWeight.bold,
                             color: AppColors.ink,
                             letterSpacing: 0.5,
                           ),
                         ),
-                        SizedBox(height: 14),
-                        _CharteItem(
-                          "Je m'identifie à la communauté et à l'histoire kamite et je m'engage à la respecter.",
-                        ),
-                        SizedBox(height: 14),
-                        _CharteItem(
-                          'Je comprends qu\'un questionnaire de connaissance et de valeurs valide mon inscription.',
-                        ),
-                        SizedBox(height: 14),
-                        _CharteItem(
-                          "Je m'engage au respect, à l'honnêteté et à la bonne conduite envers les autres membres.",
-                        ),
+                        const SizedBox(height: 14),
+                        _CharteItem(context.l10n.onboardingCharter1),
+                        const SizedBox(height: 14),
+                        _CharteItem(context.l10n.onboardingCharter2),
+                        const SizedBox(height: 14),
+                        _CharteItem(context.l10n.onboardingCharter3),
                       ],
                     ),
                   ),
@@ -108,9 +102,9 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                     controlAffinity: ListTileControlAffinity.leading,
                     contentPadding: EdgeInsets.zero,
                     activeColor: AppColors.accent,
-                    title: const Text(
-                      "J'ai lu et j'accepte la charte communautaire ainsi que les conditions d'utilisation.",
-                      style: TextStyle(fontSize: 13, color: Color(0xFF4A4038)),
+                    title: Text(
+                      context.l10n.onboardingAcceptCharter,
+                      style: const TextStyle(fontSize: 13, color: Color(0xFF4A4038)),
                     ),
                   ),
                   const SizedBox(height: 12),
@@ -123,7 +117,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                 width: double.infinity,
                 child: ElevatedButton(
                   onPressed: _accepted ? widget.onAccepted : null,
-                  child: const Text('Continuer'),
+                  child: Text(context.l10n.continueButton),
                 ),
               ),
             ),

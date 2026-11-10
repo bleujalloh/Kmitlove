@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../../core/theme/app_theme.dart';
+import '../../../../l10n/l10n_extensions.dart';
+import '../../domain/community_post.dart';
 import '../communaute_controller.dart';
 import 'create_post_screen.dart';
 import 'post_detail_screen.dart';
@@ -16,7 +18,7 @@ class CommunauteScreen extends ConsumerWidget {
     final feedAsync = ref.watch(communityFeedProvider);
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Communauté')),
+      appBar: AppBar(title: Text(context.l10n.navCommunity)),
       floatingActionButton: FloatingActionButton(
         backgroundColor: AppColors.accent,
         onPressed: () => Navigator.of(context).push(
@@ -26,10 +28,10 @@ class CommunauteScreen extends ConsumerWidget {
       ),
       body: feedAsync.when(
         loading: () => const Center(child: CircularProgressIndicator()),
-        error: (e, st) => const Center(child: Text('Impossible de charger le fil.')),
+        error: (e, st) => Center(child: Text(context.l10n.feedLoadFailed)),
         data: (posts) {
           if (posts.isEmpty) {
-            return const Center(child: Text('Rien à afficher pour le moment.'));
+            return Center(child: Text(context.l10n.nothingToShowYet));
           }
           return ListView.builder(
             padding: const EdgeInsets.all(20),
@@ -44,7 +46,7 @@ class CommunauteScreen extends ConsumerWidget {
                   borderRadius: BorderRadius.circular(16),
                 ),
                 child: ListTile(
-                  title: Text(post.title ?? _typeLabel(post.type), style: const TextStyle(fontWeight: FontWeight.bold)),
+                  title: Text(post.title ?? postTypeLabel(post.type, context.l10n), style: const TextStyle(fontWeight: FontWeight.bold)),
                   subtitle: Text(post.text, maxLines: 2, overflow: TextOverflow.ellipsis),
                   trailing: post.isEvent
                       ? Text('${post.participantsCount}/${post.capacity ?? "-"}')
@@ -59,22 +61,5 @@ class CommunauteScreen extends ConsumerWidget {
         },
       ),
     );
-  }
-
-  String _typeLabel(String type) {
-    switch (type) {
-      case 'annonce_publique':
-        return 'Annonce publique';
-      case 'annonce_privee':
-        return 'Annonce privée';
-      case 'annonce_libre':
-        return 'Annonce libre';
-      case 'evenement_public':
-        return 'Événement public';
-      case 'evenement_prive':
-        return 'Événement privé';
-      default:
-        return 'Publication';
-    }
   }
 }

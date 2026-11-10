@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../../core/theme/app_theme.dart';
+import '../../../../l10n/l10n_extensions.dart';
 import '../../domain/compat_question.dart';
 import '../compat_controller.dart';
 
@@ -32,13 +33,13 @@ class _CompatScreenState extends ConsumerState<CompatScreen> {
     if (!mounted) return;
     if (ok) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Réponses enregistrées.')),
+        SnackBar(content: Text(context.l10n.answersSaved)),
       );
       Navigator.of(context).maybePop();
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text("Impossible d'enregistrer, vérifie ta connexion et réessaie."),
+        SnackBar(
+          content: Text(context.l10n.answersSaveFailed),
         ),
       );
     }
@@ -51,19 +52,19 @@ class _CompatScreenState extends ConsumerState<CompatScreen> {
     final saveState = ref.watch(compatControllerProvider);
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Test de compatibilité')),
+      appBar: AppBar(title: Text(context.l10n.compatTestTitle)),
       body: bankAsync.when(
         loading: () => const Center(child: CircularProgressIndicator()),
-        error: (e, st) => const Center(child: Text("Impossible de charger les questions.")),
+        error: (e, st) => Center(child: Text(context.l10n.compatQuestionsLoadFailed)),
         data: (questions) {
           existingAsync.whenData(_initializeFrom);
 
           if (questions.isEmpty) {
-            return const Center(
+            return Center(
               child: Padding(
-                padding: EdgeInsets.all(24),
+                padding: const EdgeInsets.all(24),
                 child: Text(
-                  "Le test de compatibilité n'est pas encore disponible.",
+                  context.l10n.compatTestNotAvailable,
                   textAlign: TextAlign.center,
                 ),
               ),
@@ -82,14 +83,14 @@ class _CompatScreenState extends ConsumerState<CompatScreen> {
                   child: ListView(
                     padding: const EdgeInsets.fromLTRB(24, 16, 24, 0),
                     children: [
-                      const Text(
-                        "Note chaque affirmation de 1 (pas du tout d'accord) à 5 (tout à fait d'accord). Tes réponses détaillées ne sont jamais visibles par les autres membres — seul un score de compatibilité est partagé.",
-                        style: TextStyle(fontSize: 13, color: AppColors.muted, height: 1.5),
+                      Text(
+                        context.l10n.compatTestInstructions,
+                        style: const TextStyle(fontSize: 13, color: AppColors.muted, height: 1.5),
                       ),
                       const SizedBox(height: 16),
                       for (final entry in byTheme.entries) ...[
                         Text(
-                          (compatThemeLabels[entry.key] ?? entry.key).toUpperCase(),
+                          compatThemeLabel(entry.key, context.l10n).toUpperCase(),
                           style: const TextStyle(
                             fontSize: 12,
                             fontWeight: FontWeight.bold,
@@ -120,7 +121,7 @@ class _CompatScreenState extends ConsumerState<CompatScreen> {
                               width: 18,
                               child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white),
                             )
-                          : const Text('Enregistrer mes réponses'),
+                          : Text(context.l10n.saveMyAnswers),
                     ),
                   ),
                 ),
