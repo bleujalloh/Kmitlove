@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../../core/theme/app_theme.dart';
 import '../../../../l10n/l10n_extensions.dart';
+import '../../../auth/presentation/auth_controller.dart';
 import '../filtrage_controller.dart';
 
 /// Affiché quand le compte attend un nouvel essai ou une révision humaine
@@ -58,6 +59,25 @@ class FiltragePendingScreen extends ConsumerWidget {
                       child: Text(context.l10n.retryFiltrageButton),
                     ),
                   ),
+                // Sans ça, un compte qui attend encore son délai de
+                // nouvel essai n'avait aucune option affichée du tout —
+                // ni retenter, ni demander une révision, ni se
+                // déconnecter (bug remonté sur appareil réel le 11/11).
+                if (!reviewRequested) ...[
+                  const SizedBox(height: 12),
+                  SizedBox(
+                    width: double.infinity,
+                    child: OutlinedButton(
+                      onPressed: () => ref.read(filtrageRepositoryProvider).requestReview(),
+                      child: Text(context.l10n.requestHumanReview),
+                    ),
+                  ),
+                ],
+                const SizedBox(height: 12),
+                TextButton(
+                  onPressed: () => ref.read(authControllerProvider.notifier).signOut(),
+                  child: Text(context.l10n.signOut),
+                ),
               ],
             ),
           ),
