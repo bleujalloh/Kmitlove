@@ -10,8 +10,16 @@ import '../../../core/providers/firebase_providers.dart';
 import '../../../l10n/app_localizations.dart';
 import '../data/auth_repository.dart';
 
+// Toutes les Cloud Functions sont déployées sur europe-west1 (voir
+// functions/src/config.ts, REGION) — sans région explicite ici, le SDK
+// appelle par défaut us-central1, où rien n'existe : chaque appel
+// renvoyait silencieusement "not-found" (bug présent depuis la toute
+// première version de ce fichier, découvert sur appareil réel le 11/11
+// uniquement parce que startFiltrageAttempt affiche enfin un code
+// technique en cas d'échec — l'ampleur réelle de son impact sur les
+// autres fonctions appelables, jamais vérifiées une par une, est inconnue).
 final cloudFunctionsProvider = Provider<FirebaseFunctions>(
-  (ref) => FirebaseFunctions.instance,
+  (ref) => FirebaseFunctions.instanceFor(region: 'europe-west1'),
 );
 
 final authRepositoryProvider = Provider<AuthRepository>((ref) {
