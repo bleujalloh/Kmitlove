@@ -38,6 +38,7 @@
       "queryScope": "COLLECTION",
       "fields": [
         { "fieldPath": "resolved", "order": "ASCENDING" },
+        { "fieldPath": "priority", "order": "DESCENDING" },
         { "fieldPath": "createdAt", "order": "ASCENDING" }
       ]
     },
@@ -47,6 +48,22 @@
       "fields": [
         { "fieldPath": "lastMessageAt", "order": "ASCENDING" },
         { "fieldPath": "createdAt", "order": "ASCENDING" }
+      ]
+    },
+    {
+      "collectionGroup": "matches",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "members", "arrayConfig": "CONTAINS" },
+        { "fieldPath": "lastMessageAt", "order": "DESCENDING" }
+      ]
+    },
+    {
+      "collectionGroup": "user_status",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "sanctionLevel", "order": "ASCENDING" },
+        { "fieldPath": "suspendedUntil", "order": "ASCENDING" }
       ]
     }
   ],

@@ -3,6 +3,7 @@ import { getAuth } from "firebase-admin/auth";
 import { getFirestore, FieldValue } from "firebase-admin/firestore";
 
 import { REGION } from "../config";
+import { logAdminAction } from "../shared/adminLog";
 
 /**
  * Permet au tout premier appelant de devenir administrateur — ensuite
@@ -50,6 +51,10 @@ export const bootstrapFirstAdmin = onCall({ region: REGION }, async (request) =>
     await lockRef.delete();
     throw new HttpsError("internal", "Impossible d'attribuer le rôle admin, réessaie.");
   }
+
+  // Événement de sécurité à toujours garder trace de : qui est devenu
+  // admin et quand (section 4.8 — journalisation des actions admin).
+  await logAdminAction(db, { adminUid: uid, action: "first_admin_bootstrapped", targetUid: uid });
 
   return { ok: true };
 });

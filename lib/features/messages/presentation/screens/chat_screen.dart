@@ -7,6 +7,7 @@ import 'package:image_picker/image_picker.dart';
 
 import '../../../../core/providers/firebase_providers.dart';
 import '../../../../core/theme/app_theme.dart';
+import '../../../../core/widgets/emergency_sheet.dart';
 import '../../domain/message.dart';
 import '../messages_controller.dart';
 
@@ -101,6 +102,11 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
       appBar: AppBar(
         title: Text(widget.otherDisplayName),
         actions: [
+          IconButton(
+            tooltip: 'Sécurité',
+            icon: const Icon(Icons.warning_amber_rounded),
+            onPressed: () => showEmergencySheet(context, ref, matchId: widget.matchId),
+          ),
           PopupMenuButton<String>(
             onSelected: (value) {
               if (value == 'block') _confirmBlock(context);
@@ -178,6 +184,7 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
                                     storagePath: m.imageStoragePath!,
                                     blurred: blurred,
                                     onReveal: () => setState(() => _revealedImageIds.add(m.id)),
+                                    onReport: isMine ? null : () => _openReportSheet(context, messageId: m.id),
                                   )
                                 else
                                   Text(
@@ -261,7 +268,7 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
     );
   }
 
-  void _openReportSheet(BuildContext context) {
+  void _openReportSheet(BuildContext context, {String? messageId}) {
     showModalBottomSheet(
       context: context,
       builder: (sheetContext) => SafeArea(
@@ -276,6 +283,7 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
                             targetUid: widget.otherUid,
                             reason: entry.key,
                             matchId: widget.matchId,
+                            messageId: messageId,
                           );
                       if (context.mounted) {
                         ScaffoldMessenger.of(context).showSnackBar(
@@ -296,11 +304,19 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
 /// section 2 et docs/regles-complementaires-concurrents.md section 1 :
 /// le choix revient au destinataire, jamais imposé).
 class _MessageImage extends ConsumerWidget {
-  const _MessageImage({required this.storagePath, required this.blurred, required this.onReveal});
+  const _MessageImage({
+    required this.storagePath,
+    required this.blurred,
+    required this.onReveal,
+    this.onReport,
+  });
 
   final String storagePath;
   final bool blurred;
   final VoidCallback onReveal;
+  // Signalement en un geste d'une photo reçue précise (docs/regles-
+  // messagerie-securite.md section 2) — null pour ses propres photos.
+  final VoidCallback? onReport;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -337,6 +353,23 @@ class _MessageImage extends ConsumerWidget {
                         textAlign: TextAlign.center,
                         style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
                       ),
+                    ),
+                  ),
+                ),
+              ),
+            if (onReport != null)
+              Positioned(
+                top: 4,
+                right: 4,
+                child: Material(
+                  color: Colors.black45,
+                  shape: const CircleBorder(),
+                  child: InkWell(
+                    customBorder: const CircleBorder(),
+                    onTap: onReport,
+                    child: const Padding(
+                      padding: EdgeInsets.all(6),
+                      child: Icon(Icons.flag_outlined, color: Colors.white, size: 16),
                     ),
                   ),
                 ),

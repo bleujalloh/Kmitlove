@@ -10,6 +10,7 @@ import '../../features/filtrage/presentation/filtrage_controller.dart';
 import '../../features/filtrage/presentation/screens/filtrage_pending_screen.dart';
 import '../../features/filtrage/presentation/screens/filtrage_result_screen.dart';
 import '../../features/filtrage/presentation/screens/filtrage_screen.dart';
+import '../../features/filtrage/presentation/screens/sanction_screen.dart';
 import '../../features/onboarding/presentation/screens/onboarding_screen.dart';
 import '../../features/onboarding/presentation/screens/placeholder_home_screen.dart';
 import '../../features/profil/presentation/profil_controller.dart';
@@ -94,6 +95,13 @@ class AuthGate extends ConsumerWidget {
             }
             if (filtrageStatus == 'rejected_pending_retry' || filtrageStatus == 'review_requested') {
               return FiltragePendingScreen(status: status!);
+            }
+            if (filtrageStatus == 'suspended') {
+              // Compte sanctionné (docs/regles-messagerie-securite.md
+              // section 3) — jamais d'accès à Découvrir/messagerie/
+              // communauté tant que ce n'est pas levé ou contesté avec
+              // succès (resolveSanctionAppeal).
+              return SanctionScreen(status: status!);
             }
             // Pas encore de statut, ou tentative en cours : le questionnaire
             // gère lui-même son propre état interne (intro → questions →

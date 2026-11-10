@@ -70,3 +70,14 @@ export const MATCH_EXPIRY_DAYS = 7;
 // docs/regles-annonces-evenements.md / Boost (cahier des charges section 5)
 export const BOOST_DURATION_MINUTES = 30;
 export const BOOST_FREE_WEEKLY_FOR_PREMIUM = 1;
+
+// docs/regles-messagerie-securite.md section 3 — escalade avertissement →
+// suspension TEMPORAIRE → suspension définitive. Durée de la suspension
+// temporaire avant levée automatique.
+export const SANCTION_SUSPENSION_DAYS = 30;
+// "Un compte visé par 3 signalements distincts et confirmés, tous
+// domaines confondus, passe automatiquement en revue prioritaire."
+export const PRIORITY_REVIEW_REPORT_THRESHOLD = 3;
+// Même raisonnement que FILTRAGE_RETRY_DELAY_DAYS : empêche de re-soumettre
+// un recours en boucle immédiatement après un refus.
+export const SANCTION_APPEAL_RETRY_DELAY_DAYS = 7;

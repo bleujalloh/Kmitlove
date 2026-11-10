@@ -133,12 +133,14 @@ class MessagesRepository {
     required String reason,
     String? details,
     String? matchId,
+    String? messageId,
   }) {
     return _functions.httpsCallable('reportUser').call({
       'targetUid': targetUid,
       'reason': reason,
       'details': details,
       'matchId': matchId,
+      'messageId': messageId,
     });
   }
 }

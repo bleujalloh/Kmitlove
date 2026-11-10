@@ -3,6 +3,7 @@ import { getFirestore, FieldValue, Timestamp } from "firebase-admin/firestore";
 
 import { REGION, FILTRAGE_RETRY_DELAY_DAYS } from "../config";
 import { requireAdmin } from "../shared/requireAdmin";
+import { logAdminAction } from "../shared/adminLog";
 
 interface ResolveData {
   requestId: string;
@@ -57,6 +58,12 @@ export const resolveFiltrageReview = onCall({ region: REGION }, async (request) 
     resolvedAt: FieldValue.serverTimestamp(),
     resolvedBy: adminUid,
     approved: approve,
+  });
+
+  await logAdminAction(db, {
+    adminUid,
+    action: approve ? "filtrage_review_approved" : "filtrage_review_denied",
+    targetUid: uid,
   });
 
   return { ok: true };

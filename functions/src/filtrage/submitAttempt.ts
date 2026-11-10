@@ -2,6 +2,7 @@ import { onCall, HttpsError } from "firebase-functions/v2/https";
 import { getFirestore, FieldValue, Timestamp } from "firebase-admin/firestore";
 
 import { REGION, FILTRAGE_PASS_THRESHOLD, FILTRAGE_RETRY_DELAY_DAYS } from "../config";
+import { requireNotSuspended } from "../shared/requireNotSuspended";
 
 interface SubmitData {
   attemptId: string;
@@ -43,6 +44,14 @@ export const submitFiltrageAttempt = onCall({ region: REGION }, async (request) 
       throw new HttpsError("failed-precondition", "Cette tentative a déjà été soumise.");
     }
 
+    const statusRef = db.collection("user_status").doc(uid);
+    const statusSnap = await tx.get(statusRef);
+    // Repli en plus de celui de startAttempt.ts : couvre une tentative
+    // déjà en cours au moment où une sanction est tombée entre-temps sur
+    // ce compte (même raisonnement — le filtrage ne doit jamais permettre
+    // de lever une sanction sans passer par resolveSanctionAppeal).
+    requireNotSuspended(statusSnap.data());
+
     const questionIds: string[] = attempt.questionIds;
     const questionRefs = questionIds.map((id) => db.collection("filtrage_question_bank").doc(id));
     const questionSnaps = questionRefs.length > 0 ? await tx.getAll(...questionRefs) : [];
@@ -68,7 +77,6 @@ export const submitFiltrageAttempt = onCall({ region: REGION }, async (request) 
       passed,
     });
 
-    const statusRef = db.collection("user_status").doc(uid);
     if (passed) {
       tx.set(
         statusRef,

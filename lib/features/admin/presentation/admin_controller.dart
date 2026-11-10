@@ -42,3 +42,7 @@ final adminUsersProvider = FutureProvider.autoDispose<List<Map<String, dynamic>>
   final query = ref.watch(adminUserSearchProvider);
   return ref.read(adminRepositoryProvider).listUsers(query: query.isEmpty ? null : query);
 });
+
+final adminActionLogsProvider = FutureProvider.autoDispose<List<Map<String, dynamic>>>((ref) {
+  return ref.read(adminRepositoryProvider).listActionLogs();
+});

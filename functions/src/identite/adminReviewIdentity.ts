@@ -4,6 +4,7 @@ import { getStorage } from "firebase-admin/storage";
 
 import { REGION } from "../config";
 import { requireAdmin } from "../shared/requireAdmin";
+import { logAdminAction } from "../shared/adminLog";
 
 /**
  * Liste les demandes de vérification d'identité en attente, avec une
@@ -61,6 +62,12 @@ export const adminReviewIdentityVerification = onCall({ region: REGION }, async 
     },
     { merge: true },
   );
+
+  await logAdminAction(db, {
+    adminUid,
+    action: approve ? "identity_verified" : "identity_rejected",
+    targetUid: uid,
+  });
 
   return { ok: true };
 });

@@ -29,6 +29,7 @@ export const requestFiltrageReview = onCall({ region: REGION }, async (request) 
   await db.collection("moderation_requests").add({
     type: "filtrage_review",
     uid,
+    priority: false, // champ requis par le tri de adminListModerationRequests (orderBy)
     createdAt: FieldValue.serverTimestamp(),
     resolved: false,
     lastScore: status.filtrageLastScore ?? null,

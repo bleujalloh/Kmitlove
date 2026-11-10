@@ -5,17 +5,19 @@ import '../../../../core/theme/app_theme.dart';
 import '../../../auth/presentation/auth_controller.dart';
 import '../admin_controller.dart';
 
-/// Espace admin (cahier des charges section 6) : signalements, révisions
-/// de filtrage, annonces/événements en attente, photos, vérification
-/// d'identité et gestion des utilisateurs. Ne couvre pas encore les
-/// abonnements ni les statistiques — voir docs/suivi-developpement.md.
+/// Espace admin (cahier des charges section 6) : signalements (avec
+/// escalade et alertes d'urgence en tête de file), révisions de filtrage,
+/// recours contre une sanction, annonces/événements en attente, photos,
+/// vérification d'identité, gestion des utilisateurs et journal des
+/// actions admin. Ne couvre pas encore les abonnements ni les
+/// statistiques — voir docs/suivi-developpement.md.
 class AdminScreen extends ConsumerWidget {
   const AdminScreen({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     return DefaultTabController(
-      length: 5,
+      length: 6,
       child: Scaffold(
         appBar: AppBar(
           title: const Text('Administration'),
@@ -60,6 +62,7 @@ class AdminScreen extends ConsumerWidget {
               Tab(text: 'Photos'),
               Tab(text: 'Identité'),
               Tab(text: 'Utilisateurs'),
+              Tab(text: 'Journal'),
             ],
           ),
         ),
@@ -70,6 +73,7 @@ class AdminScreen extends ConsumerWidget {
             _PendingPhotosTab(),
             _IdentityTab(),
             _UsersTab(),
+            _ActionLogTab(),
           ],
         ),
       ),
@@ -92,37 +96,114 @@ class _ModerationTab extends ConsumerWidget {
           padding: const EdgeInsets.all(16),
           itemCount: requests.length,
           separatorBuilder: (_, _) => const Divider(),
-          itemBuilder: (context, i) {
-            final r = requests[i];
-            final isFiltrageReview = r['type'] == 'filtrage_review';
-            return Padding(
-              padding: const EdgeInsets.symmetric(vertical: 8),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(r['type'] as String? ?? '', style: const TextStyle(fontWeight: FontWeight.bold)),
-                  if (r['reason'] != null) Text('Motif : ${r['reason']}'),
-                  if (r['uid'] != null) Text('Membre : ${r['uid']}'),
-                  if (r['targetUid'] != null) Text('Visé : ${r['targetUid']}'),
-                  if (r['lastScore'] != null) Text('Score filtrage : ${r['lastScore']}'),
-                  const SizedBox(height: 8),
-                  Wrap(
-                    spacing: 8,
-                    children: isFiltrageReview
+          itemBuilder: (context, i) => _ModerationRequestTile(request: requests[i]),
+        );
+      },
+    );
+  }
+}
+
+class _ModerationRequestTile extends ConsumerWidget {
+  const _ModerationRequestTile({required this.request});
+
+  final Map<String, dynamic> request;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final r = request;
+    final type = r['type'] as String? ?? '';
+    final isEmergency = type == 'emergency_alert';
+    final isAppeal = type == 'sanction_appeal';
+    final isFiltrageReview = type == 'filtrage_review';
+    final confirmedCount = r['targetConfirmedReportCount'] as int? ?? 0;
+
+    void refresh() => ref.invalidate(moderationRequestsProvider);
+
+    return Container(
+      padding: const EdgeInsets.all(10),
+      decoration: isEmergency
+          ? BoxDecoration(
+              color: AppColors.accent.withValues(alpha: 0.08),
+              borderRadius: BorderRadius.circular(10),
+              border: Border.all(color: AppColors.accent.withValues(alpha: 0.4)),
+            )
+          : null,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              if (isEmergency) const Icon(Icons.warning_amber_rounded, color: AppColors.accent, size: 18),
+              if (isEmergency) const SizedBox(width: 6),
+              Text(
+                isEmergency ? 'DANGER IMMÉDIAT' : type,
+                style: TextStyle(
+                  fontWeight: FontWeight.bold,
+                  color: isEmergency ? AppColors.accent : null,
+                ),
+              ),
+            ],
+          ),
+          if (r['reason'] != null) Text('Motif : ${r['reason']}'),
+          if (r['uid'] != null) Text('Membre : ${r['uid']}'),
+          if (r['reporterUid'] != null) Text('Signalé par : ${r['reporterUid']}'),
+          if (r['targetUid'] != null) Text('Visé : ${r['targetUid']}'),
+          if (!isEmergency && r['targetUid'] != null)
+            Text(
+              'Signalements confirmés déjà sur ce compte : $confirmedCount'
+              '${r['targetSanctionLevel'] != null && r['targetSanctionLevel'] != 'none' ? ' (actuellement : ${r['targetSanctionLevel']})' : ''}',
+              style: const TextStyle(fontSize: 12, color: AppColors.muted),
+            ),
+          if (r['lastScore'] != null) Text('Score filtrage : ${r['lastScore']}'),
+          if (isAppeal) Text('Sanction contestée : ${r['sanctionLevel'] ?? 'suspension (ancienne donnée)'}'),
+          if (isEmergency && r['context'] != null) ..._emergencyContextLines(r['context'] as Map),
+          const SizedBox(height: 8),
+          Wrap(
+            spacing: 8,
+            children: isFiltrageReview
+                ? [
+                    TextButton(
+                      onPressed: () => ref
+                          .read(adminRepositoryProvider)
+                          .resolveFiltrageReview(r['id'] as String, true)
+                          .then((_) => refresh()),
+                      child: const Text('Activer le compte'),
+                    ),
+                    TextButton(
+                      onPressed: () => ref
+                          .read(adminRepositoryProvider)
+                          .resolveFiltrageReview(r['id'] as String, false)
+                          .then((_) => refresh()),
+                      child: const Text('Maintenir le refus'),
+                    ),
+                  ]
+                : isAppeal
+                    ? [
+                        TextButton(
+                          onPressed: () => ref
+                              .read(adminRepositoryProvider)
+                              .resolveSanctionAppeal(r['id'] as String, true)
+                              .then((_) => refresh()),
+                          child: const Text('Lever la sanction'),
+                        ),
+                        TextButton(
+                          onPressed: () => ref
+                              .read(adminRepositoryProvider)
+                              .resolveSanctionAppeal(r['id'] as String, false)
+                              .then((_) => refresh()),
+                          style: TextButton.styleFrom(foregroundColor: AppColors.accent),
+                          child: const Text('Maintenir'),
+                        ),
+                      ]
+                    : isEmergency
                         ? [
                             TextButton(
                               onPressed: () => ref
                                   .read(adminRepositoryProvider)
-                                  .resolveFiltrageReview(r['id'] as String, true)
-                                  .then((_) => ref.invalidate(moderationRequestsProvider)),
-                              child: const Text('Activer le compte'),
-                            ),
-                            TextButton(
-                              onPressed: () => ref
-                                  .read(adminRepositoryProvider)
-                                  .resolveFiltrageReview(r['id'] as String, false)
-                                  .then((_) => ref.invalidate(moderationRequestsProvider)),
-                              child: const Text('Maintenir le refus'),
+                                  .resolveModerationRequest(r['id'] as String, 'handled')
+                                  .then((_) => refresh()),
+                              style: TextButton.styleFrom(foregroundColor: AppColors.accent),
+                              child: const Text('Marquer traité'),
                             ),
                           ]
                         : [
@@ -130,33 +211,53 @@ class _ModerationTab extends ConsumerWidget {
                               onPressed: () => ref
                                   .read(adminRepositoryProvider)
                                   .resolveModerationRequest(r['id'] as String, 'dismiss')
-                                  .then((_) => ref.invalidate(moderationRequestsProvider)),
+                                  .then((_) => refresh()),
                               child: const Text('Classer sans suite'),
                             ),
                             TextButton(
                               onPressed: () => ref
                                   .read(adminRepositoryProvider)
                                   .resolveModerationRequest(r['id'] as String, 'warn')
-                                  .then((_) => ref.invalidate(moderationRequestsProvider)),
+                                  .then((_) => refresh()),
                               child: const Text('Avertir'),
                             ),
                             TextButton(
                               onPressed: () => ref
                                   .read(adminRepositoryProvider)
                                   .resolveModerationRequest(r['id'] as String, 'suspend')
-                                  .then((_) => ref.invalidate(moderationRequestsProvider)),
+                                  .then((_) => refresh()),
                               style: TextButton.styleFrom(foregroundColor: AppColors.accent),
-                              child: const Text('Suspendre'),
+                              child: const Text('Suspendre (30j)'),
+                            ),
+                            TextButton(
+                              onPressed: () => ref
+                                  .read(adminRepositoryProvider)
+                                  .resolveModerationRequest(r['id'] as String, 'ban')
+                                  .then((_) => refresh()),
+                              style: TextButton.styleFrom(foregroundColor: AppColors.accent),
+                              child: const Text('Bannir définitivement'),
                             ),
                           ],
-                  ),
-                ],
-              ),
-            );
-          },
-        );
-      },
+          ),
+        ],
+      ),
     );
+  }
+
+  List<Widget> _emergencyContextLines(Map context) {
+    const unknown = 'inconnu (compte ou publication supprimé depuis)';
+    final lines = <Widget>[];
+    if (context['eventPostId'] != null) {
+      lines.add(Text('Événement en cours : ${context['eventPostId']} '
+          '(organisateur : ${context['eventOrganizerUid'] ?? unknown})'));
+    }
+    if (context['matchId'] != null) {
+      lines.add(Text('Conversation en cours : avec ${context['matchOtherUid'] ?? unknown}'));
+    }
+    if (context['lastActiveMatchId'] != null) {
+      lines.add(Text('Dernière conversation active : avec ${context['lastActiveMatchOtherUid'] ?? unknown}'));
+    }
+    return lines;
   }
 }
 
@@ -352,15 +453,45 @@ class _UsersTab extends ConsumerWidget {
                 itemBuilder: (context, i) {
                   final u = users[i];
                   final suspended = u['filtrageStatus'] == 'suspended';
+                  final banned = u['sanctionLevel'] == 'banned';
                   return ListTile(
                     title: Text(u['displayName'] as String? ?? ''),
                     subtitle: Text(
-                      '${u['city'] ?? ''}, ${u['country'] ?? ''} — ${u['filtrageStatus'] ?? 'inconnu'}'
+                      '${u['city'] ?? ''}, ${u['country'] ?? ''} — ${banned ? 'banni' : u['filtrageStatus'] ?? 'inconnu'}'
                       '${u['isPremium'] == true ? ' · Premium' : ''}'
                       '${u['isVerified'] == true ? ' · Vérifié' : ''}',
                     ),
                     trailing: TextButton(
                       onPressed: () async {
+                        // Un bannissement est une décision plus lourde
+                        // qu'une simple suspension temporaire — confirmer
+                        // explicitement avant de l'annuler en un clic
+                        // depuis cet outil général, en dehors de tout
+                        // recours examiné (admin/resolveSanctionAppeal.ts).
+                        if (suspended && banned) {
+                          final confirmed = await showDialog<bool>(
+                            context: context,
+                            builder: (dialogContext) => AlertDialog(
+                              title: const Text('Lever ce bannissement définitif ?'),
+                              content: const Text(
+                                "Ce membre a été banni définitivement (pas juste suspendu temporairement). "
+                                "Réactiver son compte annule cette décision.",
+                              ),
+                              actions: [
+                                TextButton(
+                                  onPressed: () => Navigator.of(dialogContext).pop(false),
+                                  child: const Text('Annuler'),
+                                ),
+                                TextButton(
+                                  onPressed: () => Navigator.of(dialogContext).pop(true),
+                                  style: TextButton.styleFrom(foregroundColor: AppColors.accent),
+                                  child: const Text('Lever le bannissement'),
+                                ),
+                              ],
+                            ),
+                          );
+                          if (confirmed != true) return;
+                        }
                         await ref
                             .read(adminRepositoryProvider)
                             .setSuspension(u['uid'] as String, !suspended);
@@ -378,6 +509,44 @@ class _UsersTab extends ConsumerWidget {
           ),
         ),
       ],
+    );
+  }
+}
+
+/// Journal des actions admin (section 4.8 — journalisation), lecture
+/// seule : qui a fait quoi, quand, sur quel compte.
+class _ActionLogTab extends ConsumerWidget {
+  const _ActionLogTab();
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final logsAsync = ref.watch(adminActionLogsProvider);
+    return logsAsync.when(
+      loading: () => const Center(child: CircularProgressIndicator()),
+      error: (e, st) => const Center(child: Text('Impossible de charger le journal.')),
+      data: (logs) {
+        if (logs.isEmpty) return const Center(child: Text('Aucune action enregistrée.'));
+        return ListView.separated(
+          padding: const EdgeInsets.all(16),
+          itemCount: logs.length,
+          separatorBuilder: (_, _) => const Divider(height: 1),
+          itemBuilder: (context, i) {
+            final l = logs[i];
+            return Padding(
+              padding: const EdgeInsets.symmetric(vertical: 8),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(l['action'] as String? ?? '', style: const TextStyle(fontWeight: FontWeight.bold)),
+                  Text('Par : ${l['adminUid']}', style: const TextStyle(fontSize: 12, color: AppColors.muted)),
+                  if (l['targetUid'] != null)
+                    Text('Sur : ${l['targetUid']}', style: const TextStyle(fontSize: 12, color: AppColors.muted)),
+                ],
+              ),
+            );
+          },
+        );
+      },
     );
   }
 }

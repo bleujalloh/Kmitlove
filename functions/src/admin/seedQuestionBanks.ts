@@ -3,6 +3,7 @@ import { getFirestore } from "firebase-admin/firestore";
 
 import { REGION } from "../config";
 import { requireAdmin } from "../shared/requireAdmin";
+import { logAdminAction } from "../shared/adminLog";
 
 // Contenu repris tel quel de docs/banque-questions-filtrage.md — jamais
 // exposé au client (firestore.rules : filtrage_question_bank totalement
@@ -61,7 +62,7 @@ const COMPAT_QUESTIONS: { theme: string; question: string }[] = [
  * déterministes), donc rejouable sans risque si le contenu évolue.
  */
 export const adminSeedQuestionBanks = onCall({ region: REGION }, async (request) => {
-  requireAdmin(request);
+  const adminUid = requireAdmin(request);
   const db = getFirestore();
 
   const filtrageBatch = db.batch();
@@ -77,6 +78,12 @@ export const adminSeedQuestionBanks = onCall({ region: REGION }, async (request)
     compatBatch.set(ref, { ...q, active: true });
   });
   await compatBatch.commit();
+
+  await logAdminAction(db, {
+    adminUid,
+    action: "question_banks_seeded",
+    details: { filtrageCount: FILTRAGE_QUESTIONS.length, compatCount: COMPAT_QUESTIONS.length },
+  });
 
   return {
     ok: true,

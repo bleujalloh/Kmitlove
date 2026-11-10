@@ -99,9 +99,11 @@ Checklist de toutes les parties du cahier des charges et des règles, pour qu'au
 
 ## 4.8 Sécurité et modération (transverse)
 
-- [ ] Espace admin de traitement des signalements (priorité selon gravité)
-- [ ] Escalade (avertissement → suspension 30j → suspension définitive + recours)
-- [ ] Journalisation des actions admin
+- [x] Espace admin de traitement des signalements avec priorité selon gravité — une alerte d'urgence ou un compte déjà à 3 signalements confirmés remonte toujours en tête de file (`adminListModerationRequests`, tri `priority desc, createdAt asc`) ; les motifs "contenu inapproprié"/"arnaque" sont aussi priorisés d'emblée
+- [x] Escalade avertissement → suspension temporaire (30j, levée automatique par `liftExpiredSuspensions`) → suspension définitive, avec droit de recours (`requestSanctionAppeal`/`resolveSanctionAppeal`) — l'échelle ne redescend jamais toute seule (un second signalement plus faible que le niveau déjà atteint n'est jamais une régression) et reste synchronisée que la sanction vienne de l'escalade ou d'une suspension manuelle (`adminSetSuspension`)
+- [x] Journalisation des actions admin — collection `admin_action_logs` (jamais accessible côté client), onglet "Journal" dans l'espace admin, alimentée par toutes les fonctions admin (signalements, photos, publications, identité, filtrage, utilisateurs, recours)
+- [x] Bouton d'urgence "Signaler un danger immédiat" (section 4.7/cahier des charges) sur un événement accepté et sur toute conversation — n'appelle jamais les secours, alerte la modération en priorité absolue avec le contexte disponible (événement/conversation en cours, dernière conversation active) ; numéros d'urgence toujours visibles indépendamment de tout signalement (France/Belgique connus avec certitude, repli honnête sur le 112 ailleurs plutôt qu'un numéro non vérifié)
+- [x] Signalement d'une photo de message précise ("en un geste") — icône dédiée sur une photo reçue, suppression immédiate de l'image si le signalement est confirmé, en plus de la sanction sur le compte
 
 ## 5-6. Modèle économique et administration
 
@@ -115,8 +117,8 @@ Checklist de toutes les parties du cahier des charges et des règles, pour qu'au
 - [x] Espace admin minimal (section 6) : traitement des signalements (classer/avertir/suspendre), des révisions de filtrage (activer/maintenir le refus), validation/refus des annonces et événements en attente
 - [ ] Rôle admin : custom claim Firebase Auth `admin: true` à poser **manuellement** sur le premier compte (console Firebase/Admin SDK) — aucune fonction ne le fait, volontairement (pas de façon de "s'auto-nommer admin" depuis l'app)
 - [x] Gestion des utilisateurs (lister/rechercher, suspendre/réactiver en conservant le statut d'avant suspension) — onglet "Utilisateurs" de l'admin (`adminListUsers`/`adminSetSuspension`)
-- [ ] Gestion des abonnements, statistiques, journaux d'activité détaillés — pas construits (chaque action admin trace déjà qui/quand/quoi sur le document concerné, mais pas de vue d'ensemble dédiée)
-- [ ] Modération photo — sans objet tant que Storage n'est pas activé
+- [x] Journal d'activité détaillé — onglet "Journal" (section 4.8 ci-dessus) ; gestion des abonnements et statistiques restent à construire (lié aux paiements, en pause)
+- [x] Modération photo — construite en 4.2 (modération planifiée + onglet admin)
 - [x] Revue indépendante passée (2026-11-09) : index Firestore manquants (les fonctions auraient toutes échoué), confusion entre signalement et révision de filtrage, délai de relance non réinitialisé après une révision admin — toutes corrigées
 - [x] Revue indépendante passée (2026-11-09) : jeton de paiement réutilisable entre comptes (faille), achat finalisé à tort en cas d'erreur transitoire, écriture inutile pour les membres Premium — toutes corrigées
 
@@ -149,3 +151,12 @@ Checklist de toutes les parties du cahier des charges et des règles, pour qu'au
 - [x] Message d'erreur trompeur corrigé : une erreur `operation-not-allowed` sur **n'importe quel** mode de connexion affichait à tort "la connexion par e-mail n'est pas activée", même pour un échec Google — généralisé. Un code technique court s'affiche désormais aussi pour toute erreur non reconnue, pour qu'une simple capture d'écran suffise à diagnostiquer sans terminal.
 - [x] `firestore.indexes.json` corrigé : un index à un seul champ (`participations.uid`, portée groupe de collections) était déclaré comme index composite — Firestore le refuse désormais ("configure using single field index controls") ; déplacé dans `fieldOverrides`, seule façon correcte d'activer ce type d'index.
 - [x] Déploiement complet (Firestore rules + indexes, Storage rules, 38 Cloud Functions) et build APK release, en excluant explicitement tout ce qui touche aux paiements
+
+## Suivi 2026-11-10 (suite) — section 4.8 Sécurité et modération, de bout en bout
+
+- [x] Échelle de sanction complète (avertissement → suspension 30j → définitive, recours), bouton d'urgence, journal admin, signalement photo précis — détail dans la section 4.8 ci-dessus
+- [x] Revue indépendante poussée bien plus loin que d'habitude sur ce lot précis (une quinzaine de passes successives) parce que le premier essai avait un défaut critique silencieux : un compte suspendu/banni ne pouvait tout simplement pas atteindre l'écran de recours que ce lot venait de construire (`core/router/auth_gate.dart` ne routait jamais vers un écran dédié) — corrigé par un nouvel écran `SanctionScreen`. Puis chaque correctif suivant a révélé une nouvelle conséquence croisée (le détail exact est dans l'historique des commits, pas utile à relire ici) ; les plus importantes :
+  - un compte suspendu pouvait lever sa propre sanction en repassant le questionnaire de filtrage (`startFiltrageAttempt`/`submitFiltrageAttempt` ne vérifiaient pas la suspension) — c'était la faille la plus sérieuse du lot, totalement indépendante de l'écran de recours ;
+  - deux mécanismes de suspension (suspension manuelle `adminSetSuspension` et escalade automatique) ne tenaient pas le même état à jour, pouvant laisser un compte caché indéfiniment ou au contraire rétrograder un bannissement ;
+  - plusieurs actions admin (résoudre un recours, suspendre/réactiver) n'étaient pas protégées contre un double clic, pouvant compter deux fois le même signalement confirmé.
+- [x] Limite assumée, documentée dans le code (`filtrage/startAttempt.ts`) : deux appels concurrents à `startFiltrageAttempt` sans tentative déjà en cours peuvent chacun créer leur propre tentative ; sans faille de sécurité (aucune ne permet de contourner le filtrage ou les sanctions), juste une tentative en double possible dans de rares cas — une correction complète demanderait de renvoyer au second appel la tentative créée par le premier plutôt que d'en créer une seconde.

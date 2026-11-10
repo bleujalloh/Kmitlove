@@ -6,7 +6,9 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:share_plus/share_plus.dart';
 
+import '../../../../core/providers/firebase_providers.dart';
 import '../../../../core/theme/app_theme.dart';
+import '../../../../core/widgets/sanction_appeal_button.dart';
 import '../../../auth/presentation/auth_controller.dart';
 import '../../../profil/presentation/profil_controller.dart';
 import '../../../profil/presentation/screens/profil_edit_screen.dart';
@@ -91,12 +93,44 @@ class _ParametresScreenState extends ConsumerState<ParametresScreen> {
   @override
   Widget build(BuildContext context) {
     final profilAsync = ref.watch(profilProvider);
+    // Un compte suspendu/banni n'atteint jamais cet écran (voir
+    // core/router/auth_gate.dart → SanctionScreen) — seul un simple
+    // avertissement laisse le compte actif et donc visible ici.
+    final status = ref.watch(userStatusProvider).value;
+    final warned = status?['sanctionLevel'] == 'warned';
+    final appealPending = status?['appealPending'] == true;
 
     return Scaffold(
       appBar: AppBar(title: const Text('Paramètres')),
       body: SafeArea(
         child: ListView(
           children: [
+            if (warned)
+              Container(
+                margin: const EdgeInsets.all(16),
+                padding: const EdgeInsets.all(14),
+                decoration: BoxDecoration(
+                  color: AppColors.backgroundSoft,
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(color: AppColors.accent.withValues(alpha: 0.3)),
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const Text(
+                      'Ton compte a reçu un avertissement suite à un signalement confirmé.',
+                      style: TextStyle(fontWeight: FontWeight.bold, color: AppColors.accent),
+                    ),
+                    const SizedBox(height: 6),
+                    const Text(
+                      'Si tu penses que c\'est une erreur, tu peux demander qu\'un modérateur réexamine cette décision.',
+                      style: TextStyle(fontSize: 13),
+                    ),
+                    const SizedBox(height: 10),
+                    SanctionAppealButton(appealPending: appealPending),
+                  ],
+                ),
+              ),
             ListTile(
               leading: const Icon(Icons.person_outline),
               title: const Text('Modifier mon profil'),

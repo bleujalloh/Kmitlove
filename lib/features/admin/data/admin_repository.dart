@@ -91,4 +91,16 @@ class AdminRepository {
   Future<void> setSuspension(String uid, bool suspend) {
     return _functions.httpsCallable('adminSetSuspension').call({'uid': uid, 'suspend': suspend});
   }
+
+  Future<void> resolveSanctionAppeal(String requestId, bool approve) {
+    return _functions
+        .httpsCallable('resolveSanctionAppeal')
+        .call({'requestId': requestId, 'approve': approve});
+  }
+
+  Future<List<Map<String, dynamic>>> listActionLogs() async {
+    final result = await _functions.httpsCallable('adminListActionLogs').call();
+    final data = result.data as Map<Object?, Object?>;
+    return (data['logs'] as List).map((l) => Map<String, dynamic>.from(l as Map)).toList();
+  }
 }

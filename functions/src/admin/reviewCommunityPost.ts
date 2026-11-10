@@ -3,6 +3,7 @@ import { getFirestore, FieldValue } from "firebase-admin/firestore";
 
 import { REGION } from "../config";
 import { requireAdmin } from "../shared/requireAdmin";
+import { logAdminAction } from "../shared/adminLog";
 
 /** Liste les annonces/événements en attente de revue (section 4.7/6). */
 export const adminListPendingCommunityPosts = onCall({ region: REGION }, async (request) => {
@@ -44,6 +45,13 @@ export const adminReviewCommunityPost = onCall({ region: REGION }, async (reques
     status: approve ? "published" : "rejected",
     reviewedAt: FieldValue.serverTimestamp(),
     reviewedBy: adminUid,
+  });
+
+  await logAdminAction(db, {
+    adminUid,
+    action: approve ? "post_approved" : "post_rejected",
+    targetUid: (postSnap.data()?.authorUid as string | undefined) ?? null,
+    details: { postId },
   });
 
   return { ok: true };

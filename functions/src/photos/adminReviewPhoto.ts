@@ -3,6 +3,7 @@ import { getFirestore, FieldValue } from "firebase-admin/firestore";
 
 import { REGION } from "../config";
 import { requireAdmin } from "../shared/requireAdmin";
+import { logAdminAction } from "../shared/adminLog";
 
 /** Photos en attente de validation (docs/regles-messagerie-securite.md section 1). */
 export const adminListPendingPhotos = onCall({ region: REGION }, async (request) => {
@@ -47,6 +48,13 @@ export const adminReviewPhoto = onCall({ region: REGION }, async (request) => {
     status: approve ? "approved" : "rejected",
     reviewedAt: FieldValue.serverTimestamp(),
     reviewedBy: adminUid,
+  });
+
+  await logAdminAction(db, {
+    adminUid,
+    action: approve ? "photo_approved" : "photo_rejected",
+    targetUid: userId,
+    details: { photoId },
   });
 
   return { ok: true };

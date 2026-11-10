@@ -84,12 +84,14 @@ class MessagesController {
     required String reason,
     String? details,
     String? matchId,
+    String? messageId,
   }) {
     return ref.read(messagesRepositoryProvider).reportUser(
           targetUid: targetUid,
           reason: reason,
           details: details,
           matchId: matchId,
+          messageId: messageId,
         );
   }
 }

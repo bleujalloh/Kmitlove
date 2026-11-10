@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../../core/providers/firebase_providers.dart';
 import '../../../../core/theme/app_theme.dart';
+import '../../../../core/widgets/emergency_sheet.dart';
 import '../../domain/community_post.dart';
 import '../communaute_controller.dart';
 
@@ -102,6 +103,16 @@ class _PostDetailScreenState extends ConsumerState<PostDetailScreen> {
                             padding: const EdgeInsets.only(top: 8),
                             child: Text('Code de présence : ${participation?['checkinCode']}'),
                           ),
+                        const SizedBox(height: 8),
+                        // Toujours visible sur un événement accepté
+                        // (docs/regles-complementaires-concurrents.md
+                        // section 1), jamais caché derrière une autre action.
+                        TextButton.icon(
+                          onPressed: () => showEmergencySheet(context, ref, eventPostId: widget.post.id),
+                          icon: const Icon(Icons.warning_amber_rounded, color: AppColors.accent),
+                          label: const Text('Signaler un danger immédiat',
+                              style: TextStyle(color: AppColors.accent)),
+                        ),
                       ],
                     );
                   }

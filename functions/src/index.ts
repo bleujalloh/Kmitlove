@@ -36,6 +36,11 @@ export { exportMyData } from "./rgpd/exportMyData";
 export { updateMyLocation } from "./account/updateMyLocation";
 export { adminListUsers, adminSetSuspension } from "./admin/listUsers";
 export { adminSeedQuestionBanks } from "./admin/seedQuestionBanks";
+export { adminListActionLogs } from "./admin/listActionLogs";
+export { requestSanctionAppeal } from "./account/requestSanctionAppeal";
+export { resolveSanctionAppeal } from "./admin/resolveSanctionAppeal";
+export { triggerEmergencyAlert } from "./securite/triggerEmergencyAlert";
+export { liftExpiredSuspensions } from "./scheduled/liftExpiredSuspensions";
 
 // Paiements (Google Play, Stripe, PayPal) : travail mis en pause sur
 // demande explicite, le temps de valider la conformité des règles Google
