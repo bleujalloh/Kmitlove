@@ -2,13 +2,12 @@ import 'dart:async';
 
 import 'package:cloud_functions/cloud_functions.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_riverpod/legacy.dart';
 
 import '../../../core/device_id.dart';
 import '../../../core/providers/firebase_providers.dart';
 import '../../../l10n/app_localizations.dart';
-import '../../../l10n/l10n_extensions.dart';
 import '../data/auth_repository.dart';
 
 final cloudFunctionsProvider = Provider<FirebaseFunctions>(
@@ -54,18 +53,23 @@ String readableAuthError(Object error, AppLocalizations l10n) {
   return shortCode != null ? l10n.genericErrorWithCode(shortCode) : l10n.genericError;
 }
 
+/// Posé par signInWithGoogle/signInWithApple quand l'authentification
+/// vient de créer un compte tout neuf (jamais lors d'une simple
+/// reconnexion). AuthGate l'observe pour imposer un écran de confirmation
+/// d'âge avant de laisser passer vers le reste de l'app : ces deux
+/// méthodes n'ont pas de case à cocher avant l'appel contrairement à
+/// l'inscription par e-mail, et un contrôle fait depuis l'écran
+/// d'origine arrive trop tard — authStateProvider notifie AuthGate dès
+/// que Firebase confirme la connexion, qui navigue immédiatement vers
+/// l'écran suivant avant que l'écran d'origine ait eu la main pour
+/// afficher quoi que ce soit (bug remonté sur appareil réel le 11/11 :
+/// Google laissait passer sans jamais rien demander, confirmé par
+/// capture d'écran).
+final pendingAdultConfirmationProvider = StateProvider<bool>((ref) => false);
+
 class AuthController extends AsyncNotifier<void> {
   @override
   void build() {}
-
-  /// Posé par signInWithGoogle/signInWithApple quand l'authentification
-  /// vient de créer un compte tout neuf (jamais lors d'une simple
-  /// reconnexion) — ces deux méthodes n'ont pas de case à cocher avant
-  /// l'appel contrairement à l'inscription par e-mail, donc
-  /// confirmAdultAfterSocialSignIn() s'en sert pour faire confirmer l'âge
-  /// après coup (bug remonté sur appareil réel le 10/11 : Google
-  /// permettait de s'inscrire sans jamais confirmer avoir 18 ans).
-  bool isLastSignInNewUser = false;
 
   Future<bool> signUp(String email, String password) async {
     state = const AsyncLoading();
@@ -114,7 +118,9 @@ class AuthController extends AsyncNotifier<void> {
     state = const AsyncLoading();
     try {
       final credential = await ref.read(authRepositoryProvider).signInWithGoogle();
-      isLastSignInNewUser = credential.additionalUserInfo?.isNewUser == true;
+      if (credential.additionalUserInfo?.isNewUser == true) {
+        ref.read(pendingAdultConfirmationProvider.notifier).state = true;
+      }
       unawaited(_reportDeviceSignalIfNew(credential));
       state = const AsyncData(null);
       return true;
@@ -128,7 +134,9 @@ class AuthController extends AsyncNotifier<void> {
     state = const AsyncLoading();
     try {
       final credential = await ref.read(authRepositoryProvider).signInWithApple();
-      isLastSignInNewUser = credential.additionalUserInfo?.isNewUser == true;
+      if (credential.additionalUserInfo?.isNewUser == true) {
+        ref.read(pendingAdultConfirmationProvider.notifier).state = true;
+      }
       unawaited(_reportDeviceSignalIfNew(credential));
       state = const AsyncData(null);
       return true;
@@ -164,40 +172,3 @@ final activityHeartbeatProvider = FutureProvider<void>((ref) async {
 final authControllerProvider = AsyncNotifierProvider<AuthController, void>(
   AuthController.new,
 );
-
-/// À appeler juste après un signInWithGoogle()/signInWithApple() réussi,
-/// depuis l'écran qui l'a déclenché. Ne fait rien pour une simple
-/// reconnexion ; pour un compte tout juste créé, demande une confirmation
-/// explicite d'avoir 18 ans ou plus (l'inscription par e-mail la demande
-/// déjà via sa case à cocher, mais ces deux méthodes n'en ont pas) et, en
-/// cas de refus, supprime immédiatement le compte qui vient d'être créé
-/// plutôt que de le laisser actif sans cette confirmation.
-Future<void> confirmAdultAfterSocialSignIn(BuildContext context, WidgetRef ref) async {
-  final controller = ref.read(authControllerProvider.notifier);
-  if (!controller.isLastSignInNewUser) return;
-  controller.isLastSignInNewUser = false;
-  if (!context.mounted) return;
-
-  final confirmed = await showDialog<bool>(
-    context: context,
-    barrierDismissible: false,
-    builder: (dialogContext) => AlertDialog(
-      title: Text(context.l10n.confirmAdultDialogTitle),
-      content: Text(context.l10n.confirmAdultDialogBody),
-      actions: [
-        TextButton(
-          onPressed: () => Navigator.of(dialogContext).pop(false),
-          child: Text(context.l10n.confirmAdultDialogDecline),
-        ),
-        TextButton(
-          onPressed: () => Navigator.of(dialogContext).pop(true),
-          child: Text(context.l10n.confirmAdultDialogAccept),
-        ),
-      ],
-    ),
-  );
-
-  if (confirmed != true) {
-    await ref.read(authRepositoryProvider).deleteAccount();
-  }
-}

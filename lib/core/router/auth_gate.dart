@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_riverpod/legacy.dart';
 
+import '../../features/auth/presentation/auth_controller.dart';
+import '../../features/auth/presentation/screens/adult_confirmation_screen.dart';
 import '../../features/auth/presentation/screens/reset_password_screen.dart';
 import '../../features/auth/presentation/screens/sign_in_screen.dart';
 import '../../features/auth/presentation/screens/sign_up_screen.dart';
@@ -60,6 +62,14 @@ class AuthGate extends ConsumerWidget {
             case _LoggedOutView.resetPassword:
               return const ResetPasswordScreen();
           }
+        }
+
+        if (ref.watch(pendingAdultConfirmationProvider)) {
+          // Priorité absolue sur tout le reste, y compris la vérification
+          // d'e-mail (déjà acquise automatiquement pour un compte Google/
+          // Apple) — voir auth_controller.dart pour pourquoi ce contrôle
+          // doit vivre ici plutôt que dans l'écran d'origine.
+          return const AdultConfirmationScreen();
         }
 
         if (!user.emailVerified) {
