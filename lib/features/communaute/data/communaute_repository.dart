@@ -88,6 +88,7 @@ class CommunauteRepository {
     String? parentEventId,
     String? recurrence,
     int? recurrenceCount,
+    String? timezone,
   }) async {
     final result = await _functions.httpsCallable('createCommunityPost').call({
       'type': type,
@@ -109,6 +110,7 @@ class CommunauteRepository {
       'parentEventId': parentEventId,
       'recurrence': recurrence,
       'recurrenceCount': recurrenceCount,
+      'timezone': timezone,
     });
     final data = result.data as Map<Object?, Object?>;
     return data['status'] as String;

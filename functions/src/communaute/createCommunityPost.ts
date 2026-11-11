@@ -12,6 +12,7 @@ import {
   EVENT_RECURRENCE_FREQUENCIES,
   EVENT_RECURRENCE_MAX_OCCURRENCES,
 } from "../config";
+import { isValidTimeZone } from "../shared/timezone";
 
 type PostType =
   | "publication"
@@ -67,6 +68,12 @@ interface CreatePostData {
   // de celle créée par cet appel), plafonné côté serveur.
   recurrence?: string;
   recurrenceCount?: number;
+  // Fuseau IANA de l'organisateur au moment de la création (ex.
+  // "Europe/Paris"), capturé côté client via flutter_timezone — jamais
+  // une chaîne arbitraire : vérifiée contre la liste réelle du moteur
+  // (shared/timezone.ts). Sert à calculer précisément l'heure de
+  // déclenchement des rappels (scheduled/sendEventReminders.ts).
+  timezone?: string;
 }
 
 const RECURRENCE_INTERVAL_DAYS: Record<string, number> = {
@@ -138,6 +145,9 @@ export const createCommunityPost = onCall({ region: REGION }, async (request) =>
     format = data.format;
     if (!data.city?.trim() || !data.country?.trim()) {
       throw new HttpsError("invalid-argument", "Ville et pays requis (affichés publiquement, jamais l'adresse exacte).");
+    }
+    if (!data.timezone || !isValidTimeZone(data.timezone)) {
+      throw new HttpsError("invalid-argument", "Fuseau horaire invalide.");
     }
     if (data.ageMinimum !== undefined && (!Number.isFinite(data.ageMinimum) || data.ageMinimum < 0 || data.ageMinimum > 99)) {
       throw new HttpsError("invalid-argument", "Âge minimum invalide.");
@@ -274,6 +284,7 @@ export const createCommunityPost = onCall({ region: REGION }, async (request) =>
       format,
       city: isEvent ? data.city!.trim() : null,
       country: isEvent ? data.country!.trim() : null,
+      timezone: isEvent ? data.timezone : null,
       ageMinimum: data.ageMinimum ?? null,
       conditions: data.conditions?.trim() || null,
       contactChannel: data.contactChannel?.trim() || null,
@@ -325,11 +336,21 @@ export const createCommunityPost = onCall({ region: REGION }, async (request) =>
       for (let i = 1; i <= data.recurrenceCount; i += 1) {
         const offsetMs = intervalDays * i * 24 * 60 * 60 * 1000;
         const occurrenceRef = db.collection("community_posts").doc();
+        // `.toISOString()` ajoute toujours un "Z" final (heure UTC
+        // absolue), alors que `data.eventDate` lui-même n'en a jamais un
+        // (heure murale naïve écrite par le client) — un format différent
+        // pour les occurrences suivantes aurait été interprété
+        // différemment par zonedWallTimeToUtcMillis.ts ET par
+        // `DateTime.tryParse` côté client (trouvé par revue de code).
+        // L'heure murale (heures:minutes:secondes) reste exacte malgré ce
+        // retrait : l'arithmétique ci-dessus ajoute un nombre entier de
+        // jours en millisecondes, et toISOString() restitue toujours ces
+        // mêmes heure/minute/seconde, jour après jour, sans dérive.
         writeOccurrence(
           tx,
           occurrenceRef,
-          new Date(baseStart + offsetMs).toISOString(),
-          baseEnd !== null ? new Date(baseEnd + offsetMs).toISOString() : null,
+          new Date(baseStart + offsetMs).toISOString().replace("Z", ""),
+          baseEnd !== null ? new Date(baseEnd + offsetMs).toISOString().replace("Z", "") : null,
         );
       }
     }

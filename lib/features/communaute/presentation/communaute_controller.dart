@@ -118,6 +118,7 @@ class CommunauteController {
     String? parentEventId,
     String? recurrence,
     int? recurrenceCount,
+    String? timezone,
   }) {
     return ref.read(communauteRepositoryProvider).createPost(
           type: type,
@@ -139,6 +140,7 @@ class CommunauteController {
           parentEventId: parentEventId,
           recurrence: recurrence,
           recurrenceCount: recurrenceCount,
+          timezone: timezone,
         );
   }
 

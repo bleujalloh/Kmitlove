@@ -3,6 +3,7 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_timezone/flutter_timezone.dart';
 import 'package:image_picker/image_picker.dart';
 
 import '../../../../core/theme/app_theme.dart';
@@ -125,6 +126,14 @@ class _CreatePostScreenState extends ConsumerState<CreatePostScreen> {
         posterStoragePath = await ref.read(communauteControllerProvider).uploadEventPoster(_posterFile!);
         _uploadedPosterPath = posterStoragePath;
       }
+      // Fuseau de l'organisateur au moment de la création (hypothèse
+      // raisonnable : l'événement se déroule là où il le crée) — vérifié
+      // côté serveur contre la vraie liste IANA, jamais une confiance
+      // aveugle à cette valeur (createCommunityPost.ts).
+      String? timezone;
+      if (_isEvent) {
+        timezone = (await FlutterTimezone.getLocalTimezone()).identifier;
+      }
       final status = await ref.read(communauteControllerProvider).createPost(
             type: _type,
             text: _textController.text.trim(),
@@ -150,6 +159,7 @@ class _CreatePostScreenState extends ConsumerState<CreatePostScreen> {
             parentEventId: _parentEventId,
             recurrence: _isEvent ? _recurrence : null,
             recurrenceCount: _isEvent && _recurrence != null ? _recurrenceCount : null,
+            timezone: timezone,
           );
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
