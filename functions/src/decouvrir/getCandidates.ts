@@ -163,9 +163,16 @@ export const getDiscoverCandidates = onCall({ region: REGION }, async (request) 
   // dépend pas de qui a bloqué qui) exclut totalement Découvrir, pas
   // seulement un badge — docs/suivi-developpement.md section du
   // 11/11/2026.
-  const blockSnaps = await db.getAll(
-    ...statusPassed.map(({ doc }) => db.collection("blocks").doc([uid, doc.id].sort().join("_"))),
-  );
+  // `Firestore.getAll()` exige au moins un argument — sans ce garde-fou,
+  // Découvrir plante entièrement ("impossible de charger les profils")
+  // dès que personne ne passe les filtres précédents, au lieu de
+  // simplement renvoyer une liste vide (bug remonté sur appareil réel
+  // le 11/11, confirmé par les logs Cloud Functions).
+  const blockSnaps = statusPassed.length > 0
+    ? await db.getAll(
+        ...statusPassed.map(({ doc }) => db.collection("blocks").doc([uid, doc.id].sort().join("_"))),
+      )
+    : [];
 
   const eligible: (Record<string, unknown> & { _boosted: boolean; _completionPercent: number })[] = [];
   for (let i = 0; i < statusPassed.length; i += 1) {
