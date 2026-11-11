@@ -85,6 +85,16 @@ class AuthRepository {
 
   Future<void> signOut() => _auth.signOut();
 
+  /// Supprime le compte Firebase Auth qu'un sign-in Google/Apple vient de
+  /// créer, quand il n'avait pas le droit de le faire (écran "Se
+  /// connecter" utilisé avec un compte Google inconnu de MERUT — signalé
+  /// par le propriétaire le 11/11/2026 : "on peut s'inscrire en cliquant
+  /// sur se connecter"). Sans danger en appel direct (contrairement à
+  /// deleteAccount) : ce compte vient d'être créé à l'instant, aucune
+  /// donnée Firestore (profil, statut, photos) n'a encore été écrite pour
+  /// lui.
+  Future<void> deleteJustCreatedAccount() => _auth.currentUser!.delete();
+
   /// La suppression réelle (données applicatives ET compte Auth) est
   /// entièrement faite par la Cloud Function avec les droits admin —
   /// jamais depuis l'app, voir docs/regles-du-projet.md section 2. On ne

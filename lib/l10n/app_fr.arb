@@ -47,6 +47,7 @@
   "authErrorTooManyRequests": "Trop de tentatives, réessaie dans quelques minutes.",
   "authErrorOperationNotAllowed": "Ce mode de connexion n'est pas encore activé côté serveur (à vérifier dans la console Firebase).",
   "authErrorNetwork": "Pas de connexion internet, vérifie ton réseau.",
+  "authErrorNoAccountForSocialSignIn": "Aucun compte MERUT n'est associé à ce compte Google. Inscris-toi d'abord.",
 
   "emailLabel": "Adresse e-mail",
   "invalidEmail": "E-mail invalide",

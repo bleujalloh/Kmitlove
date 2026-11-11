@@ -142,6 +142,10 @@ class AppLocalizationsEn extends AppLocalizations {
   String get authErrorNetwork => 'No internet connection, check your network.';
 
   @override
+  String get authErrorNoAccountForSocialSignIn =>
+      'No MERUT account is linked to this Google account. Sign up first.';
+
+  @override
   String get emailLabel => 'Email address';
 
   @override

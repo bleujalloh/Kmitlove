@@ -43,6 +43,7 @@
   "authErrorTooManyRequests": "Too many attempts, try again in a few minutes.",
   "authErrorOperationNotAllowed": "This sign-in method isn't enabled on the server yet.",
   "authErrorNetwork": "No internet connection, check your network.",
+  "authErrorNoAccountForSocialSignIn": "No MERUT account is linked to this Google account. Sign up first.",
 
   "emailLabel": "Email address",
   "invalidEmail": "Invalid email",

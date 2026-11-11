@@ -143,6 +143,10 @@ class AppLocalizationsFr extends AppLocalizations {
       'Pas de connexion internet, vérifie ton réseau.';
 
   @override
+  String get authErrorNoAccountForSocialSignIn =>
+      'Aucun compte MERUT n\'est associé à ce compte Google. Inscris-toi d\'abord.';
+
+  @override
   String get emailLabel => 'Adresse e-mail';
 
   @override

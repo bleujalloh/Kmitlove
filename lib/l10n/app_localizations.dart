@@ -332,6 +332,12 @@ abstract class AppLocalizations {
   /// **'Pas de connexion internet, vérifie ton réseau.'**
   String get authErrorNetwork;
 
+  /// No description provided for @authErrorNoAccountForSocialSignIn.
+  ///
+  /// In fr, this message translates to:
+  /// **'Aucun compte MERUT n\'est associé à ce compte Google. Inscris-toi d\'abord.'**
+  String get authErrorNoAccountForSocialSignIn;
+
   /// No description provided for @emailLabel.
   ///
   /// In fr, this message translates to:

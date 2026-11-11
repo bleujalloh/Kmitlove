@@ -54,6 +54,9 @@ String readableAuthError(Object error, AppLocalizations l10n) {
   if (code.contains('network-request-failed')) {
     return l10n.authErrorNetwork;
   }
+  if (code.contains('no-account-for-social-sign-in')) {
+    return l10n.authErrorNoAccountForSocialSignIn;
+  }
   // Code technique ajouté entre parenthèses seulement ici (cas non reconnu)
   // pour qu'une simple capture d'écran suffise à diagnostiquer la suite,
   // sans avoir besoin d'un terminal/adb logcat.
@@ -122,11 +125,24 @@ class AuthController extends AsyncNotifier<void> {
     }
   }
 
-  Future<bool> signInWithGoogle() async {
+  /// [allowAccountCreation] doit rester `false` sur l'écran "Se connecter"
+  /// (signalé par le propriétaire le 11/11/2026 : "on peut s'inscrire en
+  /// cliquant sur se connecter") — Firebase ne distingue pas nativement
+  /// connexion et inscription pour un fournisseur fédéré (Google/Apple),
+  /// `signInWithCredential` crée silencieusement un nouveau compte si
+  /// celui-ci n'existait pas encore. Le compte tout juste créé est donc
+  /// supprimé immédiatement si l'appelant ne voulait qu'une connexion.
+  Future<bool> signInWithGoogle({bool allowAccountCreation = true}) async {
     state = const AsyncLoading();
     try {
       final credential = await ref.read(authRepositoryProvider).signInWithGoogle();
-      if (credential.additionalUserInfo?.isNewUser == true) {
+      final isNewUser = credential.additionalUserInfo?.isNewUser == true;
+      if (isNewUser && !allowAccountCreation) {
+        await ref.read(authRepositoryProvider).deleteJustCreatedAccount();
+        state = AsyncError(Exception('no-account-for-social-sign-in'), StackTrace.current);
+        return false;
+      }
+      if (isNewUser) {
         ref.read(pendingAdultConfirmationProvider.notifier).state = true;
       }
       unawaited(_reportDeviceSignalIfNew(credential));
@@ -138,11 +154,18 @@ class AuthController extends AsyncNotifier<void> {
     }
   }
 
-  Future<bool> signInWithApple() async {
+  /// Voir [signInWithGoogle] pour la raison d'être de [allowAccountCreation].
+  Future<bool> signInWithApple({bool allowAccountCreation = true}) async {
     state = const AsyncLoading();
     try {
       final credential = await ref.read(authRepositoryProvider).signInWithApple();
-      if (credential.additionalUserInfo?.isNewUser == true) {
+      final isNewUser = credential.additionalUserInfo?.isNewUser == true;
+      if (isNewUser && !allowAccountCreation) {
+        await ref.read(authRepositoryProvider).deleteJustCreatedAccount();
+        state = AsyncError(Exception('no-account-for-social-sign-in'), StackTrace.current);
+        return false;
+      }
+      if (isNewUser) {
         ref.read(pendingAdultConfirmationProvider.notifier).state = true;
       }
       unawaited(_reportDeviceSignalIfNew(credential));

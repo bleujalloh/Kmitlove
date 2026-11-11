@@ -122,7 +122,9 @@ class _SignInScreenState extends ConsumerState<SignInScreen> {
                   OutlinedButton.icon(
                     onPressed: authState.isLoading
                         ? null
-                        : () => ref.read(authControllerProvider.notifier).signInWithGoogle(),
+                        : () => ref
+                            .read(authControllerProvider.notifier)
+                            .signInWithGoogle(allowAccountCreation: false),
                     icon: const GoogleMark(),
                     label: Text(context.l10n.continueWithGoogle),
                   ),
