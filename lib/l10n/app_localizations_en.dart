@@ -40,7 +40,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get deleteButton => 'Delete';
 
   @override
-  String get onboardingTagline => 'kamite dating and community';
+  String get onboardingTagline => 'Love has its roots.';
 
   @override
   String get onboardingBeforeStart => 'Before you start';

@@ -183,7 +183,7 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
                                 else
                                   Text(
                                     m.text,
-                                    style: TextStyle(color: isMine ? Colors.white : AppColors.ink),
+                                    style: TextStyle(color: isMine ? AppColors.noirProfond : AppColors.ink),
                                   ),
                                 if (isMine && showReceipts)
                                   Padding(
@@ -192,7 +192,9 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
                                       read ? context.l10n.readReceipt : context.l10n.sentReceipt,
                                       style: TextStyle(
                                         fontSize: 10,
-                                        color: m.hasImage ? AppColors.muted : Colors.white70,
+                                        color: m.hasImage
+                                            ? AppColors.muted
+                                            : AppColors.noirProfond.withValues(alpha: 0.65),
                                       ),
                                     ),
                                   ),

@@ -83,7 +83,7 @@ class _IdentiteScreenState extends ConsumerState<IdentiteScreen> {
                     ? const SizedBox(
                         height: 18,
                         width: 18,
-                        child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white),
+                        child: CircularProgressIndicator(strokeWidth: 2, color: AppColors.noirProfond),
                       )
                     : Text(context.l10n.takeASelfie),
               ),

@@ -24,7 +24,7 @@ class CommunauteScreen extends ConsumerWidget {
         onPressed: () => Navigator.of(context).push(
           MaterialPageRoute(builder: (_) => const CreatePostScreen()),
         ),
-        child: const Icon(Icons.add, color: Colors.white),
+        child: const Icon(Icons.add, color: AppColors.noirProfond),
       ),
       body: feedAsync.when(
         loading: () => const Center(child: CircularProgressIndicator()),

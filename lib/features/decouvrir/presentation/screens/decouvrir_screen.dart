@@ -114,7 +114,7 @@ class DecouvrirScreen extends ConsumerWidget {
                       const SizedBox(width: 18),
                       _RoundButton(
                         icon: Icons.favorite,
-                        color: Colors.white,
+                        color: AppColors.noirProfond,
                         background: AppColors.accent,
                         size: 62,
                         onTap: () => ref.read(decouvrirControllerProvider.notifier).swipe('like'),
@@ -165,7 +165,7 @@ class _CandidateCard extends ConsumerWidget {
                   color: AppColors.placeholder,
                   child: photoUrl != null
                       ? Image.network(photoUrl, fit: BoxFit.cover, width: double.infinity, height: 340)
-                      : const Icon(Icons.person_outline, size: 46, color: Color(0xFFC9C0B2)),
+                      : const Icon(Icons.person_outline, size: 46, color: AppColors.placeholderIcon),
                 ),
                 Positioned(
                   top: 10,
@@ -244,7 +244,7 @@ class _CandidateCard extends ConsumerWidget {
                                 ),
                                 child: Text(
                                   context.l10n.compatScoreBadge(compatScore),
-                                  style: const TextStyle(fontSize: 12, color: Colors.white, fontWeight: FontWeight.w700),
+                                  style: const TextStyle(fontSize: 12, color: AppColors.noirProfond, fontWeight: FontWeight.w700),
                                 ),
                               ),
                           ],
@@ -273,7 +273,7 @@ class _CandidateCard extends ConsumerWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(candidate.bio, style: const TextStyle(fontSize: 13.5, color: Color(0xFF4A4038))),
+                  Text(candidate.bio, style: const TextStyle(fontSize: 13.5, color: AppColors.ink)),
                   const SizedBox(height: 12),
                   Wrap(
                     spacing: 6,
@@ -431,7 +431,7 @@ class _RoundButton extends StatelessWidget {
     required this.icon,
     required this.color,
     required this.onTap,
-    this.background = Colors.white,
+    this.background = AppColors.background,
     this.size = 48,
   });
 
@@ -452,7 +452,7 @@ class _RoundButton extends StatelessWidget {
         decoration: BoxDecoration(
           color: background,
           shape: BoxShape.circle,
-          border: background == Colors.white ? Border.all(color: AppColors.border) : null,
+          border: background == AppColors.background ? Border.all(color: AppColors.border) : null,
         ),
         child: Icon(icon, color: color, size: size * 0.4),
       ),

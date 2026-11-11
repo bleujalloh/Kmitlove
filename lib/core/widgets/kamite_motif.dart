@@ -34,7 +34,10 @@ class _KamiteMotifPainter extends CustomPainter {
   void paint(Canvas canvas, Size size) {
     final ink = Paint()..color = AppColors.ink;
     final accent = Paint()..color = AppColors.accent;
-    final soft = Paint()..color = AppColors.accentSoft;
+    // Pas AppColors.accentSoft : depuis le passage au thème sombre
+    // (11/11/2026), ce jeton sert de fond de puce sélectionnée (sombre),
+    // plus un simple or atténué — invisible ici sur un fond déjà sombre.
+    final soft = Paint()..color = AppColors.orDoux.withValues(alpha: 0.55);
 
     final centerX = size.width / 2;
     final sunCenterY = size.height * (compact ? 0.42 : 0.34);

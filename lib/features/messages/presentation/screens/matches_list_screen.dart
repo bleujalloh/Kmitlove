@@ -39,7 +39,7 @@ class MatchesListScreen extends ConsumerWidget {
               return ListTile(
                 leading: const CircleAvatar(
                   backgroundColor: AppColors.placeholder,
-                  child: Icon(Icons.person_outline, color: Color(0xFFC9C0B2)),
+                  child: Icon(Icons.person_outline, color: AppColors.placeholderIcon),
                 ),
                 title: Text(m.otherDisplayName, style: const TextStyle(fontWeight: FontWeight.bold)),
                 subtitle: Text(

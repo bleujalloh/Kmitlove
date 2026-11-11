@@ -91,7 +91,7 @@ class _TabButton extends StatelessWidget {
         child: Container(
           padding: const EdgeInsets.symmetric(vertical: 8),
           decoration: BoxDecoration(
-            color: selected ? AppColors.ink : Colors.transparent,
+            color: selected ? AppColors.accent : Colors.transparent,
             borderRadius: BorderRadius.circular(999),
           ),
           alignment: Alignment.center,
@@ -100,7 +100,7 @@ class _TabButton extends StatelessWidget {
             style: TextStyle(
               fontSize: 12.5,
               fontWeight: FontWeight.w600,
-              color: selected ? Colors.white : AppColors.muted,
+              color: selected ? AppColors.noirProfond : AppColors.muted,
             ),
           ),
         ),
@@ -149,7 +149,7 @@ class _ReceivedTab extends ConsumerWidget {
               borderRadius: BorderRadius.circular(16),
             ),
             child: const Center(
-              child: Icon(Icons.lock_outline, color: Color(0xFFB8AE9D)),
+              child: Icon(Icons.lock_outline, color: AppColors.placeholderIcon),
             ),
           ),
         ),
@@ -173,8 +173,11 @@ class _ReceivedTab extends ConsumerWidget {
               ),
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 9),
-                decoration: BoxDecoration(color: AppColors.accent, borderRadius: BorderRadius.circular(999)),
-                child: Text(context.l10n.premiumTeaserPrice, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+                decoration: BoxDecoration(color: AppColors.surfaceDark, borderRadius: BorderRadius.circular(999)),
+                child: Text(
+                  context.l10n.premiumTeaserPrice,
+                  style: const TextStyle(color: AppColors.accent, fontWeight: FontWeight.bold),
+                ),
               ),
             ],
           ),
@@ -275,7 +278,7 @@ class _ProfileGrid extends ConsumerWidget {
                     color: AppColors.placeholder,
                     child: photoUrl != null
                         ? Image.network(photoUrl, fit: BoxFit.cover, width: double.infinity)
-                        : const Icon(Icons.person_outline, color: Color(0xFFC9C0B2)),
+                        : const Icon(Icons.person_outline, color: AppColors.placeholderIcon),
                   ),
                 ),
                 Padding(

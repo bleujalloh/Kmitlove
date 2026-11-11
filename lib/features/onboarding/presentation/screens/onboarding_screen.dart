@@ -39,18 +39,9 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                 children: [
                   const KamiteMotif(height: 150),
                   const SizedBox(height: 8),
-                  Text(
-                    'MERUT',
-                    style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                          fontWeight: FontWeight.bold,
-                          color: AppColors.ink,
-                        ),
-                  ),
+                  Text('MERUT', style: AppTypography.brand(fontSize: 26)),
                   const SizedBox(height: 6),
-                  Text(
-                    context.l10n.onboardingTagline,
-                    style: const TextStyle(color: AppColors.muted, fontSize: 13),
-                  ),
+                  Text(context.l10n.onboardingTagline, style: AppTypography.tagline()),
                 ],
               ),
             ),
@@ -69,7 +60,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                   const SizedBox(height: 10),
                   Text(
                     context.l10n.onboardingIntro,
-                    style: const TextStyle(fontSize: 14, height: 1.5, color: Color(0xFF4A4038)),
+                    style: const TextStyle(fontSize: 14, height: 1.5, color: AppColors.ink),
                   ),
                   const SizedBox(height: 22),
                   Container(
@@ -108,7 +99,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                     activeColor: AppColors.accent,
                     title: Text(
                       context.l10n.onboardingAcceptCharter,
-                      style: const TextStyle(fontSize: 13, color: Color(0xFF4A4038)),
+                      style: const TextStyle(fontSize: 13, color: AppColors.ink),
                     ),
                   ),
                   const SizedBox(height: 12),
@@ -147,13 +138,13 @@ class _CharteItem extends StatelessWidget {
           height: 20,
           margin: const EdgeInsets.only(top: 1),
           decoration: const BoxDecoration(color: AppColors.accent, shape: BoxShape.circle),
-          child: const Icon(Icons.check, size: 12, color: Colors.white),
+          child: const Icon(Icons.check, size: 12, color: AppColors.noirProfond),
         ),
         const SizedBox(width: 10),
         Expanded(
           child: Text(
             text,
-            style: const TextStyle(fontSize: 13.5, height: 1.5, color: Color(0xFF4A4038)),
+            style: const TextStyle(fontSize: 13.5, height: 1.5, color: AppColors.ink),
           ),
         ),
       ],

@@ -155,7 +155,7 @@ abstract class AppLocalizations {
   /// No description provided for @onboardingTagline.
   ///
   /// In fr, this message translates to:
-  /// **'rencontres et communauté kamites'**
+  /// **'L\'amour a ses racines.'**
   String get onboardingTagline;
 
   /// No description provided for @onboardingBeforeStart.

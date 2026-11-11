@@ -104,7 +104,7 @@ class MonProfilScreen extends ConsumerWidget {
                               ),
                               child: photoUrl != null
                                   ? Image.network(photoUrl, fit: BoxFit.cover)
-                                  : const Icon(Icons.person, size: 48, color: Color(0xFFC9C0B2)),
+                                  : const Icon(Icons.person, size: 48, color: AppColors.placeholderIcon),
                             ),
                             Positioned(
                               bottom: 2,
@@ -118,9 +118,9 @@ class MonProfilScreen extends ConsumerWidget {
                                   decoration: BoxDecoration(
                                     color: AppColors.accent,
                                     shape: BoxShape.circle,
-                                    border: Border.all(color: Colors.white, width: 2),
+                                    border: Border.all(color: AppColors.ivoire, width: 2),
                                   ),
-                                  child: const Icon(Icons.edit, size: 15, color: Colors.white),
+                                  child: const Icon(Icons.edit, size: 15, color: AppColors.noirProfond),
                                 ),
                               ),
                             ),
@@ -247,15 +247,16 @@ class MonProfilScreen extends ConsumerWidget {
                 const SizedBox(height: 10),
                 Container(
                   decoration: BoxDecoration(
-                    gradient: const LinearGradient(colors: [AppColors.accent, Color(0xFFD9772B)]),
+                    color: AppColors.surfaceDark,
                     borderRadius: BorderRadius.circular(16),
+                    border: Border.all(color: AppColors.accent, width: 1),
                   ),
                   child: _ProfilActionTile(
                     icon: Icons.workspace_premium_outlined,
                     title: context.l10n.navPremium,
-                    iconColor: Colors.white,
-                    textColor: Colors.white,
-                    trailingColor: Colors.white,
+                    iconColor: AppColors.accent,
+                    textColor: AppColors.onSurfaceDark,
+                    trailingColor: AppColors.accent,
                     onTap: () => Navigator.of(context).push(
                       MaterialPageRoute(builder: (_) => const PremiumScreen()),
                     ),

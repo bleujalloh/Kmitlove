@@ -68,7 +68,7 @@ class _PhotoTile extends ConsumerWidget {
                         : null,
                   ),
                   child: url == null
-                      ? const Icon(Icons.person_outline, color: Color(0xFFC9C0B2))
+                      ? const Icon(Icons.person_outline, color: AppColors.placeholderIcon)
                       : null,
                 );
               },
@@ -87,7 +87,10 @@ class _PhotoTile extends ConsumerWidget {
                   child: Text(
                     photo.status == 'rejected' ? context.l10n.photoRejected : context.l10n.photoPending,
                     textAlign: TextAlign.center,
-                    style: const TextStyle(color: Colors.white, fontSize: 9),
+                    style: TextStyle(
+                      color: photo.status == 'rejected' ? AppColors.noirProfond : Colors.white,
+                      fontSize: 9,
+                    ),
                   ),
                 ),
               ),

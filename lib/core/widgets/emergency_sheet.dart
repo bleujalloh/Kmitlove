@@ -101,7 +101,7 @@ class _EmergencySheetContentState extends ConsumerState<_EmergencySheetContent> 
                 onPressed: _sending || _sent ? null : _send,
                 icon: _sending
                     ? const SizedBox(
-                        width: 16, height: 16, child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white))
+                        width: 16, height: 16, child: CircularProgressIndicator(strokeWidth: 2, color: AppColors.noirProfond))
                     : Icon(_sent ? Icons.check : Icons.campaign_outlined),
                 label: Text(_sent ? context.l10n.moderationNotified : context.l10n.reportImmediateDanger),
               ),

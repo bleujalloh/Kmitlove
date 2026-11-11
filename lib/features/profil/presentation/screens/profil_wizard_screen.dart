@@ -236,7 +236,7 @@ class _ProfilWizardScreenState extends ConsumerState<ProfilWizardScreen> {
                           ? const SizedBox(
                               height: 18,
                               width: 18,
-                              child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white),
+                              child: CircularProgressIndicator(strokeWidth: 2, color: AppColors.noirProfond),
                             )
                           : Text(isLast ? context.l10n.saveMyProfile : context.l10n.continueButton),
                     ),
@@ -613,7 +613,7 @@ class _StepChoiceList extends StatelessWidget {
               child: Container(
                 padding: const EdgeInsets.all(18),
                 decoration: BoxDecoration(
-                  color: isSelected ? AppColors.accentSoft : Colors.white,
+                  color: isSelected ? AppColors.accentSoft : AppColors.background,
                   border: Border.all(color: isSelected ? AppColors.accent : AppColors.border, width: 1.5),
                   borderRadius: BorderRadius.circular(14),
                 ),
@@ -673,7 +673,7 @@ class _StepMultiChoiceList extends StatelessWidget {
               child: Container(
                 padding: const EdgeInsets.all(18),
                 decoration: BoxDecoration(
-                  color: isSelected ? AppColors.accentSoft : Colors.white,
+                  color: isSelected ? AppColors.accentSoft : AppColors.background,
                   border: Border.all(color: isSelected ? AppColors.accent : AppColors.border, width: 1.5),
                   borderRadius: BorderRadius.circular(14),
                 ),

@@ -119,7 +119,7 @@ class _CompatScreenState extends ConsumerState<CompatScreen> {
                           ? const SizedBox(
                               height: 18,
                               width: 18,
-                              child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white),
+                              child: CircularProgressIndicator(strokeWidth: 2, color: AppColors.noirProfond),
                             )
                           : Text(context.l10n.saveMyAnswers),
                     ),
@@ -164,7 +164,7 @@ class _QuestionTile extends StatelessWidget {
                       padding: const EdgeInsets.symmetric(vertical: 10),
                       alignment: Alignment.center,
                       decoration: BoxDecoration(
-                        color: selected ? AppColors.accentSoft : Colors.white,
+                        color: selected ? AppColors.accentSoft : AppColors.background,
                         border: Border.all(
                           color: selected ? AppColors.accent : AppColors.border,
                         ),

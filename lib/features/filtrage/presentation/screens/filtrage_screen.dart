@@ -156,7 +156,7 @@ class _QuestionView extends ConsumerWidget {
                         child: Container(
                           padding: const EdgeInsets.all(16),
                           decoration: BoxDecoration(
-                            color: isSelected ? AppColors.accentSoft : Colors.white,
+                            color: isSelected ? AppColors.accentSoft : AppColors.background,
                             border: Border.all(
                               color: isSelected ? AppColors.accent : AppColors.border,
                               width: 1.5,

@@ -273,3 +273,52 @@ avant de pouvoir la traiter, ne sera pas inventée), audit rétroactif complet d
 MERUT au sens du règlement permanent section 15 (hors périmètre technique réalisable en une seule
 passe continue : porte sur l'intégralité des parcours listés en section 4 du règlement, bien au-delà
 de ce que cette session a modifié).
+
+## Suivi 2026-11-11 (suite) — identité visuelle : système de design centralisé + bascule thème sombre
+
+Déclenché par le règlement permanent section 7 puis par une référence visuelle concrète (capture
+d'écran Communauté validée par le propriétaire) : fond noir profond, texte ivoire, accents or,
+wordmark "MERUT" en serif doré avec la baseline officielle "L'amour a ses racines."
+
+- [x] **Système de design centralisé réécrit** (`core/theme/app_theme.dart`) : palette imposée (6
+  couleurs) + rôles sémantiques dérivés (`background`, `backgroundSoft`, `ink`, `muted`, `border`,
+  `accent`, `accentSoft`, `placeholder`, `surfaceDark`...), espacements (`AppSpacing`) et rayons
+  (`AppRadii`) centralisés, typographie de marque (`AppTypography.brand`/`tagline`/`editorialTitle`,
+  Tinos via `google_fonts` — Georgia n'étant pas sur Google Fonts, Tinos en est le remplacement
+  métriquement compatible). `ThemeData` complet : boutons, champs, AppBar, navigation inférieure,
+  chips, switches, dialogs, bottom sheets, snackbars, indicateurs de progression.
+- [x] **Bascule thème clair → thème sombre** : la première version de ce correctif gardait un fond
+  clair par défaut (mauvaise lecture du règlement, corrigée dès réception de la référence visuelle
+  concrète) — `background`/`ink` et les rôles dérivés sont maintenant inversés (fond quasi-noir,
+  texte ivoire), cohérent avec la référence fournie.
+- [x] **Propagation automatique vérifiée** : `KamiteMotif` (dessin vectoriel maison du disque solaire/
+  pyramides) utilisait déjà exclusivement les jetons `AppColors` — il s'est re-coloré correctement
+  sans aucune modification de sa logique de dessin, seule la teinte de la paire de pyramides
+  secondaires a dû être réancrée sur `orDoux` (elle visait `accentSoft`, dont le rôle a changé de
+  sens avec la bascule sombre).
+- [x] **Wordmark "MERUT" + nouvelle baseline officielle** appliqués sur l'écran d'accueil (seul
+  endroit où le nom de marque apparaît actuellement en vitrine) ; `onboardingTagline` (fr/en) mis à
+  jour avec le texte officiel transmis par le propriétaire.
+- [x] **Couleurs en dur trouvées et corrigées** : 8 fichiers lors du premier passage (icônes
+  silhouette, gradient Premium, texte de bio) + 15 fichiers supplémentaires lors du passage dédié au
+  contraste texte/icône blanc sur fond doré (devenu illisible une fois l'ancien orange foncé
+  remplacé par un or clair) — tous les `CircularProgressIndicator`/icônes/texte blancs posés sur
+  `AppColors.accent` recolorés en `AppColors.noirProfond`.
+- [x] **Revue de code (3 passes, effort medium)** : contraste gradient Premium/pastille teaser
+  (corrigé avant le premier commit), pouce de `Switch` peu distinct de sa piste une fois activé
+  (corrigé), puis — après la bascule sombre — 6 puis 1 nouveau cas de texte/icône blanc sur fond
+  doré trouvés et corrigés à chaque passe. Limite assumée, documentée en commentaire : la police
+  Tinos est chargée par `google_fonts` à la demande (réseau + cache), pas embarquée en asset local —
+  dégrade proprement vers la police système hors connexion, ne bloque jamais l'affichage.
+- [ ] **Reprise écran par écran au sens strict du règlement (section 7 : "tous les écrans doivent
+  respecter le même système")** : non vérifiée visuellement — aucun accès appareil disponible
+  pendant cette passe (session parallèle active sur le même téléphone, voir plus haut). Le thème
+  centralisé couvre la quasi-totalité des composants Material standard automatiquement ; les cartes
+  bespoke (carte candidat Découvrir, bulles de message, illustrations d'état vide) ont été relues et
+  corrigées au niveau du code, mais **pas revues visuellement** — à confirmer par capture d'écran
+  avant de considérer ce point testé, pas seulement implanté.
+- [ ] **Refonte de l'écran Communauté** (structure à onglets Communauté/Événements/Actualités/
+  Conseils, zone de composition, cartes de publication avec badges vérifiés or/bleu, mini-carte
+  événement) : référence visuelle reçue et analysée, **non commencée** — à réconcilier avec la
+  spécification fonctionnelle détaillée déjà annoncée mais toujours pas transmise dans cette
+  session (types d'événements, tableau de bord organisateur...). Ne sera pas inventée sans elle.
