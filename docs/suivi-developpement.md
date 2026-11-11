@@ -373,3 +373,66 @@ Statut par sous-fonctionnalité (règlement permanent section 12) :
 - [ ] **Index Firestore en cours de construction au moment de ce rapport** : `user_status`
   (organizerStatus + organizerRequestedAt) — l'onglet admin "Organisateurs" peut échouer avec
   `failed-precondition` tant qu'il n'est pas prêt (généralement quelques minutes).
+
+## Suivi 2026-11-11 (suite) — Les 5 éléments Communauté signalés "non implanté" sont construits
+
+Sur instruction explicite (règlement permanent : rien ne reste "non implanté" sans vraie raison
+bloquante externe) : rappels, promotion automatique de la liste d'attente, événements récurrents,
+partage privé d'une invitation, contenu réel de l'onglet "Conseils". Même méthode que le reste :
+serveur d'abord (Cloud Functions + règles/index Firestore), miroir client ensuite, jamais de logique
+métier qui n'existerait que côté Flutter.
+
+- [x] **Testé et validé (déploiement + index Firestore confirmés `READY` via `gcloud firestore
+  indexes composite list`)** : les 3 nouveaux index composites (`participations` status+requestedAt,
+  `community_posts` recurrenceGroupId+eventDate, `community_posts` type+eventDate) sont en ligne et
+  prêts, pas seulement déclarés.
+- [x] **Implanté, compile, déployé — non testé visuellement** :
+  - **Rappels** : nouvelle tâche planifiée `sendEventReminders` (`every 1 hours`, même patron que
+    `expireMatches`/`liftExpiredSuspensions`), balaie les événements dans une fenêtre de ~24h,
+    envoie un push (`sendPushToUser`, déjà construit) à chaque participant confirmé pas encore
+    prévenu, marque `reminderSentAt` sur la participation pour ne jamais prévenir deux fois. Affiché
+    automatiquement par le gestionnaire push générique déjà en place (`main_shell.dart`), aucun code
+    client supplémentaire nécessaire.
+  - **Promotion automatique de la liste d'attente** : nouvelle fonction `cancelParticipation`
+    (manquait un moyen pour un membre d'annuler lui-même sa participation — prérequis absent avant
+    cette passe). Dans la même transaction : la participation annulée passe à `cancelled`, la plus
+    ancienne en liste d'attente est promue à `accepted` avec un nouveau code de présence, et prévenue
+    par push. Bouton "Annuler ma participation" ajouté sur la fiche événement (accepté/en
+    attente/liste d'attente), avec confirmation.
+  - **Événements récurrents** : périodicité fermée (hebdomadaire/mensuel) vérifiée côté serveur,
+    jusqu'à 6 occurrences supplémentaires plafonnées, toutes créées dans une seule transaction
+    Firestore (donc jamais de série à moitié créée). Chaque occurrence reste un événement
+    "pending_review" normal (même revue humaine que n'importe quel événement). Section "Autres dates
+    de cette série" ajoutée sur la fiche événement.
+  - **Partage privé d'une invitation** : un événement "sur invitation" reçoit un code de partage
+    (`getEventShareCode`, organisateur uniquement) que l'organisateur peut transmettre par le partage
+    natif du téléphone (`share_plus`, déjà utilisé pour l'export RGPD) sans rendre l'événement public
+    ; `redeemEventInviteCode` ajoute l'uid du destinataire à la liste d'invités dès qu'il saisit le
+    code, sans que l'organisateur ait eu besoin de connaître cet uid à l'avance. Entrée "J'ai un code
+    d'invitation" ajoutée sur l'onglet Événements.
+  - **Onglet "Conseils"** : remplace le placeholder par du vrai contenu éditorial, rédigé
+    exclusivement par un administrateur (`adminCreateTip`/`adminDeleteTip`, nouvel onglet admin
+    "Conseils" pour publier/supprimer), jamais par les membres — aucune modération à faire sur du
+    contenu que seul un admin peut créer. Catégories fermées (culture/relation/sécurité/communauté).
+    Aucun conseil pré-rédigé n'a été inséré : l'onglet affichera "Aucun conseil publié pour le
+    moment" jusqu'à ce qu'un administrateur en publie un depuis l'espace admin.
+- [x] **Revue de code (effort high) passée, 4 signalements réels corrigés avant déploiement** : un
+  membre qui annule sa propre participation ne pouvait plus jamais redemander à participer au même
+  événement (le document `cancelled` bloquait `requestParticipation` indéfiniment — corrigé) ; les
+  rappels comparaient un instant serveur UTC à une date d'événement stockée en heure locale sans
+  fuseau explicite (décalage possible de quelques heures selon le fuseau de l'organisateur — marge de
+  sécurité ajoutée à la fenêtre de la tâche planifiée ; corriger ça complètement demanderait de
+  stocker un vrai fuseau, absent de tout le modèle de données du projet, donc hors de portée de cette
+  passe) ; création d'une série récurrente non transactionnelle (une panne à mi-chemin aurait laissé
+  une série à moitié créée sans retour en arrière — corrigé, tout tient maintenant dans une seule
+  transaction) ; méthodes de gestion des conseils dupliquées dans le mauvais dépôt (code mort,
+  supprimé).
+- [ ] **Non vérifié sur appareil réel** : aucun des 5 parcours ci-dessus n'a été testé sur le
+  téléphone (annuler une participation, voir la promotion automatique en direct, créer une série
+  récurrente, partager/utiliser un code d'invitation, publier un conseil depuis l'espace admin) —
+  accès appareil toujours indisponible pendant cette passe.
+- [ ] **Limite assumée, pas un oubli** : la fenêtre de rappel reste approximative tant qu'aucun
+  fuseau horaire n'est stocké nulle part dans le projet (voir ci-dessus) ; la liste "Mes
+  participations" affiche encore le statut brut (`waitlisted`, `cancelled`...) via le libellé
+  générique existant plutôt qu'un message dédié par statut — correctif mineur, pas fait dans cette
+  passe pour rester concentré sur les 5 éléments demandés.
