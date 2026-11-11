@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../../core/theme/app_theme.dart';
+import '../../../../core/widgets/settings_action.dart';
 import '../../../../l10n/l10n_extensions.dart';
 import '../../../compatibilite/presentation/compat_controller.dart';
 import '../../domain/candidate.dart';
@@ -51,6 +52,7 @@ class DecouvrirScreen extends ConsumerWidget {
               builder: (_) => const _FiltersSheet(),
             ),
           ),
+          buildSettingsAction(context),
         ],
       ),
       body: SafeArea(

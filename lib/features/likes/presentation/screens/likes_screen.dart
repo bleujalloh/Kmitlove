@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../../core/theme/app_theme.dart';
+import '../../../../core/widgets/settings_action.dart';
 import '../../../../l10n/l10n_extensions.dart';
 import '../../data/likes_repository.dart';
 import '../../domain/mini_profile.dart';
@@ -26,7 +27,7 @@ class _LikesScreenState extends ConsumerState<LikesScreen> {
     final likesAsync = ref.watch(likesProvider);
 
     return Scaffold(
-      appBar: AppBar(title: Text(context.l10n.navLikes)),
+      appBar: AppBar(title: Text(context.l10n.navLikes), actions: [buildSettingsAction(context)]),
       body: likesAsync.when(
         loading: () => const Center(child: CircularProgressIndicator()),
         error: (e, st) => Center(child: Text(context.l10n.likesLoadFailed)),
