@@ -105,7 +105,7 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
                   ],
                   const SizedBox(height: 18),
                   ElevatedButton(
-                    onPressed: authState.isLoading ? null : _submit,
+                    onPressed: (authState.isLoading || !_isAdult) ? null : _submit,
                     child: authState.isLoading
                         ? const SizedBox(
                             height: 18,
@@ -128,7 +128,11 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
                   ),
                   const SizedBox(height: 18),
                   OutlinedButton.icon(
-                    onPressed: authState.isLoading
+                    // La case à cocher doit bloquer l'inscription par
+                    // Google au même titre que par e-mail (signalé par le
+                    // propriétaire le 11/11/2026) — jusqu'ici seul le
+                    // bouton "S'inscrire" en tenait compte.
+                    onPressed: (authState.isLoading || !_isAdult)
                         ? null
                         : () => ref.read(authControllerProvider.notifier).signInWithGoogle(),
                     icon: const GoogleMark(),
