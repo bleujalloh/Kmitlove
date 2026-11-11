@@ -2,8 +2,10 @@ import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_riverpod/legacy.dart';
 
+import '../../../core/providers/firebase_providers.dart';
 import '../../../core/providers/locale_provider.dart';
 import '../../auth/presentation/auth_controller.dart';
+import '../../profil/presentation/photo_controller.dart';
 import '../data/decouvrir_repository.dart';
 import '../data/location_service.dart';
 import '../domain/candidate.dart';
@@ -14,6 +16,27 @@ final decouvrirRepositoryProvider = Provider<DecouvrirRepository>((ref) {
 
 final locationServiceProvider = Provider<LocationService>((ref) {
   return LocationService(ref.watch(cloudFunctionsProvider));
+});
+
+/// Photo (approuvée) d'un candidat affiché sur la carte Découvrir —
+/// jusqu'ici jamais reliée, la carte montrait juste une icône silhouette
+/// quelle que soit la personne (remarqué par le propriétaire le 11/11 :
+/// "ça ne ressemble pas à une app de rencontres"). Lecture directe
+/// Firestore : une photo approuvée est lisible par tout membre connecté
+/// (firestore.rules), pas besoin d'une Cloud Function dédiée.
+final candidateFirstPhotoUrlProvider = FutureProvider.autoDispose.family<String?, String>((ref, uid) async {
+  final snap = await ref
+      .watch(firestoreProvider)
+      .collection('users')
+      .doc(uid)
+      .collection('photos')
+      .where('status', isEqualTo: 'approved')
+      .limit(1)
+      .get();
+  if (snap.docs.isEmpty) return null;
+  final storagePath = snap.docs.first.data()['storagePath'] as String?;
+  if (storagePath == null) return null;
+  return ref.watch(firebaseStorageProvider).ref(storagePath).getDownloadURL();
 });
 
 /// Filtres manuels de Découvrir (docs/regles-complementaires-concurrents.md

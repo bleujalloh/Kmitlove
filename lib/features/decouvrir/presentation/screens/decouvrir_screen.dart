@@ -146,6 +146,7 @@ class _CandidateCard extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final compatScore = ref.watch(compatScoreWithProvider(candidate.uid)).value;
+    final photoUrl = ref.watch(candidateFirstPhotoUrlProvider(candidate.uid)).value;
     return Padding(
       padding: const EdgeInsets.fromLTRB(20, 0, 20, 10),
       child: Container(
@@ -161,7 +162,9 @@ class _CandidateCard extends ConsumerWidget {
               height: 220,
               width: double.infinity,
               color: AppColors.placeholder,
-              child: const Icon(Icons.person_outline, size: 46, color: Color(0xFFC9C0B2)),
+              child: photoUrl != null
+                  ? Image.network(photoUrl, fit: BoxFit.cover, width: double.infinity, height: 220)
+                  : const Icon(Icons.person_outline, size: 46, color: Color(0xFFC9C0B2)),
             ),
             Padding(
               padding: const EdgeInsets.all(18),

@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../../core/theme/app_theme.dart';
 import '../../../../core/widgets/settings_action.dart';
 import '../../../../l10n/l10n_extensions.dart';
+import '../../../decouvrir/presentation/decouvrir_controller.dart';
 import '../../data/likes_repository.dart';
 import '../../domain/mini_profile.dart';
 import '../likes_controller.dart';
@@ -222,14 +223,14 @@ class _MyLikesTab extends ConsumerWidget {
   }
 }
 
-class _ProfileGrid extends StatelessWidget {
+class _ProfileGrid extends ConsumerWidget {
   const _ProfileGrid({required this.profiles, required this.onLongPress});
 
   final List<MiniProfile> profiles;
   final void Function(MiniProfile)? onLongPress;
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     return GridView.builder(
       padding: const EdgeInsets.all(20),
       itemCount: profiles.length,
@@ -241,6 +242,7 @@ class _ProfileGrid extends StatelessWidget {
       ),
       itemBuilder: (context, i) {
         final p = profiles[i];
+        final photoUrl = ref.watch(candidateFirstPhotoUrlProvider(p.uid)).value;
         return InkWell(
           onLongPress: onLongPress == null ? null : () => onLongPress!(p),
           borderRadius: BorderRadius.circular(16),
@@ -256,7 +258,9 @@ class _ProfileGrid extends StatelessWidget {
                   child: Container(
                     width: double.infinity,
                     color: AppColors.placeholder,
-                    child: const Icon(Icons.person_outline, color: Color(0xFFC9C0B2)),
+                    child: photoUrl != null
+                        ? Image.network(photoUrl, fit: BoxFit.cover, width: double.infinity)
+                        : const Icon(Icons.person_outline, color: Color(0xFFC9C0B2)),
                   ),
                 ),
                 Padding(
