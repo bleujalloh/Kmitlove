@@ -35,18 +35,15 @@ class RelationshipIntent {
 class Gender {
   static const femme = 'Femme';
   static const homme = 'Homme';
-  static const autre = 'Autre';
 
-  static const all = [femme, homme, autre];
+  static const all = [femme, homme];
 
   static String label(String value, AppLocalizations l10n) {
     switch (value) {
       case femme:
         return l10n.genderWoman;
-      case homme:
-        return l10n.genderMan;
       default:
-        return l10n.genderOther;
+        return l10n.genderMan;
     }
   }
 }

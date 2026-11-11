@@ -15,7 +15,7 @@ import '../../features/filtrage/presentation/screens/filtrage_screen.dart';
 import '../../features/filtrage/presentation/screens/sanction_screen.dart';
 import '../../features/onboarding/presentation/screens/onboarding_screen.dart';
 import '../../features/profil/presentation/profil_controller.dart';
-import '../../features/profil/presentation/screens/profil_edit_screen.dart';
+import '../../features/profil/presentation/screens/profil_wizard_screen.dart';
 import '../../l10n/l10n_extensions.dart';
 import '../providers/firebase_providers.dart';
 import 'main_shell.dart';
@@ -100,7 +100,7 @@ class AuthGate extends ConsumerWidget {
                 error: (e, st) =>
                     Scaffold(body: Center(child: Text(context.l10n.unexpectedError(e.toString())))),
                 data: (profil) {
-                  if (profil == null) return const ProfilEditScreen();
+                  if (profil == null) return const ProfilWizardScreen();
                   return const MainShell();
                 },
               );

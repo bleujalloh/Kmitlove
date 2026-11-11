@@ -1055,6 +1055,44 @@ class AppLocalizationsFr extends AppLocalizations {
       'Autoriser les autres membres à voir un score de compatibilité avec toi sur Découvrir';
 
   @override
+  String get wizardIdentityTitle =>
+      'Comment tu t\'appelles, et tu es né(e) quand ?';
+
+  @override
+  String get wizardGenderTitle => 'Tu es...';
+
+  @override
+  String get wizardSeekingTitle => 'Qui souhaites-tu rencontrer ?';
+
+  @override
+  String get wizardIntentTitle => 'Qu\'est-ce que tu recherches ?';
+
+  @override
+  String get wizardLocationTitle => 'Où habites-tu ?';
+
+  @override
+  String get wizardBioTitle => 'Parle-nous un peu de toi';
+
+  @override
+  String get wizardBioSubtitle =>
+      'Quelques lignes suffisent pour donner envie d\'en savoir plus.';
+
+  @override
+  String get wizardQualitiesTitle => 'Quelles sont tes qualités ?';
+
+  @override
+  String get wizardInterestsTitle => 'Tes centres d\'intérêt';
+
+  @override
+  String get wizardDetailsTitle => 'Encore quelques détails';
+
+  @override
+  String get wizardLifestyleTitle => 'Ton mode de vie';
+
+  @override
+  String get wizardPhotosTitle => 'Ajoute tes photos';
+
+  @override
   String get confirmAdultDialogTitle => 'Confirmation d\'âge';
 
   @override

@@ -1043,6 +1043,44 @@ class AppLocalizationsEn extends AppLocalizations {
       'Let other members see a compatibility score with you on Discover';
 
   @override
+  String get wizardIdentityTitle =>
+      'What\'s your name, and when were you born?';
+
+  @override
+  String get wizardGenderTitle => 'You are...';
+
+  @override
+  String get wizardSeekingTitle => 'Who would you like to meet?';
+
+  @override
+  String get wizardIntentTitle => 'What are you looking for?';
+
+  @override
+  String get wizardLocationTitle => 'Where do you live?';
+
+  @override
+  String get wizardBioTitle => 'Tell us a bit about yourself';
+
+  @override
+  String get wizardBioSubtitle =>
+      'A few lines are enough to make people want to know more.';
+
+  @override
+  String get wizardQualitiesTitle => 'What are your qualities?';
+
+  @override
+  String get wizardInterestsTitle => 'Your interests';
+
+  @override
+  String get wizardDetailsTitle => 'A few more details';
+
+  @override
+  String get wizardLifestyleTitle => 'Your lifestyle';
+
+  @override
+  String get wizardPhotosTitle => 'Add your photos';
+
+  @override
   String get confirmAdultDialogTitle => 'Age confirmation';
 
   @override

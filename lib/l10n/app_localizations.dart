@@ -1982,6 +1982,78 @@ abstract class AppLocalizations {
   /// **'Autoriser les autres membres à voir un score de compatibilité avec toi sur Découvrir'**
   String get compatVisibilityHint;
 
+  /// No description provided for @wizardIdentityTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Comment tu t\'appelles, et tu es né(e) quand ?'**
+  String get wizardIdentityTitle;
+
+  /// No description provided for @wizardGenderTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Tu es...'**
+  String get wizardGenderTitle;
+
+  /// No description provided for @wizardSeekingTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Qui souhaites-tu rencontrer ?'**
+  String get wizardSeekingTitle;
+
+  /// No description provided for @wizardIntentTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Qu\'est-ce que tu recherches ?'**
+  String get wizardIntentTitle;
+
+  /// No description provided for @wizardLocationTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Où habites-tu ?'**
+  String get wizardLocationTitle;
+
+  /// No description provided for @wizardBioTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Parle-nous un peu de toi'**
+  String get wizardBioTitle;
+
+  /// No description provided for @wizardBioSubtitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Quelques lignes suffisent pour donner envie d\'en savoir plus.'**
+  String get wizardBioSubtitle;
+
+  /// No description provided for @wizardQualitiesTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Quelles sont tes qualités ?'**
+  String get wizardQualitiesTitle;
+
+  /// No description provided for @wizardInterestsTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Tes centres d\'intérêt'**
+  String get wizardInterestsTitle;
+
+  /// No description provided for @wizardDetailsTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Encore quelques détails'**
+  String get wizardDetailsTitle;
+
+  /// No description provided for @wizardLifestyleTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ton mode de vie'**
+  String get wizardLifestyleTitle;
+
+  /// No description provided for @wizardPhotosTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ajoute tes photos'**
+  String get wizardPhotosTitle;
+
   /// No description provided for @confirmAdultDialogTitle.
   ///
   /// In fr, this message translates to:
