@@ -11,20 +11,15 @@ import '../../../../core/providers/locale_provider.dart';
 import '../../../../core/theme/app_theme.dart';
 import '../../../../core/widgets/sanction_appeal_button.dart';
 import '../../../../l10n/l10n_extensions.dart';
-import '../../../admin/presentation/admin_controller.dart';
-import '../../../admin/presentation/screens/admin_screen.dart';
 import '../../../auth/presentation/auth_controller.dart';
 import '../../../compatibilite/presentation/compat_controller.dart';
-import '../../../compatibilite/presentation/screens/compat_screen.dart';
-import '../../../identite/presentation/screens/identite_screen.dart';
 import '../../../messages/presentation/messages_controller.dart';
-import '../../../premium/presentation/screens/premium_screen.dart';
-import '../../../profil/presentation/profil_controller.dart';
-import '../../../profil/presentation/screens/profil_edit_screen.dart';
 
-/// Espace Paramètres : seul point d'accès pour modifier son profil une
-/// fois créé, exporter ses données (RGPD) et supprimer son compte —
-/// jusqu'ici absent de l'app (docs/suivi-developpement.md).
+/// Espace Paramètres : réglages purs (langue, confidentialité, export
+/// RGPD, déconnexion, suppression de compte) — modifier le profil,
+/// Premium, le test de compatibilité, la vérification d'identité et
+/// l'administration vivent désormais sur l'onglet Profil
+/// (lib/features/profil/presentation/screens/mon_profil_screen.dart).
 class ParametresScreen extends ConsumerStatefulWidget {
   const ParametresScreen({super.key});
 
@@ -150,7 +145,6 @@ class _ParametresScreenState extends ConsumerState<ParametresScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final profilAsync = ref.watch(profilProvider);
     // Un compte suspendu/banni n'atteint jamais cet écran (voir
     // core/router/auth_gate.dart → SanctionScreen) — seul un simple
     // avertissement laisse le compte actif et donc visible ici.
@@ -192,59 +186,6 @@ class _ParametresScreenState extends ConsumerState<ParametresScreen> {
                   ],
                 ),
               ),
-            ListTile(
-              leading: const Icon(Icons.person_outline),
-              title: Text(context.l10n.editMyProfile),
-              trailing: const Icon(Icons.chevron_right),
-              onTap: () {
-                final profil = profilAsync.value;
-                Navigator.of(context).push(
-                  MaterialPageRoute(builder: (_) => ProfilEditScreen(existing: profil)),
-                );
-              },
-            ),
-            const Divider(height: 1),
-            ListTile(
-              leading: const Icon(Icons.workspace_premium_outlined),
-              title: Text(context.l10n.navPremium),
-              trailing: const Icon(Icons.chevron_right),
-              onTap: () => Navigator.of(context).push(
-                MaterialPageRoute(builder: (_) => const PremiumScreen()),
-              ),
-            ),
-            const Divider(height: 1),
-            ListTile(
-              leading: const Icon(Icons.favorite_border),
-              title: Text(context.l10n.navCompatTest),
-              trailing: const Icon(Icons.chevron_right),
-              onTap: () => Navigator.of(context).push(
-                MaterialPageRoute(builder: (_) => const CompatScreen()),
-              ),
-            ),
-            const Divider(height: 1),
-            ListTile(
-              leading: const Icon(Icons.verified_outlined),
-              title: Text(context.l10n.navIdentityVerification),
-              trailing: const Icon(Icons.chevron_right),
-              onTap: () => Navigator.of(context).push(
-                MaterialPageRoute(builder: (_) => const IdentiteScreen()),
-              ),
-            ),
-            // Visible seulement par l'unique compte administrateur (voir
-            // bootstrapFirstAdmin.ts) — plus besoin du bouton d'auto-
-            // désignation une fois qu'un admin existe quelque part.
-            if (ref.watch(isAdminProvider).value ?? false) ...[
-              const Divider(height: 1),
-              ListTile(
-                leading: const Icon(Icons.admin_panel_settings_outlined),
-                title: Text(context.l10n.navAdmin),
-                trailing: const Icon(Icons.chevron_right),
-                onTap: () => Navigator.of(context).push(
-                  MaterialPageRoute(builder: (_) => const AdminScreen()),
-                ),
-              ),
-            ],
-            const Divider(height: 1),
             ListTile(
               leading: const Icon(Icons.language_outlined),
               title: Text(context.l10n.language),

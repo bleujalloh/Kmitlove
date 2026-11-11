@@ -78,7 +78,7 @@ async function fetchMiniProfiles(db: ReturnType<typeof getFirestore>, uids: stri
     db.getAll(...uids.map((id) => db.collection("user_status").doc(id))),
   ]);
 
-  const result: { uid: string; displayName: string; age: number; city: string }[] = [];
+  const result: { uid: string; displayName: string; age: number; city: string; isVerified: boolean }[] = [];
   for (let i = 0; i < profileSnaps.length; i += 1) {
     const profileSnap = profileSnaps[i];
     if (!profileSnap.exists) continue;
@@ -93,6 +93,7 @@ async function fetchMiniProfiles(db: ReturnType<typeof getFirestore>, uids: stri
       displayName: data.displayName,
       age: computeAge(data.birthDate),
       city: data.city,
+      isVerified: statusSnaps[i].data()?.isVerified === true,
     });
   }
   return result;

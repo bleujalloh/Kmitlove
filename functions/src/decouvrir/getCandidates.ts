@@ -6,9 +6,11 @@ import {
   DISCOVER_CANDIDATE_POOL_SIZE,
   DISCOVER_CANDIDATES_RETURNED,
   INACTIVE_ACCOUNT_DAYS,
+  MIN_APPROVED_PHOTOS_TO_BE_DISCOVERABLE,
 } from "../config";
 import { computeAge } from "../shared/age";
 import { distanceKm } from "../shared/distance";
+import { computeProfileCompletionPercent } from "../shared/profileCompletion";
 
 interface DiscoverFilters {
   minAge?: number;
@@ -85,7 +87,12 @@ export const getDiscoverCandidates = onCall({ region: REGION }, async (request) 
 
   const inactiveCutoff = Date.now() - INACTIVE_ACCOUNT_DAYS * 24 * 60 * 60 * 1000;
   const now = Date.now();
-  const eligible: (Record<string, unknown> & { _boosted: boolean })[] = [];
+  type StatusPassed = {
+    doc: FirebaseFirestore.QueryDocumentSnapshot;
+    status: FirebaseFirestore.DocumentData;
+    distance: number | null;
+  };
+  const statusPassed: StatusPassed[] = [];
 
   // On évalue TOUS les profils pré-filtrés (pas de sortie anticipée dès
   // qu'on atteint le quota) pour pouvoir ensuite faire remonter les
@@ -107,6 +114,35 @@ export const getDiscoverCandidates = onCall({ region: REGION }, async (request) 
       if (distance > maxDistance) continue;
     }
 
+    statusPassed.push({ doc, status, distance });
+  }
+
+  // Nombre de photos APPROUVÉES de chaque candidat restant — jamais
+  // déclaré par le candidat lui-même : ce compte vient de la sous-
+  // collection photos, dont seul un admin (ou l'approbation automatique
+  // planifiée) peut faire passer le statut à "approved" (firestore.rules).
+  // En dessous du minimum, le profil est exclu de Découvrir, pas
+  // seulement moins bien classé (docs/suivi-developpement.md, section du
+  // 11/11/2026).
+  //
+  // Limite assumée et non corrigée ici : une requête d'agrégation par
+  // candidat restant plutôt qu'un seul round-trip groupé (ex. collectionGroup
+  // + dénormalisation du compte sur user_status) — raisonnable tant que
+  // DISCOVER_CANDIDATE_POOL_SIZE reste borné, même raisonnement que le
+  // commentaire équivalent sur compatScoreWithProvider côté client
+  // (compat_controller.dart).
+  const photoCounts = await Promise.all(
+    statusPassed.map(({ doc }) =>
+      db.collection("users").doc(doc.id).collection("photos").where("status", "==", "approved").count().get(),
+    ),
+  );
+
+  const eligible: (Record<string, unknown> & { _boosted: boolean; _completionPercent: number })[] = [];
+  for (let i = 0; i < statusPassed.length; i += 1) {
+    const { doc, status, distance } = statusPassed[i];
+    const approvedPhotoCount = photoCounts[i].data().count;
+    if (approvedPhotoCount < MIN_APPROVED_PHOTOS_TO_BE_DISCOVERABLE) continue;
+
     const boostedUntil = status?.boostedUntil?.toMillis?.() as number | undefined;
     const data = doc.data();
     eligible.push({
@@ -119,14 +155,25 @@ export const getDiscoverCandidates = onCall({ region: REGION }, async (request) 
       interests: data.interests ?? [],
       relationshipIntent: data.relationshipIntent,
       distanceKm: distance === null ? null : Math.round(distance),
+      isVerified: status?.isVerified === true,
       _boosted: typeof boostedUntil === "number" && boostedUntil > now,
+      // Les profils boostés passent toujours devant (cahier des charges
+      // section 5) ; à boost égal, un profil plus complet (bio, centres
+      // d'intérêt, photos, vérification...) remonte — même calcul que
+      // l'onglet Profil (shared/profileCompletion.ts), jamais une note
+      // recalculée différemment ici.
+      _completionPercent: computeProfileCompletionPercent(data, approvedPhotoCount, status?.isVerified === true),
     });
   }
 
-  eligible.sort((a, b) => Number(b._boosted) - Number(a._boosted));
+  eligible.sort((a, b) => {
+    const boostDiff = Number(b._boosted) - Number(a._boosted);
+    if (boostDiff !== 0) return boostDiff;
+    return b._completionPercent - a._completionPercent;
+  });
   const candidates = eligible
     .slice(0, DISCOVER_CANDIDATES_RETURNED)
-    .map(({ _boosted, ...rest }) => rest);
+    .map(({ _boosted, _completionPercent, ...rest }) => rest);
 
   return { candidates };
 });

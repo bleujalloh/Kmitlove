@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../../core/theme/app_theme.dart';
-import '../../../../core/widgets/settings_action.dart';
 import '../../../../l10n/l10n_extensions.dart';
 import '../../domain/community_post.dart';
 import '../communaute_controller.dart';
@@ -19,7 +18,7 @@ class CommunauteScreen extends ConsumerWidget {
     final feedAsync = ref.watch(communityFeedProvider);
 
     return Scaffold(
-      appBar: AppBar(title: Text(context.l10n.navCommunity), actions: [buildSettingsAction(context)]),
+      appBar: AppBar(title: Text(context.l10n.navCommunity)),
       floatingActionButton: FloatingActionButton(
         backgroundColor: AppColors.accent,
         onPressed: () => Navigator.of(context).push(

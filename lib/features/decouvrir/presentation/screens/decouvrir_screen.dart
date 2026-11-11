@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../../core/theme/app_theme.dart';
-import '../../../../core/widgets/settings_action.dart';
 import '../../../../l10n/l10n_extensions.dart';
 import '../../../compatibilite/presentation/compat_controller.dart';
 import '../../domain/candidate.dart';
@@ -52,7 +51,6 @@ class DecouvrirScreen extends ConsumerWidget {
               builder: (_) => const _FiltersSheet(),
             ),
           ),
-          buildSettingsAction(context),
         ],
       ),
       body: SafeArea(
@@ -193,13 +191,24 @@ class _CandidateCard extends ConsumerWidget {
                         Row(
                           children: [
                             Expanded(
-                              child: Text(
-                                '${candidate.displayName}, ${candidate.age}',
-                                style: const TextStyle(
-                                  fontSize: 24,
-                                  fontWeight: FontWeight.bold,
-                                  color: Colors.white,
-                                ),
+                              child: Row(
+                                children: [
+                                  Flexible(
+                                    child: Text(
+                                      '${candidate.displayName}, ${candidate.age}',
+                                      style: const TextStyle(
+                                        fontSize: 24,
+                                        fontWeight: FontWeight.bold,
+                                        color: Colors.white,
+                                      ),
+                                      overflow: TextOverflow.ellipsis,
+                                    ),
+                                  ),
+                                  if (candidate.isVerified) ...[
+                                    const SizedBox(width: 6),
+                                    const Icon(Icons.verified, color: Colors.white, size: 19),
+                                  ],
+                                ],
                               ),
                             ),
                             if (compatScore != null)

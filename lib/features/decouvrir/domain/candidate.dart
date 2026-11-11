@@ -9,6 +9,7 @@ class Candidate {
     required this.interests,
     required this.relationshipIntent,
     this.distanceKm,
+    this.isVerified = false,
   });
 
   final String uid;
@@ -20,6 +21,7 @@ class Candidate {
   final List<String> interests;
   final String relationshipIntent;
   final int? distanceKm;
+  final bool isVerified;
 
   factory Candidate.fromMap(Map<String, dynamic> map) => Candidate(
         uid: map['uid'] as String,
@@ -31,6 +33,7 @@ class Candidate {
         interests: List<String>.from(map['interests'] as List? ?? []),
         relationshipIntent: map['relationshipIntent'] as String,
         distanceKm: (map['distanceKm'] as num?)?.toInt(),
+        isVerified: map['isVerified'] as bool? ?? false,
       );
 }
 

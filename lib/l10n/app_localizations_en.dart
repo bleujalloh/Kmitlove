@@ -85,6 +85,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get navCommunity => 'Community';
 
   @override
+  String get navProfile => 'Profile';
+
+  @override
   String get navPremium => 'Premium & tokens';
 
   @override
@@ -707,7 +710,11 @@ class AppLocalizationsEn extends AppLocalizations {
   String get myLikesTab => 'My likes';
 
   @override
-  String get noOneLikedYouYet => 'No one has liked you yet.';
+  String get noOneLikedYouYet => 'No likes yet';
+
+  @override
+  String get noOneLikedYouYetHint =>
+      'Members who like your profile will show up here.';
 
   @override
   String get seeWhoLikedYou => 'See who liked you';
@@ -721,8 +728,11 @@ class AppLocalizationsEn extends AppLocalizations {
   String get premiumTeaserPrice => '€9.99';
 
   @override
-  String get noPendingLikesYet =>
-      'You haven\'t liked any profile awaiting a response yet.';
+  String get noPendingLikesYet => 'No likes sent';
+
+  @override
+  String get noPendingLikesYetHint =>
+      'Profiles you\'ve liked, awaiting a response, will show up here.';
 
   @override
   String get retractLikeConfirmTitle => 'Retract this like?';
@@ -742,7 +752,11 @@ class AppLocalizationsEn extends AppLocalizations {
   String get conversationsLoadFailed => 'Couldn\'t load conversations.';
 
   @override
-  String get noMatchesYet => 'No matches yet — go check out Discover.';
+  String get noMatchesYet => 'Your next matches start here';
+
+  @override
+  String get noMatchesYetHint =>
+      'Complete your profile and explore Discover to get your first matches.';
 
   @override
   String get sayHelloPreview => 'Say hello 👋';
@@ -1012,6 +1026,27 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get editMyProfile => 'Edit my profile';
+
+  @override
+  String get identityVerifiedTitle => 'Identity verified';
+
+  @override
+  String profileCompletionPercent(int percent) {
+    return '$percent%';
+  }
+
+  @override
+  String get profileCompletionHint =>
+      'Add a profession, your interests, your lifestyle habits or a 3rd photo for a more complete profile.';
+
+  @override
+  String get jetonsCounterLabel => 'Tokens';
+
+  @override
+  String get boostCounterLabel => 'Boost';
+
+  @override
+  String get boostCounterIncluded => 'Included';
 
   @override
   String get language => 'Language';

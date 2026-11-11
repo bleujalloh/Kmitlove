@@ -3,11 +3,13 @@ import 'package:cloud_functions/cloud_functions.dart';
 
 import '../domain/compat_question.dart';
 
-/// La banque de questions et les réponses de l'utilisateur sont lues/
-/// écrites directement en base (pas de "bonne réponse" à cacher ici,
-/// contrairement au filtrage) — mais le score de compatibilité entre
-/// deux membres est toujours calculé côté serveur, jamais côté client
-/// (docs/regles-economie-et-compatibilite.md section 2).
+/// Les réponses de l'utilisateur sont lues/écrites directement en base
+/// (pas de "bonne réponse" à cacher ici, contrairement au filtrage), mais
+/// la banque de questions elle-même passe par getCompatQuestions (tirage
+/// aléatoire côté serveur, docs/suivi-developpement.md section du
+/// 11/11/2026) — le score de compatibilité entre deux membres reste lui
+/// aussi toujours calculé côté serveur (docs/regles-economie-et-
+/// compatibilite.md section 2).
 class CompatRepository {
   CompatRepository(this._firestore, this._functions);
 
@@ -15,12 +17,10 @@ class CompatRepository {
   final FirebaseFunctions _functions;
 
   Future<List<CompatQuestion>> loadQuestionBank() async {
-    final snap = await _firestore
-        .collection('compat_question_bank')
-        .where('active', isEqualTo: true)
-        .get();
-    return snap.docs
-        .map((doc) => CompatQuestion.fromFirestore(doc.id, doc.data()))
+    final result = await _functions.httpsCallable('getCompatQuestions').call();
+    final data = result.data as Map<Object?, Object?>;
+    return (data['questions'] as List)
+        .map((q) => CompatQuestion.fromMap(Map<String, dynamic>.from(q as Map)))
         .toList();
   }
 

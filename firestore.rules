@@ -21,7 +21,23 @@ service cloud.firestore {
     // jamais stockés dans ce document — voir docs/architecture-technique.md.
     match /users/{userId} {
       allow read: if isSignedIn();
-      allow create, update: if isOwner(userId);
+      // La création/modification passe uniquement par la Cloud Function
+      // saveProfil (functions/src/profil/saveProfil.ts) : genre, intention
+      // relationnelle, habitudes de vie, qualités et âge minimum sont des
+      // listes fermées/règles métier qui doivent être vérifiées côté
+      // serveur, jamais seulement par les écrans Flutter (même principe
+      // que la confirmation d'âge Google/Apple).
+      allow create: if false;
+      // Deux préférences de confidentialité (cahier des charges section
+      // 4.3) restent de simples booléens sans règle métier à vérifier —
+      // seules exceptions à l'écriture exclusivement serveur ci-dessus,
+      // sur le même principe que la mise à jour de `readBy` plus bas
+      // (affectedKeys().hasOnly(...)) : tout le reste du document doit
+      // passer par saveProfil.
+      allow update: if isOwner(userId)
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['showReadReceipts', 'compatAnswersVisible'])
+        && request.resource.data.get('showReadReceipts', true) is bool
+        && request.resource.data.get('compatAnswersVisible', true) is bool;
       allow delete: if false; // la suppression de compte passe par une Cloud Function (anonymisation RGPD)
 
       // Photos de profil : visibles par tous une fois approuvées, par le
@@ -67,12 +83,12 @@ service cloud.firestore {
       allow read, write: if false;
     }
 
-    // Banque de questions du test de compatibilité : lisible par tous les
-    // membres connectés (pas de "bonne réponse" à cacher, contrairement
-    // au filtrage), jamais modifiable depuis le client.
+    // Banque de questions du test de compatibilité : passe désormais par
+    // getCompatQuestions (tirage aléatoire côté serveur, docs/suivi-
+    // developpement.md section du 11/11/2026) plutôt qu'une lecture
+    // directe de toute la banque — jamais modifiable depuis le client.
     match /compat_question_bank/{questionId} {
-      allow read: if isSignedIn();
-      allow write: if false;
+      allow read, write: if false;
     }
 
     // Réponses au test de compatibilité : visibles et modifiables

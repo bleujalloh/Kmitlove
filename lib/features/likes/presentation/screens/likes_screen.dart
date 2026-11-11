@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../../core/theme/app_theme.dart';
-import '../../../../core/widgets/settings_action.dart';
+import '../../../../core/widgets/empty_state_cards.dart';
 import '../../../../l10n/l10n_extensions.dart';
 import '../../../decouvrir/presentation/decouvrir_controller.dart';
 import '../../data/likes_repository.dart';
@@ -28,7 +28,7 @@ class _LikesScreenState extends ConsumerState<LikesScreen> {
     final likesAsync = ref.watch(likesProvider);
 
     return Scaffold(
-      appBar: AppBar(title: Text(context.l10n.navLikes), actions: [buildSettingsAction(context)]),
+      appBar: AppBar(title: Text(context.l10n.navLikes)),
       body: likesAsync.when(
         loading: () => const Center(child: CircularProgressIndicator()),
         error: (e, st) => Center(child: Text(context.l10n.likesLoadFailed)),
@@ -116,7 +116,12 @@ class _ReceivedTab extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     if (likes.likesReceivedCount == 0) {
-      return Center(child: Text(context.l10n.noOneLikedYouYet));
+      return Center(
+        child: EmptyStateCards(
+          title: context.l10n.noOneLikedYouYet,
+          subtitle: context.l10n.noOneLikedYouYetHint,
+        ),
+      );
     }
     if (likes.isPremium) {
       return _ProfileGrid(profiles: likes.likesReceived, onLongPress: null);
@@ -183,7 +188,13 @@ class _MyLikesTab extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     if (profiles.isEmpty) {
-      return Center(child: Text(context.l10n.noPendingLikesYet));
+      return Center(
+        child: EmptyStateCards(
+          icon: Icons.send_outlined,
+          title: context.l10n.noPendingLikesYet,
+          subtitle: context.l10n.noPendingLikesYetHint,
+        ),
+      );
     }
     return _ProfileGrid(
       profiles: profiles,
@@ -268,8 +279,21 @@ class _ProfileGrid extends ConsumerWidget {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text('${p.displayName}, ${p.age}',
-                          style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 12.5)),
+                      Row(
+                        children: [
+                          Flexible(
+                            child: Text(
+                              '${p.displayName}, ${p.age}',
+                              style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 12.5),
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                          ),
+                          if (p.isVerified) ...[
+                            const SizedBox(width: 3),
+                            const Icon(Icons.verified, color: AppColors.accent, size: 13),
+                          ],
+                        ],
+                      ),
                       Text(p.city, style: const TextStyle(fontSize: 11, color: AppColors.muted)),
                     ],
                   ),

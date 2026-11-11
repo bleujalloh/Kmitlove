@@ -4,16 +4,17 @@ import '../../features/communaute/presentation/screens/communaute_screen.dart';
 import '../../features/decouvrir/presentation/screens/decouvrir_screen.dart';
 import '../../features/likes/presentation/screens/likes_screen.dart';
 import '../../features/messages/presentation/screens/matches_list_screen.dart';
+import '../../features/profil/presentation/screens/mon_profil_screen.dart';
 import '../../l10n/l10n_extensions.dart';
 
-/// Vraie navigation principale à 4 onglets (Découvrir/Likes/Messages/
-/// Communauté), fidèle au prototype visuel validé — remplace
+/// Vraie navigation principale à 5 onglets (Découvrir/Likes/Messages/
+/// Communauté/Profil), fidèle au prototype visuel validé — remplace
 /// l'ancien PlaceholderHomeScreen (liste de boutons provisoire, jamais
 /// prévue comme écran final, voir docs/suivi-developpement.md). Les
 /// fonctionnalités secondaires (Premium, test de compatibilité,
-/// vérification d'identité, administration) vivent dans Paramètres,
-/// accessible depuis chaque onglet — comme sur les applications de
-/// rencontre courantes.
+/// vérification d'identité, administration) vivent maintenant sur
+/// l'onglet Profil plutôt que dans Paramètres (remarqué le 11/11 : rien
+/// ne montrait jamais la fiche elle-même d'un coup d'œil).
 class MainShell extends StatefulWidget {
   const MainShell({super.key});
 
@@ -32,6 +33,7 @@ class _MainShellState extends State<MainShell> {
     LikesScreen(),
     MatchesListScreen(),
     CommunauteScreen(),
+    MonProfilScreen(),
   ];
 
   @override
@@ -61,6 +63,11 @@ class _MainShellState extends State<MainShell> {
             icon: const Icon(Icons.groups_outlined),
             selectedIcon: const Icon(Icons.groups),
             label: context.l10n.navCommunity,
+          ),
+          NavigationDestination(
+            icon: const Icon(Icons.person_outline),
+            selectedIcon: const Icon(Icons.person),
+            label: context.l10n.navProfile,
           ),
         ],
       ),

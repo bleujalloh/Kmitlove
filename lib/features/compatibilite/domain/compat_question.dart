@@ -7,9 +7,9 @@ class CompatQuestion {
   final String theme;
   final String question;
 
-  factory CompatQuestion.fromFirestore(String id, Map<String, dynamic> data) {
+  factory CompatQuestion.fromMap(Map<String, dynamic> data) {
     return CompatQuestion(
-      id: id,
+      id: data['id'] as String,
       theme: data['theme'] as String,
       question: data['question'] as String,
     );

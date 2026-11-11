@@ -82,6 +82,20 @@ export const PRIORITY_REVIEW_REPORT_THRESHOLD = 3;
 // un recours en boucle immédiatement après un refus.
 export const SANCTION_APPEAL_RETRY_DELAY_DAYS = 7;
 
+// docs/suivi-developpement.md, section du 11/11/2026 : en dessous de ce
+// nombre de photos APPROUVÉES, un profil est tout simplement exclu de
+// Découvrir (jamais seulement "moins bien classé") — sans ça, un compte
+// pouvait apparaître avec une seule photo, voire aucune vérification
+// visuelle du tout. Au-dessus du minimum, chaque photo supplémentaire
+// améliore légèrement le classement (voir getDiscoverCandidates.ts).
+export const MIN_APPROVED_PHOTOS_TO_BE_DISCOVERABLE = 2;
+// Nombre de questions du test de compatibilité tirées au hasard à
+// chaque ouverture de l'écran — priorité donnée aux questions pas encore
+// répondues (functions/src/compatibilite/getCompatQuestions.ts), pour
+// que la banque entière finisse par être couverte en quelques sessions
+// plutôt que de toujours montrer les 17 mêmes premières questions.
+export const COMPAT_QUESTIONS_PER_SESSION = 18;
+
 // "Limite de comptes par appareil" (docs/suivi-developpement.md,
 // Fondations) — un identifiant d'appareil n'est qu'un indice (il est
 // trivialement réinitialisable à la réinstallation, et peut être partagé

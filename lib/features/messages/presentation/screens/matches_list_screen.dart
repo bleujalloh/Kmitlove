@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../../core/theme/app_theme.dart';
-import '../../../../core/widgets/settings_action.dart';
+import '../../../../core/widgets/empty_state_cards.dart';
 import '../../../../l10n/l10n_extensions.dart';
 import '../messages_controller.dart';
 import 'chat_screen.dart';
@@ -17,13 +17,19 @@ class MatchesListScreen extends ConsumerWidget {
     final matchesAsync = ref.watch(matchesProvider);
 
     return Scaffold(
-      appBar: AppBar(title: Text(context.l10n.navMessages), actions: [buildSettingsAction(context)]),
+      appBar: AppBar(title: Text(context.l10n.navMessages)),
       body: matchesAsync.when(
         loading: () => const Center(child: CircularProgressIndicator()),
         error: (e, st) => Center(child: Text(context.l10n.conversationsLoadFailed)),
         data: (matches) {
           if (matches.isEmpty) {
-            return Center(child: Text(context.l10n.noMatchesYet));
+            return Center(
+              child: EmptyStateCards(
+                icon: Icons.chat_bubble_outline,
+                title: context.l10n.noMatchesYet,
+                subtitle: context.l10n.noMatchesYetHint,
+              ),
+            );
           }
           return ListView.separated(
             itemCount: matches.length,

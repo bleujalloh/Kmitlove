@@ -85,6 +85,9 @@ class AppLocalizationsFr extends AppLocalizations {
   String get navCommunity => 'Communauté';
 
   @override
+  String get navProfile => 'Profil';
+
+  @override
   String get navPremium => 'Premium & jetons';
 
   @override
@@ -713,7 +716,11 @@ class AppLocalizationsFr extends AppLocalizations {
   String get myLikesTab => 'Mes likes';
 
   @override
-  String get noOneLikedYouYet => 'Personne ne t\'a encore liké.';
+  String get noOneLikedYouYet => 'Aucun like pour le moment';
+
+  @override
+  String get noOneLikedYouYetHint =>
+      'Les membres qui aiment ton profil apparaîtront ici.';
 
   @override
   String get seeWhoLikedYou => 'Voir qui t\'a liké';
@@ -727,8 +734,11 @@ class AppLocalizationsFr extends AppLocalizations {
   String get premiumTeaserPrice => '9,99 €';
 
   @override
-  String get noPendingLikesYet =>
-      'Tu n\'as pas encore liké de profil en attente de réponse.';
+  String get noPendingLikesYet => 'Aucun like envoyé';
+
+  @override
+  String get noPendingLikesYetHint =>
+      'Les profils que tu likes, en attente de réponse, apparaîtront ici.';
 
   @override
   String get retractLikeConfirmTitle => 'Retirer ce like ?';
@@ -749,8 +759,11 @@ class AppLocalizationsFr extends AppLocalizations {
       'Impossible de charger les conversations.';
 
   @override
-  String get noMatchesYet =>
-      'Pas encore de match — va faire un tour sur Découvrir.';
+  String get noMatchesYet => 'Tes prochains matchs commencent ici';
+
+  @override
+  String get noMatchesYetHint =>
+      'Complète ton profil et explore Découvrir pour obtenir tes premiers matchs.';
 
   @override
   String get sayHelloPreview => 'Dites bonjour 👋';
@@ -1024,6 +1037,27 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get editMyProfile => 'Modifier mon profil';
+
+  @override
+  String get identityVerifiedTitle => 'Identité vérifiée';
+
+  @override
+  String profileCompletionPercent(int percent) {
+    return '$percent %';
+  }
+
+  @override
+  String get profileCompletionHint =>
+      'Ajoute une profession, tes centres d\'intérêt, tes habitudes de vie ou une 3e photo pour un profil plus complet.';
+
+  @override
+  String get jetonsCounterLabel => 'Jetons';
+
+  @override
+  String get boostCounterLabel => 'Boost';
+
+  @override
+  String get boostCounterIncluded => 'Inclus';
 
   @override
   String get language => 'Langue';

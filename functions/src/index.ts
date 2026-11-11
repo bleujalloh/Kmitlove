@@ -3,6 +3,9 @@ import { initializeApp } from "firebase-admin/app";
 initializeApp();
 
 export { deleteAccount } from "./account/deleteAccount";
+export { saveProfil } from "./profil/saveProfil";
+export { getProfileCompletion } from "./profil/getProfileCompletion";
+export { getCompatQuestions } from "./compatibilite/getCompatQuestions";
 export { startFiltrageAttempt } from "./filtrage/startAttempt";
 export { submitFiltrageAttempt } from "./filtrage/submitAttempt";
 export { requestFiltrageReview } from "./filtrage/requestReview";

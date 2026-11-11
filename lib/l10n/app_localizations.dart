@@ -230,6 +230,12 @@ abstract class AppLocalizations {
   /// **'Communauté'**
   String get navCommunity;
 
+  /// No description provided for @navProfile.
+  ///
+  /// In fr, this message translates to:
+  /// **'Profil'**
+  String get navProfile;
+
   /// No description provided for @navPremium.
   ///
   /// In fr, this message translates to:
@@ -1367,8 +1373,14 @@ abstract class AppLocalizations {
   /// No description provided for @noOneLikedYouYet.
   ///
   /// In fr, this message translates to:
-  /// **'Personne ne t\'a encore liké.'**
+  /// **'Aucun like pour le moment'**
   String get noOneLikedYouYet;
+
+  /// No description provided for @noOneLikedYouYetHint.
+  ///
+  /// In fr, this message translates to:
+  /// **'Les membres qui aiment ton profil apparaîtront ici.'**
+  String get noOneLikedYouYetHint;
 
   /// No description provided for @seeWhoLikedYou.
   ///
@@ -1391,8 +1403,14 @@ abstract class AppLocalizations {
   /// No description provided for @noPendingLikesYet.
   ///
   /// In fr, this message translates to:
-  /// **'Tu n\'as pas encore liké de profil en attente de réponse.'**
+  /// **'Aucun like envoyé'**
   String get noPendingLikesYet;
+
+  /// No description provided for @noPendingLikesYetHint.
+  ///
+  /// In fr, this message translates to:
+  /// **'Les profils que tu likes, en attente de réponse, apparaîtront ici.'**
+  String get noPendingLikesYetHint;
 
   /// No description provided for @retractLikeConfirmTitle.
   ///
@@ -1427,8 +1445,14 @@ abstract class AppLocalizations {
   /// No description provided for @noMatchesYet.
   ///
   /// In fr, this message translates to:
-  /// **'Pas encore de match — va faire un tour sur Découvrir.'**
+  /// **'Tes prochains matchs commencent ici'**
   String get noMatchesYet;
+
+  /// No description provided for @noMatchesYetHint.
+  ///
+  /// In fr, this message translates to:
+  /// **'Complète ton profil et explore Découvrir pour obtenir tes premiers matchs.'**
+  String get noMatchesYetHint;
 
   /// No description provided for @sayHelloPreview.
   ///
@@ -1927,6 +1951,42 @@ abstract class AppLocalizations {
   /// In fr, this message translates to:
   /// **'Modifier mon profil'**
   String get editMyProfile;
+
+  /// No description provided for @identityVerifiedTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Identité vérifiée'**
+  String get identityVerifiedTitle;
+
+  /// No description provided for @profileCompletionPercent.
+  ///
+  /// In fr, this message translates to:
+  /// **'{percent} %'**
+  String profileCompletionPercent(int percent);
+
+  /// No description provided for @profileCompletionHint.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ajoute une profession, tes centres d\'intérêt, tes habitudes de vie ou une 3e photo pour un profil plus complet.'**
+  String get profileCompletionHint;
+
+  /// No description provided for @jetonsCounterLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Jetons'**
+  String get jetonsCounterLabel;
+
+  /// No description provided for @boostCounterLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Boost'**
+  String get boostCounterLabel;
+
+  /// No description provided for @boostCounterIncluded.
+  ///
+  /// In fr, this message translates to:
+  /// **'Inclus'**
+  String get boostCounterIncluded;
 
   /// No description provided for @language.
   ///
