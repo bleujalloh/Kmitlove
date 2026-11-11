@@ -1,7 +1,14 @@
 import { onCall, HttpsError } from "firebase-functions/v2/https";
 import { getFirestore, FieldValue } from "firebase-admin/firestore";
 
-import { REGION, MAX_ACTIVE_ANNONCES_PER_USER, ANNONCE_FLAGGED_KEYWORDS } from "../config";
+import {
+  REGION,
+  MAX_ACTIVE_ANNONCES_PER_USER,
+  ANNONCE_FLAGGED_KEYWORDS,
+  EVENT_CATEGORIES,
+  EVENT_FORMATS,
+  EVENT_ACCESS_MODES,
+} from "../config";
 
 type PostType =
   | "publication"
@@ -24,13 +31,34 @@ const VALID_TYPES: PostType[] = [
 // modérée et comptée comme les autres annonces (docs/regles-annonces-evenements.md).
 const ANNONCE_TYPES: PostType[] = ["annonce_publique", "annonce_privee", "annonce_libre"];
 
+const MAX_SHORT_TEXT = 80;
+const MAX_CONDITIONS_LENGTH = 400;
+
 interface CreatePostData {
   type: PostType;
   title?: string;
   text: string;
   eventDate?: string; // ISO, requis pour les événements
+  eventEndDate?: string; // ISO, optionnel (fiche événement section 6 : horaires début/fin)
   capacity?: number; // requis pour les événements
   preciseLocation?: string; // jamais stocké dans le document public
+  // Spec Communauté du 11/11/2026, section 6 (fiche événement) :
+  category?: string;
+  format?: string;
+  city?: string;
+  country?: string;
+  ageMinimum?: number;
+  conditions?: string;
+  contactChannel?: string;
+  posterStoragePath?: string;
+  // Section 2 : trois modes d'accès pour un événement privé.
+  accessMode?: string;
+  invitedUids?: string[];
+  // Section 7 : événements liés à un même rendez-vous (conférence +
+  // activités associées) — jamais un événement qui se lie lui-même, et
+  // uniquement à un événement DÉJÀ publié par le même organisateur (pas
+  // n'importe quel id deviné).
+  parentEventId?: string;
 }
 
 function containsFlaggedKeyword(text: string): boolean {
@@ -61,6 +89,14 @@ export const createCommunityPost = onCall({ region: REGION }, async (request) =>
   const isAnnonce = ANNONCE_TYPES.includes(data.type);
   const needsPreciseLocation = isEvent || data.type === "annonce_privee";
 
+  // Rempli seulement pour les événements, utilisé plus bas pour écrire le
+  // document final — jamais une liste fermée vérifiée côté client
+  // (spec Communauté section 6, règlement permanent section 5).
+  let accessMode: string | null = null;
+  let invitedUids: string[] = [];
+  let category: string | null = null;
+  let format: string | null = null;
+
   if (isEvent) {
     if (
       !data.eventDate ||
@@ -70,12 +106,70 @@ export const createCommunityPost = onCall({ region: REGION }, async (request) =>
     ) {
       throw new HttpsError("invalid-argument", "Date et capacité (nombre positif) requises pour un événement.");
     }
+    if (data.eventEndDate) {
+      const endMillis = Date.parse(data.eventEndDate);
+      if (Number.isNaN(endMillis)) {
+        throw new HttpsError("invalid-argument", "Date de fin invalide.");
+      }
+      if (endMillis < Date.parse(data.eventDate)) {
+        throw new HttpsError("invalid-argument", "La date de fin doit être après la date de début.");
+      }
+    }
+    if (typeof data.category !== "string" || !EVENT_CATEGORIES.includes(data.category as never)) {
+      throw new HttpsError("invalid-argument", "Catégorie invalide.");
+    }
+    category = data.category;
+    if (typeof data.format !== "string" || !EVENT_FORMATS.includes(data.format as never)) {
+      throw new HttpsError("invalid-argument", "Format invalide.");
+    }
+    format = data.format;
+    if (!data.city?.trim() || !data.country?.trim()) {
+      throw new HttpsError("invalid-argument", "Ville et pays requis (affichés publiquement, jamais l'adresse exacte).");
+    }
+    if (data.ageMinimum !== undefined && (!Number.isFinite(data.ageMinimum) || data.ageMinimum < 0 || data.ageMinimum > 99)) {
+      throw new HttpsError("invalid-argument", "Âge minimum invalide.");
+    }
+    if (data.conditions && data.conditions.length > MAX_CONDITIONS_LENGTH) {
+      throw new HttpsError("invalid-argument", "Conditions trop longues.");
+    }
+    if (data.contactChannel && data.contactChannel.length > MAX_SHORT_TEXT) {
+      throw new HttpsError("invalid-argument", "Contact invalide.");
+    }
+
+    // Spec section 2 : un événement public est toujours à accès libre ;
+    // un événement privé choisit entre "sur demande" et "sur invitation".
+    if (data.type === "evenement_public") {
+      accessMode = "public";
+    } else {
+      if (!data.accessMode || !EVENT_ACCESS_MODES.includes(data.accessMode as never) || data.accessMode === "public") {
+        throw new HttpsError("invalid-argument", "Mode d'accès invalide pour un événement privé.");
+      }
+      accessMode = data.accessMode;
+      if (accessMode === "sur_invitation") {
+        invitedUids = Array.isArray(data.invitedUids)
+          ? data.invitedUids.filter((u): u is string => typeof u === "string").slice(0, 200)
+          : [];
+      }
+    }
+
+    // Spec section 3 : validation admin obligatoire du statut
+    // organisateur avant toute première publication d'événement — pas
+    // d'abonnement pour l'instant (simplification validée par le
+    // propriétaire le 11/11/2026), mais toujours un contrôle humain.
     const statusSnap = await db.collection("user_status").doc(uid).get();
-    if (statusSnap.data()?.isVerified !== true) {
+    if (statusSnap.data()?.organizerStatus !== "approved") {
       throw new HttpsError(
         "permission-denied",
-        "Seuls les membres vérifiés peuvent organiser un événement physique.",
+        "Seuls les organisateurs validés par un administrateur peuvent créer un événement.",
       );
+    }
+
+    if (data.parentEventId) {
+      const parentSnap = await db.collection("community_posts").doc(data.parentEventId).get();
+      const parent = parentSnap.data();
+      if (!parent || parent.authorUid !== uid || !["evenement_public", "evenement_prive"].includes(parent.type)) {
+        throw new HttpsError("invalid-argument", "Événement principal invalide.");
+      }
     }
   }
 
@@ -130,16 +224,39 @@ export const createCommunityPost = onCall({ region: REGION }, async (request) =>
     title: data.title ?? null,
     text: data.text.trim(),
     eventDate: data.eventDate ?? null,
+    eventEndDate: data.eventEndDate ?? null,
     capacity: data.capacity ?? null,
     participantsCount: 0,
     status,
     createdAt: FieldValue.serverTimestamp(),
+    // Fiche événement (spec Communauté section 6) — null pour les types
+    // qui ne sont pas des événements.
+    category,
+    format,
+    city: isEvent ? data.city!.trim() : null,
+    country: isEvent ? data.country!.trim() : null,
+    ageMinimum: data.ageMinimum ?? null,
+    conditions: data.conditions?.trim() || null,
+    contactChannel: data.contactChannel?.trim() || null,
+    posterStoragePath: data.posterStoragePath ?? null,
+    accessMode,
+    parentEventId: data.parentEventId ?? null,
+    // Statut fixé par l'organisateur, distinct du statut de modération
+    // (spec section 6 : confirmé/complet/annulé/terminé) — "complet" se
+    // déduit toujours de participantsCount/capacity, jamais stocké ici.
+    eventState: isEvent ? "prevu" : null,
   });
 
   if (needsPreciseLocation) {
     await postRef.collection("private").doc("location").set({
       preciseLocation: data.preciseLocation!.trim(),
     });
+  }
+  if (accessMode === "sur_invitation") {
+    // Jamais sur le document public : la liste des invités révélerait
+    // qui est convié à un événement privé à n'importe quel membre
+    // connecté qui le lirait (règlement permanent section 6).
+    await postRef.collection("private").doc("invitations").set({ invitedUids });
   }
 
   return { postId: postRef.id, status };

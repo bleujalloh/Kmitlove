@@ -1694,6 +1694,426 @@ abstract class AppLocalizations {
   /// **'Publication'**
   String get postTypeGeneric;
 
+  /// No description provided for @eventCategorySoiree.
+  ///
+  /// In fr, this message translates to:
+  /// **'Soirée'**
+  String get eventCategorySoiree;
+
+  /// No description provided for @eventCategoryConference.
+  ///
+  /// In fr, this message translates to:
+  /// **'Conférence'**
+  String get eventCategoryConference;
+
+  /// No description provided for @eventCategoryAtelier.
+  ///
+  /// In fr, this message translates to:
+  /// **'Atelier'**
+  String get eventCategoryAtelier;
+
+  /// No description provided for @eventCategoryExposition.
+  ///
+  /// In fr, this message translates to:
+  /// **'Exposition'**
+  String get eventCategoryExposition;
+
+  /// No description provided for @eventCategoryDebat.
+  ///
+  /// In fr, this message translates to:
+  /// **'Débat'**
+  String get eventCategoryDebat;
+
+  /// No description provided for @eventCategoryProjection.
+  ///
+  /// In fr, this message translates to:
+  /// **'Projection'**
+  String get eventCategoryProjection;
+
+  /// No description provided for @eventCategoryRencontre.
+  ///
+  /// In fr, this message translates to:
+  /// **'Rencontre'**
+  String get eventCategoryRencontre;
+
+  /// No description provided for @eventAccessPublic.
+  ///
+  /// In fr, this message translates to:
+  /// **'Accès libre'**
+  String get eventAccessPublic;
+
+  /// No description provided for @eventAccessOnRequest.
+  ///
+  /// In fr, this message translates to:
+  /// **'Sur demande'**
+  String get eventAccessOnRequest;
+
+  /// No description provided for @eventAccessOnInvitation.
+  ///
+  /// In fr, this message translates to:
+  /// **'Sur invitation'**
+  String get eventAccessOnInvitation;
+
+  /// No description provided for @eventStateScheduled.
+  ///
+  /// In fr, this message translates to:
+  /// **'Prévu'**
+  String get eventStateScheduled;
+
+  /// No description provided for @eventStateFull.
+  ///
+  /// In fr, this message translates to:
+  /// **'Complet'**
+  String get eventStateFull;
+
+  /// No description provided for @eventStateCancelled.
+  ///
+  /// In fr, this message translates to:
+  /// **'Annulé'**
+  String get eventStateCancelled;
+
+  /// No description provided for @eventStateFinished.
+  ///
+  /// In fr, this message translates to:
+  /// **'Terminé'**
+  String get eventStateFinished;
+
+  /// No description provided for @eventFormatPresentiel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Présentiel'**
+  String get eventFormatPresentiel;
+
+  /// No description provided for @eventFormatEnLigne.
+  ///
+  /// In fr, this message translates to:
+  /// **'En ligne'**
+  String get eventFormatEnLigne;
+
+  /// No description provided for @navEvents.
+  ///
+  /// In fr, this message translates to:
+  /// **'Événements'**
+  String get navEvents;
+
+  /// No description provided for @navNews.
+  ///
+  /// In fr, this message translates to:
+  /// **'Actualités'**
+  String get navNews;
+
+  /// No description provided for @navTips.
+  ///
+  /// In fr, this message translates to:
+  /// **'Conseils'**
+  String get navTips;
+
+  /// No description provided for @tipsComingSoon.
+  ///
+  /// In fr, this message translates to:
+  /// **'Des conseils et ressources culturelles arriveront bientôt dans cet espace.'**
+  String get tipsComingSoon;
+
+  /// No description provided for @myParticipationsTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Mes participations'**
+  String get myParticipationsTitle;
+
+  /// No description provided for @noParticipationsYet.
+  ///
+  /// In fr, this message translates to:
+  /// **'Tu n\'as encore demandé à participer à aucun événement.'**
+  String get noParticipationsYet;
+
+  /// No description provided for @becomeOrganizerTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Devenir organisateur'**
+  String get becomeOrganizerTitle;
+
+  /// No description provided for @becomeOrganizerIntro.
+  ///
+  /// In fr, this message translates to:
+  /// **'Pour publier un événement, un administrateur doit d\'abord valider ton profil d\'organisateur.'**
+  String get becomeOrganizerIntro;
+
+  /// No description provided for @organizerNameLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Nom (toi ou ta structure)'**
+  String get organizerNameLabel;
+
+  /// No description provided for @organizerDescriptionLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Présente-toi en quelques lignes'**
+  String get organizerDescriptionLabel;
+
+  /// No description provided for @organizerRequestSubmitButton.
+  ///
+  /// In fr, this message translates to:
+  /// **'Envoyer ma demande'**
+  String get organizerRequestSubmitButton;
+
+  /// No description provided for @organizerRequestSentTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Demande envoyée'**
+  String get organizerRequestSentTitle;
+
+  /// No description provided for @organizerRequestSentBody.
+  ///
+  /// In fr, this message translates to:
+  /// **'Un administrateur va examiner ta demande. Tu pourras publier des événements dès qu\'elle sera validée.'**
+  String get organizerRequestSentBody;
+
+  /// No description provided for @organizerStatusPending.
+  ///
+  /// In fr, this message translates to:
+  /// **'Demande en cours de validation'**
+  String get organizerStatusPending;
+
+  /// No description provided for @organizerStatusApproved.
+  ///
+  /// In fr, this message translates to:
+  /// **'Organisateur validé'**
+  String get organizerStatusApproved;
+
+  /// No description provided for @organizerStatusRejected.
+  ///
+  /// In fr, this message translates to:
+  /// **'Demande refusée'**
+  String get organizerStatusRejected;
+
+  /// No description provided for @organizerStatusSuspended.
+  ///
+  /// In fr, this message translates to:
+  /// **'Statut organisateur suspendu'**
+  String get organizerStatusSuspended;
+
+  /// No description provided for @organizerRequestFailed.
+  ///
+  /// In fr, this message translates to:
+  /// **'Impossible d\'envoyer la demande, réessaie.'**
+  String get organizerRequestFailed;
+
+  /// No description provided for @organizerDashboardTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Espace organisateur'**
+  String get organizerDashboardTitle;
+
+  /// No description provided for @myEventsEmpty.
+  ///
+  /// In fr, this message translates to:
+  /// **'Tu n\'as pas encore créé d\'événement.'**
+  String get myEventsEmpty;
+
+  /// No description provided for @createEventButton.
+  ///
+  /// In fr, this message translates to:
+  /// **'Créer un événement'**
+  String get createEventButton;
+
+  /// No description provided for @eventCategoryLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Catégorie'**
+  String get eventCategoryLabel;
+
+  /// No description provided for @eventFormatLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Format'**
+  String get eventFormatLabel;
+
+  /// No description provided for @eventAccessModeLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Mode d\'accès'**
+  String get eventAccessModeLabel;
+
+  /// No description provided for @eventCityLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ville (affichée publiquement)'**
+  String get eventCityLabel;
+
+  /// No description provided for @eventAgeMinimumLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Âge minimum (facultatif)'**
+  String get eventAgeMinimumLabel;
+
+  /// No description provided for @eventConditionsLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Conditions particulières (facultatif)'**
+  String get eventConditionsLabel;
+
+  /// No description provided for @eventContactLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Contact autorisé (facultatif)'**
+  String get eventContactLabel;
+
+  /// No description provided for @eventPosterLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Affiche de l\'événement'**
+  String get eventPosterLabel;
+
+  /// No description provided for @addPosterButton.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ajouter une affiche'**
+  String get addPosterButton;
+
+  /// No description provided for @eventEndDateLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Fin (facultatif)'**
+  String get eventEndDateLabel;
+
+  /// No description provided for @linkedEventsTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Activités associées'**
+  String get linkedEventsTitle;
+
+  /// No description provided for @addFavoriteButton.
+  ///
+  /// In fr, this message translates to:
+  /// **'Enregistrer'**
+  String get addFavoriteButton;
+
+  /// No description provided for @removeFavoriteButton.
+  ///
+  /// In fr, this message translates to:
+  /// **'Retiré des favoris'**
+  String get removeFavoriteButton;
+
+  /// No description provided for @favoritesTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Mes favoris'**
+  String get favoritesTitle;
+
+  /// No description provided for @reviewsTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Avis'**
+  String get reviewsTitle;
+
+  /// No description provided for @noReviewsYet.
+  ///
+  /// In fr, this message translates to:
+  /// **'Aucun avis pour le moment.'**
+  String get noReviewsYet;
+
+  /// No description provided for @leaveReviewButton.
+  ///
+  /// In fr, this message translates to:
+  /// **'Laisser un avis'**
+  String get leaveReviewButton;
+
+  /// No description provided for @reviewSubmitButton.
+  ///
+  /// In fr, this message translates to:
+  /// **'Envoyer l\'avis'**
+  String get reviewSubmitButton;
+
+  /// No description provided for @reviewSentSuccess.
+  ///
+  /// In fr, this message translates to:
+  /// **'Avis envoyé, merci !'**
+  String get reviewSentSuccess;
+
+  /// No description provided for @ticketTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Mon billet'**
+  String get ticketTitle;
+
+  /// No description provided for @cancelEventButton.
+  ///
+  /// In fr, this message translates to:
+  /// **'Annuler l\'événement'**
+  String get cancelEventButton;
+
+  /// No description provided for @markEventFinishedButton.
+  ///
+  /// In fr, this message translates to:
+  /// **'Marquer comme terminé'**
+  String get markEventFinishedButton;
+
+  /// No description provided for @eventCancelledNotice.
+  ///
+  /// In fr, this message translates to:
+  /// **'Cet événement a été annulé par l\'organisateur.'**
+  String get eventCancelledNotice;
+
+  /// No description provided for @eventFullNotice.
+  ///
+  /// In fr, this message translates to:
+  /// **'Cet événement est complet.'**
+  String get eventFullNotice;
+
+  /// No description provided for @inviteMemberButton.
+  ///
+  /// In fr, this message translates to:
+  /// **'Inviter un membre'**
+  String get inviteMemberButton;
+
+  /// No description provided for @inviteMemberHint.
+  ///
+  /// In fr, this message translates to:
+  /// **'Identifiant (uid) du membre à inviter'**
+  String get inviteMemberHint;
+
+  /// No description provided for @inviteSentSuccess.
+  ///
+  /// In fr, this message translates to:
+  /// **'Invitation envoyée.'**
+  String get inviteSentSuccess;
+
+  /// No description provided for @eventsFeaturedTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'À la une'**
+  String get eventsFeaturedTitle;
+
+  /// No description provided for @eventsUpcomingTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Événements à venir'**
+  String get eventsUpcomingTitle;
+
+  /// No description provided for @eventsNearMeTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Près de moi'**
+  String get eventsNearMeTitle;
+
+  /// No description provided for @eventsPrivateTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Événements privés'**
+  String get eventsPrivateTitle;
+
+  /// No description provided for @eventsConferencesTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Conférences et rencontres'**
+  String get eventsConferencesTitle;
+
+  /// No description provided for @eventsAllTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Tous les événements'**
+  String get eventsAllTitle;
+
   /// No description provided for @eventDateAndCapacityRequired.
   ///
   /// In fr, this message translates to:
@@ -1733,7 +2153,7 @@ abstract class AppLocalizations {
   /// No description provided for @postErrorVerifiedOnly.
   ///
   /// In fr, this message translates to:
-  /// **'réservé aux membres vérifiés.'**
+  /// **'réservé aux organisateurs validés par un administrateur.'**
   String get postErrorVerifiedOnly;
 
   /// No description provided for @postErrorGeneric.
@@ -1787,7 +2207,7 @@ abstract class AppLocalizations {
   /// No description provided for @eventVerifiedOnlyHint.
   ///
   /// In fr, this message translates to:
-  /// **'Les événements physiques sont réservés aux membres vérifiés et passent toujours par une revue humaine avant publication.'**
+  /// **'Les événements sont réservés aux organisateurs validés par un administrateur et passent toujours par une revue humaine avant publication.'**
   String get eventVerifiedOnlyHint;
 
   /// No description provided for @publishButton.

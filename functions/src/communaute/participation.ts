@@ -3,6 +3,7 @@ import { getFirestore, FieldValue } from "firebase-admin/firestore";
 import * as crypto from "crypto";
 
 import { REGION } from "../config";
+import { requireApprovedOrganizer } from "../shared/requireApprovedOrganizer";
 
 /**
  * Demande de participation à un événement ou à une annonce privée
@@ -36,21 +37,84 @@ export const requestParticipation = onCall({ region: REGION }, async (request) =
   if (post.authorUid === uid) {
     throw new HttpsError("invalid-argument", "Tu es l'organisateur de cette publication.");
   }
-
-  const participationRef = postRef.collection("participations").doc(uid);
-  const existing = await participationRef.get();
-  if (existing.exists) {
-    throw new HttpsError("already-exists", "Demande déjà envoyée.");
+  // Spec Communauté section 2 : un événement "sur invitation" n'accepte
+  // de demande que de la part d'un uid explicitement invité par
+  // l'organisateur — jamais une simple vérification côté client. La
+  // liste vit dans la sous-collection privée (jamais sur le document
+  // public, voir createCommunityPost.ts), lue ici via l'Admin SDK.
+  if (post.accessMode === "sur_invitation") {
+    const invitationsSnap = await postRef.collection("private").doc("invitations").get();
+    const invited: string[] = invitationsSnap.data()?.invitedUids ?? [];
+    if (!invited.includes(uid)) {
+      throw new HttpsError(
+        "permission-denied",
+        "Cet événement est sur invitation uniquement.",
+      );
+    }
+  }
+  if (post.eventState === "annule" || post.eventState === "termine") {
+    throw new HttpsError("failed-precondition", "Cet événement n'accepte plus de demandes.");
   }
 
-  await participationRef.set({
-    uid,
-    status: "pending",
-    requestedAt: FieldValue.serverTimestamp(),
-    checkedIn: false,
+  const participationRef = postRef.collection("participations").doc(uid);
+
+  // Spec Communauté section 4 : pour un événement public ou sur
+  // invitation, les étapes de validation par l'organisateur peuvent être
+  // supprimées — seule la capacité reste contrôlée. Seul "sur demande"
+  // (et les annonces privées, qui n'ont pas de accessMode) passe
+  // vraiment par une acceptation manuelle (respondToParticipation).
+  const autoAccept = post.accessMode === "public" || post.accessMode === "sur_invitation";
+
+  const result = await db.runTransaction(async (tx) => {
+    const [freshPostSnap, existingSnap] = await Promise.all([tx.get(postRef), tx.get(participationRef)]);
+    if (existingSnap.exists) {
+      throw new HttpsError("already-exists", "Demande déjà envoyée.");
+    }
+    const freshPost = freshPostSnap.data()!;
+    // Relu fraîchement DANS la transaction, pas seulement avant (ligne
+    // 54 plus haut) : un organisateur qui annule son événement pile
+    // entre cette lecture précoce et la validation de la transaction ne
+    // doit pas laisser passer une inscription quand même (trouvé par
+    // revue de code, même raisonnement que le blocage dans recordSwipe.ts).
+    if (freshPost.eventState === "annule" || freshPost.eventState === "termine") {
+      throw new HttpsError("failed-precondition", "Cet événement n'accepte plus de demandes.");
+    }
+
+    if (!autoAccept) {
+      tx.set(participationRef, {
+        uid,
+        status: "pending",
+        requestedAt: FieldValue.serverTimestamp(),
+        checkedIn: false,
+      });
+      return { status: "pending" as const };
+    }
+
+    const isFull = freshPost.capacity && freshPost.participantsCount >= freshPost.capacity;
+    if (isFull) {
+      tx.set(participationRef, {
+        uid,
+        status: "waitlisted",
+        requestedAt: FieldValue.serverTimestamp(),
+        checkedIn: false,
+      });
+      return { status: "waitlisted" as const };
+    }
+
+    const checkinCode = crypto.randomBytes(4).toString("hex").toUpperCase();
+    tx.set(participationRef, {
+      uid,
+      status: "accepted",
+      requestedAt: FieldValue.serverTimestamp(),
+      respondedAt: FieldValue.serverTimestamp(),
+      checkedIn: false,
+      checkinCode,
+    });
+    tx.update(postRef, { participantsCount: FieldValue.increment(1) });
+    return { status: "accepted" as const };
   });
 
-  return { ok: true };
+  return { ok: true, status: result.status };
 });
 
 interface RespondData {
@@ -78,6 +142,8 @@ export const respondToParticipation = onCall({ region: REGION }, async (request)
   const db = getFirestore();
   const postRef = db.collection("community_posts").doc(postId);
   const participationRef = postRef.collection("participations").doc(targetUid);
+
+  await requireApprovedOrganizer(db, uid);
 
   await db.runTransaction(async (tx) => {
     const [postSnap, participationSnap] = await Promise.all([
@@ -141,6 +207,7 @@ export const checkInParticipant = onCall({ region: REGION }, async (request) => 
   if (!post || post.authorUid !== uid) {
     throw new HttpsError("permission-denied", "Seul l'organisateur peut valider l'entrée.");
   }
+  await requireApprovedOrganizer(db, uid);
   const participation = participationSnap.data();
   if (!participation || participation.status !== "accepted" || participation.checkinCode !== code) {
     throw new HttpsError("invalid-argument", "Code invalide.");

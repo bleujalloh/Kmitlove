@@ -17,7 +17,7 @@ class AdminScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     return DefaultTabController(
-      length: 6,
+      length: 7,
       child: Scaffold(
         appBar: AppBar(
           title: const Text('Administration'),
@@ -59,6 +59,7 @@ class AdminScreen extends ConsumerWidget {
             tabs: [
               Tab(text: 'Signalements'),
               Tab(text: 'Publications'),
+              Tab(text: 'Organisateurs'),
               Tab(text: 'Photos'),
               Tab(text: 'Identité'),
               Tab(text: 'Utilisateurs'),
@@ -70,6 +71,7 @@ class AdminScreen extends ConsumerWidget {
           children: [
             _ModerationTab(),
             _PendingPostsTab(),
+            _OrganizerRequestsTab(),
             _PendingPhotosTab(),
             _IdentityTab(),
             _UsersTab(),
@@ -302,6 +304,66 @@ class _PendingPostsTab extends ConsumerWidget {
                             .read(adminRepositoryProvider)
                             .reviewCommunityPost(p['id'] as String, false)
                             .then((_) => ref.invalidate(pendingCommunityPostsProvider)),
+                        style: TextButton.styleFrom(foregroundColor: AppColors.accent),
+                        child: const Text('Refuser'),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            );
+          },
+        );
+      },
+    );
+  }
+}
+
+/// Demandes de statut organisateur (spec Communauté section 3,
+/// 11/11/2026) — validation humaine obligatoire avant toute première
+/// publication d'événement, pas d'abonnement pour l'instant.
+class _OrganizerRequestsTab extends ConsumerWidget {
+  const _OrganizerRequestsTab();
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final requestsAsync = ref.watch(pendingOrganizerRequestsProvider);
+    return requestsAsync.when(
+      loading: () => const Center(child: CircularProgressIndicator()),
+      error: (e, st) => const Center(child: Text('Impossible de charger les demandes.')),
+      data: (requests) {
+        if (requests.isEmpty) return const Center(child: Text('Rien en attente.'));
+        return ListView.separated(
+          padding: const EdgeInsets.all(16),
+          itemCount: requests.length,
+          separatorBuilder: (_, _) => const Divider(),
+          itemBuilder: (context, i) {
+            final r = requests[i];
+            return Padding(
+              padding: const EdgeInsets.symmetric(vertical: 8),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(r['organizerName'] as String? ?? '', style: const TextStyle(fontWeight: FontWeight.bold)),
+                  Text('uid : ${r['uid']}', style: const TextStyle(fontSize: 12, color: AppColors.muted)),
+                  const SizedBox(height: 4),
+                  Text(r['organizerDescription'] as String? ?? ''),
+                  const SizedBox(height: 8),
+                  Wrap(
+                    spacing: 8,
+                    children: [
+                      TextButton(
+                        onPressed: () => ref
+                            .read(adminRepositoryProvider)
+                            .reviewOrganizerRequest(r['uid'] as String, true)
+                            .then((_) => ref.invalidate(pendingOrganizerRequestsProvider)),
+                        child: const Text('Valider'),
+                      ),
+                      TextButton(
+                        onPressed: () => ref
+                            .read(adminRepositoryProvider)
+                            .reviewOrganizerRequest(r['uid'] as String, false)
+                            .then((_) => ref.invalidate(pendingOrganizerRequestsProvider)),
                         style: TextButton.styleFrom(foregroundColor: AppColors.accent),
                         child: const Text('Refuser'),
                       ),

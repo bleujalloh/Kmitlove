@@ -894,6 +894,222 @@ class AppLocalizationsFr extends AppLocalizations {
   String get postTypeGeneric => 'Publication';
 
   @override
+  String get eventCategorySoiree => 'Soirée';
+
+  @override
+  String get eventCategoryConference => 'Conférence';
+
+  @override
+  String get eventCategoryAtelier => 'Atelier';
+
+  @override
+  String get eventCategoryExposition => 'Exposition';
+
+  @override
+  String get eventCategoryDebat => 'Débat';
+
+  @override
+  String get eventCategoryProjection => 'Projection';
+
+  @override
+  String get eventCategoryRencontre => 'Rencontre';
+
+  @override
+  String get eventAccessPublic => 'Accès libre';
+
+  @override
+  String get eventAccessOnRequest => 'Sur demande';
+
+  @override
+  String get eventAccessOnInvitation => 'Sur invitation';
+
+  @override
+  String get eventStateScheduled => 'Prévu';
+
+  @override
+  String get eventStateFull => 'Complet';
+
+  @override
+  String get eventStateCancelled => 'Annulé';
+
+  @override
+  String get eventStateFinished => 'Terminé';
+
+  @override
+  String get eventFormatPresentiel => 'Présentiel';
+
+  @override
+  String get eventFormatEnLigne => 'En ligne';
+
+  @override
+  String get navEvents => 'Événements';
+
+  @override
+  String get navNews => 'Actualités';
+
+  @override
+  String get navTips => 'Conseils';
+
+  @override
+  String get tipsComingSoon =>
+      'Des conseils et ressources culturelles arriveront bientôt dans cet espace.';
+
+  @override
+  String get myParticipationsTitle => 'Mes participations';
+
+  @override
+  String get noParticipationsYet =>
+      'Tu n\'as encore demandé à participer à aucun événement.';
+
+  @override
+  String get becomeOrganizerTitle => 'Devenir organisateur';
+
+  @override
+  String get becomeOrganizerIntro =>
+      'Pour publier un événement, un administrateur doit d\'abord valider ton profil d\'organisateur.';
+
+  @override
+  String get organizerNameLabel => 'Nom (toi ou ta structure)';
+
+  @override
+  String get organizerDescriptionLabel => 'Présente-toi en quelques lignes';
+
+  @override
+  String get organizerRequestSubmitButton => 'Envoyer ma demande';
+
+  @override
+  String get organizerRequestSentTitle => 'Demande envoyée';
+
+  @override
+  String get organizerRequestSentBody =>
+      'Un administrateur va examiner ta demande. Tu pourras publier des événements dès qu\'elle sera validée.';
+
+  @override
+  String get organizerStatusPending => 'Demande en cours de validation';
+
+  @override
+  String get organizerStatusApproved => 'Organisateur validé';
+
+  @override
+  String get organizerStatusRejected => 'Demande refusée';
+
+  @override
+  String get organizerStatusSuspended => 'Statut organisateur suspendu';
+
+  @override
+  String get organizerRequestFailed =>
+      'Impossible d\'envoyer la demande, réessaie.';
+
+  @override
+  String get organizerDashboardTitle => 'Espace organisateur';
+
+  @override
+  String get myEventsEmpty => 'Tu n\'as pas encore créé d\'événement.';
+
+  @override
+  String get createEventButton => 'Créer un événement';
+
+  @override
+  String get eventCategoryLabel => 'Catégorie';
+
+  @override
+  String get eventFormatLabel => 'Format';
+
+  @override
+  String get eventAccessModeLabel => 'Mode d\'accès';
+
+  @override
+  String get eventCityLabel => 'Ville (affichée publiquement)';
+
+  @override
+  String get eventAgeMinimumLabel => 'Âge minimum (facultatif)';
+
+  @override
+  String get eventConditionsLabel => 'Conditions particulières (facultatif)';
+
+  @override
+  String get eventContactLabel => 'Contact autorisé (facultatif)';
+
+  @override
+  String get eventPosterLabel => 'Affiche de l\'événement';
+
+  @override
+  String get addPosterButton => 'Ajouter une affiche';
+
+  @override
+  String get eventEndDateLabel => 'Fin (facultatif)';
+
+  @override
+  String get linkedEventsTitle => 'Activités associées';
+
+  @override
+  String get addFavoriteButton => 'Enregistrer';
+
+  @override
+  String get removeFavoriteButton => 'Retiré des favoris';
+
+  @override
+  String get favoritesTitle => 'Mes favoris';
+
+  @override
+  String get reviewsTitle => 'Avis';
+
+  @override
+  String get noReviewsYet => 'Aucun avis pour le moment.';
+
+  @override
+  String get leaveReviewButton => 'Laisser un avis';
+
+  @override
+  String get reviewSubmitButton => 'Envoyer l\'avis';
+
+  @override
+  String get reviewSentSuccess => 'Avis envoyé, merci !';
+
+  @override
+  String get ticketTitle => 'Mon billet';
+
+  @override
+  String get cancelEventButton => 'Annuler l\'événement';
+
+  @override
+  String get markEventFinishedButton => 'Marquer comme terminé';
+
+  @override
+  String get eventCancelledNotice =>
+      'Cet événement a été annulé par l\'organisateur.';
+
+  @override
+  String get eventFullNotice => 'Cet événement est complet.';
+
+  @override
+  String get inviteMemberButton => 'Inviter un membre';
+
+  @override
+  String get inviteMemberHint => 'Identifiant (uid) du membre à inviter';
+
+  @override
+  String get inviteSentSuccess => 'Invitation envoyée.';
+
+  @override
+  String get eventsFeaturedTitle => 'À la une';
+
+  @override
+  String get eventsUpcomingTitle => 'Événements à venir';
+
+  @override
+  String get eventsNearMeTitle => 'Près de moi';
+
+  @override
+  String get eventsPrivateTitle => 'Événements privés';
+
+  @override
+  String get eventsConferencesTitle => 'Conférences et rencontres';
+
+  @override
+  String get eventsAllTitle => 'Tous les événements';
+
+  @override
   String get eventDateAndCapacityRequired =>
       'Date et capacité requises pour un événement.';
 
@@ -916,7 +1132,8 @@ class AppLocalizationsFr extends AppLocalizations {
   String get postErrorTooManyActive => 'tu as déjà 3 annonces actives.';
 
   @override
-  String get postErrorVerifiedOnly => 'réservé aux membres vérifiés.';
+  String get postErrorVerifiedOnly =>
+      'réservé aux organisateurs validés par un administrateur.';
 
   @override
   String get postErrorGeneric => 'réessaie.';
@@ -945,7 +1162,7 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get eventVerifiedOnlyHint =>
-      'Les événements physiques sont réservés aux membres vérifiés et passent toujours par une revue humaine avant publication.';
+      'Les événements sont réservés aux organisateurs validés par un administrateur et passent toujours par une revue humaine avant publication.';
 
   @override
   String get publishButton => 'Publier';

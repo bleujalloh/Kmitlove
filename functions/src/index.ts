@@ -20,6 +20,15 @@ export { createCommunityPost } from "./communaute/createCommunityPost";
 export { requestParticipation, respondToParticipation, checkInParticipant } from "./communaute/participation";
 export { getEventLocation } from "./communaute/getEventLocation";
 export { reportCommunityPost } from "./communaute/reportCommunityPost";
+export { requestOrganizerStatus } from "./communaute/requestOrganizerStatus";
+export { inviteToEvent } from "./communaute/inviteToEvent";
+export { updateEventState } from "./communaute/updateEventState";
+export { submitEventReview } from "./communaute/submitEventReview";
+export {
+  adminListOrganizerRequests,
+  adminReviewOrganizerRequest,
+  adminSuspendOrganizer,
+} from "./admin/organizerRequests";
 export { useJetonToResurface } from "./premium/useJeton";
 export { activateBoost } from "./premium/activateBoost";
 export { adminListModerationRequests, adminResolveModerationRequest } from "./admin/moderationRequests";

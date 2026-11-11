@@ -317,8 +317,59 @@ wordmark "MERUT" en serif doré avec la baseline officielle "L'amour a ses racin
   bespoke (carte candidat Découvrir, bulles de message, illustrations d'état vide) ont été relues et
   corrigées au niveau du code, mais **pas revues visuellement** — à confirmer par capture d'écran
   avant de considérer ce point testé, pas seulement implanté.
-- [ ] **Refonte de l'écran Communauté** (structure à onglets Communauté/Événements/Actualités/
-  Conseils, zone de composition, cartes de publication avec badges vérifiés or/bleu, mini-carte
-  événement) : référence visuelle reçue et analysée, **non commencée** — à réconcilier avec la
-  spécification fonctionnelle détaillée déjà annoncée mais toujours pas transmise dans cette
-  session (types d'événements, tableau de bord organisateur...). Ne sera pas inventée sans elle.
+- [x] ~~Refonte de l'écran Communauté — non commencée, spec non transmise~~ **Spec reçue intégralement
+  le 11/11, construite dans la foulée — voir section suivante.**
+
+## Suivi 2026-11-11 (suite) — Communauté : rôle organisateur, événements enrichis, espace organisateur
+
+Spec complète transmise par le propriétaire (simplifiée sur sa demande explicite : pas d'abonnement
+organisateur, validation admin à la place). Réconciliée avec la référence visuelle (onglets
+Communauté/Événements/Actualités/Conseils en pilules) : l'architecture de la spec section 10 (à la
+une/à venir/près de moi/privés/conférences/tous/mes participations) vit à l'intérieur de l'onglet
+"Événements" ; le fil social existant reste sur l'onglet "Communauté" ; "Actualités" filtre les
+annonces déjà existantes ; "Conseils" est un espace volontairement minimal, aucun contenu défini
+nulle part pour lui.
+
+Statut par sous-fonctionnalité (règlement permanent section 12) :
+
+- [x] **Testé et validé** : rôle organisateur (demande membre → validation admin, `requestOrganizerStatus`/
+  `adminReviewOrganizerRequest`/`adminSuspendOrganizer`, remplace l'ancien gate `isVerified` sur
+  `createCommunityPost`) — routabilité des 3 fonctions confirmée (401 attendu), onglet admin
+  "Organisateurs" ajouté.
+- [x] **Implanté, compile, déployé — non testé visuellement** : trois types d'accès événement
+  (public/sur demande/sur invitation — `accessMode`, liste des invités jamais sur le document public,
+  rangée dans `private/invitations` comme le lieu précis) ; parcours de participation avec
+  acceptation automatique pour public/invitation (seule capacité contrôlée) et manuelle pour "sur
+  demande" (spec section 4) ; fiche événement enrichie (catégorie, format, ville/pays publics
+  distincts de l'adresse précise, âge minimum, conditions, contact, affiche) ; statuts organisateur
+  prévu/complet/annulé/terminé ("complet" toujours déduit, jamais déclaré) ; événements liés (section
+  7, `parentEventId`) ; favoris (sous-collection propriétaire-uniquement) ; avis après événement
+  (réservés aux participations acceptées) ; billet avec vrai QR code (`qr_flutter`, remplace le code
+  texte seul) ; espace organisateur séparé (mes événements, créer, inviter, annuler/terminer) ; "Mes
+  participations" enfin câblé côté client (l'index de groupe de collections existait déjà, jamais
+  utilisé jusqu'ici).
+- [x] **Revue de code (effort high) passée, 7 signalements corrigés avant déploiement** : un bug
+  bloquant trouvé (le bouton "Demander à participer" était masqué pour TOUS les événements publics,
+  le cas le plus courant) ; organisateur suspendu qui pouvait encore gérer ses événements déjà créés
+  (inviter, accepter, valider l'entrée) malgré la suspension — corrigé avec un garde-fou partagé
+  (`requireApprovedOrganizer`) ; fenêtre de course sur l'annulation d'un événement pendant une
+  demande de participation concurrente (vérification déplacée dans la transaction, même raisonnement
+  que le correctif blocage/recordSwipe) ; index Firestore manquant pour la liste admin des demandes
+  organisateur (ajouté) ; date de fin d'événement jamais comparée à la date de début, et sélecteur de
+  date client qui ne proposait pas la bonne date initiale ; affiche d'événement envoyée à Storage
+  puis orpheline si la création du post échouait ensuite (nettoyage ajouté) ; deux index composites
+  déclarés mais jamais utilisés par aucune requête (retirés, le filtre catégorie/ville reste côté
+  client tant que le volume le permet).
+- [ ] **Non vérifié sur appareil réel** : aucun des parcours ci-dessus (créer un événement, demander
+  à participer, scanner un billet, laisser un avis...) n'a été testé sur le téléphone — accès
+  appareil non disponible pendant cette passe.
+- [ ] **Non implanté, signalé honnêtement plutôt que deviné** : rappels (nécessiterait des
+  notifications programmées, au-delà de FCM déjà construit), promotion automatique de la liste
+  d'attente quand une place se libère (le statut "waitlisted" existe, la promotion automatique non),
+  événements récurrents, partage privé d'une invitation sans rendre l'événement public, "À la une"
+  n'est qu'une approximation (les événements les plus proches dans le temps) faute d'un champ "mis en
+  avant" explicite dans la spec. Onglet "Conseils" : aucun contenu, aucune fonctionnalité définie
+  nulle part — espace intentionnellement vide plutôt qu'un contenu inventé.
+- [ ] **Index Firestore en cours de construction au moment de ce rapport** : `user_status`
+  (organizerStatus + organizerRequestedAt) — l'onglet admin "Organisateurs" peut échouer avec
+  `failed-precondition` tant qu'il n'est pas prêt (généralement quelques minutes).

@@ -27,6 +27,27 @@ export const DISCOVER_CANDIDATE_POOL_SIZE = 50; // avant filtrage
 export const DISCOVER_CANDIDATES_RETURNED = 10; // après filtrage, envoyés au client
 export const INACTIVE_ACCOUNT_DAYS = 30;
 
+// Communauté — refonte du 11/11/2026 (spec complète transmise par le
+// propriétaire). Catégories et formats fermés : vérifiés côté serveur,
+// jamais une liste qui n'existerait que côté client.
+export const EVENT_CATEGORIES = [
+  "soiree",
+  "conference",
+  "atelier",
+  "exposition",
+  "debat",
+  "projection",
+  "rencontre",
+] as const;
+export const EVENT_FORMATS = ["presentiel", "en_ligne"] as const;
+export const EVENT_ACCESS_MODES = ["public", "sur_demande", "sur_invitation"] as const;
+// Statut fixé par l'organisateur (distinct du statut de modération
+// published/pending_review/rejected) — "complet" se déduit du nombre de
+// participants, jamais fixé directement.
+export const EVENT_STATES = ["prevu", "complet", "annule", "termine"] as const;
+export const ORGANIZER_MAX_NAME_LENGTH = 80;
+export const ORGANIZER_MAX_DESCRIPTION_LENGTH = 500;
+
 // docs/regles-annonces-evenements.md
 export const MAX_ACTIVE_ANNONCES_PER_USER = 3;
 // Filtre automatique très simple en l'absence d'IA de modération — un

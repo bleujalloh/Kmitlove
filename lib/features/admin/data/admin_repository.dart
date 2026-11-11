@@ -56,6 +56,22 @@ class AdminRepository {
         .call({'postId': postId, 'approve': approve});
   }
 
+  Future<List<Map<String, dynamic>>> listOrganizerRequests() async {
+    final result = await _functions.httpsCallable('adminListOrganizerRequests').call();
+    final data = result.data as Map<Object?, Object?>;
+    return (data['requests'] as List).map((r) => Map<String, dynamic>.from(r as Map)).toList();
+  }
+
+  Future<void> reviewOrganizerRequest(String uid, bool approve) {
+    return _functions
+        .httpsCallable('adminReviewOrganizerRequest')
+        .call({'uid': uid, 'approve': approve});
+  }
+
+  Future<void> suspendOrganizer(String uid) {
+    return _functions.httpsCallable('adminSuspendOrganizer').call({'uid': uid});
+  }
+
   Future<List<Map<String, dynamic>>> listPendingPhotos() async {
     final result = await _functions.httpsCallable('adminListPendingPhotos').call();
     final data = result.data as Map<Object?, Object?>;

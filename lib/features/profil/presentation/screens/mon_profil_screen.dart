@@ -8,6 +8,10 @@ import '../../../../core/widgets/settings_action.dart';
 import '../../../../l10n/l10n_extensions.dart';
 import '../../../admin/presentation/admin_controller.dart';
 import '../../../admin/presentation/screens/admin_screen.dart';
+import '../../../communaute/presentation/communaute_controller.dart';
+import '../../../communaute/presentation/screens/my_participations_screen.dart';
+import '../../../communaute/presentation/screens/organizer_dashboard_screen.dart';
+import '../../../communaute/presentation/screens/organizer_request_screen.dart';
 import '../../../compatibilite/presentation/screens/compat_screen.dart';
 import '../../../decouvrir/presentation/decouvrir_controller.dart';
 import '../../../identite/presentation/screens/identite_screen.dart';
@@ -40,6 +44,7 @@ class MonProfilScreen extends ConsumerWidget {
     final isAdmin = ref.watch(isAdminProvider).value ?? false;
     final status = ref.watch(userStatusProvider).value;
     final isVerified = status?['isVerified'] == true;
+    final organizerStatus = ref.watch(myOrganizerStatusProvider).value;
     final uid = ref.watch(firebaseAuthProvider).currentUser?.uid;
     final photoUrl = uid == null ? null : ref.watch(candidateFirstPhotoUrlProvider(uid)).value;
 
@@ -242,6 +247,31 @@ class MonProfilScreen extends ConsumerWidget {
                   title: context.l10n.navCompatTest,
                   onTap: () => Navigator.of(context).push(
                     MaterialPageRoute(builder: (_) => const CompatScreen()),
+                  ),
+                ),
+                const SizedBox(height: 10),
+                _ProfilActionTile(
+                  icon: Icons.event_available_outlined,
+                  title: context.l10n.myParticipationsTitle,
+                  onTap: () => Navigator.of(context).push(
+                    MaterialPageRoute(builder: (_) => const MyParticipationsScreen()),
+                  ),
+                ),
+                const SizedBox(height: 10),
+                _ProfilActionTile(
+                  icon: Icons.campaign_outlined,
+                  title: organizerStatus == 'approved'
+                      ? context.l10n.organizerDashboardTitle
+                      : context.l10n.becomeOrganizerTitle,
+                  trailing: organizerStatus == 'pending'
+                      ? const Icon(Icons.hourglass_top, color: AppColors.muted)
+                      : null,
+                  onTap: () => Navigator.of(context).push(
+                    MaterialPageRoute(
+                      builder: (_) => organizerStatus == 'approved'
+                          ? const OrganizerDashboardScreen()
+                          : const OrganizerRequestScreen(),
+                    ),
                   ),
                 ),
                 const SizedBox(height: 10),

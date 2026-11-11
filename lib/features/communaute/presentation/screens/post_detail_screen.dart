@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:qr_flutter/qr_flutter.dart';
 
 import '../../../../core/providers/firebase_providers.dart';
 import '../../../../core/theme/app_theme.dart';
@@ -25,13 +26,23 @@ class _PostDetailScreenState extends ConsumerState<PostDetailScreen> {
   Widget build(BuildContext context) {
     final myUid = ref.watch(firebaseAuthProvider).currentUser?.uid;
     final isOrganizer = myUid == widget.post.authorUid;
-    final myParticipationAsync =
-        ref.watch(myParticipationProvider(widget.post.id));
+    final myParticipationAsync = ref.watch(myParticipationProvider(widget.post.id));
+    final favoriteIds = ref.watch(favoriteIdsProvider).value ?? <String>{};
+    final isFavorite = favoriteIds.contains(widget.post.id);
+    final posterUrl = widget.post.posterStoragePath != null
+        ? ref.watch(eventPosterUrlProvider(widget.post.posterStoragePath!)).value
+        : null;
 
     return Scaffold(
       appBar: AppBar(
         title: Text(widget.post.title ?? context.l10n.postTypeGeneric),
         actions: [
+          if (widget.post.isEvent && myUid != null)
+            IconButton(
+              icon: Icon(isFavorite ? Icons.bookmark : Icons.bookmark_border, color: AppColors.accent),
+              onPressed: () =>
+                  ref.read(communauteControllerProvider).toggleFavorite(widget.post.id, !isFavorite),
+            ),
           PopupMenuButton<String>(
             onSelected: (reason) async {
               await ref.read(communauteControllerProvider).report(widget.post.id, reason);
@@ -51,6 +62,25 @@ class _PostDetailScreenState extends ConsumerState<PostDetailScreen> {
         child: ListView(
           padding: const EdgeInsets.all(20),
           children: [
+            if (posterUrl != null) ...[
+              ClipRRect(
+                borderRadius: BorderRadius.circular(16),
+                child: Image.network(posterUrl, height: 180, width: double.infinity, fit: BoxFit.cover),
+              ),
+              const SizedBox(height: 14),
+            ],
+            if (widget.post.eventState != null && widget.post.eventState != 'prevu')
+              Padding(
+                padding: const EdgeInsets.only(bottom: 10),
+                child: Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                  decoration: BoxDecoration(color: AppColors.accentSoft, borderRadius: BorderRadius.circular(999)),
+                  child: Text(
+                    eventStateLabel(widget.post.eventState!, context.l10n),
+                    style: const TextStyle(color: AppColors.accent, fontWeight: FontWeight.w600, fontSize: 12),
+                  ),
+                ),
+              ),
             Text(widget.post.text, style: const TextStyle(fontSize: 14.5, height: 1.5)),
             if (widget.post.isEvent) ...[
               const SizedBox(height: 14),
@@ -64,6 +94,30 @@ class _PostDetailScreenState extends ConsumerState<PostDetailScreen> {
                 ),
                 style: const TextStyle(color: AppColors.muted, fontSize: 13),
               ),
+              const SizedBox(height: 6),
+              Wrap(
+                spacing: 8,
+                runSpacing: 6,
+                children: [
+                  if (widget.post.category != null) _InfoChip(eventCategoryLabel(widget.post.category!, context.l10n)),
+                  if (widget.post.format != null)
+                    _InfoChip(widget.post.format == 'presentiel'
+                        ? context.l10n.eventFormatPresentiel
+                        : context.l10n.eventFormatEnLigne),
+                  if (widget.post.city != null) _InfoChip('${widget.post.city}, ${widget.post.country ?? ''}'),
+                  if (widget.post.accessMode != null) _InfoChip(eventAccessModeLabel(widget.post.accessMode!, context.l10n)),
+                  if (widget.post.ageMinimum != null) _InfoChip('${widget.post.ageMinimum}+'),
+                ],
+              ),
+              if (widget.post.conditions?.isNotEmpty == true) ...[
+                const SizedBox(height: 10),
+                Text(widget.post.conditions!, style: const TextStyle(fontSize: 13, color: AppColors.muted)),
+              ],
+              if (widget.post.contactChannel?.isNotEmpty == true) ...[
+                const SizedBox(height: 6),
+                Text('${context.l10n.eventContactLabel} : ${widget.post.contactChannel}',
+                    style: const TextStyle(fontSize: 13, color: AppColors.muted)),
+              ],
             ],
             const SizedBox(height: 18),
             if (!isOrganizer && widget.post.needsParticipationRequest)
@@ -73,6 +127,15 @@ class _PostDetailScreenState extends ConsumerState<PostDetailScreen> {
                 data: (participation) {
                   final status = participation?['status'] as String?;
                   if (status == null) {
+                    if (widget.post.eventState == 'annule') {
+                      return Text(context.l10n.eventCancelledNotice, style: const TextStyle(color: AppColors.muted));
+                    }
+                    if (widget.post.eventState == 'termine') {
+                      return Text(context.l10n.eventStateFinished, style: const TextStyle(color: AppColors.muted));
+                    }
+                    if (widget.post.isFull) {
+                      return Text(context.l10n.eventFullNotice, style: const TextStyle(color: AppColors.muted));
+                    }
                     return ElevatedButton(
                       onPressed: () =>
                           ref.read(communauteControllerProvider).requestParticipation(widget.post.id),
@@ -99,11 +162,13 @@ class _PostDetailScreenState extends ConsumerState<PostDetailScreen> {
                             padding: const EdgeInsets.only(top: 8),
                             child: Text(_preciseLocation!),
                           ),
-                        if (participation?['checkinCode'] != null)
-                          Padding(
-                            padding: const EdgeInsets.only(top: 8),
-                            child: Text(context.l10n.checkinCodeLabel(participation?['checkinCode'] as String)),
+                        if (participation?['checkinCode'] != null) ...[
+                          const SizedBox(height: 16),
+                          _TicketCard(
+                            title: context.l10n.ticketTitle,
+                            code: participation!['checkinCode'] as String,
                           ),
+                        ],
                         const SizedBox(height: 8),
                         // Toujours visible sur un événement accepté
                         // (docs/regles-complementaires-concurrents.md
@@ -114,15 +179,273 @@ class _PostDetailScreenState extends ConsumerState<PostDetailScreen> {
                           label: Text(context.l10n.reportImmediateDanger,
                               style: const TextStyle(color: AppColors.accent)),
                         ),
+                        const SizedBox(height: 16),
+                        _ReviewSection(postId: widget.post.id),
                       ],
                     );
                   }
                   return Text(context.l10n.statusLabel(status), style: const TextStyle(color: AppColors.muted));
                 },
               ),
+            if (isOrganizer && widget.post.isEvent) _OrganizerEventControls(post: widget.post),
             if (isOrganizer && widget.post.needsParticipationRequest) _OrganizerPanel(post: widget.post),
+            if (widget.post.isEvent) ...[
+              const SizedBox(height: 20),
+              _LinkedEventsSection(parentEventId: widget.post.id),
+            ],
+            if (widget.post.isEvent && !isOrganizer) ...[
+              const SizedBox(height: 20),
+              _ReviewsList(postId: widget.post.id),
+            ],
           ],
         ),
+      ),
+    );
+  }
+}
+
+class _InfoChip extends StatelessWidget {
+  const _InfoChip(this.label);
+  final String label;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+      decoration: BoxDecoration(
+        color: AppColors.backgroundSoft,
+        borderRadius: BorderRadius.circular(999),
+        border: Border.all(color: AppColors.border),
+      ),
+      child: Text(label, style: const TextStyle(fontSize: 11.5)),
+    );
+  }
+}
+
+class _TicketCard extends StatelessWidget {
+  const _TicketCard({required this.title, required this.code});
+  final String title;
+  final String code;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: AppColors.backgroundSoft,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: AppColors.accent),
+      ),
+      child: Column(
+        children: [
+          Text(title, style: const TextStyle(fontWeight: FontWeight.bold)),
+          const SizedBox(height: 12),
+          Container(
+            padding: const EdgeInsets.all(10),
+            color: AppColors.ivoire,
+            child: QrImageView(data: code, size: 140, backgroundColor: AppColors.ivoire),
+          ),
+          const SizedBox(height: 10),
+          Text(code, style: const TextStyle(letterSpacing: 2, fontWeight: FontWeight.bold)),
+        ],
+      ),
+    );
+  }
+}
+
+class _LinkedEventsSection extends ConsumerWidget {
+  const _LinkedEventsSection({required this.parentEventId});
+  final String parentEventId;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final linked = ref.watch(linkedEventsProvider(parentEventId)).value ?? [];
+    if (linked.isEmpty) return const SizedBox.shrink();
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(context.l10n.linkedEventsTitle, style: const TextStyle(fontWeight: FontWeight.bold)),
+        const SizedBox(height: 8),
+        for (final e in linked)
+          ListTile(
+            contentPadding: EdgeInsets.zero,
+            title: Text(e.title ?? e.text, maxLines: 1, overflow: TextOverflow.ellipsis),
+            subtitle: e.eventDate != null
+                ? Text('${e.eventDate!.day}/${e.eventDate!.month}/${e.eventDate!.year}')
+                : null,
+            onTap: () => Navigator.of(context).push(
+              MaterialPageRoute(builder: (_) => PostDetailScreen(post: e)),
+            ),
+          ),
+      ],
+    );
+  }
+}
+
+class _ReviewSection extends ConsumerStatefulWidget {
+  const _ReviewSection({required this.postId});
+  final String postId;
+
+  @override
+  ConsumerState<_ReviewSection> createState() => _ReviewSectionState();
+}
+
+class _ReviewSectionState extends ConsumerState<_ReviewSection> {
+  int _rating = 5;
+  final _commentController = TextEditingController();
+  bool _sending = false;
+
+  @override
+  void dispose() {
+    _commentController.dispose();
+    super.dispose();
+  }
+
+  Future<void> _submit() async {
+    setState(() => _sending = true);
+    try {
+      await ref.read(communauteControllerProvider).submitReview(
+            widget.postId,
+            _rating,
+            comment: _commentController.text.trim().isEmpty ? null : _commentController.text.trim(),
+          );
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(context.l10n.reviewSentSuccess)));
+        _commentController.clear();
+      }
+    } finally {
+      if (mounted) setState(() => _sending = false);
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(context.l10n.leaveReviewButton, style: const TextStyle(fontWeight: FontWeight.bold)),
+        const SizedBox(height: 8),
+        Row(
+          children: List.generate(5, (i) {
+            final star = i + 1;
+            return IconButton(
+              padding: EdgeInsets.zero,
+              icon: Icon(star <= _rating ? Icons.star : Icons.star_border, color: AppColors.accent),
+              onPressed: () => setState(() => _rating = star),
+            );
+          }),
+        ),
+        TextField(
+          controller: _commentController,
+          maxLines: 2,
+          decoration: InputDecoration(hintText: context.l10n.reviewsTitle),
+        ),
+        const SizedBox(height: 8),
+        ElevatedButton(
+          onPressed: _sending ? null : _submit,
+          child: Text(context.l10n.reviewSubmitButton),
+        ),
+      ],
+    );
+  }
+}
+
+class _ReviewsList extends ConsumerWidget {
+  const _ReviewsList({required this.postId});
+  final String postId;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final reviews = ref.watch(eventReviewsProvider(postId)).value ?? [];
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(context.l10n.reviewsTitle, style: const TextStyle(fontWeight: FontWeight.bold)),
+        const SizedBox(height: 8),
+        if (reviews.isEmpty)
+          Text(context.l10n.noReviewsYet, style: const TextStyle(color: AppColors.muted))
+        else
+          for (final r in reviews)
+            Padding(
+              padding: const EdgeInsets.only(bottom: 10),
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    children: List.generate(
+                      5,
+                      (i) => Icon(
+                        i < ((r['rating'] as num?)?.toInt() ?? 0) ? Icons.star : Icons.star_border,
+                        size: 14,
+                        color: AppColors.accent,
+                      ),
+                    ),
+                  ),
+                  const SizedBox(width: 8),
+                  if (r['comment'] != null) Expanded(child: Text(r['comment'] as String, style: const TextStyle(fontSize: 13))),
+                ],
+              ),
+            ),
+      ],
+    );
+  }
+}
+
+class _OrganizerEventControls extends ConsumerWidget {
+  const _OrganizerEventControls({required this.post});
+  final CommunityPost post;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    if (post.eventState == 'annule' || post.eventState == 'termine') return const SizedBox.shrink();
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 14),
+      child: Wrap(
+        spacing: 10,
+        runSpacing: 8,
+        children: [
+          if (post.accessMode == 'sur_invitation')
+            OutlinedButton(
+              onPressed: () => _inviteDialog(context, ref, post.id),
+              child: Text(context.l10n.inviteMemberButton),
+            ),
+          OutlinedButton(
+            onPressed: () => ref.read(communauteControllerProvider).updateEventState(post.id, 'termine'),
+            child: Text(context.l10n.markEventFinishedButton),
+          ),
+          TextButton(
+            onPressed: () => ref.read(communauteControllerProvider).updateEventState(post.id, 'annule'),
+            child: Text(context.l10n.cancelEventButton, style: const TextStyle(color: AppColors.accent)),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _inviteDialog(BuildContext context, WidgetRef ref, String postId) {
+    final uidController = TextEditingController();
+    showDialog(
+      context: context,
+      builder: (dialogContext) => AlertDialog(
+        title: Text(context.l10n.inviteMemberButton),
+        content: TextField(
+          controller: uidController,
+          decoration: InputDecoration(labelText: context.l10n.inviteMemberHint),
+        ),
+        actions: [
+          TextButton(onPressed: () => Navigator.of(dialogContext).pop(), child: Text(context.l10n.cancelButton)),
+          TextButton(
+            onPressed: () async {
+              Navigator.of(dialogContext).pop();
+              if (uidController.text.trim().isEmpty) return;
+              await ref.read(communauteControllerProvider).inviteToEvent(postId, uidController.text.trim());
+              if (context.mounted) {
+                ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(context.l10n.inviteSentSuccess)));
+              }
+            },
+            child: Text(context.l10n.validateButton),
+          ),
+        ],
       ),
     );
   }

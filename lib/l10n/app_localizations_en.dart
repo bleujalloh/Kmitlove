@@ -887,6 +887,221 @@ class AppLocalizationsEn extends AppLocalizations {
   String get postTypeGeneric => 'Post';
 
   @override
+  String get eventCategorySoiree => 'Party';
+
+  @override
+  String get eventCategoryConference => 'Conference';
+
+  @override
+  String get eventCategoryAtelier => 'Workshop';
+
+  @override
+  String get eventCategoryExposition => 'Exhibition';
+
+  @override
+  String get eventCategoryDebat => 'Debate';
+
+  @override
+  String get eventCategoryProjection => 'Screening';
+
+  @override
+  String get eventCategoryRencontre => 'Meetup';
+
+  @override
+  String get eventAccessPublic => 'Open access';
+
+  @override
+  String get eventAccessOnRequest => 'On request';
+
+  @override
+  String get eventAccessOnInvitation => 'By invitation';
+
+  @override
+  String get eventStateScheduled => 'Scheduled';
+
+  @override
+  String get eventStateFull => 'Full';
+
+  @override
+  String get eventStateCancelled => 'Cancelled';
+
+  @override
+  String get eventStateFinished => 'Finished';
+
+  @override
+  String get eventFormatPresentiel => 'In person';
+
+  @override
+  String get eventFormatEnLigne => 'Online';
+
+  @override
+  String get navEvents => 'Events';
+
+  @override
+  String get navNews => 'News';
+
+  @override
+  String get navTips => 'Tips';
+
+  @override
+  String get tipsComingSoon =>
+      'Cultural tips and resources are coming soon to this space.';
+
+  @override
+  String get myParticipationsTitle => 'My participations';
+
+  @override
+  String get noParticipationsYet =>
+      'You haven\'t requested to join any event yet.';
+
+  @override
+  String get becomeOrganizerTitle => 'Become an organizer';
+
+  @override
+  String get becomeOrganizerIntro =>
+      'To publish an event, an administrator must first validate your organizer profile.';
+
+  @override
+  String get organizerNameLabel => 'Name (you or your organization)';
+
+  @override
+  String get organizerDescriptionLabel => 'Introduce yourself in a few lines';
+
+  @override
+  String get organizerRequestSubmitButton => 'Send my request';
+
+  @override
+  String get organizerRequestSentTitle => 'Request sent';
+
+  @override
+  String get organizerRequestSentBody =>
+      'An administrator will review your request. You\'ll be able to publish events as soon as it\'s approved.';
+
+  @override
+  String get organizerStatusPending => 'Request under review';
+
+  @override
+  String get organizerStatusApproved => 'Approved organizer';
+
+  @override
+  String get organizerStatusRejected => 'Request rejected';
+
+  @override
+  String get organizerStatusSuspended => 'Organizer status suspended';
+
+  @override
+  String get organizerRequestFailed => 'Couldn\'t send the request, try again.';
+
+  @override
+  String get organizerDashboardTitle => 'Organizer space';
+
+  @override
+  String get myEventsEmpty => 'You haven\'t created any event yet.';
+
+  @override
+  String get createEventButton => 'Create an event';
+
+  @override
+  String get eventCategoryLabel => 'Category';
+
+  @override
+  String get eventFormatLabel => 'Format';
+
+  @override
+  String get eventAccessModeLabel => 'Access mode';
+
+  @override
+  String get eventCityLabel => 'City (shown publicly)';
+
+  @override
+  String get eventAgeMinimumLabel => 'Minimum age (optional)';
+
+  @override
+  String get eventConditionsLabel => 'Special conditions (optional)';
+
+  @override
+  String get eventContactLabel => 'Authorized contact (optional)';
+
+  @override
+  String get eventPosterLabel => 'Event poster';
+
+  @override
+  String get addPosterButton => 'Add a poster';
+
+  @override
+  String get eventEndDateLabel => 'End (optional)';
+
+  @override
+  String get linkedEventsTitle => 'Associated activities';
+
+  @override
+  String get addFavoriteButton => 'Save';
+
+  @override
+  String get removeFavoriteButton => 'Removed from favorites';
+
+  @override
+  String get favoritesTitle => 'My favorites';
+
+  @override
+  String get reviewsTitle => 'Reviews';
+
+  @override
+  String get noReviewsYet => 'No reviews yet.';
+
+  @override
+  String get leaveReviewButton => 'Leave a review';
+
+  @override
+  String get reviewSubmitButton => 'Submit review';
+
+  @override
+  String get reviewSentSuccess => 'Review sent, thank you!';
+
+  @override
+  String get ticketTitle => 'My ticket';
+
+  @override
+  String get cancelEventButton => 'Cancel the event';
+
+  @override
+  String get markEventFinishedButton => 'Mark as finished';
+
+  @override
+  String get eventCancelledNotice =>
+      'This event was cancelled by the organizer.';
+
+  @override
+  String get eventFullNotice => 'This event is full.';
+
+  @override
+  String get inviteMemberButton => 'Invite a member';
+
+  @override
+  String get inviteMemberHint => 'Member ID (uid) to invite';
+
+  @override
+  String get inviteSentSuccess => 'Invitation sent.';
+
+  @override
+  String get eventsFeaturedTitle => 'Featured';
+
+  @override
+  String get eventsUpcomingTitle => 'Upcoming events';
+
+  @override
+  String get eventsNearMeTitle => 'Near me';
+
+  @override
+  String get eventsPrivateTitle => 'Private events';
+
+  @override
+  String get eventsConferencesTitle => 'Conferences and meetups';
+
+  @override
+  String get eventsAllTitle => 'All events';
+
+  @override
   String get eventDateAndCapacityRequired =>
       'Date and capacity are required for an event.';
 
@@ -909,7 +1124,8 @@ class AppLocalizationsEn extends AppLocalizations {
       'you already have 3 active announcements.';
 
   @override
-  String get postErrorVerifiedOnly => 'reserved for verified members.';
+  String get postErrorVerifiedOnly =>
+      'reserved for organizers approved by an administrator.';
 
   @override
   String get postErrorGeneric => 'try again.';
@@ -937,7 +1153,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get eventVerifiedOnlyHint =>
-      'In-person events are reserved for verified members and always go through human review before publishing.';
+      'Events are reserved for organizers approved by an administrator and always go through human review before publishing.';
 
   @override
   String get publishButton => 'Publish';

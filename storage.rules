@@ -33,6 +33,19 @@ service firebase.storage {
       allow write: if isMatchMember() && request.resource.size < 10 * 1024 * 1024;
     }
 
+    // Affiche/visuel d'un événement Communauté (spec section 6, 11/11/2026) :
+    // image promotionnelle publique par nature (comme le texte de la
+    // publication elle-même), jamais une donnée sensible à masquer —
+    // contrairement aux photos de profil, pas de statut d'approbation ici.
+    // Déposée par l'organisateur avant la création du post lui-même
+    // (createCommunityPost reçoit un chemin déjà en place), donc rangée
+    // par uid et non par postId.
+    match /event_posters/{userId}/{fileName} {
+      allow read: if request.auth != null;
+      allow write: if request.auth != null && request.auth.uid == userId
+                   && request.resource.size < 10 * 1024 * 1024;
+    }
+
     // Pièce de vérification d'identité (selfie/vidéo, docs/regles-complementaires-concurrents.md
     // section 1) : jamais visible par un autre membre, seule la Cloud
     // Function de revue admin y accède (Admin SDK, hors de ces règles).

@@ -27,6 +27,11 @@ final pendingCommunityPostsProvider =
   return ref.read(adminRepositoryProvider).listPendingCommunityPosts();
 });
 
+final pendingOrganizerRequestsProvider =
+    FutureProvider.autoDispose<List<Map<String, dynamic>>>((ref) {
+  return ref.read(adminRepositoryProvider).listOrganizerRequests();
+});
+
 final pendingPhotosProvider = FutureProvider.autoDispose<List<Map<String, dynamic>>>((ref) {
   return ref.read(adminRepositoryProvider).listPendingPhotos();
 });

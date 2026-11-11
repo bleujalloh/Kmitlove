@@ -52,6 +52,14 @@ service cloud.firestore {
         allow update: if false;
         allow delete: if isOwner(userId);
       }
+
+      // Événements Communauté enregistrés en favori (spec Communauté
+      // section 9, 11/11/2026) : pure préférence personnelle, aucune
+      // règle métier à vérifier — propriétaire uniquement, comme les
+      // autres sous-collections "privées à soi" de ce projet.
+      match /favorites/{postId} {
+        allow read, write: if isOwner(userId);
+      }
     }
 
     // Statut d'activation du compte (filtrage, suspension, premium...).
@@ -191,11 +199,21 @@ service cloud.firestore {
         allow write: if false;
       }
 
-      // Lieu précis d'un événement/d'une annonce privée : jamais lu
-      // directement, uniquement via getEventLocation (vérifie que
-      // l'appelant est organisateur ou participant accepté).
+      // Lieu précis d'un événement/d'une annonce privée, liste des
+      // invités d'un événement "sur invitation" : jamais lus
+      // directement, uniquement via getEventLocation/requestParticipation/
+      // inviteToEvent (vérifient les droits côté serveur).
       match /private/{document=**} {
         allow read, write: if false;
+      }
+
+      // Avis après événement (spec Communauté section 9) : visibles par
+      // tout membre connecté (aide à choisir un événement), jamais
+      // écrits directement — submitEventReview vérifie déjà une
+      // participation acceptée avant d'écrire.
+      match /reviews/{reviewerUid} {
+        allow read: if isSignedIn();
+        allow write: if false;
       }
     }
 
