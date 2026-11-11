@@ -473,3 +473,48 @@ passe précédente plutôt que de la laisser comme approximation permanente.
   interprétation unique correcte — même les bibliothèques dédiées à ce problème font un choix
   arbitraire dans ce cas précis. Un événement créé pile dans cette heure-là peut avoir son rappel
   décalé d'une heure ; cas extrêmement rare, non traité spécifiquement.
+
+## Suivi 2026-11-11 (suite) — Modération automatique des photos (SafeSearch + visage)
+
+Sur demande explicite de l'utilisateur : avant ce correctif, aucun contrôle automatique de contenu
+n'existait sur les photos — seule la revue humaine ou l'approbation automatique après 48h décidaient.
+
+- [x] **Testé et validé (API activée, déployé, exécuté pour de vrai contre 21 photos réelles de la
+  base, pas seulement en théorie)** : Google Cloud Vision (SafeSearch + détection de visage, un seul
+  appel par photo) déclenché à la création du document de suivi d'une photo
+  (`moderatePhotoContent.ts`) — "LIKELY" ou plus sur adulte/suggestif/violence rejette immédiatement,
+  sans attendre la revue humaine ni le délai de 48h. Nouveau champ `hasFace` (confiance ≥ 0,5),
+  distinct du simple nombre de photos approuvées (toujours utilisé pour la complétion de profil) :
+  devient la vraie condition de visibilité dans Découvrir — un profil avec 2 photos approuvées mais
+  sans aucun visage détectable n'apparaît plus.
+- [x] **Incident réel évité en cours de route par le coordinateur, merci** : un déploiement
+  intermédiaire de `getCandidates.ts` exigeant déjà `hasFace` (avant que `moderatePhotoContent` ne
+  soit lui-même déployé et avant toute rétro-analyse des photos déjà approuvées) aurait vidé Découvrir
+  pour tout le monde. Corrigé en respectant l'ordre nécessaire : 1) déployer `moderatePhotoContent` +
+  la robustesse d'`autoApprovePhotos`/`adminReviewPhoto` (aucun risque, n'affecte que les nouvelles
+  photos et les futures revues) ; 2) script de migration ponctuel (hors dépôt, exécuté une seule fois
+  avec les identifiants admin du projet) faisant passer les 21 photos déjà approuvées dans la même
+  analyse Vision ; 3) seulement ensuite déployer `getCandidates.ts` avec l'exigence `hasFace`.
+- [x] **Revue de code (effort high, deux passes) passée, corrections réelles avant chaque
+  déploiement** : échecs ouverts transformés en échecs fermés (résultat SafeSearch totalement absent,
+  valeur de vraisemblance jamais vue) — mieux vaut bloquer une photo à tort que laisser passer un
+  contenu inapproprié en silence ; protection contre l'écrasement d'une décision déjà prise par une
+  analyse retournée en retard (relecture de l'état réel juste avant d'écrire) ; aucun chemin vers
+  "approved" (automatique, rattrapage planifié, revue admin) ne contourne plus ce contrôle ; deux
+  requêtes d'agrégation Firestore par candidat fusionnées en une seule lecture dans le chemin déjà
+  coûteux de Découvrir.
+- [ ] **Non vérifié sur appareil réel** : aucun upload de photo n'a été fait depuis l'app elle-même
+  pendant cette passe — accès appareil toujours indisponible. La vérification a porté sur de vraies
+  photos déjà en base (via le script de migration) et sur un appel Vision réel isolé (image de test
+  publique), pas sur le parcours complet upload → modération → affichage.
+- [ ] **À savoir avant de tester Découvrir, pas un bug** : les 21 photos des comptes de test/seed
+  existants ressortent toutes `hasFace=false` (ce sont des images de substitution, pas de vrais
+  visages) — Découvrir affichera donc 0 profil tant qu'aucun compte n'a 2 vraies photos-visage
+  approuvées. Comportement correct du nouveau critère, pas une régression ; à corriger en
+  re-générant des photos de test avec de vrais visages si Découvrir doit montrer quelque chose
+  pendant les prochains essais.
+- [ ] **Limite assumée, pas un oubli** : un faux négatif Vision sur une vraie photo-visage légitime
+  (angle inhabituel, lunettes, faible luminosité...) n'a aucun recours admin dans cette passe —
+  l'admin peut approuver la photo mais ne peut pas forcer `hasFace` à vrai (volontaire : la spec
+  demande un visage "clairement détecté", pas un jugement humain générique) ; seul un nouvel upload
+  peut corriger ce cas pour l'instant.
