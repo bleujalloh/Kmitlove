@@ -40,6 +40,11 @@ class _EventsTabState extends ConsumerState<EventsTab> {
         title: Text(context.l10n.navEvents),
         actions: [
           IconButton(
+            tooltip: context.l10n.redeemInviteCodeButton,
+            icon: const Icon(Icons.key_outlined),
+            onPressed: () => _redeemCodeDialog(context, ref),
+          ),
+          IconButton(
             icon: const Icon(Icons.event_available_outlined),
             onPressed: () => Navigator.of(context).push(
               MaterialPageRoute(builder: (_) => const MyParticipationsScreen()),
@@ -145,6 +150,41 @@ class _EventsTabState extends ConsumerState<EventsTab> {
 }
 
 const _eventCategories = ['soiree', 'conference', 'atelier', 'exposition', 'debat', 'projection', 'rencontre'];
+
+Future<void> _redeemCodeDialog(BuildContext context, WidgetRef ref) async {
+  final codeController = TextEditingController();
+  final code = await showDialog<String>(
+    context: context,
+    builder: (dialogContext) => AlertDialog(
+      title: Text(context.l10n.redeemInviteCodeButton),
+      content: TextField(
+        controller: codeController,
+        textCapitalization: TextCapitalization.characters,
+        decoration: InputDecoration(labelText: context.l10n.redeemInviteCodeHint),
+      ),
+      actions: [
+        TextButton(onPressed: () => Navigator.of(dialogContext).pop(), child: Text(context.l10n.cancelButton)),
+        TextButton(
+          onPressed: () => Navigator.of(dialogContext).pop(codeController.text.trim()),
+          child: Text(context.l10n.validateButton),
+        ),
+      ],
+    ),
+  );
+  if (code == null || code.isEmpty || !context.mounted) return;
+  try {
+    await ref.read(communauteControllerProvider).redeemEventInviteCode(code);
+    if (context.mounted) {
+      ScaffoldMessenger.of(context)
+          .showSnackBar(SnackBar(content: Text(context.l10n.redeemInviteCodeSuccess)));
+    }
+  } catch (_) {
+    if (context.mounted) {
+      ScaffoldMessenger.of(context)
+          .showSnackBar(SnackBar(content: Text(context.l10n.redeemInviteCodeFailed)));
+    }
+  }
+}
 
 class _SectionTitle extends StatelessWidget {
   const _SectionTitle(this.text);

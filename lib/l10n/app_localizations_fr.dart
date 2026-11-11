@@ -1406,4 +1406,84 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get confirmAdultDialogAccept => 'Oui, je confirme';
+
+  @override
+  String get cancelParticipationButton => 'Annuler ma participation';
+
+  @override
+  String get cancelParticipationConfirmTitle => 'Annuler ta participation ?';
+
+  @override
+  String get cancelParticipationConfirmBody =>
+      'Si une personne attend sur liste d\'attente, elle prendra automatiquement ta place.';
+
+  @override
+  String get participationCancelledSuccess => 'Participation annulée.';
+
+  @override
+  String get pendingRequestNotice =>
+      'Ta demande est en attente de validation par l\'organisateur.';
+
+  @override
+  String get waitlistedNotice =>
+      'Tu es sur liste d\'attente — tu seras prévenu·e si une place se libère.';
+
+  @override
+  String get shareEventPrivatelyButton => 'Partager en privé';
+
+  @override
+  String shareEventCodeMessage(String code) {
+    return 'Rejoins mon événement sur MERUT avec ce code d\'invitation : $code';
+  }
+
+  @override
+  String get shareCodeFetchFailed =>
+      'Impossible de récupérer le code, réessaie.';
+
+  @override
+  String get redeemInviteCodeButton => 'J\'ai un code d\'invitation';
+
+  @override
+  String get redeemInviteCodeHint => 'Code reçu de l\'organisateur';
+
+  @override
+  String get redeemInviteCodeSuccess =>
+      'Invitation acceptée ! Tu peux maintenant demander à participer.';
+
+  @override
+  String get redeemInviteCodeFailed => 'Code invalide ou expiré.';
+
+  @override
+  String get recurrenceLabel => 'Répéter cet événement';
+
+  @override
+  String get recurrenceNone => 'Ne pas répéter';
+
+  @override
+  String get eventRecurrenceWeekly => 'Chaque semaine';
+
+  @override
+  String get eventRecurrenceMonthly => 'Chaque mois';
+
+  @override
+  String get recurrenceCountLabel =>
+      'Nombre d\'occurrences supplémentaires (1 à 6)';
+
+  @override
+  String get recurrenceSeriesTitle => 'Autres dates de cette série';
+
+  @override
+  String get tipCategoryCulture => 'Culture';
+
+  @override
+  String get tipCategoryRelation => 'Relation';
+
+  @override
+  String get tipCategorySecurite => 'Sécurité';
+
+  @override
+  String get tipCategoryCommunaute => 'Communauté';
+
+  @override
+  String get noTipsYet => 'Aucun conseil publié pour le moment.';
 }

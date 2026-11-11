@@ -486,5 +486,34 @@
   "confirmAdultDialogTitle": "Confirmation d'âge",
   "confirmAdultDialogBody": "MERUT est réservé aux personnes de 18 ans et plus. Confirmes-tu avoir 18 ans ou plus ?",
   "confirmAdultDialogDecline": "Non, annuler",
-  "confirmAdultDialogAccept": "Oui, je confirme"
+  "confirmAdultDialogAccept": "Oui, je confirme",
+
+  "cancelParticipationButton": "Annuler ma participation",
+  "cancelParticipationConfirmTitle": "Annuler ta participation ?",
+  "cancelParticipationConfirmBody": "Si une personne attend sur liste d'attente, elle prendra automatiquement ta place.",
+  "participationCancelledSuccess": "Participation annulée.",
+  "pendingRequestNotice": "Ta demande est en attente de validation par l'organisateur.",
+  "waitlistedNotice": "Tu es sur liste d'attente — tu seras prévenu·e si une place se libère.",
+
+  "shareEventPrivatelyButton": "Partager en privé",
+  "shareEventCodeMessage": "Rejoins mon événement sur MERUT avec ce code d'invitation : {code}",
+  "@shareEventCodeMessage": {"placeholders": {"code": {"type": "String"}}},
+  "shareCodeFetchFailed": "Impossible de récupérer le code, réessaie.",
+  "redeemInviteCodeButton": "J'ai un code d'invitation",
+  "redeemInviteCodeHint": "Code reçu de l'organisateur",
+  "redeemInviteCodeSuccess": "Invitation acceptée ! Tu peux maintenant demander à participer.",
+  "redeemInviteCodeFailed": "Code invalide ou expiré.",
+
+  "recurrenceLabel": "Répéter cet événement",
+  "recurrenceNone": "Ne pas répéter",
+  "eventRecurrenceWeekly": "Chaque semaine",
+  "eventRecurrenceMonthly": "Chaque mois",
+  "recurrenceCountLabel": "Nombre d'occurrences supplémentaires (1 à 6)",
+  "recurrenceSeriesTitle": "Autres dates de cette série",
+
+  "tipCategoryCulture": "Culture",
+  "tipCategoryRelation": "Relation",
+  "tipCategorySecurite": "Sécurité",
+  "tipCategoryCommunaute": "Communauté",
+  "noTipsYet": "Aucun conseil publié pour le moment."
 }

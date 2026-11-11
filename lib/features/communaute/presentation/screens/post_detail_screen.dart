@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:qr_flutter/qr_flutter.dart';
+import 'package:share_plus/share_plus.dart';
 
 import '../../../../core/providers/firebase_providers.dart';
 import '../../../../core/theme/app_theme.dart';
@@ -179,8 +180,30 @@ class _PostDetailScreenState extends ConsumerState<PostDetailScreen> {
                           label: Text(context.l10n.reportImmediateDanger,
                               style: const TextStyle(color: AppColors.accent)),
                         ),
+                        const SizedBox(height: 8),
+                        _CancelParticipationButton(postId: widget.post.id),
                         const SizedBox(height: 16),
                         _ReviewSection(postId: widget.post.id),
+                      ],
+                    );
+                  }
+                  if (status == 'pending') {
+                    return Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(context.l10n.pendingRequestNotice, style: const TextStyle(color: AppColors.muted)),
+                        const SizedBox(height: 8),
+                        _CancelParticipationButton(postId: widget.post.id),
+                      ],
+                    );
+                  }
+                  if (status == 'waitlisted') {
+                    return Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(context.l10n.waitlistedNotice, style: const TextStyle(color: AppColors.muted)),
+                        const SizedBox(height: 8),
+                        _CancelParticipationButton(postId: widget.post.id),
                       ],
                     );
                   }
@@ -192,6 +215,13 @@ class _PostDetailScreenState extends ConsumerState<PostDetailScreen> {
             if (widget.post.isEvent) ...[
               const SizedBox(height: 20),
               _LinkedEventsSection(parentEventId: widget.post.id),
+            ],
+            if (widget.post.recurrenceGroupId != null) ...[
+              const SizedBox(height: 20),
+              _RecurrenceSeriesSection(
+                recurrenceGroupId: widget.post.recurrenceGroupId!,
+                currentPostId: widget.post.id,
+              ),
             ],
             if (widget.post.isEvent && !isOrganizer) ...[
               const SizedBox(height: 20),
@@ -249,6 +279,77 @@ class _TicketCard extends StatelessWidget {
           Text(code, style: const TextStyle(letterSpacing: 2, fontWeight: FontWeight.bold)),
         ],
       ),
+    );
+  }
+}
+
+class _CancelParticipationButton extends ConsumerWidget {
+  const _CancelParticipationButton({required this.postId});
+  final String postId;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    return TextButton(
+      onPressed: () async {
+        final confirmed = await showDialog<bool>(
+          context: context,
+          builder: (dialogContext) => AlertDialog(
+            title: Text(context.l10n.cancelParticipationConfirmTitle),
+            content: Text(context.l10n.cancelParticipationConfirmBody),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.of(dialogContext).pop(false),
+                child: Text(context.l10n.cancelButton),
+              ),
+              TextButton(
+                onPressed: () => Navigator.of(dialogContext).pop(true),
+                style: TextButton.styleFrom(foregroundColor: AppColors.accent),
+                child: Text(context.l10n.cancelParticipationButton),
+              ),
+            ],
+          ),
+        );
+        if (confirmed != true) return;
+        await ref.read(communauteControllerProvider).cancelParticipation(postId);
+        if (context.mounted) {
+          ScaffoldMessenger.of(context)
+              .showSnackBar(SnackBar(content: Text(context.l10n.participationCancelledSuccess)));
+        }
+      },
+      style: TextButton.styleFrom(foregroundColor: AppColors.accent),
+      child: Text(context.l10n.cancelParticipationButton),
+    );
+  }
+}
+
+class _RecurrenceSeriesSection extends ConsumerWidget {
+  const _RecurrenceSeriesSection({required this.recurrenceGroupId, required this.currentPostId});
+  final String recurrenceGroupId;
+  final String currentPostId;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final series = (ref.watch(recurrenceSeriesProvider(recurrenceGroupId)).value ?? [])
+        .where((p) => p.id != currentPostId)
+        .toList();
+    if (series.isEmpty) return const SizedBox.shrink();
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(context.l10n.recurrenceSeriesTitle, style: const TextStyle(fontWeight: FontWeight.bold)),
+        const SizedBox(height: 8),
+        for (final e in series)
+          ListTile(
+            contentPadding: EdgeInsets.zero,
+            title: Text(e.title ?? e.text, maxLines: 1, overflow: TextOverflow.ellipsis),
+            subtitle: e.eventDate != null
+                ? Text('${e.eventDate!.day}/${e.eventDate!.month}/${e.eventDate!.year}')
+                : null,
+            onTap: () => Navigator.of(context).push(
+              MaterialPageRoute(builder: (_) => PostDetailScreen(post: e)),
+            ),
+          ),
+      ],
     );
   }
 }
@@ -404,11 +505,16 @@ class _OrganizerEventControls extends ConsumerWidget {
         spacing: 10,
         runSpacing: 8,
         children: [
-          if (post.accessMode == 'sur_invitation')
+          if (post.accessMode == 'sur_invitation') ...[
             OutlinedButton(
               onPressed: () => _inviteDialog(context, ref, post.id),
               child: Text(context.l10n.inviteMemberButton),
             ),
+            OutlinedButton(
+              onPressed: () => _sharePrivately(context, ref, post.id),
+              child: Text(context.l10n.shareEventPrivatelyButton),
+            ),
+          ],
           OutlinedButton(
             onPressed: () => ref.read(communauteControllerProvider).updateEventState(post.id, 'termine'),
             child: Text(context.l10n.markEventFinishedButton),
@@ -420,6 +526,21 @@ class _OrganizerEventControls extends ConsumerWidget {
         ],
       ),
     );
+  }
+
+  Future<void> _sharePrivately(BuildContext context, WidgetRef ref, String postId) async {
+    try {
+      final code = await ref.read(communauteControllerProvider).getEventShareCode(postId);
+      if (!context.mounted) return;
+      await SharePlus.instance.share(
+        ShareParams(text: context.l10n.shareEventCodeMessage(code)),
+      );
+    } catch (_) {
+      if (context.mounted) {
+        ScaffoldMessenger.of(context)
+            .showSnackBar(SnackBar(content: Text(context.l10n.shareCodeFetchFailed)));
+      }
+    }
   }
 
   void _inviteDialog(BuildContext context, WidgetRef ref, String postId) {

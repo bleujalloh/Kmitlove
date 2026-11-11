@@ -1394,4 +1394,83 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get confirmAdultDialogAccept => 'Yes, I confirm';
+
+  @override
+  String get cancelParticipationButton => 'Cancel my participation';
+
+  @override
+  String get cancelParticipationConfirmTitle => 'Cancel your participation?';
+
+  @override
+  String get cancelParticipationConfirmBody =>
+      'If someone is on the waitlist, they will automatically take your place.';
+
+  @override
+  String get participationCancelledSuccess => 'Participation cancelled.';
+
+  @override
+  String get pendingRequestNotice =>
+      'Your request is awaiting the organizer\'s approval.';
+
+  @override
+  String get waitlistedNotice =>
+      'You\'re on the waitlist — you\'ll be notified if a spot opens up.';
+
+  @override
+  String get shareEventPrivatelyButton => 'Share privately';
+
+  @override
+  String shareEventCodeMessage(String code) {
+    return 'Join my event on MERUT with this invite code: $code';
+  }
+
+  @override
+  String get shareCodeFetchFailed => 'Couldn\'t retrieve the code, try again.';
+
+  @override
+  String get redeemInviteCodeButton => 'I have an invite code';
+
+  @override
+  String get redeemInviteCodeHint => 'Code received from the organizer';
+
+  @override
+  String get redeemInviteCodeSuccess =>
+      'Invitation accepted! You can now request to participate.';
+
+  @override
+  String get redeemInviteCodeFailed => 'Invalid or expired code.';
+
+  @override
+  String get recurrenceLabel => 'Repeat this event';
+
+  @override
+  String get recurrenceNone => 'Don\'t repeat';
+
+  @override
+  String get eventRecurrenceWeekly => 'Every week';
+
+  @override
+  String get eventRecurrenceMonthly => 'Every month';
+
+  @override
+  String get recurrenceCountLabel =>
+      'Number of additional occurrences (1 to 6)';
+
+  @override
+  String get recurrenceSeriesTitle => 'Other dates in this series';
+
+  @override
+  String get tipCategoryCulture => 'Culture';
+
+  @override
+  String get tipCategoryRelation => 'Relationships';
+
+  @override
+  String get tipCategorySecurite => 'Safety';
+
+  @override
+  String get tipCategoryCommunaute => 'Community';
+
+  @override
+  String get noTipsYet => 'No tips published yet.';
 }

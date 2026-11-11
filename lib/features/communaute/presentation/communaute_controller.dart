@@ -76,6 +76,17 @@ final eventReviewsProvider = StreamProvider.family<List<Map<String, dynamic>>, S
   return ref.watch(communauteRepositoryProvider).watchReviews(postId);
 });
 
+/// Autres dates d'une série d'événements récurrents (spec section 10).
+final recurrenceSeriesProvider =
+    StreamProvider.family<List<CommunityPost>, String>((ref, recurrenceGroupId) {
+  return ref.watch(communauteRepositoryProvider).watchRecurrenceSeries(recurrenceGroupId);
+});
+
+/// Conseils (onglet "Conseils" de la Communauté) — contenu éditorial admin.
+final communityTipsProvider = StreamProvider<List<Map<String, dynamic>>>((ref) {
+  return ref.watch(communauteRepositoryProvider).watchTips();
+});
+
 /// Affiche d'un événement (URL de téléchargement depuis son chemin
 /// Storage) — même raisonnement de mise en cache par chemin que les
 /// autres photos de l'app (profil/presentation/photo_controller.dart).
@@ -105,6 +116,8 @@ class CommunauteController {
     String? posterStoragePath,
     String? accessMode,
     String? parentEventId,
+    String? recurrence,
+    int? recurrenceCount,
   }) {
     return ref.read(communauteRepositoryProvider).createPost(
           type: type,
@@ -124,7 +137,21 @@ class CommunauteController {
           posterStoragePath: posterStoragePath,
           accessMode: accessMode,
           parentEventId: parentEventId,
+          recurrence: recurrence,
+          recurrenceCount: recurrenceCount,
         );
+  }
+
+  Future<void> cancelParticipation(String postId) {
+    return ref.read(communauteRepositoryProvider).cancelParticipation(postId);
+  }
+
+  Future<String> getEventShareCode(String postId) {
+    return ref.read(communauteRepositoryProvider).getEventShareCode(postId);
+  }
+
+  Future<String> redeemEventInviteCode(String code) {
+    return ref.read(communauteRepositoryProvider).redeemEventInviteCode(code);
   }
 
   Future<String> uploadEventPoster(File file) async {

@@ -67,7 +67,11 @@ export const requestParticipation = onCall({ region: REGION }, async (request) =
 
   const result = await db.runTransaction(async (tx) => {
     const [freshPostSnap, existingSnap] = await Promise.all([tx.get(postRef), tx.get(participationRef)]);
-    if (existingSnap.exists) {
+    // Une participation annulée par le membre lui-même (cancelParticipation.ts)
+    // ne doit pas bloquer une nouvelle demande pour le même événement —
+    // sans cette exception, personne ne pourrait plus jamais revenir sur
+    // un événement qu'il a quitté une fois (trouvé par revue de code).
+    if (existingSnap.exists && existingSnap.data()?.status !== "cancelled") {
       throw new HttpsError("already-exists", "Demande déjà envoyée.");
     }
     const freshPost = freshPostSnap.data()!;

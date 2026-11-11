@@ -33,6 +33,8 @@ const _eventCategories = [
 
 const _eventFormats = ['presentiel', 'en_ligne'];
 const _privateAccessModes = ['sur_demande', 'sur_invitation'];
+const _recurrenceFrequencies = ['hebdomadaire', 'mensuel'];
+const _recurrenceMaxOccurrences = 6;
 
 class CreatePostScreen extends ConsumerStatefulWidget {
   const CreatePostScreen({super.key, this.organizerMode = false});
@@ -62,6 +64,8 @@ class _CreatePostScreenState extends ConsumerState<CreatePostScreen> {
   String _format = _eventFormats.first;
   String _accessMode = _privateAccessModes.first;
   String? _parentEventId;
+  String? _recurrence;
+  int _recurrenceCount = 1;
   File? _posterFile;
   // Chemin déjà envoyé pour _posterFile — évite de ré-uploader (et de
   // laisser un doublon orphelin) si l'utilisateur corrige un champ et
@@ -144,6 +148,8 @@ class _CreatePostScreenState extends ConsumerState<CreatePostScreen> {
             posterStoragePath: posterStoragePath,
             accessMode: _isPrivateEvent ? _accessMode : null,
             parentEventId: _parentEventId,
+            recurrence: _isEvent ? _recurrence : null,
+            recurrenceCount: _isEvent && _recurrence != null ? _recurrenceCount : null,
           );
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
@@ -387,6 +393,39 @@ class _CreatePostScreenState extends ConsumerState<CreatePostScreen> {
                         .map((e) => DropdownMenuItem(value: e.id, child: Text(e.title ?? e.text))),
                   ],
                   onChanged: (v) => setState(() => _parentEventId = v),
+                ),
+              ],
+              const SizedBox(height: 14),
+              DropdownButtonFormField<String?>(
+                initialValue: _recurrence,
+                decoration: InputDecoration(labelText: context.l10n.recurrenceLabel),
+                items: [
+                  DropdownMenuItem(value: null, child: Text(context.l10n.recurrenceNone)),
+                  ..._recurrenceFrequencies.map(
+                    (f) => DropdownMenuItem(value: f, child: Text(eventRecurrenceLabel(f, context.l10n))),
+                  ),
+                ],
+                onChanged: (v) => setState(() => _recurrence = v),
+              ),
+              if (_recurrence != null) ...[
+                const SizedBox(height: 14),
+                Row(
+                  children: [
+                    Expanded(child: Text(context.l10n.recurrenceCountLabel)),
+                    IconButton(
+                      icon: const Icon(Icons.remove_circle_outline),
+                      onPressed: _recurrenceCount > 1
+                          ? () => setState(() => _recurrenceCount -= 1)
+                          : null,
+                    ),
+                    Text('$_recurrenceCount'),
+                    IconButton(
+                      icon: const Icon(Icons.add_circle_outline),
+                      onPressed: _recurrenceCount < _recurrenceMaxOccurrences
+                          ? () => setState(() => _recurrenceCount += 1)
+                          : null,
+                    ),
+                  ],
                 ),
               ],
               const SizedBox(height: 14),

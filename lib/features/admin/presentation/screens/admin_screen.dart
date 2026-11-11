@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../../core/theme/app_theme.dart';
 import '../../../auth/presentation/auth_controller.dart';
+import '../../../communaute/presentation/communaute_controller.dart';
 import '../admin_controller.dart';
 
 /// Espace admin (cahier des charges section 6) : signalements (avec
@@ -17,7 +18,7 @@ class AdminScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     return DefaultTabController(
-      length: 7,
+      length: 8,
       child: Scaffold(
         appBar: AppBar(
           title: const Text('Administration'),
@@ -64,6 +65,7 @@ class AdminScreen extends ConsumerWidget {
               Tab(text: 'Identité'),
               Tab(text: 'Utilisateurs'),
               Tab(text: 'Journal'),
+              Tab(text: 'Conseils'),
             ],
           ),
         ),
@@ -76,6 +78,7 @@ class AdminScreen extends ConsumerWidget {
             _IdentityTab(),
             _UsersTab(),
             _ActionLogTab(),
+            _TipsManagementTab(),
           ],
         ),
       ),
@@ -571,6 +574,113 @@ class _UsersTab extends ConsumerWidget {
           ),
         ),
       ],
+    );
+  }
+}
+
+const _tipCategories = ['culture', 'relation', 'securite', 'communaute'];
+
+/// Contenu éditorial de l'onglet "Conseils" de la Communauté (maquette
+/// visuelle validée le 11/11/2026) — rédigé exclusivement ici, jamais par
+/// les membres (functions/src/admin/manageTips.ts).
+class _TipsManagementTab extends ConsumerWidget {
+  const _TipsManagementTab();
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final tipsAsync = ref.watch(communityTipsProvider);
+    return Scaffold(
+      floatingActionButton: FloatingActionButton(
+        backgroundColor: AppColors.accent,
+        onPressed: () => _createTipDialog(context, ref),
+        child: const Icon(Icons.add, color: AppColors.noirProfond),
+      ),
+      body: tipsAsync.when(
+        loading: () => const Center(child: CircularProgressIndicator()),
+        error: (e, st) => const Center(child: Text('Impossible de charger les conseils.')),
+        data: (tips) {
+          if (tips.isEmpty) return const Center(child: Text('Aucun conseil publié.'));
+          return ListView.separated(
+            padding: const EdgeInsets.all(16),
+            itemCount: tips.length,
+            separatorBuilder: (_, _) => const Divider(),
+            itemBuilder: (context, i) {
+              final tip = tips[i];
+              return Padding(
+                padding: const EdgeInsets.symmetric(vertical: 8),
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text('${tip['title']} (${tip['category']})',
+                              style: const TextStyle(fontWeight: FontWeight.bold)),
+                          const SizedBox(height: 4),
+                          Text(tip['body'] as String? ?? ''),
+                        ],
+                      ),
+                    ),
+                    TextButton(
+                      onPressed: () =>
+                          ref.read(adminRepositoryProvider).deleteTip(tip['id'] as String),
+                      style: TextButton.styleFrom(foregroundColor: AppColors.accent),
+                      child: const Text('Supprimer'),
+                    ),
+                  ],
+                ),
+              );
+            },
+          );
+        },
+      ),
+    );
+  }
+
+  void _createTipDialog(BuildContext context, WidgetRef ref) {
+    final titleController = TextEditingController();
+    final bodyController = TextEditingController();
+    String category = _tipCategories.first;
+    showDialog(
+      context: context,
+      builder: (dialogContext) => StatefulBuilder(
+        builder: (dialogContext, setDialogState) => AlertDialog(
+          title: const Text('Nouveau conseil'),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              TextField(controller: titleController, decoration: const InputDecoration(labelText: 'Titre')),
+              TextField(
+                controller: bodyController,
+                maxLines: 4,
+                decoration: const InputDecoration(labelText: 'Contenu'),
+              ),
+              DropdownButtonFormField<String>(
+                initialValue: category,
+                decoration: const InputDecoration(labelText: 'Catégorie'),
+                items: _tipCategories.map((c) => DropdownMenuItem(value: c, child: Text(c))).toList(),
+                onChanged: (v) => setDialogState(() => category = v ?? category),
+              ),
+            ],
+          ),
+          actions: [
+            TextButton(onPressed: () => Navigator.of(dialogContext).pop(), child: const Text('Annuler')),
+            TextButton(
+              onPressed: () async {
+                if (titleController.text.trim().isEmpty || bodyController.text.trim().isEmpty) return;
+                Navigator.of(dialogContext).pop();
+                await ref.read(adminRepositoryProvider).createTip(
+                      titleController.text.trim(),
+                      bodyController.text.trim(),
+                      category,
+                    );
+              },
+              child: const Text('Publier'),
+            ),
+          ],
+        ),
+      ),
     );
   }
 }

@@ -2647,6 +2647,150 @@ abstract class AppLocalizations {
   /// In fr, this message translates to:
   /// **'Oui, je confirme'**
   String get confirmAdultDialogAccept;
+
+  /// No description provided for @cancelParticipationButton.
+  ///
+  /// In fr, this message translates to:
+  /// **'Annuler ma participation'**
+  String get cancelParticipationButton;
+
+  /// No description provided for @cancelParticipationConfirmTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Annuler ta participation ?'**
+  String get cancelParticipationConfirmTitle;
+
+  /// No description provided for @cancelParticipationConfirmBody.
+  ///
+  /// In fr, this message translates to:
+  /// **'Si une personne attend sur liste d\'attente, elle prendra automatiquement ta place.'**
+  String get cancelParticipationConfirmBody;
+
+  /// No description provided for @participationCancelledSuccess.
+  ///
+  /// In fr, this message translates to:
+  /// **'Participation annulée.'**
+  String get participationCancelledSuccess;
+
+  /// No description provided for @pendingRequestNotice.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ta demande est en attente de validation par l\'organisateur.'**
+  String get pendingRequestNotice;
+
+  /// No description provided for @waitlistedNotice.
+  ///
+  /// In fr, this message translates to:
+  /// **'Tu es sur liste d\'attente — tu seras prévenu·e si une place se libère.'**
+  String get waitlistedNotice;
+
+  /// No description provided for @shareEventPrivatelyButton.
+  ///
+  /// In fr, this message translates to:
+  /// **'Partager en privé'**
+  String get shareEventPrivatelyButton;
+
+  /// No description provided for @shareEventCodeMessage.
+  ///
+  /// In fr, this message translates to:
+  /// **'Rejoins mon événement sur MERUT avec ce code d\'invitation : {code}'**
+  String shareEventCodeMessage(String code);
+
+  /// No description provided for @shareCodeFetchFailed.
+  ///
+  /// In fr, this message translates to:
+  /// **'Impossible de récupérer le code, réessaie.'**
+  String get shareCodeFetchFailed;
+
+  /// No description provided for @redeemInviteCodeButton.
+  ///
+  /// In fr, this message translates to:
+  /// **'J\'ai un code d\'invitation'**
+  String get redeemInviteCodeButton;
+
+  /// No description provided for @redeemInviteCodeHint.
+  ///
+  /// In fr, this message translates to:
+  /// **'Code reçu de l\'organisateur'**
+  String get redeemInviteCodeHint;
+
+  /// No description provided for @redeemInviteCodeSuccess.
+  ///
+  /// In fr, this message translates to:
+  /// **'Invitation acceptée ! Tu peux maintenant demander à participer.'**
+  String get redeemInviteCodeSuccess;
+
+  /// No description provided for @redeemInviteCodeFailed.
+  ///
+  /// In fr, this message translates to:
+  /// **'Code invalide ou expiré.'**
+  String get redeemInviteCodeFailed;
+
+  /// No description provided for @recurrenceLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Répéter cet événement'**
+  String get recurrenceLabel;
+
+  /// No description provided for @recurrenceNone.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ne pas répéter'**
+  String get recurrenceNone;
+
+  /// No description provided for @eventRecurrenceWeekly.
+  ///
+  /// In fr, this message translates to:
+  /// **'Chaque semaine'**
+  String get eventRecurrenceWeekly;
+
+  /// No description provided for @eventRecurrenceMonthly.
+  ///
+  /// In fr, this message translates to:
+  /// **'Chaque mois'**
+  String get eventRecurrenceMonthly;
+
+  /// No description provided for @recurrenceCountLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Nombre d\'occurrences supplémentaires (1 à 6)'**
+  String get recurrenceCountLabel;
+
+  /// No description provided for @recurrenceSeriesTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Autres dates de cette série'**
+  String get recurrenceSeriesTitle;
+
+  /// No description provided for @tipCategoryCulture.
+  ///
+  /// In fr, this message translates to:
+  /// **'Culture'**
+  String get tipCategoryCulture;
+
+  /// No description provided for @tipCategoryRelation.
+  ///
+  /// In fr, this message translates to:
+  /// **'Relation'**
+  String get tipCategoryRelation;
+
+  /// No description provided for @tipCategorySecurite.
+  ///
+  /// In fr, this message translates to:
+  /// **'Sécurité'**
+  String get tipCategorySecurite;
+
+  /// No description provided for @tipCategoryCommunaute.
+  ///
+  /// In fr, this message translates to:
+  /// **'Communauté'**
+  String get tipCategoryCommunaute;
+
+  /// No description provided for @noTipsYet.
+  ///
+  /// In fr, this message translates to:
+  /// **'Aucun conseil publié pour le moment.'**
+  String get noTipsYet;
 }
 
 class _AppLocalizationsDelegate

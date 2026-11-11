@@ -1,5 +1,6 @@
 import { onCall, HttpsError } from "firebase-functions/v2/https";
 import { getFirestore, FieldValue } from "firebase-admin/firestore";
+import * as crypto from "crypto";
 
 import {
   REGION,
@@ -8,6 +9,8 @@ import {
   EVENT_CATEGORIES,
   EVENT_FORMATS,
   EVENT_ACCESS_MODES,
+  EVENT_RECURRENCE_FREQUENCIES,
+  EVENT_RECURRENCE_MAX_OCCURRENCES,
 } from "../config";
 
 type PostType =
@@ -59,7 +62,17 @@ interface CreatePostData {
   // uniquement à un événement DÉJÀ publié par le même organisateur (pas
   // n'importe quel id deviné).
   parentEventId?: string;
+  // Événements récurrents (spec section 10, complétée le 11/11/2026) :
+  // périodicité fermée + nombre d'occurrences SUPPLÉMENTAIRES (en plus
+  // de celle créée par cet appel), plafonné côté serveur.
+  recurrence?: string;
+  recurrenceCount?: number;
 }
+
+const RECURRENCE_INTERVAL_DAYS: Record<string, number> = {
+  hebdomadaire: 7,
+  mensuel: 30,
+};
 
 function containsFlaggedKeyword(text: string): boolean {
   const lower = text.toLowerCase();
@@ -171,6 +184,22 @@ export const createCommunityPost = onCall({ region: REGION }, async (request) =>
         throw new HttpsError("invalid-argument", "Événement principal invalide.");
       }
     }
+
+    if (data.recurrence) {
+      if (!EVENT_RECURRENCE_FREQUENCIES.includes(data.recurrence as never)) {
+        throw new HttpsError("invalid-argument", "Périodicité invalide.");
+      }
+      if (
+        !Number.isInteger(data.recurrenceCount) ||
+        data.recurrenceCount! < 1 ||
+        data.recurrenceCount! > EVENT_RECURRENCE_MAX_OCCURRENCES
+      ) {
+        throw new HttpsError(
+          "invalid-argument",
+          `Nombre d'occurrences invalide (1 à ${EVENT_RECURRENCE_MAX_OCCURRENCES}).`,
+        );
+      }
+    }
   }
 
   if (isAnnonce) {
@@ -217,47 +246,94 @@ export const createCommunityPost = onCall({ region: REGION }, async (request) =>
     status = containsFlaggedKeyword(data.text) ? "pending_review" : "published";
   }
 
-  const postRef = db.collection("community_posts").doc();
-  await postRef.set({
-    type: data.type,
-    authorUid: uid,
-    title: data.title ?? null,
-    text: data.text.trim(),
-    eventDate: data.eventDate ?? null,
-    eventEndDate: data.eventEndDate ?? null,
-    capacity: data.capacity ?? null,
-    participantsCount: 0,
-    status,
-    createdAt: FieldValue.serverTimestamp(),
-    // Fiche événement (spec Communauté section 6) — null pour les types
-    // qui ne sont pas des événements.
-    category,
-    format,
-    city: isEvent ? data.city!.trim() : null,
-    country: isEvent ? data.country!.trim() : null,
-    ageMinimum: data.ageMinimum ?? null,
-    conditions: data.conditions?.trim() || null,
-    contactChannel: data.contactChannel?.trim() || null,
-    posterStoragePath: data.posterStoragePath ?? null,
-    accessMode,
-    parentEventId: data.parentEventId ?? null,
-    // Statut fixé par l'organisateur, distinct du statut de modération
-    // (spec section 6 : confirmé/complet/annulé/terminé) — "complet" se
-    // déduit toujours de participantsCount/capacity, jamais stocké ici.
-    eventState: isEvent ? "prevu" : null,
-  });
+  const recurrenceFrequency = isEvent && data.recurrence ? data.recurrence : null;
+  const intervalDays = recurrenceFrequency ? RECURRENCE_INTERVAL_DAYS[recurrenceFrequency] : 0;
 
-  if (needsPreciseLocation) {
-    await postRef.collection("private").doc("location").set({
-      preciseLocation: data.preciseLocation!.trim(),
+  const postRef = db.collection("community_posts").doc();
+
+  function writeOccurrence(
+    tx: FirebaseFirestore.Transaction,
+    ref: FirebaseFirestore.DocumentReference,
+    occurrenceEventDate: string | null,
+    occurrenceEventEndDate: string | null,
+  ): void {
+    tx.set(ref, {
+      type: data.type,
+      authorUid: uid,
+      title: data.title ?? null,
+      text: data.text.trim(),
+      eventDate: occurrenceEventDate,
+      eventEndDate: occurrenceEventEndDate,
+      capacity: data.capacity ?? null,
+      participantsCount: 0,
+      status,
+      createdAt: FieldValue.serverTimestamp(),
+      // Fiche événement (spec Communauté section 6) — null pour les types
+      // qui ne sont pas des événements.
+      category,
+      format,
+      city: isEvent ? data.city!.trim() : null,
+      country: isEvent ? data.country!.trim() : null,
+      ageMinimum: data.ageMinimum ?? null,
+      conditions: data.conditions?.trim() || null,
+      contactChannel: data.contactChannel?.trim() || null,
+      posterStoragePath: data.posterStoragePath ?? null,
+      accessMode,
+      parentEventId: data.parentEventId ?? null,
+      // Statut fixé par l'organisateur, distinct du statut de modération
+      // (spec section 6 : confirmé/complet/annulé/terminé) — "complet" se
+      // déduit toujours de participantsCount/capacity, jamais stocké ici.
+      eventState: isEvent ? "prevu" : null,
+      // Série récurrente (spec section 10) : même recurrenceGroupId pour
+      // toutes les occurrences (l'id de la première), null sinon — permet
+      // au client de retrouver les autres dates de la même série.
+      recurrenceGroupId: recurrenceFrequency ? postRef.id : null,
+      recurrenceFrequency,
     });
+
+    if (needsPreciseLocation) {
+      tx.set(ref.collection("private").doc("location"), {
+        preciseLocation: data.preciseLocation!.trim(),
+      });
+    }
+    if (accessMode === "sur_invitation") {
+      // Jamais sur le document public : la liste des invités révélerait
+      // qui est convié à un événement privé à n'importe quel membre
+      // connecté qui le lirait (règlement permanent section 6). Un code
+      // de partage distinct par occurrence (partage privé, spec section
+      // 2) permet à l'organisateur de transmettre une invitation sans
+      // rendre l'événement public ni connaître l'uid du destinataire à
+      // l'avance (redeemEventInviteCode.ts).
+      const shareCode = crypto.randomBytes(5).toString("hex").toUpperCase();
+      tx.set(ref.collection("private").doc("invitations"), { invitedUids, shareCode });
+      tx.set(db.collection("event_invite_codes").doc(shareCode), { postId: ref.id });
+    }
   }
-  if (accessMode === "sur_invitation") {
-    // Jamais sur le document public : la liste des invités révélerait
-    // qui est convié à un événement privé à n'importe quel membre
-    // connecté qui le lirait (règlement permanent section 6).
-    await postRef.collection("private").doc("invitations").set({ invitedUids });
-  }
+
+  // Toutes les occurrences d'une série récurrente sont écrites dans UNE
+  // seule transaction (trouvé par revue de code : des écritures
+  // séquentielles indépendantes pouvaient laisser une série à moitié
+  // créée, sans retour en arrière, si la fonction échouait au milieu).
+  // Largement sous la limite de 500 écritures d'une transaction Firestore
+  // (au plus 7 occurrences × 4 écritures chacune).
+  await db.runTransaction(async (tx) => {
+    writeOccurrence(tx, postRef, data.eventDate ?? null, data.eventEndDate ?? null);
+
+    if (recurrenceFrequency && data.recurrenceCount) {
+      const baseStart = Date.parse(data.eventDate!);
+      const baseEnd = data.eventEndDate ? Date.parse(data.eventEndDate) : null;
+      for (let i = 1; i <= data.recurrenceCount; i += 1) {
+        const offsetMs = intervalDays * i * 24 * 60 * 60 * 1000;
+        const occurrenceRef = db.collection("community_posts").doc();
+        writeOccurrence(
+          tx,
+          occurrenceRef,
+          new Date(baseStart + offsetMs).toISOString(),
+          baseEnd !== null ? new Date(baseEnd + offsetMs).toISOString() : null,
+        );
+      }
+    }
+  });
 
   return { postId: postRef.id, status };
 });

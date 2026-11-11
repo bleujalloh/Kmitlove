@@ -114,6 +114,18 @@ class AdminRepository {
         .call({'requestId': requestId, 'approve': approve});
   }
 
+  /// Contenu éditorial de l'onglet "Conseils" (maquette visuelle validée
+  /// le 11/11/2026) — rédigé exclusivement par un administrateur.
+  Future<void> createTip(String title, String body, String category) {
+    return _functions
+        .httpsCallable('adminCreateTip')
+        .call({'title': title, 'body': body, 'category': category});
+  }
+
+  Future<void> deleteTip(String tipId) {
+    return _functions.httpsCallable('adminDeleteTip').call({'tipId': tipId});
+  }
+
   Future<List<Map<String, dynamic>>> listActionLogs() async {
     final result = await _functions.httpsCallable('adminListActionLogs').call();
     final data = result.data as Map<Object?, Object?>;

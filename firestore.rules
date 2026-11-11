@@ -217,6 +217,24 @@ service cloud.firestore {
       }
     }
 
+    // Table de correspondance code → postId pour le partage privé d'une
+    // invitation (spec Communauté section 2, complétée le 11/11/2026) :
+    // jamais lue directement — seule redeemEventInviteCode y accède,
+    // avec les droits serveur, pour ajouter l'uid de l'appelant à la
+    // liste d'invités de l'événement visé.
+    match /event_invite_codes/{code} {
+      allow read, write: if false;
+    }
+
+    // Conseils (onglet "Conseils" de la Communauté, contenu éditorial
+    // rédigé par un administrateur — aucune règle métier à vérifier côté
+    // utilisateur, donc lecture ouverte à tout membre connecté ; l'écriture
+    // passe toujours par adminCreateTip/adminDeleteTip.
+    match /community_tips/{tipId} {
+      allow read: if isSignedIn();
+      allow write: if false;
+    }
+
     // Tout le reste (jetons, admin...) est ajouté au fur et à mesure de
     // leur implémentation, jamais ouvert "par défaut".
     match /{document=**} {

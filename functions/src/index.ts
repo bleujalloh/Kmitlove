@@ -18,12 +18,16 @@ export { onMessageCreated } from "./messagerie/onMessageCreated";
 export { reportUser } from "./messagerie/reportUser";
 export { createCommunityPost } from "./communaute/createCommunityPost";
 export { requestParticipation, respondToParticipation, checkInParticipant } from "./communaute/participation";
+export { cancelParticipation } from "./communaute/cancelParticipation";
 export { getEventLocation } from "./communaute/getEventLocation";
 export { reportCommunityPost } from "./communaute/reportCommunityPost";
 export { requestOrganizerStatus } from "./communaute/requestOrganizerStatus";
 export { inviteToEvent } from "./communaute/inviteToEvent";
 export { updateEventState } from "./communaute/updateEventState";
 export { submitEventReview } from "./communaute/submitEventReview";
+export { getEventShareCode } from "./communaute/getEventShareCode";
+export { redeemEventInviteCode } from "./communaute/redeemEventInviteCode";
+export { adminCreateTip, adminDeleteTip } from "./admin/manageTips";
 export {
   adminListOrganizerRequests,
   adminReviewOrganizerRequest,
@@ -55,6 +59,7 @@ export { requestSanctionAppeal } from "./account/requestSanctionAppeal";
 export { resolveSanctionAppeal } from "./admin/resolveSanctionAppeal";
 export { triggerEmergencyAlert } from "./securite/triggerEmergencyAlert";
 export { liftExpiredSuspensions } from "./scheduled/liftExpiredSuspensions";
+export { sendEventReminders } from "./scheduled/sendEventReminders";
 
 // Paiements (Google Play, Stripe, PayPal) : travail mis en pause sur
 // demande explicite, le temps de valider la conformité des règles Google

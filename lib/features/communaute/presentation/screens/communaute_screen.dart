@@ -183,24 +183,79 @@ class _NewsTab extends ConsumerWidget {
   }
 }
 
-/// Conseils — pas de contenu fonctionnel défini dans la spec Communauté
-/// transmise (ni dans la référence visuelle au-delà du nom de l'onglet) :
-/// espace volontairement minimal plutôt qu'inventé, voir
-/// docs/suivi-developpement.md.
-class _TipsTab extends StatelessWidget {
+/// Conseils — contenu éditorial rédigé par un administrateur
+/// (adminCreateTip/manageTips.ts, 11/11/2026) : ni la spec ni la
+/// référence visuelle ne définissaient le contenu au-delà du nom de
+/// l'onglet, donc une rédaction humaine validée plutôt qu'un contenu
+/// généré ou une liste figée côté client.
+class _TipsTab extends ConsumerWidget {
   const _TipsTab();
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final tipsAsync = ref.watch(communityTipsProvider);
     return Scaffold(
-      body: Center(
-        child: Padding(
-          padding: const EdgeInsets.all(32),
-          child: Text(
-            context.l10n.tipsComingSoon,
-            textAlign: TextAlign.center,
-            style: const TextStyle(color: AppColors.muted),
-          ),
+      body: tipsAsync.when(
+        loading: () => const Center(child: CircularProgressIndicator()),
+        error: (e, st) => Center(child: Text(context.l10n.feedLoadFailed)),
+        data: (tips) {
+          if (tips.isEmpty) {
+            return Center(
+              child: Padding(
+                padding: const EdgeInsets.all(32),
+                child: Text(
+                  context.l10n.noTipsYet,
+                  textAlign: TextAlign.center,
+                  style: const TextStyle(color: AppColors.muted),
+                ),
+              ),
+            );
+          }
+          return ListView.builder(
+            padding: const EdgeInsets.all(20),
+            itemCount: tips.length,
+            itemBuilder: (context, i) => _TipCard(tip: tips[i]),
+          );
+        },
+      ),
+    );
+  }
+}
+
+class _TipCard extends StatelessWidget {
+  const _TipCard({required this.tip});
+  final Map<String, dynamic> tip;
+
+  @override
+  Widget build(BuildContext context) {
+    final category = tip['category'] as String?;
+    return Card(
+      margin: const EdgeInsets.only(bottom: 14),
+      elevation: 0,
+      shape: RoundedRectangleBorder(
+        side: const BorderSide(color: AppColors.border),
+        borderRadius: BorderRadius.circular(16),
+      ),
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            if (category != null) ...[
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                decoration: BoxDecoration(color: AppColors.accentSoft, borderRadius: BorderRadius.circular(999)),
+                child: Text(
+                  tipCategoryLabel(category, context.l10n),
+                  style: const TextStyle(color: AppColors.accent, fontWeight: FontWeight.w600, fontSize: 11),
+                ),
+              ),
+              const SizedBox(height: 8),
+            ],
+            Text(tip['title'] as String? ?? '', style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 15)),
+            const SizedBox(height: 6),
+            Text(tip['body'] as String? ?? '', style: const TextStyle(fontSize: 13.5, height: 1.4)),
+          ],
         ),
       ),
     );

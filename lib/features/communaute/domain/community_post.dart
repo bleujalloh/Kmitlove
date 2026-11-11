@@ -101,6 +101,8 @@ class CommunityPost {
     this.accessMode,
     this.parentEventId,
     this.eventState,
+    this.recurrenceGroupId,
+    this.recurrenceFrequency,
   });
 
   final String id;
@@ -125,6 +127,8 @@ class CommunityPost {
   final String? accessMode; // public | sur_demande | sur_invitation
   final String? parentEventId;
   final String? eventState; // prevu | complet | annule | termine
+  final String? recurrenceGroupId;
+  final String? recurrenceFrequency; // hebdomadaire | mensuel | null
 
   bool get isEvent => type == 'evenement_public' || type == 'evenement_prive';
   // Vrai pour TOUT événement, y compris public : le bouton "Demander à
@@ -163,6 +167,34 @@ class CommunityPost {
       accessMode: data['accessMode'] as String?,
       parentEventId: data['parentEventId'] as String?,
       eventState: data['eventState'] as String?,
+      recurrenceGroupId: data['recurrenceGroupId'] as String?,
+      recurrenceFrequency: data['recurrenceFrequency'] as String?,
     );
+  }
+}
+
+String tipCategoryLabel(String category, AppLocalizations l10n) {
+  switch (category) {
+    case 'culture':
+      return l10n.tipCategoryCulture;
+    case 'relation':
+      return l10n.tipCategoryRelation;
+    case 'securite':
+      return l10n.tipCategorySecurite;
+    case 'communaute':
+      return l10n.tipCategoryCommunaute;
+    default:
+      return category;
+  }
+}
+
+String eventRecurrenceLabel(String frequency, AppLocalizations l10n) {
+  switch (frequency) {
+    case 'hebdomadaire':
+      return l10n.eventRecurrenceWeekly;
+    case 'mensuel':
+      return l10n.eventRecurrenceMonthly;
+    default:
+      return frequency;
   }
 }

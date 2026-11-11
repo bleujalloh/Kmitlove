@@ -86,6 +86,8 @@ class CommunauteRepository {
     String? posterStoragePath,
     String? accessMode,
     String? parentEventId,
+    String? recurrence,
+    int? recurrenceCount,
   }) async {
     final result = await _functions.httpsCallable('createCommunityPost').call({
       'type': type,
@@ -105,6 +107,8 @@ class CommunauteRepository {
       'posterStoragePath': posterStoragePath,
       'accessMode': accessMode,
       'parentEventId': parentEventId,
+      'recurrence': recurrence,
+      'recurrenceCount': recurrenceCount,
     });
     final data = result.data as Map<Object?, Object?>;
     return data['status'] as String;
@@ -112,6 +116,13 @@ class CommunauteRepository {
 
   Future<void> requestParticipation(String postId) {
     return _functions.httpsCallable('requestParticipation').call({'postId': postId});
+  }
+
+  /// Annulation par le membre lui-même (spec section 9 : liste d'attente
+  /// — promotion automatique gérée entièrement côté serveur, voir
+  /// cancelParticipation.ts).
+  Future<void> cancelParticipation(String postId) {
+    return _functions.httpsCallable('cancelParticipation').call({'postId': postId});
   }
 
   Future<void> respondToParticipation(String postId, String targetUid, bool accept) {
@@ -252,5 +263,40 @@ class CommunauteRepository {
         .orderBy('createdAt', descending: true)
         .snapshots()
         .map((snap) => snap.docs.map((d) => d.data()).toList());
+  }
+
+  // --- Événements récurrents (section 10) ---
+
+  Stream<List<CommunityPost>> watchRecurrenceSeries(String recurrenceGroupId) {
+    return _firestore
+        .collection('community_posts')
+        .where('recurrenceGroupId', isEqualTo: recurrenceGroupId)
+        .orderBy('eventDate')
+        .snapshots()
+        .map((snap) => snap.docs.map(CommunityPost.fromDoc).toList());
+  }
+
+  // --- Partage privé d'une invitation (section 2) ---
+
+  Future<String> getEventShareCode(String postId) async {
+    final result = await _functions.httpsCallable('getEventShareCode').call({'postId': postId});
+    final data = result.data as Map<Object?, Object?>;
+    return data['shareCode'] as String;
+  }
+
+  Future<String> redeemEventInviteCode(String code) async {
+    final result = await _functions.httpsCallable('redeemEventInviteCode').call({'code': code});
+    final data = result.data as Map<Object?, Object?>;
+    return data['postId'] as String;
+  }
+
+  // --- Conseils (onglet "Conseils", contenu éditorial admin) ---
+
+  Stream<List<Map<String, dynamic>>> watchTips() {
+    return _firestore
+        .collection('community_tips')
+        .orderBy('createdAt', descending: true)
+        .snapshots()
+        .map((snap) => snap.docs.map((d) => {'id': d.id, ...d.data()}).toList());
   }
 }
