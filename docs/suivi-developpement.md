@@ -431,8 +431,45 @@ métier qui n'existerait que côté Flutter.
   téléphone (annuler une participation, voir la promotion automatique en direct, créer une série
   récurrente, partager/utiliser un code d'invitation, publier un conseil depuis l'espace admin) —
   accès appareil toujours indisponible pendant cette passe.
-- [ ] **Limite assumée, pas un oubli** : la fenêtre de rappel reste approximative tant qu'aucun
-  fuseau horaire n'est stocké nulle part dans le projet (voir ci-dessus) ; la liste "Mes
-  participations" affiche encore le statut brut (`waitlisted`, `cancelled`...) via le libellé
-  générique existant plutôt qu'un message dédié par statut — correctif mineur, pas fait dans cette
-  passe pour rester concentré sur les 5 éléments demandés.
+- [x] ~~Limite assumée, pas un oubli : la fenêtre de rappel reste approximative tant qu'aucun fuseau
+  horaire n'est stocké nulle part dans le projet~~ **Corrigé dans la passe suivante — voir section
+  ci-dessous.**
+- [ ] **Limite assumée, pas un oubli (toujours vraie)** : la liste "Mes participations" affiche
+  encore le statut brut (`waitlisted`, `cancelled`...) via le libellé générique existant plutôt qu'un
+  message dédié par statut — correctif mineur, pas fait dans cette passe pour rester concentré sur
+  les 5 éléments demandés.
+
+## Suivi 2026-11-11 (suite) — Rappels d'événement : vrai fuseau horaire
+
+Sur décision explicite de l'utilisateur, qui a tranché la seule limite encore documentée après la
+passe précédente plutôt que de la laisser comme approximation permanente.
+
+- [x] **Testé et validé (déployé + algorithme vérifié directement contre de vraies données IANA,
+  pas seulement en théorie)** : nouveau champ `timezone` (identifiant IANA, ex. "Europe/Paris")
+  capturé côté client à la création d'un événement (`flutter_timezone`), vérifié côté serveur contre
+  la vraie liste IANA du moteur (`Intl.supportedValuesOf('timeZone')`, jamais une chaîne arbitraire
+  acceptée du client) et stocké sur le document. `sendEventReminders.ts` calcule désormais l'instant
+  UTC précis de chaque événement à partir de ce fuseau (algorithme à deux passes, uniquement `Intl`,
+  sans nouvelle dépendance npm — `functions/src/shared/timezone.ts`), vérifié en conditions réelles :
+  Europe/Paris hiver (UTC+1) et été (UTC+2, heure d'été), America/New_York (UTC-5), Africa/Abidjan
+  (UTC+0) — les quatre donnent l'instant UTC exact attendu. La marge de sécurité précédente est
+  retirée comme mécanisme de décision ; il n'en reste qu'une version résiduelle pour élargir la
+  requête Firestore (pré-filtre bon marché, jamais la garantie de justesse — un seul mécanisme de
+  correction, pas deux en parallèle comme demandé).
+- [x] **Revue de code (effort high) passée, 3 corrections réelles supplémentaires avant déploiement**
+  : le format de date différait entre la première occurrence d'une série récurrente (heure naïve) et
+  les occurrences suivantes (heure UTC absolue avec "Z") — incohérence corrigée, toutes les
+  occurrences utilisent maintenant le même format naïf ; le motif de validation acceptait
+  silencieusement une chaîne déjà absolue (avec "Z" ou décalage) au lieu de la rejeter clairement ;
+  un événement isolé avec une date/un fuseau corrompu pouvait interrompre toute l'exécution planifiée
+  de l'heure et priver tous les autres événements de leur rappel — un `try/catch` par événement
+  corrige ça.
+- [ ] **Non vérifié sur appareil réel** : la capture du fuseau à la création d'un événement n'a pas
+  été testée sur le téléphone — accès appareil toujours indisponible pendant cette passe. La
+  vérification de l'algorithme de conversion lui-même (ci-dessus) a été faite directement en Node
+  avec de vraies données de fuseaux, ce qui est différent d'un test de bout en bout sur l'app.
+- [ ] **Limite assumée et documentée dans le code, pas un oubli** : l'heure "sautée" lors du
+  changement d'heure d'été (une heure par an, par fuseau concerné) n'a par nature aucune
+  interprétation unique correcte — même les bibliothèques dédiées à ce problème font un choix
+  arbitraire dans ce cas précis. Un événement créé pile dans cette heure-là peut avoir son rappel
+  décalé d'une heure ; cas extrêmement rare, non traité spécifiquement.
