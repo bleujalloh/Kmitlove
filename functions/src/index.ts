@@ -40,6 +40,7 @@ export { resolveFiltrageReview } from "./admin/resolveFiltrageReview";
 export { adminListPendingCommunityPosts, adminReviewCommunityPost } from "./admin/reviewCommunityPost";
 export { autoApprovePhotos } from "./photos/autoApprovePhotos";
 export { adminListPendingPhotos, adminReviewPhoto } from "./photos/adminReviewPhoto";
+export { moderatePhotoContent } from "./photos/moderatePhotoContent";
 export { submitIdentityVerification } from "./identite/submitIdentityVerification";
 export {
   adminListIdentityVerifications,

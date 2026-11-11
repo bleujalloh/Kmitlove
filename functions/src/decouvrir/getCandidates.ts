@@ -153,9 +153,22 @@ export const getDiscoverCandidates = onCall({ region: REGION }, async (request) 
   // DISCOVER_CANDIDATE_POOL_SIZE reste borné, même raisonnement que le
   // commentaire équivalent sur compatScoreWithProvider côté client
   // (compat_controller.dart).
-  const photoCounts = await Promise.all(
+  //
+  // Deux compteurs distincts dérivés d'UNE seule lecture par candidat
+  // (demande explicite du propriétaire, 11/11/2026 ; une requête
+  // d'agrégation séparée pour chacun aurait doublé le nombre de requêtes
+  // Firestore de ce chemin déjà coûteux — trouvé par revue de code) : le
+  // nombre total de photos approuvées reste utilisé pour le calcul de
+  // complétion de profil (shared/profileCompletion.ts, inchangé) ; le
+  // nombre de photos approuvées AVEC VISAGE DÉTECTÉ (`hasFace`,
+  // moderatePhotoContent.ts) devient la vraie condition de visibilité
+  // ci-dessous — un profil avec 2 photos approuvées mais sans aucun
+  // visage détectable ne doit pas apparaître dans Découvrir. Le nombre
+  // de photos par membre reste petit, donc lire les documents complets
+  // plutôt qu'un simple compte n'ajoute pas de coût significatif.
+  const approvedPhotoDocs = await Promise.all(
     statusPassed.map(({ doc }) =>
-      db.collection("users").doc(doc.id).collection("photos").where("status", "==", "approved").count().get(),
+      db.collection("users").doc(doc.id).collection("photos").where("status", "==", "approved").get(),
     ),
   );
 
@@ -178,8 +191,9 @@ export const getDiscoverCandidates = onCall({ region: REGION }, async (request) 
   for (let i = 0; i < statusPassed.length; i += 1) {
     const { doc, status, distance } = statusPassed[i];
     if (blockSnaps[i].exists) continue;
-    const approvedPhotoCount = photoCounts[i].data().count;
-    if (approvedPhotoCount < MIN_APPROVED_PHOTOS_TO_BE_DISCOVERABLE) continue;
+    const approvedPhotoCount = approvedPhotoDocs[i].size;
+    const approvedFacePhotoCount = approvedPhotoDocs[i].docs.filter((p) => p.data().hasFace === true).length;
+    if (approvedFacePhotoCount < MIN_APPROVED_PHOTOS_TO_BE_DISCOVERABLE) continue;
 
     const boostedUntil = status?.boostedUntil?.toMillis?.() as number | undefined;
     const data = doc.data();

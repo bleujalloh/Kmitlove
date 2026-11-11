@@ -121,12 +121,28 @@ export const PRIORITY_REVIEW_REPORT_THRESHOLD = 3;
 export const SANCTION_APPEAL_RETRY_DELAY_DAYS = 7;
 
 // docs/suivi-developpement.md, section du 11/11/2026 : en dessous de ce
-// nombre de photos APPROUVÉES, un profil est tout simplement exclu de
-// Découvrir (jamais seulement "moins bien classé") — sans ça, un compte
-// pouvait apparaître avec une seule photo, voire aucune vérification
-// visuelle du tout. Au-dessus du minimum, chaque photo supplémentaire
-// améliore légèrement le classement (voir getDiscoverCandidates.ts).
+// nombre de photos APPROUVÉES ET AVEC VISAGE DÉTECTÉ (voir
+// photos/moderatePhotoContent.ts — distinct du simple nombre de photos
+// approuvées, utilisé lui pour le calcul de complétion de profil), un
+// profil est tout simplement exclu de Découvrir (jamais seulement "moins
+// bien classé") — sans ça, un compte pouvait apparaître avec une seule
+// photo, voire aucune vérification visuelle du tout, voire des photos
+// sans aucun visage (paysage, objet...). Au-dessus du minimum, chaque
+// photo supplémentaire améliore légèrement le classement (voir
+// getDiscoverCandidates.ts).
 export const MIN_APPROVED_PHOTOS_TO_BE_DISCOVERABLE = 2;
+
+// Modération automatique du contenu à l'upload (sur demande explicite du
+// propriétaire, 11/11/2026 — avant, aucun contrôle automatique
+// n'existait, seule la revue humaine ou l'approbation après 48h
+// décidaient). Catégories SafeSearch vérifiées et seuil de rejet
+// automatique : "LIKELY" ou plus → rejeté immédiatement, sans attendre
+// la revue humaine ni le délai de PHOTO_AUTO_APPROVE_HOURS.
+export const SAFE_SEARCH_CATEGORIES_TO_CHECK = ["adult", "racy", "violence"] as const;
+export const SAFE_SEARCH_REJECT_LIKELIHOOD = "LIKELY";
+// Confiance minimale (0-1) pour compter une détection de visage comme
+// réelle plutôt qu'une détection ambiguë de faible confiance.
+export const FACE_DETECTION_MIN_CONFIDENCE = 0.5;
 // Nombre de questions du test de compatibilité tirées au hasard à
 // chaque ouverture de l'écran — priorité donnée aux questions pas encore
 // répondues (functions/src/compatibilite/getCompatQuestions.ts), pour
