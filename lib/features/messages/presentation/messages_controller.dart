@@ -34,8 +34,17 @@ final chatMessagesProvider =
   return ref.watch(messagesRepositoryProvider).watchMessages(matchId);
 });
 
-final isBlockedProvider = StreamProvider.family<bool, String>((ref, matchId) {
-  return ref.watch(messagesRepositoryProvider).watchIsBlocked(matchId);
+final isBlockedProvider = StreamProvider.family<bool, String>((ref, otherUid) {
+  final user = ref.watch(authStateProvider).value;
+  if (user == null) return const Stream.empty();
+  return ref.watch(messagesRepositoryProvider).watchIsBlocked(user.uid, otherUid);
+});
+
+/// Membres que JE bloque — écran "Mes blocages" (Paramètres).
+final myBlocksProvider = StreamProvider<List<BlockedProfile>>((ref) {
+  final user = ref.watch(authStateProvider).value;
+  if (user == null) return const Stream.empty();
+  return ref.watch(messagesRepositoryProvider).watchMyBlocks(user.uid);
 });
 
 /// Préférence d'indicateur de lecture d'un membre donné (soi-même ou
@@ -67,10 +76,16 @@ class MessagesController {
     await ref.read(messagesRepositoryProvider).markManyRead(matchId, messageIds, user.uid);
   }
 
-  Future<void> block(String matchId) async {
+  Future<void> block(String targetUid) async {
     final user = ref.read(firebaseAuthProvider).currentUser;
     if (user == null) return;
-    await ref.read(messagesRepositoryProvider).block(matchId, user.uid);
+    await ref.read(messagesRepositoryProvider).block(user.uid, targetUid);
+  }
+
+  Future<void> unblock(String targetUid) async {
+    final user = ref.read(firebaseAuthProvider).currentUser;
+    if (user == null) return;
+    await ref.read(messagesRepositoryProvider).unblock(user.uid, targetUid);
   }
 
   Future<void> toggleReadReceipts(bool value) async {

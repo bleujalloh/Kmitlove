@@ -698,6 +698,13 @@ class AppLocalizationsFr extends AppLocalizations {
   String get updateMyLocation => 'Mettre à jour ma position';
 
   @override
+  String get locationFilterTitle => 'Chercher dans un autre pays';
+
+  @override
+  String get locationFilterHint =>
+      'Renseigne un pays (et, si tu veux, une ville) pour voir des profils hors de ton rayon GPS — remplace le filtre de distance tant que c\'est rempli.';
+
+  @override
   String get dailyLikeLimitReached =>
       'Limite de likes quotidienne atteinte, reviens demain ou passe en Premium.';
 
@@ -784,6 +791,40 @@ class AppLocalizationsFr extends AppLocalizations {
   @override
   String get conversationNoLongerAccessible =>
       'Cette conversation n\'est plus accessible.';
+
+  @override
+  String get blockedProfilesTitle => 'Mes blocages';
+
+  @override
+  String get noBlockedProfiles => 'Tu n\'as bloqué personne pour le moment.';
+
+  @override
+  String get unblockButton => 'Débloquer';
+
+  @override
+  String get unblockConfirmTitle => 'Débloquer ce profil ?';
+
+  @override
+  String unblockConfirmBody(String name) {
+    return '$name pourra à nouveau apparaître dans Découvrir et te contacter.';
+  }
+
+  @override
+  String get blockProfileAction => 'Bloquer ce profil';
+
+  @override
+  String get blockProfileConfirmTitle => 'Bloquer ce profil ?';
+
+  @override
+  String blockProfileConfirmBody(String name) {
+    return '$name ne pourra plus voir ton profil ni te contacter, et toi non plus.';
+  }
+
+  @override
+  String get blockProfileSuccess => 'Profil bloqué.';
+
+  @override
+  String get blockProfileFailed => 'Impossible de bloquer ce profil, réessaie.';
 
   @override
   String get messagesLoadFailed => 'Impossible de charger les messages.';

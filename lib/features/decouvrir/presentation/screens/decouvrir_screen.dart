@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../../core/theme/app_theme.dart';
+import '../../../../core/widgets/block_action.dart';
 import '../../../../l10n/l10n_extensions.dart';
 import '../../../compatibilite/presentation/compat_controller.dart';
 import '../../domain/candidate.dart';
@@ -166,6 +167,29 @@ class _CandidateCard extends ConsumerWidget {
                       ? Image.network(photoUrl, fit: BoxFit.cover, width: double.infinity, height: 340)
                       : const Icon(Icons.person_outline, size: 46, color: Color(0xFFC9C0B2)),
                 ),
+                Positioned(
+                  top: 10,
+                  right: 10,
+                  child: Material(
+                    color: Colors.black.withValues(alpha: 0.35),
+                    shape: const CircleBorder(),
+                    child: PopupMenuButton<void>(
+                      icon: const Icon(Icons.more_vert, color: Colors.white),
+                      onSelected: (_) {},
+                      itemBuilder: (menuContext) => [
+                        PopupMenuItem<void>(
+                          onTap: () => showBlockProfileSheet(
+                            context,
+                            ref,
+                            targetUid: candidate.uid,
+                            displayName: candidate.displayName,
+                          ),
+                          child: Text(context.l10n.blockProfileAction),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
                 // Nom/âge/localisation sur la photo (comme sur les
                 // applications de rencontre courantes), via un dégradé
                 // plutôt qu'un fond uni, pour rester lisible sur
@@ -288,6 +312,8 @@ class _FiltersSheet extends ConsumerStatefulWidget {
 class _FiltersSheetState extends ConsumerState<_FiltersSheet> {
   late RangeValues _ageRange;
   late double _distance;
+  late final TextEditingController _countryController;
+  late final TextEditingController _cityController;
   bool _requestingLocation = false;
 
   @override
@@ -299,6 +325,15 @@ class _FiltersSheetState extends ConsumerState<_FiltersSheet> {
       (current.maxAge ?? 60).toDouble(),
     );
     _distance = current.maxDistanceKm.toDouble();
+    _countryController = TextEditingController(text: current.country ?? '');
+    _cityController = TextEditingController(text: current.city ?? '');
+  }
+
+  @override
+  void dispose() {
+    _countryController.dispose();
+    _cityController.dispose();
+    super.dispose();
   }
 
   @override
@@ -352,13 +387,34 @@ class _FiltersSheetState extends ConsumerState<_FiltersSheet> {
             icon: const Icon(Icons.my_location),
             label: Text(_requestingLocation ? context.l10n.locatingEllipsis : context.l10n.updateMyLocation),
           ),
+          const Divider(height: 28),
+          Text(context.l10n.locationFilterTitle, style: const TextStyle(fontWeight: FontWeight.w600)),
+          const SizedBox(height: 4),
+          Text(
+            context.l10n.locationFilterHint,
+            style: const TextStyle(fontSize: 12.5, color: AppColors.muted),
+          ),
+          const SizedBox(height: 10),
+          TextField(
+            controller: _countryController,
+            decoration: InputDecoration(labelText: context.l10n.countryLabel),
+          ),
+          const SizedBox(height: 10),
+          TextField(
+            controller: _cityController,
+            decoration: InputDecoration(labelText: context.l10n.cityLabel),
+          ),
           const SizedBox(height: 14),
           ElevatedButton(
             onPressed: () {
+              final country = _countryController.text.trim();
+              final city = _cityController.text.trim();
               ref.read(discoverFiltersProvider.notifier).state = DiscoverFilters(
                 minAge: _ageRange.start.round(),
                 maxAge: _ageRange.end.round(),
                 maxDistanceKm: _distance.round(),
+                country: country.isEmpty ? null : country,
+                city: city.isEmpty ? null : city,
               );
               Navigator.of(context).pop();
             },

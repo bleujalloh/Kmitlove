@@ -2,6 +2,7 @@ import { onCall, HttpsError } from "firebase-functions/v2/https";
 import { getFirestore, FieldValue } from "firebase-admin/firestore";
 
 import { REGION, FREE_DAILY_LIKE_LIMIT } from "../config";
+import { sendPushToUser } from "../shared/push";
 
 interface SwipeData {
   targetUid: string;
@@ -36,16 +37,26 @@ export const recordSwipe = onCall({ region: REGION }, async (request) => {
   const swipeRef = db.collection("swipes").doc(`${uid}_${targetUid}`);
   const statusRef = db.collection("user_status").doc(uid);
   const reverseSwipeRef = db.collection("swipes").doc(`${targetUid}_${uid}`);
+  const blockRef = db.collection("blocks").doc([uid, targetUid].sort().join("_"));
   const isLikeAction = action === "like" || action === "super_like";
 
   const matchCreated = await db.runTransaction(async (tx) => {
     // Toutes les lectures d'abord — Firestore refuse une transaction qui
-    // lit après avoir déjà écrit.
-    const [existingSwipeSnap, statusSnap, reverseSnap] = await Promise.all([
+    // lit après avoir déjà écrit. Le blocage est relu ICI, fraîchement
+    // dans la transaction, pas avant : un blocage posé pile entre une
+    // lecture préalable et la validation de cette transaction aurait pu
+    // laisser passer un match malgré un blocage tout juste posé
+    // (docs/suivi-developpement.md section du 11/11/2026).
+    const [existingSwipeSnap, statusSnap, reverseSnap, blockSnap] = await Promise.all([
       tx.get(swipeRef),
       tx.get(statusRef),
       tx.get(reverseSwipeRef),
+      tx.get(blockRef),
     ]);
+
+    if (blockSnap.exists) {
+      throw new HttpsError("permission-denied", "Impossible d'interagir avec ce profil.");
+    }
 
     if (existingSwipeSnap.exists) {
       throw new HttpsError("already-exists", "Ce profil a déjà été swipé.");
@@ -100,6 +111,35 @@ export const recordSwipe = onCall({ region: REGION }, async (request) => {
     });
     return true;
   });
+
+  // Notifications best-effort, après la transaction (jamais à l'intérieur :
+  // une notification n'est pas une opération qui doit pouvoir faire
+  // échouer/rejouer la transaction métier) — docs/suivi-developpement.md
+  // section du 11/11/2026.
+  if (matchCreated) {
+    const [mySnap, targetSnap] = await Promise.all([
+      db.collection("users").doc(uid).get(),
+      db.collection("users").doc(targetUid).get(),
+    ]);
+    const myName = (mySnap.data()?.displayName as string | undefined) ?? "Quelqu'un";
+    const targetName = (targetSnap.data()?.displayName as string | undefined) ?? "Quelqu'un";
+    await Promise.all([
+      sendPushToUser(uid, { title: "Nouveau match !", body: `Toi et ${targetName}, c'est réciproque.` }, { type: "match" }),
+      sendPushToUser(targetUid, { title: "Nouveau match !", body: `Toi et ${myName}, c'est réciproque.` }, { type: "match" }),
+    ]);
+  } else if (isLikeAction) {
+    // Jamais le nom de l'auteur du like ici : "qui m'a liké" en détail
+    // reste une fonctionnalité Premium (getLikes.ts) — la notification ne
+    // doit pas la révéler gratuitement.
+    await sendPushToUser(
+      targetUid,
+      {
+        title: action === "super_like" ? "Un Super Like t'attend !" : "Nouveau like !",
+        body: "Quelqu'un aime ton profil sur MERUT.",
+      },
+      { type: "like" },
+    );
+  }
 
   return { matchCreated };
 });

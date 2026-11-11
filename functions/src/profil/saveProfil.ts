@@ -178,6 +178,13 @@ export const saveProfil = onCall({ region: REGION }, async (request) => {
         seekingGenders,
         country,
         city,
+        // Normalisées en minuscules pour le filtre pays/ville de Découvrir
+        // (getCandidates.ts) — une comparaison Firestore "==" est
+        // sensible à la casse, et country/city restent du texte libre
+        // saisi par chacun (pas de liste fermée ici, contrairement au
+        // genre ou à l'intention relationnelle).
+        countryLower: country.toLowerCase(),
+        cityLower: city.toLowerCase(),
         bio,
         relationshipIntent,
         profession,

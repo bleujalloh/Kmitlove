@@ -5,6 +5,11 @@
          Happn qu'on a explicitement exclu, voir regles-complementaires-concurrents.md). -->
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION"/>
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION"/>
+    <!-- Notifications push (nouveau match, message, like) — obligatoire à
+         partir d'Android 13 (API 33), demandée explicitement au premier
+         lancement via FirebaseMessaging.requestPermission()
+         (lib/features/notifications/push_controller.dart). -->
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS"/>
     <application
         android:label="MERUT"
         android:name="${applicationName}"

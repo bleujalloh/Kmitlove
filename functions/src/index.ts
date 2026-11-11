@@ -35,6 +35,7 @@ export {
 export { bootstrapFirstAdmin } from "./admin/bootstrapFirstAdmin";
 export { recordActivity } from "./account/recordActivity";
 export { registerDeviceSignal } from "./account/registerDeviceSignal";
+export { registerFcmToken, unregisterFcmToken } from "./account/registerFcmToken";
 export { expireMatches } from "./scheduled/expireMatches";
 export { exportMyData } from "./rgpd/exportMyData";
 export { updateMyLocation } from "./account/updateMyLocation";

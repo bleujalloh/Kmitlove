@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../../core/theme/app_theme.dart';
+import '../../../../core/widgets/block_action.dart';
 import '../../../../core/widgets/empty_state_cards.dart';
 import '../../../../l10n/l10n_extensions.dart';
 import '../../../decouvrir/presentation/decouvrir_controller.dart';
@@ -108,13 +109,13 @@ class _TabButton extends StatelessWidget {
   }
 }
 
-class _ReceivedTab extends StatelessWidget {
+class _ReceivedTab extends ConsumerWidget {
   const _ReceivedTab({required this.likes});
 
   final LikesData likes;
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     if (likes.likesReceivedCount == 0) {
       return Center(
         child: EmptyStateCards(
@@ -124,7 +125,10 @@ class _ReceivedTab extends StatelessWidget {
       );
     }
     if (likes.isPremium) {
-      return _ProfileGrid(profiles: likes.likesReceived, onLongPress: null);
+      return _ProfileGrid(
+        profiles: likes.likesReceived,
+        onLongPress: (p) => showBlockProfileSheet(context, ref, targetUid: p.uid, displayName: p.displayName),
+      );
     }
     return ListView(
       padding: const EdgeInsets.all(20),

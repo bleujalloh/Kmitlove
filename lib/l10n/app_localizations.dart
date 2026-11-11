@@ -1340,6 +1340,18 @@ abstract class AppLocalizations {
   /// **'Mettre à jour ma position'**
   String get updateMyLocation;
 
+  /// No description provided for @locationFilterTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Chercher dans un autre pays'**
+  String get locationFilterTitle;
+
+  /// No description provided for @locationFilterHint.
+  ///
+  /// In fr, this message translates to:
+  /// **'Renseigne un pays (et, si tu veux, une ville) pour voir des profils hors de ton rayon GPS — remplace le filtre de distance tant que c\'est rempli.'**
+  String get locationFilterHint;
+
   /// No description provided for @dailyLikeLimitReached.
   ///
   /// In fr, this message translates to:
@@ -1489,6 +1501,66 @@ abstract class AppLocalizations {
   /// In fr, this message translates to:
   /// **'Cette conversation n\'est plus accessible.'**
   String get conversationNoLongerAccessible;
+
+  /// No description provided for @blockedProfilesTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Mes blocages'**
+  String get blockedProfilesTitle;
+
+  /// No description provided for @noBlockedProfiles.
+  ///
+  /// In fr, this message translates to:
+  /// **'Tu n\'as bloqué personne pour le moment.'**
+  String get noBlockedProfiles;
+
+  /// No description provided for @unblockButton.
+  ///
+  /// In fr, this message translates to:
+  /// **'Débloquer'**
+  String get unblockButton;
+
+  /// No description provided for @unblockConfirmTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Débloquer ce profil ?'**
+  String get unblockConfirmTitle;
+
+  /// No description provided for @unblockConfirmBody.
+  ///
+  /// In fr, this message translates to:
+  /// **'{name} pourra à nouveau apparaître dans Découvrir et te contacter.'**
+  String unblockConfirmBody(String name);
+
+  /// No description provided for @blockProfileAction.
+  ///
+  /// In fr, this message translates to:
+  /// **'Bloquer ce profil'**
+  String get blockProfileAction;
+
+  /// No description provided for @blockProfileConfirmTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Bloquer ce profil ?'**
+  String get blockProfileConfirmTitle;
+
+  /// No description provided for @blockProfileConfirmBody.
+  ///
+  /// In fr, this message translates to:
+  /// **'{name} ne pourra plus voir ton profil ni te contacter, et toi non plus.'**
+  String blockProfileConfirmBody(String name);
+
+  /// No description provided for @blockProfileSuccess.
+  ///
+  /// In fr, this message translates to:
+  /// **'Profil bloqué.'**
+  String get blockProfileSuccess;
+
+  /// No description provided for @blockProfileFailed.
+  ///
+  /// In fr, this message translates to:
+  /// **'Impossible de bloquer ce profil, réessaie.'**
+  String get blockProfileFailed;
 
   /// No description provided for @messagesLoadFailed.
   ///

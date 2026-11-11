@@ -16,7 +16,16 @@ interface DiscoverFilters {
   minAge?: number;
   maxAge?: number;
   maxDistanceKm?: number;
+  // Filtre pays/ville (docs/suivi-developpement.md section du 11/11/2026) :
+  // permet de voir des profils hors du rayon GPS, utile pour une
+  // communauté répartie sur plusieurs pays — quand actif, remplace le
+  // filtre de distance plutôt que de s'y ajouter (une distance en km
+  // n'a pas de sens pour comparer deux pays différents).
+  country?: string;
+  city?: string;
 }
+
+const MAX_LOCATION_FILTER_LENGTH = 60;
 
 /**
  * Génère un paquet de candidats pour l'écran Découvrir (cahier des
@@ -54,19 +63,32 @@ export const getDiscoverCandidates = onCall({ region: REGION }, async (request) 
   const maxAge = filters.maxAge ?? myAge + 8;
   const maxDistance = filters.maxDistanceKm ?? 100;
 
+  const countryFilter = typeof filters.country === "string" && filters.country.trim().length > 0
+    ? filters.country.trim().slice(0, MAX_LOCATION_FILTER_LENGTH).toLowerCase()
+    : null;
+  const cityFilter = typeof filters.city === "string" && filters.city.trim().length > 0
+    ? filters.city.trim().slice(0, MAX_LOCATION_FILTER_LENGTH).toLowerCase()
+    : null;
+  const hasLocationFilter = countryFilter !== null;
+
   const myStatus = myStatusSnap.data();
   const myLat = myStatus?.locationLat as number | undefined;
   const myLng = myStatus?.locationLng as number | undefined;
-  const hasMyLocation = typeof myLat === "number" && typeof myLng === "number";
+  const hasMyLocation = !hasLocationFilter && typeof myLat === "number" && typeof myLng === "number";
 
   const mySwipesSnap = await db.collection("swipes").where("fromUid", "==", uid).get();
   const alreadySwiped = new Set(mySwipesSnap.docs.map((doc) => doc.data().toUid as string));
 
-  const poolSnap = await db
+  let poolQuery = db
     .collection("users")
-    .where("gender", "in", mySeekingGenders.slice(0, 10))
-    .limit(DISCOVER_CANDIDATE_POOL_SIZE)
-    .get();
+    .where("gender", "in", mySeekingGenders.slice(0, 10)) as FirebaseFirestore.Query;
+  if (countryFilter !== null) {
+    poolQuery = poolQuery.where("countryLower", "==", countryFilter);
+    if (cityFilter !== null) {
+      poolQuery = poolQuery.where("cityLower", "==", cityFilter);
+    }
+  }
+  const poolSnap = await poolQuery.limit(DISCOVER_CANDIDATE_POOL_SIZE).get();
 
   // Pré-filtrage sans lecture supplémentaire (self, déjà swipé,
   // préférence réciproque, âge), pour ne lire le statut que des profils
@@ -137,9 +159,18 @@ export const getDiscoverCandidates = onCall({ region: REGION }, async (request) 
     ),
   );
 
+  // Un blocage (dans un sens ou dans l'autre, l'identifiant de paire ne
+  // dépend pas de qui a bloqué qui) exclut totalement Découvrir, pas
+  // seulement un badge — docs/suivi-developpement.md section du
+  // 11/11/2026.
+  const blockSnaps = await db.getAll(
+    ...statusPassed.map(({ doc }) => db.collection("blocks").doc([uid, doc.id].sort().join("_"))),
+  );
+
   const eligible: (Record<string, unknown> & { _boosted: boolean; _completionPercent: number })[] = [];
   for (let i = 0; i < statusPassed.length; i += 1) {
     const { doc, status, distance } = statusPassed[i];
+    if (blockSnaps[i].exists) continue;
     const approvedPhotoCount = photoCounts[i].data().count;
     if (approvedPhotoCount < MIN_APPROVED_PHOTOS_TO_BE_DISCOVERABLE) continue;
 

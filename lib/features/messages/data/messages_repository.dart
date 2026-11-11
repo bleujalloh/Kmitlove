@@ -98,19 +98,51 @@ class MessagesRepository {
     await batch.commit();
   }
 
-  Stream<bool> watchIsBlocked(String matchId) {
-    return _firestore.collection('blocks').doc(matchId).snapshots().map((s) => s.exists);
+  /// Identifiant d'une paire de membres — toujours [uid1, uid2] triés et
+  /// joints par "_", que la paire soit déjà matchée ou non (même
+  /// convention que l'identifiant de match côté serveur, recordSwipe.ts).
+  String _pairId(String uidA, String uidB) => ([uidA, uidB]..sort()).join('_');
+
+  Stream<bool> watchIsBlocked(String myUid, String otherUid) {
+    return _firestore
+        .collection('blocks')
+        .doc(_pairId(myUid, otherUid))
+        .snapshots()
+        .map((s) => s.exists);
   }
 
-  Future<void> block(String matchId, String uid) {
-    return _firestore.collection('blocks').doc(matchId).set({
-      'blockerUid': uid,
+  /// Blocage d'un membre — utilisable avant tout match (depuis Découvrir/
+  /// Likes) ou depuis une conversation existante, voir firestore.rules.
+  Future<void> block(String myUid, String targetUid) {
+    return _firestore.collection('blocks').doc(_pairId(myUid, targetUid)).set({
+      'blockerUid': myUid,
+      'blockedUid': targetUid,
       'createdAt': FieldValue.serverTimestamp(),
     });
   }
 
-  Future<void> unblock(String matchId) {
-    return _firestore.collection('blocks').doc(matchId).delete();
+  Future<void> unblock(String myUid, String targetUid) {
+    return _firestore.collection('blocks').doc(_pairId(myUid, targetUid)).delete();
+  }
+
+  /// Liste des membres que JE bloque (pas l'inverse) — pour l'écran "Mes
+  /// blocages" (Paramètres).
+  Stream<List<BlockedProfile>> watchMyBlocks(String myUid) {
+    return _firestore
+        .collection('blocks')
+        .where('blockerUid', isEqualTo: myUid)
+        .snapshots()
+        .asyncMap((snap) async {
+      final futures = snap.docs.map((doc) async {
+        final blockedUid = doc.data()['blockedUid'] as String?;
+        if (blockedUid == null) return null;
+        final profileDoc = await _firestore.collection('users').doc(blockedUid).get();
+        final displayName = profileDoc.data()?['displayName'] as String? ?? 'Membre';
+        return BlockedProfile(uid: blockedUid, displayName: displayName);
+      });
+      final results = await Future.wait(futures);
+      return results.whereType<BlockedProfile>().toList();
+    });
   }
 
   Future<void> setShowReadReceipts(String uid, bool value) {

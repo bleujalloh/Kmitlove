@@ -4,6 +4,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:uuid/uuid.dart';
 
+import '../../../core/utils/retry.dart';
 import '../domain/profil_photo.dart';
 
 /// Upload direct vers Storage (règles : propriétaire uniquement, 10 Mo
@@ -38,7 +39,7 @@ class PhotoRepository {
   }
 
   Future<String> getDownloadUrl(String storagePath) {
-    return _storage.ref(storagePath).getDownloadURL();
+    return retryAsync(() => _storage.ref(storagePath).getDownloadURL());
   }
 
   Future<void> deletePhoto(String uid, ProfilPhoto photo) async {

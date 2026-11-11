@@ -38,21 +38,28 @@ export const getLikes = onCall({ region: REGION }, async (request) => {
 
   // Un like devenu match n'a plus sa place dans "Likes" — il vit dans
   // Messages (docs/regles-du-projet.md, section matchs/messagerie).
+  // Un blocage (dans un sens ou dans l'autre) exclut totalement la paire
+  // des deux listes (docs/suivi-developpement.md section du 11/11/2026).
   // Un seul lot de lectures plutôt qu'une par une.
   const allTargets = [...new Set([...likersUids, ...myLikeUids])];
   const matchedUids = new Set<string>();
+  const blockedUids = new Set<string>();
   if (allTargets.length > 0) {
-    const matchRefs = allTargets.map((target) =>
-      db.collection("matches").doc([uid, target].sort().join("_")),
-    );
-    const matchSnaps = await db.getAll(...matchRefs);
+    const pairIds = allTargets.map((target) => [uid, target].sort().join("_"));
+    const [matchSnaps, blockSnaps] = await Promise.all([
+      db.getAll(...pairIds.map((id) => db.collection("matches").doc(id))),
+      db.getAll(...pairIds.map((id) => db.collection("blocks").doc(id))),
+    ]);
     matchSnaps.forEach((snap, i) => {
       if (snap.exists) matchedUids.add(allTargets[i]);
     });
+    blockSnaps.forEach((snap, i) => {
+      if (snap.exists) blockedUids.add(allTargets[i]);
+    });
   }
 
-  const likersWithoutMatch = [...likersUids].filter((u) => !matchedUids.has(u));
-  const myLikesWithoutMatch = myLikeUids.filter((u) => !matchedUids.has(u));
+  const likersWithoutMatch = [...likersUids].filter((u) => !matchedUids.has(u) && !blockedUids.has(u));
+  const myLikesWithoutMatch = myLikeUids.filter((u) => !matchedUids.has(u) && !blockedUids.has(u));
   const isPremium = statusSnap.data()?.isPremium === true;
 
   // Les deux listes sont indépendantes l'une de l'autre : on les

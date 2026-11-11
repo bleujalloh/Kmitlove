@@ -1,9 +1,13 @@
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../features/auth/presentation/auth_controller.dart';
 import '../../features/communaute/presentation/screens/communaute_screen.dart';
 import '../../features/decouvrir/presentation/screens/decouvrir_screen.dart';
 import '../../features/likes/presentation/screens/likes_screen.dart';
 import '../../features/messages/presentation/screens/matches_list_screen.dart';
+import '../../features/notifications/push_controller.dart';
 import '../../features/profil/presentation/screens/mon_profil_screen.dart';
 import '../../l10n/l10n_extensions.dart';
 
@@ -15,14 +19,14 @@ import '../../l10n/l10n_extensions.dart';
 /// vérification d'identité, administration) vivent maintenant sur
 /// l'onglet Profil plutôt que dans Paramètres (remarqué le 11/11 : rien
 /// ne montrait jamais la fiche elle-même d'un coup d'œil).
-class MainShell extends StatefulWidget {
+class MainShell extends ConsumerStatefulWidget {
   const MainShell({super.key});
 
   @override
-  State<MainShell> createState() => _MainShellState();
+  ConsumerState<MainShell> createState() => _MainShellState();
 }
 
-class _MainShellState extends State<MainShell> {
+class _MainShellState extends ConsumerState<MainShell> {
   int _index = 0;
 
   // IndexedStack (pas un simple swap de widget) pour garder l'état de
@@ -37,7 +41,33 @@ class _MainShellState extends State<MainShell> {
   ];
 
   @override
+  void initState() {
+    super.initState();
+    // Notification affichée pendant que l'app est ouverte (FCM ne montre
+    // rien tout seul dans ce cas, contrairement à l'app fermée/en arrière-
+    // plan, géré nativement) — docs/suivi-developpement.md section du
+    // 11/11/2026.
+    FirebaseMessaging.onMessage.listen((message) {
+      if (!mounted || message.notification == null) return;
+      final title = message.notification!.title;
+      final body = message.notification!.body;
+      final text = [title, body].whereType<String>().join(' — ');
+      if (text.isEmpty) return;
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(text)));
+    });
+  }
+
+  @override
   Widget build(BuildContext context) {
+    // Démarrés une seule fois par session (FutureProvider, pas re-déclenché
+    // par les changements d'onglet grâce à l'IndexedStack) : le signal
+    // "dernière activité" (masquage des comptes inactifs) n'était en fait
+    // jamais appelé nulle part ailleurs dans l'app avant ce correctif
+    // (docs/suivi-developpement.md section du 11/11/2026), et
+    // l'enregistrement du jeton de notifications push.
+    ref.watch(activityHeartbeatProvider);
+    ref.watch(pushRegistrationProvider);
+
     return Scaffold(
       body: IndexedStack(index: _index, children: _screens),
       bottomNavigationBar: NavigationBar(

@@ -86,7 +86,7 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
   @override
   Widget build(BuildContext context) {
     final myUid = ref.watch(firebaseAuthProvider).currentUser?.uid ?? '';
-    final isBlockedAsync = ref.watch(isBlockedProvider(widget.matchId));
+    final isBlockedAsync = ref.watch(isBlockedProvider(widget.otherUid));
     final messagesAsync = ref.watch(chatMessagesProvider(widget.matchId));
     final myReceipts = ref.watch(showReadReceiptsProvider(myUid)).value ?? true;
     final theirReceipts = ref.watch(showReadReceiptsProvider(widget.otherUid)).value ?? true;
@@ -253,7 +253,7 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
           TextButton(
             onPressed: () async {
               Navigator.of(dialogContext).pop();
-              await ref.read(messagesControllerProvider).block(widget.matchId);
+              await ref.read(messagesControllerProvider).block(widget.otherUid);
             },
             child: Text(context.l10n.blockButton),
           ),

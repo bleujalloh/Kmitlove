@@ -179,5 +179,97 @@ Checklist de toutes les parties du cahier des charges et des règles, pour qu'au
   - **Minimum de photos approuvées pour apparaître dans Découvrir** (`MIN_APPROVED_PHOTOS_TO_BE_DISCOVERABLE = 2`) : en dessous, le profil est exclu, pas seulement moins bien classé ; au-dessus, un profil plus complet (même calcul que `getProfileCompletion`) remonte dans le classement, à boost égal (`getDiscoverCandidates.ts`). Les 10 profils de test + le compte réel ont reçu une 2e photo pour rester visibles sous ce nouveau seuil.
   - **Banque de questions passée de 17 à 102 questions dans chaque banque** (filtrage ET compatibilité), contenu respectant la charte kamite/kémite déjà en vigueur. Le tirage aléatoire du filtrage existait déjà côté serveur (`startFiltrageAttempt`) ; la compatibilité n'avait, elle, aucun tirage — nouvelle Cloud Function `getCompatQuestions` (tirage aléatoire de 18 questions par session, priorité aux questions pas encore répondues) remplace la lecture directe de toute la banque par le client ; `compat_question_bank` totalement verrouillée côté règles.
 - [x] Revue de code (effort medium) passée sur tout ce lot : un vrai bug trouvé et corrigé — `saveProfil` écrivait `users/{uid}` sans `merge: true`, ce qui aurait silencieusement effacé `showReadReceipts`/`compatAnswersVisible` à chaque modification de profil (ces deux champs vivent sur le même document mais hors du modèle `Profil`) ; corrigé. Un second point (une requête d'agrégation par candidat restant dans `getDiscoverCandidates` plutôt qu'un round-trip groupé) documenté comme limite assumée, même raisonnement que la limite déjà documentée sur `compatScoreWithProvider` côté client.
-- [ ] **Notifications push (FCM) — signalé pendant cette session, volontairement hors périmètre.** `firebase_messaging` est dans `pubspec.yaml` mais inutilisé dans `lib/` : aucune notif (nouveau match, nouveau message, nouveau like) n'est jamais envoyée. Nécessite : enregistrement du token FCM côté client (`user_status` ou équivalent) + déclencheurs serveur (`onDocumentCreated` sur messages déjà en place pour le modèle, équivalents à ajouter pour matchs et likes) + envoi via `admin.messaging()`. À planifier comme chantier à part.
-- [ ] **Blocage uniquement possible après un match, pas d'écran "mes blocages"** — signalé, noté comme amélioration future non prioritaire, pas traité dans cette session.
+- [x] ~~Notifications push (FCM) — signalé pendant cette session, volontairement hors périmètre~~ **Décision annulée par le propriétaire le 11/11 : construit dans la foulée, voir section suivante.**
+- [x] ~~Blocage uniquement possible après un match~~ **Décision annulée par le propriétaire le 11/11 : construit dans la foulée, voir section suivante.**
+
+## Suivi 2026-11-11 (suite) — FCM, blocage avant-match, filtre pays/ville, règlement permanent
+
+Cette section applique le `docs/reglement-permanent-qualite-execution.md` posé ce jour (committé
+séparément, commit `b3828c0`) : statuts explicites par exigence, aucune déclaration de fin qui ne
+corresponde pas à une vérification réelle.
+
+**Bug de l'anneau de profil (avatar qui ne s'affichait pas)**
+- Cause confirmée par lecture du code source de `riverpod-3.5.0` (pas une supposition) :
+  `AsyncValue.value` ne relance jamais l'erreur dans cette version (contrairement à une ancienne
+  inquiétude) — donc pas une exception de build qui se propage.
+- Cause la plus probable restante, non confirmée visuellement faute d'accès exclusif à l'appareil
+  pendant cette session (une session parallèle avait aussi la main dessus) : `candidateFirstPhotoUrlProvider`
+  et `photoDownloadUrlProvider` sont des `FutureProvider` à usage unique (jamais ré-essayés), donc un
+  premier échec réseau/App Check juste après le démarrage à froid reste définitif pour toute la
+  session — contrairement aux photos de la galerie (`PhotosSection`), qui repartent d'un `StreamProvider`
+  Firestore réémis plusieurs fois.
+- **Correction appliquée** : `core/utils/retry.dart` (3 tentatives, délai progressif), branché sur les
+  deux providers concernés.
+- **Statut : implanté mais non testé visuellement** — correction logique défendable et déployée, mais
+  pas re-confirmée sur l'appareil réel (accès contesté avec une session parallèle pendant cette passe).
+  À reconfirmer par capture d'écran à la prochaine occasion avant de considérer ce point clos.
+
+**Notifications push (FCM)**
+- Jeton enregistré côté client au premier lancement de `MainShell` (`messaging.register()` +
+  `onRegistered`, API non dépréciée de `firebase_messaging` 17), stocké sur `user_status.fcmTokens`
+  via `registerFcmToken`/`unregisterFcmToken` (nouvelles Cloud Functions) — jamais écrit directement
+  par le client (`firestore.rules` : `user_status` reste `allow write: if false`).
+- Déclencheurs serveur : nouveau message (`onMessageCreated.ts`, déjà existant, étendu), nouveau match
+  et nouveau like (`recordSwipe.ts`) — jamais le nom de l'auteur d'un like (resterait un contournement
+  gratuit de la fonctionnalité Premium "qui m'a liké").
+- Notification affichée en premier plan via un SnackBar (`FirebaseMessaging.onMessage`) ; permission
+  Android 13+ ajoutée au manifeste et demandée explicitement.
+- Bug pré-existant trouvé et corrigé au passage : `activityHeartbeatProvider` (masquage des comptes
+  inactifs après 30 jours) existait déjà mais n'était observé (`ref.watch`) nulle part dans `lib/` —
+  jamais déclenché depuis sa création. Corrigé en même temps (`MainShell`).
+- **Statut : implanté mais non testé** — compile, 2 fonctions déployées (`registerFcmToken`,
+  `unregisterFcmToken`), 4 fonctions existantes redéployées avec l'envoi ajouté, routabilité confirmée
+  (401 attendu sur appel non authentifié, pas 404). **Non vérifié** : qu'un jeton s'enregistre
+  réellement sur un appareil, que la permission s'affiche, qu'une notification arrive réellement
+  (nécessite un appareil disponible, pas eu pendant cette passe).
+- **Bloqué par une dépendance externe réelle, non traité ici** : iOS — `firebase_messaging` n'a aucun
+  câblage APNs/`UIBackgroundModes` côté `ios/`, et aucun compte développeur Apple n'est ouvert (déjà
+  noté ailleurs pour Apple Sign-In) : les notifications ne fonctionneront que sur Android tant que ça
+  reste vrai. Pas un report volontaire : il n'y a simplement rien à construire côté app sans ce compte.
+
+**Blocage avant-match**
+- `blocks/{pairId}` ne dépend plus de l'existence d'un match (même identifiant de paire que
+  `recordSwipe.ts`, calculé sans jamais passer par une conversation) — `firestore.rules` valide
+  désormais `blockedUid` au lieu d'exiger `exists(matches/...)`.
+- Nouveaux points d'entrée : menu sur la carte Découvrir (icône "..."), appui long sur une carte Likes
+  reçus — en plus du bouton déjà existant dans une conversation.
+- Exclusion effective des deux côtés, pas seulement visuelle : `getDiscoverCandidates.ts` et
+  `getLikes.ts` excluent toute paire bloquée ; `recordSwipe.ts` refuse un swipe entre deux comptes
+  bloqués (vérifié **dans** la transaction, pas avant — un bug de ce type, trouvé par une revue de
+  code pendant cette passe, aurait laissé une fenêtre de course entre la lecture et la validation).
+- Nouvel écran "Mes blocages" (Paramètres) : liste, débloquer avec confirmation — jusqu'ici aucun
+  moyen de voir qui on avait bloqué ni de revenir en arrière une fois sorti de la conversation.
+- **Statut : implanté mais non testé** — compile, règles et fonctions déployées. **Non vérifié** :
+  parcours complet sur appareil (bloquer depuis Découvrir, confirmer l'exclusion réelle dans un
+  second compte, débloquer).
+
+**Filtre Découvrir par pays/ville**
+- Nouveau champ pays (+ ville optionnelle) dans la feuille de filtres Découvrir — actif, remplace le
+  filtre de distance (plutôt que de s'y ajouter, une distance en km n'ayant pas de sens entre deux
+  pays) tant qu'un pays est renseigné.
+- `country`/`city` restent du texte libre (pas de liste fermée à faire respecter côté serveur, à la
+  différence du genre ou de l'intention relationnelle) — mais la comparaison elle-même est désormais
+  serveur : `countryLower`/`cityLower` écrits par `saveProfil` (jamais par le client directement) et
+  utilisés dans la requête `getDiscoverCandidates.ts`, avec deux nouveaux index composites Firestore.
+- Les 10 profils de test + le compte réel ont été rétro-complétés (`countryLower`/`cityLower`
+  absents des documents créés avant ce correctif).
+- **Statut : implanté mais non testé** — compile, fonctions et règles déployées, **index composites
+  en cours de construction au moment de ce rapport** (`gcloud firestore indexes composite list`
+  confirmait `CREATING`, pas encore `READY`) : une recherche par pays peut échouer avec
+  `failed-precondition` tant qu'ils ne sont pas prêts (généralement quelques minutes). À revérifier
+  avant de considérer ce point testé.
+
+**Revue de code (effort medium) sur ce lot** : 3 signalements, tous traités avant ce commit —
+`saveProfil`/`countryLower` sans backfill (corrigé manuellement pour les 11 comptes existants, le
+code lui-même ne migre pas automatiquement un compte plus ancien qui ne resauvegarderait jamais son
+profil — limite assumée, documentée ici, aucun compte concerné actuellement) ; course entre la
+lecture du blocage et la transaction dans `recordSwipe.ts` (corrigé, lecture déplacée dans la
+transaction) ; absence de câblage iOS pour FCM (bloqué par dépendance externe réelle, voir plus haut).
+
+**Reste à faire, identifié mais pas encore traité dans cette session** : identité visuelle complète
+(système de design centralisé + reprise de tous les écrans), refonte Communauté (la spécification
+détaillée mentionnée par le propriétaire n'est pas arrivée jusqu'à cette session — à transmettre
+avant de pouvoir la traiter, ne sera pas inventée), audit rétroactif complet de l'intégralité de
+MERUT au sens du règlement permanent section 15 (hors périmètre technique réalisable en une seule
+passe continue : porte sur l'intégralité des parcours listés en section 4 du règlement, bien au-delà
+de ce que cette session a modifié).

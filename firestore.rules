@@ -147,18 +147,23 @@ service cloud.firestore {
       }
     }
 
-    // Blocage d'une conversation : le document existe pour une paire
-    // (même identifiant que le match correspondant) dès qu'un des deux
-    // membres bloque — la conversation devient alors inaccessible aux
-    // deux, immédiatement (docs/regles-messagerie-securite.md section 3).
-    // L'identifiant doit être celui d'un match réel entre les deux
-    // membres, sinon isBlocked() (qui cherche blocks/$(matchId)) ne
-    // trouverait jamais le blocage et celui-ci serait sans effet.
+    // Blocage d'une paire de membres : l'identifiant est toujours
+    // [uid1, uid2] triés et joints par "_" (même convention que l'identifiant
+    // de match, calculé une fois dans messages_repository.dart) — un
+    // blocage peut désormais être posé AVANT tout match (depuis Découvrir
+    // ou Likes, docs/suivi-developpement.md section du 11/11/2026), pas
+    // seulement depuis une conversation déjà matchée. Dès qu'un des deux
+    // bloque, getDiscoverCandidates/getLikes excluent la paire des deux
+    // côtés, recordSwipe refuse tout nouveau like entre eux, et
+    // isBlocked() (plus bas) coupe une conversation déjà existante.
     match /blocks/{pairId} {
       allow read: if isSignedIn() && request.auth.uid in pairId.split('_');
       allow create: if isSignedIn() && request.auth.uid in pairId.split('_')
         && request.resource.data.blockerUid == request.auth.uid
-        && exists(/databases/$(database)/documents/matches/$(pairId));
+        && request.resource.data.blockedUid is string
+        && request.resource.data.blockedUid != request.auth.uid
+        && pairId.split('_').hasAll([request.auth.uid, request.resource.data.blockedUid])
+        && pairId.split('_').size() == 2;
       allow delete: if isSignedIn() && resource.data.blockerUid == request.auth.uid;
       allow update: if false;
     }

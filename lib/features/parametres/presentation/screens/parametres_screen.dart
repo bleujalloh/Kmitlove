@@ -14,6 +14,8 @@ import '../../../../l10n/l10n_extensions.dart';
 import '../../../auth/presentation/auth_controller.dart';
 import '../../../compatibilite/presentation/compat_controller.dart';
 import '../../../messages/presentation/messages_controller.dart';
+import '../../../messages/presentation/screens/blocked_profiles_screen.dart';
+import '../../../notifications/push_controller.dart';
 
 /// Espace Paramètres : réglages purs (langue, confidentialité, export
 /// RGPD, déconnexion, suppression de compte) — modifier le profil,
@@ -217,6 +219,15 @@ class _ParametresScreenState extends ConsumerState<ParametresScreen> {
             ),
             const Divider(height: 1),
             ListTile(
+              leading: const Icon(Icons.block_outlined),
+              title: Text(context.l10n.blockedProfilesTitle),
+              trailing: const Icon(Icons.chevron_right),
+              onTap: () => Navigator.of(context).push(
+                MaterialPageRoute(builder: (_) => const BlockedProfilesScreen()),
+              ),
+            ),
+            const Divider(height: 1),
+            ListTile(
               leading: _exporting
                   ? const SizedBox(
                       width: 20, height: 20, child: CircularProgressIndicator(strokeWidth: 2))
@@ -229,7 +240,10 @@ class _ParametresScreenState extends ConsumerState<ParametresScreen> {
             ListTile(
               leading: const Icon(Icons.logout),
               title: Text(context.l10n.signOut),
-              onTap: () => ref.read(authControllerProvider.notifier).signOut(),
+              onTap: () async {
+                await unregisterCurrentPushToken(ref);
+                await ref.read(authControllerProvider.notifier).signOut();
+              },
             ),
             const Divider(height: 1),
             ListTile(

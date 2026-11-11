@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/legacy.dart';
 
 import '../../../core/providers/firebase_providers.dart';
 import '../../../core/providers/locale_provider.dart';
+import '../../../core/utils/retry.dart';
 import '../../auth/presentation/auth_controller.dart';
 import '../../profil/presentation/photo_controller.dart';
 import '../data/decouvrir_repository.dart';
@@ -36,7 +37,14 @@ final candidateFirstPhotoUrlProvider = FutureProvider.autoDispose.family<String?
   if (snap.docs.isEmpty) return null;
   final storagePath = snap.docs.first.data()['storagePath'] as String?;
   if (storagePath == null) return null;
-  return ref.watch(firebaseStorageProvider).ref(storagePath).getDownloadURL();
+  final photoRef = ref.watch(firebaseStorageProvider).ref(storagePath);
+  // Ce FutureProvider ne se relance jamais tout seul (pas un Stream) — si
+  // le tout premier appel Storage échoue à cause d'une course au
+  // démarrage à froid (jeton App Check/Play Integrity pas encore prêt),
+  // la carte resterait sans photo pour le reste de la session (bug
+  // remarqué le 11/11 sur l'onglet Profil, qui appelle ce même provider
+  // en tout premier à l'ouverture de l'app).
+  return retryAsync(() => photoRef.getDownloadURL());
 });
 
 /// Filtres manuels de Découvrir (docs/regles-complementaires-concurrents.md

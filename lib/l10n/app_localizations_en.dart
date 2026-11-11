@@ -692,6 +692,13 @@ class AppLocalizationsEn extends AppLocalizations {
   String get updateMyLocation => 'Update my location';
 
   @override
+  String get locationFilterTitle => 'Search in another country';
+
+  @override
+  String get locationFilterHint =>
+      'Enter a country (and, if you like, a city) to see profiles outside your GPS radius — replaces the distance filter while it\'s filled in.';
+
+  @override
   String get dailyLikeLimitReached =>
       'Daily like limit reached, come back tomorrow or go Premium.';
 
@@ -777,6 +784,40 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get conversationNoLongerAccessible =>
       'This conversation is no longer accessible.';
+
+  @override
+  String get blockedProfilesTitle => 'Blocked profiles';
+
+  @override
+  String get noBlockedProfiles => 'You haven\'t blocked anyone yet.';
+
+  @override
+  String get unblockButton => 'Unblock';
+
+  @override
+  String get unblockConfirmTitle => 'Unblock this profile?';
+
+  @override
+  String unblockConfirmBody(String name) {
+    return '$name will be able to appear in Discover and contact you again.';
+  }
+
+  @override
+  String get blockProfileAction => 'Block this profile';
+
+  @override
+  String get blockProfileConfirmTitle => 'Block this profile?';
+
+  @override
+  String blockProfileConfirmBody(String name) {
+    return '$name won\'t be able to see your profile or contact you, and neither will you.';
+  }
+
+  @override
+  String get blockProfileSuccess => 'Profile blocked.';
+
+  @override
+  String get blockProfileFailed => 'Couldn\'t block this profile, try again.';
 
   @override
   String get messagesLoadFailed => 'Couldn\'t load messages.';

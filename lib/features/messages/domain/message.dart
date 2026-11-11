@@ -48,3 +48,12 @@ class MatchSummary {
   final String? lastMessagePreview;
   final DateTime? lastMessageAt;
 }
+
+/// Membre que l'utilisateur courant a bloqué — pour l'écran "Mes
+/// blocages" (Paramètres).
+class BlockedProfile {
+  const BlockedProfile({required this.uid, required this.displayName});
+
+  final String uid;
+  final String displayName;
+}

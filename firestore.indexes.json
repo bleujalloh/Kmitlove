@@ -65,6 +65,23 @@
         { "fieldPath": "sanctionLevel", "order": "ASCENDING" },
         { "fieldPath": "suspendedUntil", "order": "ASCENDING" }
       ]
+    },
+    {
+      "collectionGroup": "users",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "gender", "order": "ASCENDING" },
+        { "fieldPath": "countryLower", "order": "ASCENDING" }
+      ]
+    },
+    {
+      "collectionGroup": "users",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "gender", "order": "ASCENDING" },
+        { "fieldPath": "countryLower", "order": "ASCENDING" },
+        { "fieldPath": "cityLower", "order": "ASCENDING" }
+      ]
     }
   ],
   "fieldOverrides": [
