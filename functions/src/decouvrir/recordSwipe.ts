@@ -1,7 +1,7 @@
 import { onCall, HttpsError } from "firebase-functions/v2/https";
 import { getFirestore, FieldValue } from "firebase-admin/firestore";
 
-import { REGION, FREE_DAILY_LIKE_LIMIT } from "../config";
+import { REGION, FREE_DAILY_LIKE_LIMIT, SUPER_LIKE_JETON_COST } from "../config";
 import { sendPushToUser } from "../shared/push";
 
 interface SwipeData {
@@ -66,11 +66,27 @@ export const recordSwipe = onCall({ region: REGION }, async (request) => {
       const status = statusSnap.data();
       const isPremium = status?.isPremium === true;
 
-      // La limite ne s'applique qu'à la formule gratuite (cahier des
-      // charges section 5 : likes illimités en Premium) — et pour un
-      // membre Premium, on ne tient même plus le compteur, qui ne sert
-      // à rien dans son cas.
-      if (!isPremium) {
+      if (action === "super_like") {
+        // Signalé par le propriétaire le 11/11/2026 : un Super Like ne
+        // doit JAMAIS être gratuit/illimité comme un like normal — c'est
+        // une économie séparée de la limite quotidienne de likes
+        // gratuits (qui ne s'applique qu'aux likes normaux ci-dessous).
+        // Premium = gratuit et illimité ; sinon un jeton par envoi.
+        if (!isPremium) {
+          const jetons = (status?.jetons as number | undefined) ?? 0;
+          if (jetons < SUPER_LIKE_JETON_COST) {
+            throw new HttpsError(
+              "resource-exhausted",
+              "super-like-jetons-insuffisants : jeton ou abonnement Premium requis pour un Super Like.",
+            );
+          }
+          tx.set(statusRef, { jetons: FieldValue.increment(-SUPER_LIKE_JETON_COST) }, { merge: true });
+        }
+      } else if (!isPremium) {
+        // La limite ne s'applique qu'à la formule gratuite (cahier des
+        // charges section 5 : likes illimités en Premium) — et pour un
+        // membre Premium, on ne tient même plus le compteur, qui ne sert
+        // à rien dans son cas.
         const today = todayKey();
         const countedToday = status?.swipeCountDate === today ? (status?.swipeCount ?? 0) : 0;
         if (countedToday >= FREE_DAILY_LIKE_LIMIT) {

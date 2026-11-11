@@ -66,6 +66,9 @@ class DecouvrirState {
 String _readableSwipeError(Object error, Locale? locale) {
   final l10n = l10nFor(locale);
   final text = error.toString();
+  if (text.contains('super-like-jetons-insuffisants')) {
+    return l10n.superLikeRequiresJetonOrPremium;
+  }
   if (text.contains('resource-exhausted')) {
     return l10n.dailyLikeLimitReached;
   }

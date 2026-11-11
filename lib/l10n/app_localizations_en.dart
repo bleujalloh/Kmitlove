@@ -706,6 +706,16 @@ class AppLocalizationsEn extends AppLocalizations {
   String get profileAlreadySwiped => 'This profile was already swiped.';
 
   @override
+  String get superLikeRequiresJetonOrPremium =>
+      'A Super Like costs one token (or go Premium for unlimited Super Likes).';
+
+  @override
+  String get swipeLikeStamp => 'LIKE';
+
+  @override
+  String get swipePassStamp => 'NOPE';
+
+  @override
   String get likesLoadFailed => 'Couldn\'t load likes.';
 
   @override

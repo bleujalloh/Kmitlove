@@ -1364,6 +1364,24 @@ abstract class AppLocalizations {
   /// **'Ce profil a déjà été swipé.'**
   String get profileAlreadySwiped;
 
+  /// No description provided for @superLikeRequiresJetonOrPremium.
+  ///
+  /// In fr, this message translates to:
+  /// **'Un Super Like coûte un jeton (ou passe en Premium pour des Super Likes illimités).'**
+  String get superLikeRequiresJetonOrPremium;
+
+  /// No description provided for @swipeLikeStamp.
+  ///
+  /// In fr, this message translates to:
+  /// **'LIKE'**
+  String get swipeLikeStamp;
+
+  /// No description provided for @swipePassStamp.
+  ///
+  /// In fr, this message translates to:
+  /// **'PASSE'**
+  String get swipePassStamp;
+
   /// No description provided for @likesLoadFailed.
   ///
   /// In fr, this message translates to:

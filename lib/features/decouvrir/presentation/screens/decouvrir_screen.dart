@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../../core/providers/firebase_providers.dart';
 import '../../../../core/theme/app_theme.dart';
 import '../../../../core/widgets/block_action.dart';
 import '../../../../l10n/l10n_extensions.dart';
@@ -97,10 +98,13 @@ class DecouvrirScreen extends ConsumerWidget {
             }
 
             final candidate = data.candidates.first;
+            final status = ref.watch(userStatusProvider).value;
+            final isPremium = status?['isPremium'] == true;
+            final jetons = (status?['jetons'] as num?)?.toInt() ?? 0;
             return Column(
               children: [
                 const SizedBox(height: 10),
-                Expanded(child: _CandidateCard(candidate: candidate)),
+                Expanded(child: _CandidateCard(key: ValueKey(candidate.uid), candidate: candidate)),
                 Padding(
                   padding: const EdgeInsets.fromLTRB(20, 6, 20, 24),
                   child: Row(
@@ -120,10 +124,37 @@ class DecouvrirScreen extends ConsumerWidget {
                         onTap: () => ref.read(decouvrirControllerProvider.notifier).swipe('like'),
                       ),
                       const SizedBox(width: 18),
-                      _RoundButton(
-                        icon: Icons.star,
-                        color: AppColors.accent,
-                        onTap: () => ref.read(decouvrirControllerProvider.notifier).swipe('super_like'),
+                      Stack(
+                        clipBehavior: Clip.none,
+                        children: [
+                          _RoundButton(
+                            icon: Icons.star,
+                            color: AppColors.accent,
+                            onTap: () => ref.read(decouvrirControllerProvider.notifier).swipe('super_like'),
+                          ),
+                          // Mirroir UX de la règle serveur (recordSwipe.ts :
+                          // Premium gratuit, sinon 1 jeton) — jamais la
+                          // seule vérification, juste pour que le coût soit
+                          // visible avant de taper, pas seulement après un
+                          // message d'erreur.
+                          if (!isPremium)
+                            Positioned(
+                              top: -4,
+                              right: -4,
+                              child: Container(
+                                padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                                decoration: BoxDecoration(
+                                  color: AppColors.noirProfond,
+                                  borderRadius: BorderRadius.circular(999),
+                                  border: Border.all(color: AppColors.accent, width: 1.2),
+                                ),
+                                child: Text(
+                                  '$jetons',
+                                  style: const TextStyle(color: AppColors.accent, fontSize: 11, fontWeight: FontWeight.bold),
+                                ),
+                              ),
+                            ),
+                        ],
                       ),
                     ],
                   ),
@@ -137,16 +168,84 @@ class DecouvrirScreen extends ConsumerWidget {
   }
 }
 
-class _CandidateCard extends ConsumerWidget {
-  const _CandidateCard({required this.candidate});
+class _CandidateCard extends ConsumerStatefulWidget {
+  const _CandidateCard({super.key, required this.candidate});
 
   final Candidate candidate;
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<_CandidateCard> createState() => _CandidateCardState();
+}
+
+/// Carte swipable : glisser à droite = like, à gauche = passe — demandé
+/// par le propriétaire le 11/11/2026, les boutons ronds en dessous
+/// restaient jusqu'ici la SEULE façon d'agir sur une carte Découvrir,
+/// ce qui "ne ressemble pas à une app de rencontres".
+class _CandidateCardState extends ConsumerState<_CandidateCard> with SingleTickerProviderStateMixin {
+  static const _swipeThreshold = 110.0;
+
+  late final AnimationController _snapBackController;
+  Offset _dragOffset = Offset.zero;
+  Offset _snapBackStart = Offset.zero;
+
+  @override
+  void initState() {
+    super.initState();
+    _snapBackController = AnimationController(vsync: this, duration: const Duration(milliseconds: 220))
+      ..addListener(() {
+        setState(() {
+          _dragOffset = Offset.lerp(_snapBackStart, Offset.zero, _snapBackController.value)!;
+        });
+      });
+  }
+
+  @override
+  void dispose() {
+    _snapBackController.dispose();
+    super.dispose();
+  }
+
+  void _onPanStart(DragStartDetails details) {
+    _snapBackController.stop();
+  }
+
+  void _onPanUpdate(DragUpdateDetails details) {
+    setState(() => _dragOffset += details.delta);
+  }
+
+  void _onPanEnd(DragEndDetails details) {
+    if (_dragOffset.dx > _swipeThreshold) {
+      ref.read(decouvrirControllerProvider.notifier).swipe('like');
+      return;
+    }
+    if (_dragOffset.dx < -_swipeThreshold) {
+      ref.read(decouvrirControllerProvider.notifier).swipe('pass');
+      return;
+    }
+    // Pas assez loin pour valider le swipe : retour au centre animé
+    // plutôt qu'un saut brutal.
+    _snapBackStart = _dragOffset;
+    _snapBackController.forward(from: 0);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final candidate = widget.candidate;
     final compatScore = ref.watch(compatScoreWithProvider(candidate.uid)).value;
     final photoUrl = ref.watch(candidateFirstPhotoUrlProvider(candidate.uid)).value;
-    return Padding(
+    final angle = (_dragOffset.dx / 1200).clamp(-0.25, 0.25);
+    final likeOpacity = (_dragOffset.dx / _swipeThreshold).clamp(0.0, 1.0);
+    final nopeOpacity = (-_dragOffset.dx / _swipeThreshold).clamp(0.0, 1.0);
+
+    return GestureDetector(
+      onPanStart: _onPanStart,
+      onPanUpdate: _onPanUpdate,
+      onPanEnd: _onPanEnd,
+      child: Transform.translate(
+        offset: _dragOffset,
+        child: Transform.rotate(
+          angle: angle,
+          child: Padding(
       padding: const EdgeInsets.fromLTRB(20, 0, 20, 10),
       child: Container(
         decoration: BoxDecoration(
@@ -266,6 +365,22 @@ class _CandidateCard extends ConsumerWidget {
                     ),
                   ),
                 ),
+                Positioned(
+                  top: 24,
+                  left: 20,
+                  child: Opacity(
+                    opacity: likeOpacity,
+                    child: _SwipeStamp(label: context.l10n.swipeLikeStamp, color: AppColors.accent),
+                  ),
+                ),
+                Positioned(
+                  top: 24,
+                  right: 20,
+                  child: Opacity(
+                    opacity: nopeOpacity,
+                    child: _SwipeStamp(label: context.l10n.swipePassStamp, color: AppColors.muted),
+                  ),
+                ),
               ],
             ),
             Padding(
@@ -296,6 +411,35 @@ class _CandidateCard extends ConsumerWidget {
               ),
             ),
           ],
+        ),
+      ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _SwipeStamp extends StatelessWidget {
+  const _SwipeStamp({required this.label, required this.color});
+
+  final String label;
+  final Color color;
+
+  @override
+  Widget build(BuildContext context) {
+    return Transform.rotate(
+      angle: -0.25,
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
+        decoration: BoxDecoration(
+          border: Border.all(color: color, width: 3),
+          borderRadius: BorderRadius.circular(8),
+          color: AppColors.noirProfond.withValues(alpha: 0.25),
+        ),
+        child: Text(
+          label,
+          style: TextStyle(color: color, fontWeight: FontWeight.w900, fontSize: 22, letterSpacing: 1.5),
         ),
       ),
     );

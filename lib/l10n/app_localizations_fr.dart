@@ -712,6 +712,16 @@ class AppLocalizationsFr extends AppLocalizations {
   String get profileAlreadySwiped => 'Ce profil a déjà été swipé.';
 
   @override
+  String get superLikeRequiresJetonOrPremium =>
+      'Un Super Like coûte un jeton (ou passe en Premium pour des Super Likes illimités).';
+
+  @override
+  String get swipeLikeStamp => 'LIKE';
+
+  @override
+  String get swipePassStamp => 'PASSE';
+
+  @override
   String get likesLoadFailed => 'Impossible de charger les likes.';
 
   @override

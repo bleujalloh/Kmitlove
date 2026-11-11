@@ -23,6 +23,11 @@ export const COMPAT_SCALE_MAX = 5;
 
 // docs/regles-complementaires-concurrents.md section 3
 export const FREE_DAILY_LIKE_LIMIT = 20;
+// Un Super Like doit coûter quelque chose en dehors de Premium (signalé
+// par le propriétaire le 11/11/2026 : il ne doit JAMAIS être gratuit et
+// illimité comme un like normal) — un jeton par Super Like, gratuit et
+// illimité uniquement pour les membres Premium.
+export const SUPER_LIKE_JETON_COST = 1;
 export const DISCOVER_CANDIDATE_POOL_SIZE = 50; // avant filtrage
 export const DISCOVER_CANDIDATES_RETURNED = 10; // après filtrage, envoyés au client
 export const INACTIVE_ACCOUNT_DAYS = 30;
@@ -47,6 +52,18 @@ export const EVENT_ACCESS_MODES = ["public", "sur_demande", "sur_invitation"] as
 export const EVENT_STATES = ["prevu", "complet", "annule", "termine"] as const;
 export const ORGANIZER_MAX_NAME_LENGTH = 80;
 export const ORGANIZER_MAX_DESCRIPTION_LENGTH = 500;
+// Récurrence d'événement (spec Communauté section 10, complété le
+// 11/11/2026) : liste fermée vérifiée côté serveur, jamais une
+// périodicité libre saisie par le client. Nombre d'occurrences
+// générées à la création plafonné pour ne jamais créer une série non
+// bornée ni surcharger la revue de modération humaine (chaque
+// occurrence reste un événement "pending_review" comme les autres).
+export const EVENT_RECURRENCE_FREQUENCIES = ["hebdomadaire", "mensuel"] as const;
+export const EVENT_RECURRENCE_MAX_OCCURRENCES = 6;
+// Rappel automatique (spec Communauté section 9) : délai avant le début
+// de l'événement en dessous duquel un participant confirmé reçoit une
+// notification push — functions/src/scheduled/sendEventReminders.ts.
+export const EVENT_REMINDER_HOURS_BEFORE = 24;
 
 // docs/regles-annonces-evenements.md
 export const MAX_ACTIVE_ANNONCES_PER_USER = 3;

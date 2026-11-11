@@ -253,6 +253,9 @@
   "locationFilterHint": "Renseigne un pays (et, si tu veux, une ville) pour voir des profils hors de ton rayon GPS — remplace le filtre de distance tant que c'est rempli.",
   "dailyLikeLimitReached": "Limite de likes quotidienne atteinte, reviens demain ou passe en Premium.",
   "profileAlreadySwiped": "Ce profil a déjà été swipé.",
+  "superLikeRequiresJetonOrPremium": "Un Super Like coûte un jeton (ou passe en Premium pour des Super Likes illimités).",
+  "swipeLikeStamp": "LIKE",
+  "swipePassStamp": "PASSE",
 
   "likesLoadFailed": "Impossible de charger les likes.",
   "likedYouTab": "T'ont liké · {count}",

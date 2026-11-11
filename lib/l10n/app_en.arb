@@ -237,6 +237,9 @@
   "locationFilterHint": "Enter a country (and, if you like, a city) to see profiles outside your GPS radius — replaces the distance filter while it's filled in.",
   "dailyLikeLimitReached": "Daily like limit reached, come back tomorrow or go Premium.",
   "profileAlreadySwiped": "This profile was already swiped.",
+  "superLikeRequiresJetonOrPremium": "A Super Like costs one token (or go Premium for unlimited Super Likes).",
+  "swipeLikeStamp": "LIKE",
+  "swipePassStamp": "NOPE",
 
   "likesLoadFailed": "Couldn't load likes.",
   "likedYouTab": "Liked you · {count}",
