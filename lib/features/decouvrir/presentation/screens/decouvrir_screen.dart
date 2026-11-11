@@ -158,49 +158,88 @@ class _CandidateCard extends ConsumerWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Container(
-              height: 220,
-              width: double.infinity,
-              color: AppColors.placeholder,
-              child: photoUrl != null
-                  ? Image.network(photoUrl, fit: BoxFit.cover, width: double.infinity, height: 220)
-                  : const Icon(Icons.person_outline, size: 46, color: Color(0xFFC9C0B2)),
+            Stack(
+              children: [
+                Container(
+                  height: 340,
+                  width: double.infinity,
+                  color: AppColors.placeholder,
+                  child: photoUrl != null
+                      ? Image.network(photoUrl, fit: BoxFit.cover, width: double.infinity, height: 340)
+                      : const Icon(Icons.person_outline, size: 46, color: Color(0xFFC9C0B2)),
+                ),
+                // Nom/âge/localisation sur la photo (comme sur les
+                // applications de rencontre courantes), via un dégradé
+                // plutôt qu'un fond uni, pour rester lisible sur
+                // n'importe quelle photo — remarqué le 11/11 : ces
+                // informations existaient déjà mais noyées sous la photo
+                // au lieu d'être mises en avant dessus.
+                Positioned(
+                  left: 0,
+                  right: 0,
+                  bottom: 0,
+                  child: Container(
+                    padding: const EdgeInsets.fromLTRB(18, 40, 18, 16),
+                    decoration: const BoxDecoration(
+                      gradient: LinearGradient(
+                        begin: Alignment.topCenter,
+                        end: Alignment.bottomCenter,
+                        colors: [Colors.transparent, Color(0xCC000000)],
+                      ),
+                    ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Row(
+                          children: [
+                            Expanded(
+                              child: Text(
+                                '${candidate.displayName}, ${candidate.age}',
+                                style: const TextStyle(
+                                  fontSize: 24,
+                                  fontWeight: FontWeight.bold,
+                                  color: Colors.white,
+                                ),
+                              ),
+                            ),
+                            if (compatScore != null)
+                              Container(
+                                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                                decoration: BoxDecoration(
+                                  color: AppColors.accent,
+                                  borderRadius: BorderRadius.circular(999),
+                                ),
+                                child: Text(
+                                  context.l10n.compatScoreBadge(compatScore),
+                                  style: const TextStyle(fontSize: 12, color: Colors.white, fontWeight: FontWeight.w700),
+                                ),
+                              ),
+                          ],
+                        ),
+                        const SizedBox(height: 4),
+                        Row(
+                          children: [
+                            const Icon(Icons.place_outlined, size: 15, color: Colors.white70),
+                            const SizedBox(width: 4),
+                            Text(
+                              candidate.distanceKm != null
+                                  ? context.l10n.cityCountryWithDistance(candidate.city, candidate.country, candidate.distanceKm!)
+                                  : context.l10n.cityCountry(candidate.city, candidate.country),
+                              style: const TextStyle(color: Colors.white70, fontSize: 13),
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ],
             ),
             Padding(
               padding: const EdgeInsets.all(18),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Row(
-                    children: [
-                      Expanded(
-                        child: Text(
-                          '${candidate.displayName}, ${candidate.age}',
-                          style: const TextStyle(fontSize: 22, fontWeight: FontWeight.bold, color: AppColors.ink),
-                        ),
-                      ),
-                      if (compatScore != null)
-                        Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-                          decoration: BoxDecoration(
-                            color: AppColors.accentSoft,
-                            borderRadius: BorderRadius.circular(999),
-                          ),
-                          child: Text(
-                            context.l10n.compatScoreBadge(compatScore),
-                            style: const TextStyle(fontSize: 12, color: AppColors.accent, fontWeight: FontWeight.w700),
-                          ),
-                        ),
-                    ],
-                  ),
-                  const SizedBox(height: 4),
-                  Text(
-                    candidate.distanceKm != null
-                        ? context.l10n.cityCountryWithDistance(candidate.city, candidate.country, candidate.distanceKm!)
-                        : context.l10n.cityCountry(candidate.city, candidate.country),
-                    style: const TextStyle(color: AppColors.muted, fontSize: 13),
-                  ),
-                  const SizedBox(height: 12),
                   Text(candidate.bio, style: const TextStyle(fontSize: 13.5, color: Color(0xFF4A4038))),
                   const SizedBox(height: 12),
                   Wrap(
