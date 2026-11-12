@@ -605,3 +605,34 @@ une maquette visuelle précise fournie. `ProfilDetailScreen` reste utilisé tel 
   plutôt que sur la photo — cas rare, purement visuel, non corrigé dans cette passe pour rester
   proportionné (corriger ça pour de bon demanderait de synchroniser la position de l'estampille avec
   le défilement).
+
+## Suivi 2026-11-12 (suite) — Pays/ville réels obligatoires à l'inscription
+
+- [x] **Testé et validé (déployé)** : pays via un vrai sélecteur ISO 3166-1 (`country_picker`),
+  toujours enregistré en français (jamais la locale d'affichage de l'app) pour rester cohérent avec
+  `emergency_sheet.dart`, qui indexe ses numéros d'urgence par nom de pays français en dur. Validé
+  côté serveur contre une liste fermée de 246 noms générée directement depuis les données du
+  package (jamais retranscrite à la main), insensible à la casse pour les profils déjà enregistrés
+  avant ce correctif.
+- [x] **Compromis ville assumé et expliqué, pas présenté comme complet** : aucune base de villes
+  exhaustive n'existe pour ce projet et il n'était pas raisonnable d'en embarquer une ou d'ajouter
+  une vraie API de géocodage (nouvelle dépendance/clé/coût) pour ce besoin — suggestions de villes
+  RÉELLES (jamais inventées) pour une trentaine de pays les plus pertinents pour la communauté
+  visée, saisie libre toujours possible en dehors. Aucune validation fermée côté serveur sur ce
+  champ, volontairement : une vraie ville absente des suggestions ne doit jamais être refusée.
+- [x] **Revue de code (effort high, trois passes) passée, corrections réelles** : stockage du pays
+  d'abord dépendant de la locale d'affichage — repéré comme une régression de sécurité réelle
+  (numéros d'urgence cassés en silence pour un membre utilisant l'app en anglais) avant même d'être
+  livré, corrigé en forçant le français ; repli de compatibilité pour les anciennes données
+  initialement mal placé (aurait réécrit une resélection correcte avec l'ancienne valeur erronée),
+  corrigé pour ne jamais court-circuiter la validation réelle ; fuite d'observateur dans le champ
+  ville à chaque frappe ; bascule entre deux widgets différents qui perdait le focus/clavier au
+  changement de pays.
+- [ ] **Non vérifié sur appareil réel** : accès appareil toujours indisponible — en particulier
+  l'ergonomie réelle du sélecteur (bascule clavier/sélecteur, recherche) n'a été vérifiée que par
+  relecture du code et compilation propre, pas par un test tactile.
+- [ ] **Limite assumée, pas un oubli** : un profil dont le pays ne correspond à AUCUNE entrée connue
+  même en ignorant la casse (abréviation, écriture directe de test en dehors de l'app) reste
+  bloqué pour ce seul champ tant qu'il n'est pas explicitement remis à jour via le sélecteur — aucune
+  migration de données n'a été lancée pour les corriger en masse, le cas réel trouvé en vérifiant la
+  base (une seule casse différente, "france") étant déjà couvert sans ça.
