@@ -42,7 +42,9 @@ String readableAuthError(Object error, AppLocalizations l10n) {
   if (code.contains('weak-password')) {
     return l10n.authErrorWeakPassword;
   }
-  if (code.contains('user-not-found') || code.contains('wrong-password') || code.contains('invalid-credential')) {
+  if (code.contains('user-not-found') ||
+      code.contains('wrong-password') ||
+      code.contains('invalid-credential')) {
     return l10n.authErrorWrongCredentials;
   }
   if (code.contains('too-many-requests')) {
@@ -61,7 +63,9 @@ String readableAuthError(Object error, AppLocalizations l10n) {
   // pour qu'une simple capture d'écran suffise à diagnostiquer la suite,
   // sans avoir besoin d'un terminal/adb logcat.
   final shortCode = RegExp(r'firebase_auth/[a-z0-9-]+').stringMatch(code);
-  return shortCode != null ? l10n.genericErrorWithCode(shortCode) : l10n.genericError;
+  return shortCode != null
+      ? l10n.genericErrorWithCode(shortCode)
+      : l10n.genericError;
 }
 
 /// Posé par signInWithGoogle/signInWithApple quand l'authentification
@@ -85,8 +89,9 @@ class AuthController extends AsyncNotifier<void> {
   Future<bool> signUp(String email, String password) async {
     state = const AsyncLoading();
     try {
-      final credential =
-          await ref.read(authRepositoryProvider).signUpWithEmail(email: email, password: password);
+      final credential = await ref
+          .read(authRepositoryProvider)
+          .signUpWithEmail(email: email, password: password);
       unawaited(_reportDeviceSignalIfNew(credential));
       state = const AsyncData(null);
       return true;
@@ -116,7 +121,9 @@ class AuthController extends AsyncNotifier<void> {
   Future<bool> signIn(String email, String password) async {
     state = const AsyncLoading();
     try {
-      await ref.read(authRepositoryProvider).signInWithEmail(email: email, password: password);
+      await ref
+          .read(authRepositoryProvider)
+          .signInWithEmail(email: email, password: password);
       state = const AsyncData(null);
       return true;
     } catch (e, st) {
@@ -135,11 +142,16 @@ class AuthController extends AsyncNotifier<void> {
   Future<bool> signInWithGoogle({bool allowAccountCreation = true}) async {
     state = const AsyncLoading();
     try {
-      final credential = await ref.read(authRepositoryProvider).signInWithGoogle();
+      final credential = await ref
+          .read(authRepositoryProvider)
+          .signInWithGoogle();
       final isNewUser = credential.additionalUserInfo?.isNewUser == true;
       if (isNewUser && !allowAccountCreation) {
         await ref.read(authRepositoryProvider).deleteJustCreatedAccount();
-        state = AsyncError(Exception('no-account-for-social-sign-in'), StackTrace.current);
+        state = AsyncError(
+          Exception('no-account-for-social-sign-in'),
+          StackTrace.current,
+        );
         return false;
       }
       if (isNewUser) {
@@ -158,11 +170,16 @@ class AuthController extends AsyncNotifier<void> {
   Future<bool> signInWithApple({bool allowAccountCreation = true}) async {
     state = const AsyncLoading();
     try {
-      final credential = await ref.read(authRepositoryProvider).signInWithApple();
+      final credential = await ref
+          .read(authRepositoryProvider)
+          .signInWithApple();
       final isNewUser = credential.additionalUserInfo?.isNewUser == true;
       if (isNewUser && !allowAccountCreation) {
         await ref.read(authRepositoryProvider).deleteJustCreatedAccount();
-        state = AsyncError(Exception('no-account-for-social-sign-in'), StackTrace.current);
+        state = AsyncError(
+          Exception('no-account-for-social-sign-in'),
+          StackTrace.current,
+        );
         return false;
       }
       if (isNewUser) {
@@ -192,12 +209,41 @@ class AuthController extends AsyncNotifier<void> {
   Future<void> signOut() => ref.read(authRepositoryProvider).signOut();
 }
 
-/// Déclenche une seule fois par session l'enregistrement de
-/// "dernière activité" (docs/regles-complementaires-concurrents.md
-/// section 3 — masquage des comptes inactifs). Observé (watch) depuis
-/// l'accueil pour s'exécuter dès qu'un membre atteint l'app.
-final activityHeartbeatProvider = FutureProvider<void>((ref) async {
-  await ref.read(cloudFunctionsProvider).httpsCallable('recordActivity').call();
+/// "Dernière activité" (docs/regles-complementaires-concurrents.md
+/// section 3 — masquage des comptes inactifs) — maintenant répétée
+/// toutes les 5 minutes tant que l'app reste ouverte, pas seulement une
+/// fois par session : réutilisée depuis le 12/11/2026 pour calculer le
+/// badge "En ligne" sur la carte Découvrir (getCandidates.ts), qui a
+/// besoin d'un signal réellement frais (fenêtre de 10 minutes,
+/// ONLINE_THRESHOLD_MINUTES) — un seul appel au lancement aurait laissé
+/// quelqu'un apparaître "en ligne" seulement les 10 premières minutes
+/// de sa session, puis "hors ligne" alors qu'il utilise encore l'app
+/// (trouvé par revue de code). Le minuteur s'arrête automatiquement si
+/// ce provider est disposé (plus d'observateur, ex. déconnexion).
+final activityHeartbeatProvider = Provider.autoDispose<void>((ref) {
+  // `.autoDispose` : un Provider classique ne serait jamais réellement
+  // disposé tant que le ProviderScope entier vit, donc le minuteur aurait
+  // continué à tourner même après une déconnexion (main_shell.dart est
+  // démonté, mais ce n'est pas lui qui "possède" ce provider) — appelant
+  // recordActivity sans session, qui échoue en boucle, pour toujours
+  // (trouvé par revue de code). Avec `.autoDispose`, dès qu'il n'a plus
+  // aucun observateur (MainShell démonté), Riverpod le dispose et annule
+  // le minuteur.
+  Future<void> ping() async {
+    // Best-effort, comme sendPushToUser côté serveur : un échec ponctuel
+    // (réseau, déconnexion pile entre deux coups de minuteur) ne doit
+    // jamais remonter comme une exception non interceptée.
+    try {
+      await ref
+          .read(cloudFunctionsProvider)
+          .httpsCallable('recordActivity')
+          .call();
+    } catch (_) {}
+  }
+
+  ping();
+  final timer = Timer.periodic(const Duration(minutes: 5), (_) => ping());
+  ref.onDispose(timer.cancel);
 });
 
 final authControllerProvider = AsyncNotifierProvider<AuthController, void>(

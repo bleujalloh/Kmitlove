@@ -2660,6 +2660,90 @@ abstract class AppLocalizations {
   /// **'Oui, je confirme'**
   String get confirmAdultDialogAccept;
 
+  /// No description provided for @discoverSubtitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Des âmes kamites qui partagent tes valeurs.'**
+  String get discoverSubtitle;
+
+  /// No description provided for @filtersPillLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Filtres'**
+  String get filtersPillLabel;
+
+  /// No description provided for @onlineBadgeLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'En ligne'**
+  String get onlineBadgeLabel;
+
+  /// No description provided for @aboutMeSectionTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'À propos de moi'**
+  String get aboutMeSectionTitle;
+
+  /// No description provided for @factAgeValue.
+  ///
+  /// In fr, this message translates to:
+  /// **'{age} ans'**
+  String factAgeValue(int age);
+
+  /// No description provided for @factAgeLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Âge'**
+  String get factAgeLabel;
+
+  /// No description provided for @factHeightLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Taille'**
+  String get factHeightLabel;
+
+  /// No description provided for @factEducationLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Niveau'**
+  String get factEducationLabel;
+
+  /// No description provided for @factProfessionLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Profession'**
+  String get factProfessionLabel;
+
+  /// No description provided for @factLookingForLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Recherche'**
+  String get factLookingForLabel;
+
+  /// No description provided for @factChildrenLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Enfants'**
+  String get factChildrenLabel;
+
+  /// No description provided for @factSmokingDrinkingLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Tabac / Alcool'**
+  String get factSmokingDrinkingLabel;
+
+  /// No description provided for @ageRangePill.
+  ///
+  /// In fr, this message translates to:
+  /// **'{min}–{max} ans'**
+  String ageRangePill(int min, int max);
+
+  /// No description provided for @maxDistancePill.
+  ///
+  /// In fr, this message translates to:
+  /// **'≤ {km} km'**
+  String maxDistancePill(int km);
+
   /// No description provided for @cancelParticipationButton.
   ///
   /// In fr, this message translates to:

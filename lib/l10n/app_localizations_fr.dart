@@ -1415,6 +1415,54 @@ class AppLocalizationsFr extends AppLocalizations {
   String get confirmAdultDialogAccept => 'Oui, je confirme';
 
   @override
+  String get discoverSubtitle => 'Des âmes kamites qui partagent tes valeurs.';
+
+  @override
+  String get filtersPillLabel => 'Filtres';
+
+  @override
+  String get onlineBadgeLabel => 'En ligne';
+
+  @override
+  String get aboutMeSectionTitle => 'À propos de moi';
+
+  @override
+  String factAgeValue(int age) {
+    return '$age ans';
+  }
+
+  @override
+  String get factAgeLabel => 'Âge';
+
+  @override
+  String get factHeightLabel => 'Taille';
+
+  @override
+  String get factEducationLabel => 'Niveau';
+
+  @override
+  String get factProfessionLabel => 'Profession';
+
+  @override
+  String get factLookingForLabel => 'Recherche';
+
+  @override
+  String get factChildrenLabel => 'Enfants';
+
+  @override
+  String get factSmokingDrinkingLabel => 'Tabac / Alcool';
+
+  @override
+  String ageRangePill(int min, int max) {
+    return '$min–$max ans';
+  }
+
+  @override
+  String maxDistancePill(int km) {
+    return '≤ $km km';
+  }
+
+  @override
   String get cancelParticipationButton => 'Annuler ma participation';
 
   @override

@@ -1403,6 +1403,54 @@ class AppLocalizationsEn extends AppLocalizations {
   String get confirmAdultDialogAccept => 'Yes, I confirm';
 
   @override
+  String get discoverSubtitle => 'Kamite souls who share your values.';
+
+  @override
+  String get filtersPillLabel => 'Filters';
+
+  @override
+  String get onlineBadgeLabel => 'Online';
+
+  @override
+  String get aboutMeSectionTitle => 'About me';
+
+  @override
+  String factAgeValue(int age) {
+    return '$age y/o';
+  }
+
+  @override
+  String get factAgeLabel => 'Age';
+
+  @override
+  String get factHeightLabel => 'Height';
+
+  @override
+  String get factEducationLabel => 'Education';
+
+  @override
+  String get factProfessionLabel => 'Occupation';
+
+  @override
+  String get factLookingForLabel => 'Looking for';
+
+  @override
+  String get factChildrenLabel => 'Children';
+
+  @override
+  String get factSmokingDrinkingLabel => 'Smoking / Drinking';
+
+  @override
+  String ageRangePill(int min, int max) {
+    return '$min–$max y/o';
+  }
+
+  @override
+  String maxDistancePill(int km) {
+    return '≤ $km km';
+  }
+
+  @override
   String get cancelParticipationButton => 'Cancel my participation';
 
   @override

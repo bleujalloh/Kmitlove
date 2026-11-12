@@ -157,3 +157,10 @@ export const COMPAT_QUESTIONS_PER_SESSION = 18;
 // inscription : seulement pour mettre en revue prioritaire un compte une
 // fois ce seuil atteint depuis le même appareil (shared/deviceSignal.ts).
 export const MULTI_ACCOUNT_DEVICE_THRESHOLD = 3;
+
+// Badge "En ligne" sur la carte Découvrir (maquette visuelle validée le
+// 12/11/2026) : réutilise lastActiveAt déjà écrit par recordActivity.ts
+// (jusqu'ici seulement pour le masquage des comptes inactifs 30 jours),
+// jamais un nouveau système de présence temps réel — un membre actif
+// dans cette fenêtre récente est considéré "en ligne".
+export const ONLINE_THRESHOLD_MINUTES = 10;

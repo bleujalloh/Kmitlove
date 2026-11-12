@@ -7,6 +7,7 @@ import {
   DISCOVER_CANDIDATES_RETURNED,
   INACTIVE_ACCOUNT_DAYS,
   MIN_APPROVED_PHOTOS_TO_BE_DISCOVERABLE,
+  ONLINE_THRESHOLD_MINUTES,
 } from "../config";
 import { computeAge } from "../shared/age";
 import { distanceKm } from "../shared/distance";
@@ -196,6 +197,7 @@ export const getDiscoverCandidates = onCall({ region: REGION }, async (request) 
     if (approvedFacePhotoCount < MIN_APPROVED_PHOTOS_TO_BE_DISCOVERABLE) continue;
 
     const boostedUntil = status?.boostedUntil?.toMillis?.() as number | undefined;
+    const lastActiveAtMillis = status?.lastActiveAt?.toMillis?.() as number | undefined;
     const data = doc.data();
     eligible.push({
       uid: doc.id,
@@ -206,8 +208,20 @@ export const getDiscoverCandidates = onCall({ region: REGION }, async (request) 
       bio: data.bio,
       interests: data.interests ?? [],
       relationshipIntent: data.relationshipIntent,
+      // Fiche profil étendue (maquette visuelle validée le 12/11/2026,
+      // révélation complète au scroll sur la carte Découvrir) — `null`
+      // quand non renseigné, jamais une valeur inventée côté client.
+      profession: data.profession ?? null,
+      heightCm: data.heightCm ?? null,
+      educationLevel: data.educationLevel ?? null,
+      childrenStatus: data.childrenStatus ?? null,
+      smokingHabit: data.smokingHabit ?? null,
+      drinkingHabit: data.drinkingHabit ?? null,
       distanceKm: distance === null ? null : Math.round(distance),
       isVerified: status?.isVerified === true,
+      isOnline:
+        typeof lastActiveAtMillis === "number" &&
+        now - lastActiveAtMillis <= ONLINE_THRESHOLD_MINUTES * 60 * 1000,
       _boosted: typeof boostedUntil === "number" && boostedUntil > now,
       // Les profils boostés passent toujours devant (cahier des charges
       // section 5) ; à boost égal, un profil plus complet (bio, centres

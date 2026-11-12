@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../../core/theme/app_theme.dart';
+import '../../../../core/widgets/profile_fact_sheet.dart';
 import '../../../../l10n/l10n_extensions.dart';
 import '../../../compatibilite/presentation/compat_controller.dart';
 import '../profil_detail_controller.dart';
@@ -13,7 +14,11 @@ import '../profil_detail_controller.dart';
 /// swipe). Réutilisable partout où une mini-carte de profil est
 /// affichée (likes_screen.dart : "Mes likes" et "T'ont liké" en Premium).
 class ProfilDetailScreen extends ConsumerWidget {
-  const ProfilDetailScreen({super.key, required this.uid, this.isVerified = false});
+  const ProfilDetailScreen({
+    super.key,
+    required this.uid,
+    this.isVerified = false,
+  });
 
   final String uid;
 
@@ -26,7 +31,9 @@ class ProfilDetailScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final profileAsync = ref.watch(targetProfileProvider(uid));
-    final photoUrls = ref.watch(targetProfilePhotoUrlsProvider(uid)).value ?? const <String>[];
+    final photoUrls =
+        ref.watch(targetProfilePhotoUrlsProvider(uid)).value ??
+        const <String>[];
     final compatScore = ref.watch(compatScoreWithProvider(uid)).value;
 
     return Scaffold(
@@ -48,7 +55,11 @@ class ProfilDetailScreen extends ConsumerWidget {
                   background: photoUrls.isEmpty
                       ? Container(
                           color: AppColors.placeholder,
-                          child: const Icon(Icons.person_outline, size: 64, color: AppColors.placeholderIcon),
+                          child: const Icon(
+                            Icons.person_outline,
+                            size: 64,
+                            color: AppColors.placeholderIcon,
+                          ),
                         )
                       : _PhotoCarousel(photoUrls: photoUrls),
                 ),
@@ -64,18 +75,29 @@ class ProfilDetailScreen extends ConsumerWidget {
                           Flexible(
                             child: Text(
                               '${profile.displayName}, ${profile.age}',
-                              style: const TextStyle(fontSize: 22, fontWeight: FontWeight.bold, color: AppColors.ink),
+                              style: const TextStyle(
+                                fontSize: 22,
+                                fontWeight: FontWeight.bold,
+                                color: AppColors.ink,
+                              ),
                               overflow: TextOverflow.ellipsis,
                             ),
                           ),
                           if (isVerified) ...[
                             const SizedBox(width: 6),
-                            const Icon(Icons.verified, color: AppColors.accent, size: 20),
+                            const Icon(
+                              Icons.verified,
+                              color: AppColors.accent,
+                              size: 20,
+                            ),
                           ],
                           if (compatScore != null) ...[
                             const Spacer(),
                             Container(
-                              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 10,
+                                vertical: 5,
+                              ),
                               decoration: BoxDecoration(
                                 color: AppColors.accent,
                                 borderRadius: BorderRadius.circular(999),
@@ -95,42 +117,37 @@ class ProfilDetailScreen extends ConsumerWidget {
                       const SizedBox(height: 4),
                       Row(
                         children: [
-                          const Icon(Icons.place_outlined, size: 15, color: AppColors.muted),
+                          const Icon(
+                            Icons.place_outlined,
+                            size: 15,
+                            color: AppColors.muted,
+                          ),
                           const SizedBox(width: 4),
                           Text(
-                            context.l10n.cityCountry(profile.city, profile.country),
-                            style: const TextStyle(color: AppColors.muted, fontSize: 13),
+                            context.l10n.cityCountry(
+                              profile.city,
+                              profile.country,
+                            ),
+                            style: const TextStyle(
+                              color: AppColors.muted,
+                              fontSize: 13,
+                            ),
                           ),
                         ],
                       ),
-                      if (profile.bio.isNotEmpty) ...[
-                        const SizedBox(height: 18),
-                        Text(profile.bio, style: const TextStyle(fontSize: 14, height: 1.5, color: AppColors.ink)),
-                      ],
-                      if (profile.interests.isNotEmpty) ...[
-                        const SizedBox(height: 14),
-                        Wrap(
-                          spacing: 6,
-                          runSpacing: 6,
-                          children: profile.interests
-                              .map((i) => Container(
-                                    padding: const EdgeInsets.symmetric(horizontal: 11, vertical: 5),
-                                    decoration: BoxDecoration(
-                                      color: AppColors.accentSoft,
-                                      borderRadius: BorderRadius.circular(999),
-                                    ),
-                                    child: Text(
-                                      i,
-                                      style: const TextStyle(
-                                        fontSize: 11.5,
-                                        color: AppColors.accent,
-                                        fontWeight: FontWeight.w600,
-                                      ),
-                                    ),
-                                  ))
-                              .toList(),
-                        ),
-                      ],
+                      const SizedBox(height: 18),
+                      ProfileFactSheet(
+                        bio: profile.bio,
+                        interests: profile.interests,
+                        age: profile.age,
+                        heightCm: profile.heightCm,
+                        educationLevel: profile.educationLevel,
+                        profession: profile.profession,
+                        relationshipIntent: profile.relationshipIntent,
+                        childrenStatus: profile.childrenStatus,
+                        smokingHabit: profile.smokingHabit,
+                        drinkingHabit: profile.drinkingHabit,
+                      ),
                     ],
                   ),
                 ),
@@ -162,7 +179,8 @@ class _PhotoCarouselState extends State<_PhotoCarousel> {
         PageView.builder(
           itemCount: widget.photoUrls.length,
           onPageChanged: (i) => setState(() => _index = i),
-          itemBuilder: (context, i) => Image.network(widget.photoUrls[i], fit: BoxFit.cover),
+          itemBuilder: (context, i) =>
+              Image.network(widget.photoUrls[i], fit: BoxFit.cover),
         ),
         if (widget.photoUrls.length > 1)
           Positioned(
