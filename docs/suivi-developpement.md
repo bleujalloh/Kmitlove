@@ -636,3 +636,40 @@ une maquette visuelle précise fournie. `ProfilDetailScreen` reste utilisé tel 
   bloqué pour ce seul champ tant qu'il n'est pas explicitement remis à jour via le sélecteur — aucune
   migration de données n'a été lancée pour les corriger en masse, le cas réel trouvé en vérifiant la
   base (une seule casse différente, "france") étant déjà couvert sans ça.
+
+## Suivi 2026-11-12 (suite) — Date de naissance retirée du document public (règlement permanent section 17)
+
+- [x] **Testé et validé (déployé)** : `birthDate` ne vit plus sur `users/{uid}` (lisible par tout
+  membre connecté) — seul `age`, recalculé par `saveProfil.ts` à chaque sauvegarde, y reste public.
+  La date exacte vit désormais uniquement dans `user_status/{uid}` (lecture réservée au
+  propriétaire, `firestore.rules`). Écriture atomique (`WriteBatch`) des deux documents.
+  `getDiscoverCandidates` et `getLikes` lisent `age` directement au lieu de le recalculer depuis
+  `birthDate` ; les trois fonctions (`saveProfil`, `getDiscoverCandidates`, `getLikes`) ont été
+  redéployées en production. Les 12 comptes réels existants ont été migrés (script ponctuel, pas
+  dans le dépôt) : `birthDate` déplacée vers `user_status`, `age` calculé et écrit sur `users`,
+  vérifié par lecture directe après migration.
+- [x] **Côté client** : `watchProfil` (`profil_repository.dart`) recompose `birthDate` pour son
+  propriétaire en combinant `users` + `user_status` (nécessaire pour pré-remplir le sélecteur de
+  date à l'édition) ; `targetProfileProvider` (`profil_detail_controller.dart`, fiche d'un profil
+  tiers) lit `age` directement et échoue bruyamment (`StateError`) plutôt que d'afficher un âge
+  inventé si `age` est absent — jamais de `birthDate` d'un autre membre relu côté client.
+- [x] **Incident réel identifié et corrigé en urgence pendant ce chantier** : le script de
+  migration a été exécuté contre la base de production AVANT que ce correctif ne soit déployé/livré
+  côté client. Résultat concret observé : un APK construit depuis le dernier commit propre
+  (`a5f6391`) a planté à l'ouverture du profil (`type 'Null' is not a subtype of type 'String'`,
+  `Profil.fromMap` lisait `birthDate` devenu absent) ; côté serveur, les Cloud Functions encore
+  déployées à ce moment-là (anciennes, lisant aussi `birthDate` sur `users/{uid}`) renvoyaient un
+  âge invalide — Découvrir aurait silencieusement renvoyé une liste vide à tout le monde, Likes un
+  âge invalide. Corrigé en déployant immédiatement les trois fonctions mises à jour dès la
+  confirmation du diagnostic ; le serveur est donc de nouveau cohérent avec les données réelles. Le
+  correctif client est committé et poussé (`b5b1878`) mais **une nouvelle build d'APK est
+  nécessaire** pour que l'appareil ayant crashé reparte d'un profil fonctionnel — celui déjà
+  installé reste construit sur l'ancien code tant qu'il n'est pas remplacé.
+- [ ] **Limite assumée, pas un oubli** : `age` est calculé une fois à chaque sauvegarde de profil,
+  pas en continu — un profil qui ne resauvegarde jamais peut afficher un âge figé jusqu'à un an
+  avant de changer, par conception (demande explicite : "recalcule age côté serveur à chaque
+  sauvegarde de profil"), pas par recalcul en temps réel à chaque lecture.
+- [ ] **Non vérifié sur appareil réel** : la correction du crash n'a été vérifiée que par lecture
+  directe des données de production et par la logique du code, pas encore par un appareil physique
+  rechargeant un profil réel après une nouvelle build — accès appareil toujours indisponible pour
+  cette session.
