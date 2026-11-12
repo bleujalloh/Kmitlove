@@ -15,7 +15,6 @@ import '../../../auth/presentation/auth_controller.dart';
 import '../../../compatibilite/presentation/compat_controller.dart';
 import '../../../messages/presentation/messages_controller.dart';
 import '../../../messages/presentation/screens/blocked_profiles_screen.dart';
-import '../../../notifications/push_controller.dart';
 
 /// Espace Paramètres : réglages purs (langue, confidentialité, export
 /// RGPD, déconnexion, suppression de compte) — modifier le profil,
@@ -240,10 +239,14 @@ class _ParametresScreenState extends ConsumerState<ParametresScreen> {
             ListTile(
               leading: const Icon(Icons.logout),
               title: Text(context.l10n.signOut),
-              onTap: () async {
-                await unregisterCurrentPushToken(ref);
-                await ref.read(authControllerProvider.notifier).signOut();
-              },
+              // Désinscription du jeton push + réinitialisation de l'état de
+              // session (filtres, sous-onglets) déplacées dans
+              // AuthController.signOut() lui-même (12/11/2026) — ce bouton
+              // n'était qu'un des quatre points d'entrée réels de la
+              // déconnexion, les trois autres (SanctionScreen,
+              // FiltrageScreen, FiltragePendingScreen) ne faisaient ni l'un
+              // ni l'autre.
+              onTap: () => ref.read(authControllerProvider.notifier).signOut(),
             ),
             const Divider(height: 1),
             ListTile(

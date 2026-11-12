@@ -36,7 +36,7 @@ final pushRegistrationProvider = FutureProvider<void>((ref) async {
 /// ce compte continuerait à recevoir ses notifications).
 final _lastKnownTokenProvider = StateProvider<String?>((ref) => null);
 
-Future<void> unregisterCurrentPushToken(WidgetRef ref) async {
+Future<void> unregisterCurrentPushToken(Ref ref) async {
   try {
     final token = ref.read(_lastKnownTokenProvider);
     if (token == null) return;
