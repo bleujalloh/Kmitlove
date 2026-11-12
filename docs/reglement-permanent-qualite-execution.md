@@ -257,6 +257,23 @@ exigences du périmètre défini sont implantées, cohérentes et validées. Auc
 de réussite n'est acceptable. Aucune fonctionnalité ne doit être oubliée. Aucun travail réalisable
 ne doit être abandonné ou reporté volontairement.
 
+## 17. Autonomie accordée : la règle la plus stricte gagne
+
+Ajout du propriétaire du projet, 2026-11-12 : le travail doit se faire de bout en bout, et ses
+recommandations d'implémentation sont acceptées par avance. Concrètement :
+
+- Ne pas interrompre le travail pour demander l'approbation d'un choix d'implémentation (quelle
+  bibliothèque, quel compromis de couverture de données, quel motif d'interface) — décider et
+  avancer, en expliquant le choix dans le rapport plutôt qu'en le soumettant avant d'agir.
+- Lorsque deux règles ou considérations de ce document pourraient pointer vers des directions
+  différentes (rapidité contre rigueur, confort contre sécurité, permissif contre restrictif),
+  **l'option la plus stricte, la plus sûre et la plus protectrice des données et de la sécurité des
+  membres l'emporte toujours** — jamais l'option la plus rapide ou la plus confortable en cas de
+  conflit réel.
+- Ceci n'affaiblit aucune règle déjà posée dans ce document (exécution intégrale, interdiction des
+  fausses déclarations de fin, sécurité côté serveur, etc.) — ça retire seulement l'obligation de
+  faire valider chaque arbitrage d'implémentation avant d'agir dessus.
+
 ---
 
 *Ces règles sont permanentes, obligatoires et applicables à l'ensemble du code existant et futur
