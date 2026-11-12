@@ -518,3 +518,90 @@ n'existait sur les photos — seule la revue humaine ou l'approbation automatiqu
   l'admin peut approuver la photo mais ne peut pas forcer `hasFace` à vrai (volontaire : la spec
   demande un visage "clairement détecté", pas un jugement humain générique) ; seul un nouvel upload
   peut corriger ce cas pour l'instant.
+
+## Suivi 2026-11-12 — Audit de sécurité dédié (règles, IDOR, cohérence client/serveur)
+
+Demande explicite de l'utilisateur, traitée comme un audit à part entière (pas en passant pendant
+une autre fonctionnalité) : `firestore.rules` collection par collection, `storage.rules`, chaque
+Cloud Function `onCall` (46 fichiers, paiements en pause inclus), cohérence client/serveur, fuites
+indirectes de données. Statut honnête : **rien de grave trouvé** — pas une formulation vague, un vrai
+résultat après lecture complète de chaque fichier.
+
+- [x] **`firestore.rules` — vérifié collection par collection, rien à corriger** : users (lecture
+  publique assumée, écriture serveur uniquement + 2 préférences booléennes whitelistées) ; photos
+  (statut pending contrôlé à la création) ; user_status/compat_answers/filtrage_attempts/
+  moderation_requests/banques de questions (verrouillés, propriétaire ou serveur uniquement) ;
+  matches/messages (appartenance + horodatage serveur obligatoires) ; blocks (impossible d'usurper
+  blockerUid ou de bloquer au nom d'un autre) ; community_posts + participations/private/reviews
+  (lecture scindée auteur/organisateur, private totalement verrouillé) ; event_invite_codes/
+  community_tips (verrouillés comme attendu) ; tout le reste refusé par défaut (`{document=**}`).
+- [x] **`storage.rules` — déjà conforme, aucune correction nécessaire** : `profile_photos`
+  recroise déjà le statut `approved` réel en base via `firestore.get(...)` avant d'autoriser la
+  lecture publique (deviner un chemin ne suffit pas à voir une photo encore en attente/refusée,
+  exactement le risque demandé à vérifier) ; `chat_photos` croisé sur l'appartenance au match ;
+  `event_posters` public par nature comme la publication elle-même ; `identity_verifications`
+  jamais public, seule une URL signée 10 minutes y donne accès (identite/adminReviewIdentity.ts).
+- [x] **IDOR — chaque fonction `onCall` vérifiée, aucun cas trouvé où un id envoyé par le client est
+  utilisé sans contrôle réel** : filtrage (submitAttempt.ts vérifie `attempt.uid === uid` avant de
+  corriger une tentative) ; messagerie (reportUser.ts vérifie déjà explicitement l'appartenance au
+  match ET que le message signalé vient bien de la personne visée, commentaire de code déjà présent
+  à ce sujet) ; identité (submitIdentityVerification.ts vérifie que le chemin Storage commence par
+  son propre uid) ; communauté, likes, jetons, premium : chaque `targetUid` ne sert qu'à lire une
+  donnée publique ou à agir sur SA PROPRE participation/swipe/statut, jamais sur celle d'un tiers
+  sans vérification (organisateur, appartenance au match, statut déjà accepté...).
+- [x] **Fonctions admin — `requireAdmin` appelé sans exception** dans les 15 fonctions `adminXxx`/
+  assimilées vérifiées (listUsers, setSuspension, moderationRequests, resolveFiltrageReview,
+  resolveSanctionAppeal, reviewCommunityPost, seedQuestionBanks, reviewIdentity, reviewPhoto,
+  manageTips, organizerRequests, listActionLogs, bootstrapFirstAdmin — verrou par transaction, pas
+  de rôle à vérifier puisque c'est justement la fonction qui attribue le tout premier rôle).
+- [x] **Cohérence client/serveur — vérifiée sur le cas le plus sensible (âge adulte)** :
+  `profil_wizard_screen.dart`/`profil_edit_screen.dart` bloquent déjà la saisie sous 18 ans
+  côté affichage, ET `saveProfil.ts` (`MIN_ADULT_AGE = 18`, calculé sur `birthDate`) la rejette
+  aussi côté serveur — aucun écart trouvé entre les deux.
+- [x] **Fuites indirectes — vérifiées sur les fonctions les plus récentes de cette session**
+  (cancelParticipation/getEventShareCode/redeemEventInviteCode/moderatePhotoContent/
+  autoApprovePhotos/adminReviewPhoto) : aucune ne renvoie de champ que l'appelant ne devrait pas
+  voir ; l'identité d'un auteur de signalement n'est jamais exposée à la personne visée, uniquement
+  aux admins (déjà le cas avant cette passe, reconfirmé).
+- [ ] **Une seule note de confidentialité, documentée et volontairement non corrigée dans cette
+  passe** : `users/{uid}.birthDate` (date de naissance exacte, pas seulement l'âge) est stocké sur
+  le document public, donc techniquement lisible par tout membre connecté — caractéristique
+  préexistante de l'architecture (la collection entière est pensée pour être largement lisible, pas
+  une régression de cette passe), pas un accès non autorisé au sens strict. Une vraie correction
+  demanderait de déplacer ce champ vers un document réservé au propriétaire et de ne plus jamais
+  calculer l'âge que côté serveur pour un profil tiers — un changement d'architecture plus large que
+  ce que cet audit visait à corriger, donc signalé plutôt que corrigé dans la précipitation.
+- [ ] **Hors périmètre, confirmé toujours en pause** : `paiements/paypal.ts`, `paiements/stripe.ts`,
+  `premium/verifyPurchase.ts` restent non exportés dans `index.ts` (donc jamais déployés) — lus pour
+  l'audit, non modifiés, conformément à la règle permanente sur les paiements.
+
+## Suivi 2026-11-12 (suite) — Découvrir : profil complet au scroll (changement de direction)
+
+Décision initiale (écran de détail séparé en tapant la photo) annulée en cours de route par
+l'utilisateur au profit d'une révélation inline au défilement vertical, façon Hinge/Bumble, suivant
+une maquette visuelle précise fournie. `ProfilDetailScreen` reste utilisé tel quel pour "Mes likes".
+
+- [x] **Testé et validé (déployé)** : contenu de fiche profil (intérêts avec icône, "À propos de
+  moi", grille de faits étendue) extrait dans un widget partagé (`core/widgets/profile_fact_sheet.dart`)
+  entre la carte Découvrir et `ProfilDetailScreen`, jamais dupliqué. Bandeau de filtres reflétant
+  l'état réel (jamais une valeur figée). Badge "En ligne" calculé côté serveur à partir de
+  `lastActiveAt`, maintenant répété toutes les 5 minutes tant que l'app reste ouverte (avant : une
+  seule fois par session, donc un signal devenu faux après 10 minutes d'usage actif — corrigé par
+  revue de code avant même d'être livré).
+- [x] **Revue de code (effort high, deux passes) passée, corrections réelles** : grille/icônes
+  lourdes extraites du widget de glissement pour ne plus être reconstruites à chaque pixel glissé ;
+  minuteur de présence passé en `.autoDispose` avec erreurs interceptées (sinon il aurait continué
+  d'appeler le serveur en boucle après une déconnexion) ; alignement badge/menu corrigé (seraient
+  apparus en haut à gauche de la photo au lieu d'à droite).
+- [ ] **Non vérifié sur appareil réel** : accès appareil toujours indisponible pendant cette passe —
+  en particulier la coexistence réelle du swipe horizontal et du défilement vertical n'a été
+  vérifiée que par relecture du code (reconnaisseurs de gestes orthogonaux, mécanisme Flutter
+  standard), pas par un test tactile réel sur téléphone.
+- [ ] **Case "Mode de vie" de la maquette : volontairement absente, pas oubliée** — aucun champ
+  correspondant n'existe dans le modèle de données ; inventer une valeur aurait violé la règle de ne
+  jamais afficher une donnée qui n'est pas réelle.
+- [ ] **Limite assumée et documentée dans le code** : si un membre fait défiler la carte vers le bas
+  PUIS swipe dans la foulée, l'estampille LIKE/NOPE peut apparaître par-dessus le texte de la fiche
+  plutôt que sur la photo — cas rare, purement visuel, non corrigé dans cette passe pour rester
+  proportionné (corriger ça pour de bon demanderait de synchroniser la position de l'estampille avec
+  le défilement).
