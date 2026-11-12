@@ -760,15 +760,32 @@ une maquette visuelle précise fournie. `ProfilDetailScreen` reste utilisé tel 
   `StateProvider`, même principe que `discoverFiltersProvider` ; la propre AppBar imbriquée du
   sous-onglet Événements aurait affiché une deuxième flèche retour redondante — désactivée
   explicitement.
-- [ ] **Limite assumée, pas un oubli** : ces nouveaux `StateProvider` (sous-onglet Communauté,
-  filtres Événements), comme `discoverFiltersProvider` déjà existant avant ce chantier, ne sont
-  jamais réinitialisés à la déconnexion — sur un appareil partagé entre deux comptes dans la même
-  session de l'app, le sous-onglet/filtre choisi par le premier membre peut rester affiché par
-  défaut pour le second. Signalé par revue de code comme un vrai gap, mais un gap PRÉEXISTANT
-  (partagé par `discoverFiltersProvider`) et plus large que ce chantier — corriger seulement les 3
-  nouveaux providers aurait été incomplet et incohérent avec le reste de l'app ; une vraie
-  correction demanderait un mécanisme général de remise à zéro de l'état de session à la
-  déconnexion, qui n'existe nulle part encore dans le projet.
 - [ ] **Non vérifié sur appareil réel** : vérifié par `flutter analyze`/`flutter test` et relecture
   du code uniquement — accès appareil toujours indisponible pour cette session, en particulier le
   ressenti réel de la nouvelle pilule et du retour depuis Communauté.
+
+## Suivi 2026-11-12 (suite) — État de session réinitialisé à la déconnexion
+
+- [x] **Corrigé, pas seulement signalé cette fois** : demande explicite du propriétaire en
+  application de la règle "la plus stricte gagne" (règlement permanent section 17), suite au gap
+  signalé dans le suivi juste au-dessus. Les cinq `StateProvider` de session
+  (`discoverFiltersProvider`, `communauteTabProvider`, `eventsCategoryFilterProvider`,
+  `eventsFormatFilterProvider`, `pendingAdultConfirmationProvider`) sont désormais réinitialisés
+  dans `AuthController.signOut()` lui-même — sur un appareil partagé entre plusieurs comptes l'un
+  après l'autre, le compte suivant ne hérite plus silencieusement des filtres/sous-onglet choisis
+  par le précédent.
+- [x] **Un vrai bug de sécurité/vie privée trouvé en creusant signOut(), corrigé dans la foulée** :
+  `signOut()` a en réalité QUATRE points d'entrée dans le code (Paramètres, SanctionScreen,
+  FiltrageScreen, FiltragePendingScreen), et seul celui de Paramètres désinscrivait le jeton de
+  notifications push côté serveur. Un compte suspendu ou encore en vérification qui se déconnectait
+  depuis l'un des trois autres écrans continuait donc à recevoir des notifications (nouveau
+  match/message/like) après sa déconnexion. Centralisé dans `signOut()` lui-même, qui couvre
+  maintenant les quatre points d'entrée uniformément.
+- [x] **Trouvé par revue de code, corrigé** : le symétrique du problème de désinscription —
+  `pushRegistrationProvider` (ré-enregistrement du jeton push) n'étant pas réinitialisé non plus,
+  le compte SUIVANT sur le même appareil (même session d'app, sans redémarrage) n'aurait jamais eu
+  son propre jeton enregistré tant que le processus de l'app restait ouvert.
+- [ ] **Non vérifié sur appareil réel** : vérifié par `flutter analyze`/`flutter test` et relecture
+  du code uniquement — en particulier le scénario réel "compte A se déconnecte, compte B se
+  connecte sur le même appareil sans fermer l'app" n'a pas pu être rejoué physiquement, accès
+  appareil toujours indisponible pour cette session.
