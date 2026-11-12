@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../../core/theme/app_theme.dart';
 import '../../../../core/utils/age.dart';
+import '../../../../core/widgets/country_field.dart';
 import '../../../../l10n/l10n_extensions.dart';
 import '../../domain/profil.dart';
 import '../profil_controller.dart';
@@ -44,7 +45,7 @@ class _ProfilWizardScreenState extends ConsumerState<ProfilWizardScreen> {
   int _stepIndex = 0;
 
   final _nameController = TextEditingController();
-  final _countryController = TextEditingController();
+  String? _country;
   final _cityController = TextEditingController();
   final _bioController = TextEditingController();
   final _professionController = TextEditingController();
@@ -69,7 +70,6 @@ class _ProfilWizardScreenState extends ConsumerState<ProfilWizardScreen> {
   @override
   void dispose() {
     _nameController.dispose();
-    _countryController.dispose();
     _cityController.dispose();
     _bioController.dispose();
     _professionController.dispose();
@@ -115,7 +115,8 @@ class _ProfilWizardScreenState extends ConsumerState<ProfilWizardScreen> {
       case _Step.intention:
         return _relationshipIntent != null;
       case _Step.lieu:
-        return _countryController.text.trim().isNotEmpty && _cityController.text.trim().isNotEmpty;
+        return (_country?.trim().isNotEmpty ?? false) &&
+            _cityController.text.trim().isNotEmpty;
       case _Step.bio:
         return _bioController.text.trim().isNotEmpty;
       // Les étapes suivantes sont facultatives (cahier des charges
@@ -134,9 +135,12 @@ class _ProfilWizardScreenState extends ConsumerState<ProfilWizardScreen> {
       _finish();
       return;
     }
-    if (_birthDate != null && !_isAdult(_birthDate!) && _steps[_stepIndex] == _Step.identite) {
-      ScaffoldMessenger.of(context)
-          .showSnackBar(SnackBar(content: Text(context.l10n.mustBeAdult)));
+    if (_birthDate != null &&
+        !_isAdult(_birthDate!) &&
+        _steps[_stepIndex] == _Step.identite) {
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text(context.l10n.mustBeAdult)));
       return;
     }
     setState(() => _stepIndex += 1);
@@ -153,20 +157,26 @@ class _ProfilWizardScreenState extends ConsumerState<ProfilWizardScreen> {
       birthDate: _birthDate!,
       gender: _gender!,
       seekingGenders: _seekingGenders.toList(),
-      country: _countryController.text.trim(),
+      country: (_country ?? '').trim(),
       city: _cityController.text.trim(),
       bio: _bioController.text.trim(),
       relationshipIntent: _relationshipIntent!,
-      profession: _professionController.text.trim().isEmpty ? null : _professionController.text.trim(),
+      profession: _professionController.text.trim().isEmpty
+          ? null
+          : _professionController.text.trim(),
       languages: _splitCsv(_languagesController.text),
       interests: _splitCsv(_interestsController.text),
       culturalOrigins: _splitCsv(_culturalOriginsController.text),
       heightCm: int.tryParse(_heightController.text.trim()),
-      educationLevel: _educationController.text.trim().isEmpty ? null : _educationController.text.trim(),
+      educationLevel: _educationController.text.trim().isEmpty
+          ? null
+          : _educationController.text.trim(),
       smokingHabit: _smokingHabit,
       drinkingHabit: _drinkingHabit,
       childrenStatus: _childrenStatus,
-      lookingFor: _lookingForController.text.trim().isEmpty ? null : _lookingForController.text.trim(),
+      lookingFor: _lookingForController.text.trim().isEmpty
+          ? null
+          : _lookingForController.text.trim(),
       qualities: _qualities.toList(),
     );
     await ref.read(profilControllerProvider.notifier).save(profil);
@@ -218,20 +228,32 @@ class _ProfilWizardScreenState extends ConsumerState<ProfilWizardScreen> {
                       padding: const EdgeInsets.only(bottom: 10),
                       child: Text(
                         context.l10n.profileSaveFailed,
-                        style: const TextStyle(color: AppColors.accent, fontSize: 13),
+                        style: const TextStyle(
+                          color: AppColors.accent,
+                          fontSize: 13,
+                        ),
                       ),
                     ),
                   SizedBox(
                     width: double.infinity,
                     child: ElevatedButton(
-                      onPressed: (_canProceed && !state.isLoading) ? _next : null,
+                      onPressed: (_canProceed && !state.isLoading)
+                          ? _next
+                          : null,
                       child: state.isLoading
                           ? const SizedBox(
                               height: 18,
                               width: 18,
-                              child: CircularProgressIndicator(strokeWidth: 2, color: AppColors.noirProfond),
+                              child: CircularProgressIndicator(
+                                strokeWidth: 2,
+                                color: AppColors.noirProfond,
+                              ),
                             )
-                          : Text(isLast ? context.l10n.saveMyProfile : context.l10n.continueButton),
+                          : Text(
+                              isLast
+                                  ? context.l10n.saveMyProfile
+                                  : context.l10n.continueButton,
+                            ),
                     ),
                   ),
                 ],
@@ -280,12 +302,16 @@ class _ProfilWizardScreenState extends ConsumerState<ProfilWizardScreen> {
         );
       case _Step.lieu:
         return _StepLieu(
-          countryController: _countryController,
+          country: _country,
+          onCountryChanged: (v) => setState(() => _country = v),
           cityController: _cityController,
           onChanged: () => setState(() {}),
         );
       case _Step.bio:
-        return _StepBio(bioController: _bioController, onChanged: () => setState(() {}));
+        return _StepBio(
+          bioController: _bioController,
+          onChanged: () => setState(() {}),
+        );
       case _Step.qualites:
         return _StepMultiChoiceWrap(
           title: context.l10n.wizardQualitiesTitle,
@@ -293,7 +319,8 @@ class _ProfilWizardScreenState extends ConsumerState<ProfilWizardScreen> {
           options: PersonalQuality.all,
           labelOf: (v) => PersonalQuality.label(v, context.l10n),
           selected: _qualities,
-          onToggle: (v, sel) => setState(() => sel ? _qualities.add(v) : _qualities.remove(v)),
+          onToggle: (v, sel) =>
+              setState(() => sel ? _qualities.add(v) : _qualities.remove(v)),
         );
       case _Step.interets:
         return _StepInterets(
@@ -330,7 +357,12 @@ class _ProfilWizardScreenState extends ConsumerState<ProfilWizardScreen> {
   }
 }
 
-const _titleStyle = TextStyle(fontSize: 26, fontWeight: FontWeight.bold, color: AppColors.ink, height: 1.2);
+const _titleStyle = TextStyle(
+  fontSize: 26,
+  fontWeight: FontWeight.bold,
+  color: AppColors.ink,
+  height: 1.2,
+);
 
 class _StepIdentite extends StatelessWidget {
   const _StepIdentite({
@@ -354,7 +386,9 @@ class _StepIdentite extends StatelessWidget {
         const SizedBox(height: 24),
         TextField(
           controller: nameController,
-          decoration: InputDecoration(labelText: context.l10n.firstNameOrNickname),
+          decoration: InputDecoration(
+            labelText: context.l10n.firstNameOrNickname,
+          ),
           onChanged: (_) => onChanged(),
         ),
         const SizedBox(height: 18),
@@ -378,12 +412,14 @@ class _StepIdentite extends StatelessWidget {
 
 class _StepLieu extends StatelessWidget {
   const _StepLieu({
-    required this.countryController,
+    required this.country,
+    required this.onCountryChanged,
     required this.cityController,
     required this.onChanged,
   });
 
-  final TextEditingController countryController;
+  final String? country;
+  final ValueChanged<String> onCountryChanged;
   final TextEditingController cityController;
   final VoidCallback onChanged;
 
@@ -394,16 +430,17 @@ class _StepLieu extends StatelessWidget {
       children: [
         Text(context.l10n.wizardLocationTitle, style: _titleStyle),
         const SizedBox(height: 24),
-        TextField(
-          controller: countryController,
-          decoration: InputDecoration(labelText: context.l10n.countryLabel),
-          onChanged: (_) => onChanged(),
+        CountryField(
+          value: country,
+          label: context.l10n.countryLabel,
+          onChanged: onCountryChanged,
         ),
         const SizedBox(height: 14),
-        TextField(
+        CityField(
           controller: cityController,
-          decoration: InputDecoration(labelText: context.l10n.cityLabel),
-          onChanged: (_) => onChanged(),
+          country: country,
+          label: context.l10n.cityLabel,
+          onChanged: onChanged,
         ),
       ],
     );
@@ -423,7 +460,10 @@ class _StepBio extends StatelessWidget {
       children: [
         Text(context.l10n.wizardBioTitle, style: _titleStyle),
         const SizedBox(height: 8),
-        Text(context.l10n.wizardBioSubtitle, style: const TextStyle(color: AppColors.muted)),
+        Text(
+          context.l10n.wizardBioSubtitle,
+          style: const TextStyle(color: AppColors.muted),
+        ),
         const SizedBox(height: 18),
         TextField(
           controller: bioController,
@@ -461,7 +501,9 @@ class _StepInterets extends StatelessWidget {
         const SizedBox(height: 14),
         TextField(
           controller: culturalOriginsController,
-          decoration: InputDecoration(labelText: context.l10n.culturalOriginsLabel),
+          decoration: InputDecoration(
+            labelText: context.l10n.culturalOriginsLabel,
+          ),
         ),
         const SizedBox(height: 14),
         TextField(
@@ -512,7 +554,9 @@ class _StepDetails extends StatelessWidget {
         const SizedBox(height: 14),
         TextField(
           controller: educationController,
-          decoration: InputDecoration(labelText: context.l10n.educationLevelLabel),
+          decoration: InputDecoration(
+            labelText: context.l10n.educationLevelLabel,
+          ),
         ),
       ],
     );
@@ -547,7 +591,12 @@ class _StepModeDeVie extends StatelessWidget {
           initialValue: smokingHabit,
           decoration: InputDecoration(labelText: context.l10n.smokingLabel),
           items: LifestyleHabit.all
-              .map((v) => DropdownMenuItem(value: v, child: Text(LifestyleHabit.label(v, context.l10n))))
+              .map(
+                (v) => DropdownMenuItem(
+                  value: v,
+                  child: Text(LifestyleHabit.label(v, context.l10n)),
+                ),
+              )
               .toList(),
           onChanged: onSmokingChanged,
         ),
@@ -556,7 +605,12 @@ class _StepModeDeVie extends StatelessWidget {
           initialValue: drinkingHabit,
           decoration: InputDecoration(labelText: context.l10n.drinkingLabel),
           items: LifestyleHabit.all
-              .map((v) => DropdownMenuItem(value: v, child: Text(LifestyleHabit.label(v, context.l10n))))
+              .map(
+                (v) => DropdownMenuItem(
+                  value: v,
+                  child: Text(LifestyleHabit.label(v, context.l10n)),
+                ),
+              )
               .toList(),
           onChanged: onDrinkingChanged,
         ),
@@ -565,7 +619,12 @@ class _StepModeDeVie extends StatelessWidget {
           initialValue: childrenStatus,
           decoration: InputDecoration(labelText: context.l10n.childrenLabel),
           items: ChildrenStatus.all
-              .map((v) => DropdownMenuItem(value: v, child: Text(ChildrenStatus.label(v, context.l10n))))
+              .map(
+                (v) => DropdownMenuItem(
+                  value: v,
+                  child: Text(ChildrenStatus.label(v, context.l10n)),
+                ),
+              )
               .toList(),
           onChanged: onChildrenChanged,
         ),
@@ -606,8 +665,13 @@ class _StepChoiceList extends StatelessWidget {
               child: Container(
                 padding: const EdgeInsets.all(18),
                 decoration: BoxDecoration(
-                  color: isSelected ? AppColors.accentSoft : AppColors.background,
-                  border: Border.all(color: isSelected ? AppColors.accent : AppColors.border, width: 1.5),
+                  color: isSelected
+                      ? AppColors.accentSoft
+                      : AppColors.background,
+                  border: Border.all(
+                    color: isSelected ? AppColors.accent : AppColors.border,
+                    width: 1.5,
+                  ),
                   borderRadius: BorderRadius.circular(14),
                 ),
                 child: Row(
@@ -617,12 +681,15 @@ class _StepChoiceList extends StatelessWidget {
                         labelOf(o),
                         style: TextStyle(
                           fontSize: 15.5,
-                          fontWeight: isSelected ? FontWeight.w700 : FontWeight.normal,
+                          fontWeight: isSelected
+                              ? FontWeight.w700
+                              : FontWeight.normal,
                           color: AppColors.ink,
                         ),
                       ),
                     ),
-                    if (isSelected) const Icon(Icons.check_circle, color: AppColors.accent),
+                    if (isSelected)
+                      const Icon(Icons.check_circle, color: AppColors.accent),
                   ],
                 ),
               ),
@@ -666,8 +733,13 @@ class _StepMultiChoiceList extends StatelessWidget {
               child: Container(
                 padding: const EdgeInsets.all(18),
                 decoration: BoxDecoration(
-                  color: isSelected ? AppColors.accentSoft : AppColors.background,
-                  border: Border.all(color: isSelected ? AppColors.accent : AppColors.border, width: 1.5),
+                  color: isSelected
+                      ? AppColors.accentSoft
+                      : AppColors.background,
+                  border: Border.all(
+                    color: isSelected ? AppColors.accent : AppColors.border,
+                    width: 1.5,
+                  ),
                   borderRadius: BorderRadius.circular(14),
                 ),
                 child: Row(
@@ -677,12 +749,15 @@ class _StepMultiChoiceList extends StatelessWidget {
                         labelOf(o),
                         style: TextStyle(
                           fontSize: 15.5,
-                          fontWeight: isSelected ? FontWeight.w700 : FontWeight.normal,
+                          fontWeight: isSelected
+                              ? FontWeight.w700
+                              : FontWeight.normal,
                           color: AppColors.ink,
                         ),
                       ),
                     ),
-                    if (isSelected) const Icon(Icons.check_circle, color: AppColors.accent),
+                    if (isSelected)
+                      const Icon(Icons.check_circle, color: AppColors.accent),
                   ],
                 ),
               ),

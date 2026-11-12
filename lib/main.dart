@@ -1,3 +1,4 @@
+import 'package:country_picker/country_picker.dart';
 import 'package:firebase_app_check/firebase_app_check.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/foundation.dart';
@@ -20,8 +21,12 @@ void main() async {
   // Cloud Functions protégées échoueraient sur un appareil de test non
   // enregistré). iOS utilise DeviceCheck, protégé de la même façon.
   await FirebaseAppCheck.instance.activate(
-    providerAndroid: kDebugMode ? const AndroidDebugProvider() : const AndroidPlayIntegrityProvider(),
-    providerApple: kDebugMode ? const AppleDebugProvider() : const AppleDeviceCheckProvider(),
+    providerAndroid: kDebugMode
+        ? const AndroidDebugProvider()
+        : const AndroidPlayIntegrityProvider(),
+    providerApple: kDebugMode
+        ? const AppleDebugProvider()
+        : const AppleDeviceCheckProvider(),
   );
   // Obligatoire avant tout appel à GoogleSignIn.instance.authenticate()
   // (sinon "undefined behavior" selon le plugin) — serverClientId est le
@@ -29,7 +34,8 @@ void main() async {
   // Android : c'est lui que Firebase attend comme audience du jeton
   // d'identité, sinon la connexion Google échoue silencieusement.
   await GoogleSignIn.instance.initialize(
-    serverClientId: '741720031453-khnmn8gbfousa7k8meihcmlhgf4ersd0.apps.googleusercontent.com',
+    serverClientId:
+        '741720031453-khnmn8gbfousa7k8meihcmlhgf4ersd0.apps.googleusercontent.com',
   );
   runApp(const ProviderScope(child: MerutApp()));
 }
@@ -50,6 +56,9 @@ class MerutApp extends ConsumerWidget {
         GlobalMaterialLocalizations.delegate,
         GlobalWidgetsLocalizations.delegate,
         GlobalCupertinoLocalizations.delegate,
+        // Noms de pays du sélecteur pays (country_picker, 12/11/2026) —
+        // suit la même locale fr/en que le reste de l'app, jamais figé.
+        CountryLocalizations.delegate,
       ],
       home: const AuthGate(),
     );

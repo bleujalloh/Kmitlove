@@ -59,6 +59,7 @@ dependencies:
   google_fonts: ^6.3.2
   qr_flutter: ^4.1.0
   flutter_timezone: ^5.1.1
+  country_picker: ^2.0.28
 
 dev_dependencies:
   flutter_test:

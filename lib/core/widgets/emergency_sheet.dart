@@ -12,21 +12,43 @@ import '../theme/app_theme.dart';
 /// qu'un numéro précis mais non vérifié pour un pays qu'on ne maîtrise
 /// pas, vu ce qui est en jeu (docs/regles-complementaires-concurrents.md
 /// section 1). Les clés restent les noms de pays tels que stockés dans le
-/// profil (saisis en français) ; seul le libellé affiché est traduit.
+/// profil (toujours en français depuis le sélecteur pays, country_field.dart) ;
+/// seul le libellé affiché est traduit.
 Map<String, String> _knownEmergencyNumbers(AppLocalizations l10n) => {
-      'France': l10n.emergencyNumbersFrance,
-      'Belgique': l10n.emergencyNumbersBelgium,
-    };
+  'France': l10n.emergencyNumbersFrance,
+  'Belgique': l10n.emergencyNumbersBelgium,
+};
+
+/// Recherche insensible à la casse — quelques profils réels ont encore
+/// `country` enregistré avec une casse différente (ex. "france",
+/// écrits avant le sélecteur pays fermé du 12/11/2026, normalisés
+/// seulement au prochain enregistrement de profil, saveProfil.ts) : sans
+/// ça, cette fonction de sécurité afficherait le repli générique à la
+/// place des numéros corrects pour ces comptes précis (trouvé par revue
+/// de code).
+String? _lookupEmergencyNumbers(Map<String, String> known, String? country) {
+  if (country == null) return null;
+  for (final entry in known.entries) {
+    if (entry.key.toLowerCase() == country.toLowerCase()) return entry.value;
+  }
+  return null;
+}
 
 /// Bouton "Signaler un danger immédiat" + numéros d'urgence toujours
 /// visibles, indépendamment de tout signalement (docs/regles-
 /// complementaires-concurrents.md section 1). N'appelle jamais les
 /// secours automatiquement — alerte la modération en priorité absolue.
-void showEmergencySheet(BuildContext context, WidgetRef ref, {String? eventPostId, String? matchId}) {
+void showEmergencySheet(
+  BuildContext context,
+  WidgetRef ref, {
+  String? eventPostId,
+  String? matchId,
+}) {
   showModalBottomSheet(
     context: context,
     isScrollControlled: true,
-    builder: (sheetContext) => _EmergencySheetContent(eventPostId: eventPostId, matchId: matchId),
+    builder: (sheetContext) =>
+        _EmergencySheetContent(eventPostId: eventPostId, matchId: matchId),
   );
 }
 
@@ -37,20 +59,22 @@ class _EmergencySheetContent extends ConsumerStatefulWidget {
   final String? matchId;
 
   @override
-  ConsumerState<_EmergencySheetContent> createState() => _EmergencySheetContentState();
+  ConsumerState<_EmergencySheetContent> createState() =>
+      _EmergencySheetContentState();
 }
 
-class _EmergencySheetContentState extends ConsumerState<_EmergencySheetContent> {
+class _EmergencySheetContentState
+    extends ConsumerState<_EmergencySheetContent> {
   bool _sending = false;
   bool _sent = false;
 
   Future<void> _send() async {
     setState(() => _sending = true);
     try {
-      await ref.read(cloudFunctionsProvider).httpsCallable('triggerEmergencyAlert').call({
-        'eventPostId': widget.eventPostId,
-        'matchId': widget.matchId,
-      });
+      await ref
+          .read(cloudFunctionsProvider)
+          .httpsCallable('triggerEmergencyAlert')
+          .call({'eventPostId': widget.eventPostId, 'matchId': widget.matchId});
       if (mounted) setState(() => _sent = true);
     } catch (_) {
       if (mounted) {
@@ -67,7 +91,9 @@ class _EmergencySheetContentState extends ConsumerState<_EmergencySheetContent> 
   Widget build(BuildContext context) {
     final country = ref.watch(profilProvider).value?.country;
     final knownNumbers = _knownEmergencyNumbers(context.l10n);
-    final numbers = (country != null ? knownNumbers[country] : null) ?? context.l10n.emergencyNumbersFallback;
+    final numbers =
+        _lookupEmergencyNumbers(knownNumbers, country) ??
+        context.l10n.emergencyNumbersFallback;
 
     return SafeArea(
       child: Padding(
@@ -78,15 +104,34 @@ class _EmergencySheetContentState extends ConsumerState<_EmergencySheetContent> 
           children: [
             Row(
               children: [
-                const Icon(Icons.warning_amber_rounded, color: AppColors.accent),
+                const Icon(
+                  Icons.warning_amber_rounded,
+                  color: AppColors.accent,
+                ),
                 const SizedBox(width: 10),
-                Text(context.l10n.safetyTitle, style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+                Text(
+                  context.l10n.safetyTitle,
+                  style: const TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
               ],
             ),
             const SizedBox(height: 14),
-            Text(context.l10n.emergencyNumbersTitle, style: Theme.of(context).textTheme.titleSmall),
+            Text(
+              context.l10n.emergencyNumbersTitle,
+              style: Theme.of(context).textTheme.titleSmall,
+            ),
             const SizedBox(height: 6),
-            Text(numbers, style: const TextStyle(color: AppColors.muted, fontSize: 13.5, height: 1.4)),
+            Text(
+              numbers,
+              style: const TextStyle(
+                color: AppColors.muted,
+                fontSize: 13.5,
+                height: 1.4,
+              ),
+            ),
             const SizedBox(height: 20),
             const Divider(),
             const SizedBox(height: 12),
@@ -101,9 +146,19 @@ class _EmergencySheetContentState extends ConsumerState<_EmergencySheetContent> 
                 onPressed: _sending || _sent ? null : _send,
                 icon: _sending
                     ? const SizedBox(
-                        width: 16, height: 16, child: CircularProgressIndicator(strokeWidth: 2, color: AppColors.noirProfond))
+                        width: 16,
+                        height: 16,
+                        child: CircularProgressIndicator(
+                          strokeWidth: 2,
+                          color: AppColors.noirProfond,
+                        ),
+                      )
                     : Icon(_sent ? Icons.check : Icons.campaign_outlined),
-                label: Text(_sent ? context.l10n.moderationNotified : context.l10n.reportImmediateDanger),
+                label: Text(
+                  _sent
+                      ? context.l10n.moderationNotified
+                      : context.l10n.reportImmediateDanger,
+                ),
               ),
             ),
           ],

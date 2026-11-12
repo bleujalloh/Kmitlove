@@ -3,6 +3,7 @@ import { getFirestore } from "firebase-admin/firestore";
 
 import { REGION } from "../config";
 import { computeAge } from "../shared/age";
+import { VALID_COUNTRY_NAMES } from "../shared/validCountries";
 
 const MIN_ADULT_AGE = 18;
 const MAX_SHORT_TEXT = 60;
@@ -100,6 +101,22 @@ function optionalClosedValue(value: unknown, field: string, allowed: string[]): 
   return closedValue(value, field, allowed);
 }
 
+// Insensible à la casse, contrairement à `closedValue` : des profils
+// réels existent déjà en base avec un pays en minuscules ("france",
+// trouvé en vérifiant les données réelles avant ce correctif, 12/11/2026
+// — la ville a le même problème, signalé par le propriétaire), écrits
+// avant que ce sélecteur fermé n'existe. Sans cette tolérance, modifier
+// n'importe quel AUTRE champ de ces profils aurait échoué d'un coup à
+// cause d'un champ jamais retouché par ce correctif-ci. Renvoie
+// toujours l'orthographe canonique de `allowed`, donc une donnée
+// ancienne se normalise au passage, au prochain enregistrement.
+function closedValueCaseInsensitive(value: unknown, field: string, allowed: readonly string[]): string {
+  if (typeof value !== "string") invalid(field);
+  const match = allowed.find((a) => a.toLowerCase() === (value as string).toLowerCase());
+  if (!match) invalid(field);
+  return match;
+}
+
 /**
  * Enregistre le profil public (`users/{uid}`) — remplace l'écriture
  * directe du client (firestore.rules n'accepte plus `create`/`update` sur
@@ -113,6 +130,8 @@ export const saveProfil = onCall({ region: REGION }, async (request) => {
     throw new HttpsError("unauthenticated", "Connexion requise.");
   }
   const data = request.data as Record<string, unknown>;
+  const db = getFirestore();
+  const uid = request.auth.uid;
 
   const displayName = requiredText(data.displayName, "displayName", MAX_NAME_LENGTH);
 
@@ -131,7 +150,39 @@ export const saveProfil = onCall({ region: REGION }, async (request) => {
   const seekingGenders = closedList(data.seekingGenders, "seekingGenders", GENDERS);
   if (seekingGenders.length === 0) invalid("seekingGenders");
 
-  const country = requiredText(data.country, "country", MAX_SHORT_TEXT);
+  // Sélecteur fermé côté client (country_picker, demande explicite du
+  // propriétaire le 12/11/2026) : plus aucune saisie libre, donc le
+  // serveur doit refuser tout nom qui ne correspond à aucune entrée
+  // réellement proposée — même principe que les autres listes fermées
+  // de cette fonction, avec tolérance à la casse pour les profils déjà
+  // enregistrés avant ce correctif (voir closedValueCaseInsensitive —
+  // normalise déjà "france" en "France" toute seule, sans repli).
+  //
+  // Repli UNIQUEMENT si cette vérification échoue malgré tout (donnée
+  // héritée plus divergente qu'une simple casse différente —
+  // abréviation, écriture directe de test) ET que la valeur envoyée est
+  // EXACTEMENT celle déjà en base (le membre n'a pas touché ce champ,
+  // juste modifié autre chose) : conservée telle quelle plutôt que de
+  // bloquer tout le reste de l'enregistrement. Un vrai NOUVEAU choix
+  // (différent de ce qui existait) passe toujours par la liste fermée
+  // en premier, jamais court-circuité par ce repli — et la lecture
+  // supplémentaire qu'il demande ne se produit que dans ce cas rare,
+  // pas à chaque appel (trouvé par revue de code, deux fois : un repli
+  // mal placé AVANT la vérification aurait pu réécrire une casse déjà
+  // correcte avec l'ancienne valeur, et une lecture systématique aurait
+  // doublé le coût Firestore de cette fonction pour le cas normal).
+  let country: string;
+  try {
+    country = closedValueCaseInsensitive(data.country, "country", VALID_COUNTRY_NAMES);
+  } catch (err) {
+    const existingSnap = await db.collection("users").doc(uid).get();
+    const existingCountry = existingSnap.data()?.country as string | undefined;
+    if (typeof data.country === "string" && data.country === existingCountry) {
+      country = existingCountry;
+    } else {
+      throw err;
+    }
+  }
   const city = requiredText(data.city, "city", MAX_SHORT_TEXT);
   const bio = requiredText(data.bio, "bio", MAX_BIO_LENGTH);
   const relationshipIntent = closedValue(data.relationshipIntent, "relationshipIntent", RELATIONSHIP_INTENTS);
@@ -167,9 +218,9 @@ export const saveProfil = onCall({ region: REGION }, async (request) => {
   // compat_repository.dart, voir l'exception dédiée dans firestore.rules) :
   // un .set() sans merge les effacerait silencieusement à chaque
   // modification de profil.
-  await getFirestore()
+  await db
     .collection("users")
-    .doc(request.auth.uid)
+    .doc(uid)
     .set(
       {
         displayName,
@@ -180,9 +231,11 @@ export const saveProfil = onCall({ region: REGION }, async (request) => {
         city,
         // Normalisées en minuscules pour le filtre pays/ville de Découvrir
         // (getCandidates.ts) — une comparaison Firestore "==" est
-        // sensible à la casse, et country/city restent du texte libre
-        // saisi par chacun (pas de liste fermée ici, contrairement au
-        // genre ou à l'intention relationnelle).
+        // sensible à la casse. `country` passe maintenant par un
+        // sélecteur fermé (voir plus haut) ; `city` reste du texte libre
+        // saisi par chacun (aucune base de villes exhaustive, voir
+        // core/data/major_cities.dart côté client pour le compromis
+        // retenu), donc toujours sans liste fermée ici.
         countryLower: country.toLowerCase(),
         cityLower: city.toLowerCase(),
         bio,

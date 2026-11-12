@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../../core/theme/app_theme.dart';
 import '../../../../core/utils/age.dart';
+import '../../../../core/widgets/country_field.dart';
 import '../../../../l10n/l10n_extensions.dart';
 import '../../domain/profil.dart';
 import '../profil_controller.dart';
@@ -21,22 +22,38 @@ class ProfilEditScreen extends ConsumerStatefulWidget {
 
 class _ProfilEditScreenState extends ConsumerState<ProfilEditScreen> {
   final _formKey = GlobalKey<FormState>();
-  late final _nameController = TextEditingController(text: widget.existing?.displayName);
-  late final _countryController = TextEditingController(text: widget.existing?.country);
-  late final _cityController = TextEditingController(text: widget.existing?.city);
+  late final _nameController = TextEditingController(
+    text: widget.existing?.displayName,
+  );
+  late String? _country = widget.existing?.country;
+  late final _cityController = TextEditingController(
+    text: widget.existing?.city,
+  );
   late final _bioController = TextEditingController(text: widget.existing?.bio);
-  late final _professionController = TextEditingController(text: widget.existing?.profession);
-  late final _languagesController =
-      TextEditingController(text: widget.existing?.languages.join(', '));
-  late final _interestsController =
-      TextEditingController(text: widget.existing?.interests.join(', '));
-  late final _culturalOriginsController =
-      TextEditingController(text: widget.existing?.culturalOrigins.join(', '));
-  late final _valuesController = TextEditingController(text: widget.existing?.values);
-  late final _heightController =
-      TextEditingController(text: widget.existing?.heightCm?.toString());
-  late final _educationController = TextEditingController(text: widget.existing?.educationLevel);
-  late final _lookingForController = TextEditingController(text: widget.existing?.lookingFor);
+  late final _professionController = TextEditingController(
+    text: widget.existing?.profession,
+  );
+  late final _languagesController = TextEditingController(
+    text: widget.existing?.languages.join(', '),
+  );
+  late final _interestsController = TextEditingController(
+    text: widget.existing?.interests.join(', '),
+  );
+  late final _culturalOriginsController = TextEditingController(
+    text: widget.existing?.culturalOrigins.join(', '),
+  );
+  late final _valuesController = TextEditingController(
+    text: widget.existing?.values,
+  );
+  late final _heightController = TextEditingController(
+    text: widget.existing?.heightCm?.toString(),
+  );
+  late final _educationController = TextEditingController(
+    text: widget.existing?.educationLevel,
+  );
+  late final _lookingForController = TextEditingController(
+    text: widget.existing?.lookingFor,
+  );
 
   DateTime? _birthDate;
   String _gender = Gender.femme;
@@ -53,7 +70,8 @@ class _ProfilEditScreenState extends ConsumerState<ProfilEditScreen> {
     _birthDate = widget.existing?.birthDate;
     _gender = widget.existing?.gender ?? Gender.femme;
     _seekingGenders.addAll(widget.existing?.seekingGenders ?? []);
-    _relationshipIntent = widget.existing?.relationshipIntent ?? RelationshipIntent.serieuse;
+    _relationshipIntent =
+        widget.existing?.relationshipIntent ?? RelationshipIntent.serieuse;
     _smokingHabit = widget.existing?.smokingHabit;
     _drinkingHabit = widget.existing?.drinkingHabit;
     _childrenStatus = widget.existing?.childrenStatus;
@@ -63,7 +81,6 @@ class _ProfilEditScreenState extends ConsumerState<ProfilEditScreen> {
   @override
   void dispose() {
     _nameController.dispose();
-    _countryController.dispose();
     _cityController.dispose();
     _bioController.dispose();
     _professionController.dispose();
@@ -104,20 +121,28 @@ class _ProfilEditScreenState extends ConsumerState<ProfilEditScreen> {
 
   Future<void> _submit() async {
     if (!_formKey.currentState!.validate()) return;
+    if (_country == null || _country!.trim().isEmpty) {
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text(context.l10n.requiredField)));
+      return;
+    }
     if (_birthDate == null) {
-      ScaffoldMessenger.of(context)
-          .showSnackBar(SnackBar(content: Text(context.l10n.birthDateRequired)));
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text(context.l10n.birthDateRequired)));
       return;
     }
     if (!_isAdult(_birthDate!)) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(context.l10n.mustBeAdult)),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text(context.l10n.mustBeAdult)));
       return;
     }
     if (_seekingGenders.isEmpty) {
-      ScaffoldMessenger.of(context)
-          .showSnackBar(SnackBar(content: Text(context.l10n.pickSeekingPreference)));
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(context.l10n.pickSeekingPreference)),
+      );
       return;
     }
 
@@ -126,7 +151,7 @@ class _ProfilEditScreenState extends ConsumerState<ProfilEditScreen> {
       birthDate: _birthDate!,
       gender: _gender,
       seekingGenders: _seekingGenders.toList(),
-      country: _countryController.text.trim(),
+      country: _country!.trim(),
       city: _cityController.text.trim(),
       bio: _bioController.text.trim(),
       relationshipIntent: _relationshipIntent,
@@ -136,15 +161,19 @@ class _ProfilEditScreenState extends ConsumerState<ProfilEditScreen> {
       languages: _splitCsv(_languagesController.text),
       interests: _splitCsv(_interestsController.text),
       culturalOrigins: _splitCsv(_culturalOriginsController.text),
-      values: _valuesController.text.trim().isEmpty ? null : _valuesController.text.trim(),
+      values: _valuesController.text.trim().isEmpty
+          ? null
+          : _valuesController.text.trim(),
       heightCm: int.tryParse(_heightController.text.trim()),
-      educationLevel:
-          _educationController.text.trim().isEmpty ? null : _educationController.text.trim(),
+      educationLevel: _educationController.text.trim().isEmpty
+          ? null
+          : _educationController.text.trim(),
       smokingHabit: _smokingHabit,
       drinkingHabit: _drinkingHabit,
       childrenStatus: _childrenStatus,
-      lookingFor:
-          _lookingForController.text.trim().isEmpty ? null : _lookingForController.text.trim(),
+      lookingFor: _lookingForController.text.trim().isEmpty
+          ? null
+          : _lookingForController.text.trim(),
       qualities: _qualities.toList(),
     );
 
@@ -155,8 +184,9 @@ class _ProfilEditScreenState extends ConsumerState<ProfilEditScreen> {
     // propriétaire sur appareil réel ("c'est comme si tu n'as rien
     // enregistré, ça reste toujours pareil").
     if (ok && mounted) {
-      ScaffoldMessenger.of(context)
-          .showSnackBar(SnackBar(content: Text(context.l10n.profileSaved)));
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text(context.l10n.profileSaved)));
       Navigator.of(context).pop();
     }
   }
@@ -177,14 +207,20 @@ class _ProfilEditScreenState extends ConsumerState<ProfilEditScreen> {
               const SizedBox(height: 20),
               TextFormField(
                 controller: _nameController,
-                decoration: InputDecoration(labelText: context.l10n.firstNameOrNickname),
-                validator: (v) => (v == null || v.trim().isEmpty) ? context.l10n.requiredField : null,
+                decoration: InputDecoration(
+                  labelText: context.l10n.firstNameOrNickname,
+                ),
+                validator: (v) => (v == null || v.trim().isEmpty)
+                    ? context.l10n.requiredField
+                    : null,
               ),
               const SizedBox(height: 14),
               InkWell(
                 onTap: _pickBirthDate,
                 child: InputDecorator(
-                  decoration: InputDecoration(labelText: context.l10n.birthDateLabel),
+                  decoration: InputDecoration(
+                    labelText: context.l10n.birthDateLabel,
+                  ),
                   child: Text(
                     _birthDate == null
                         ? context.l10n.chooseDate
@@ -195,14 +231,24 @@ class _ProfilEditScreenState extends ConsumerState<ProfilEditScreen> {
               const SizedBox(height: 14),
               DropdownButtonFormField<String>(
                 initialValue: _gender,
-                decoration: InputDecoration(labelText: context.l10n.genderLabel),
+                decoration: InputDecoration(
+                  labelText: context.l10n.genderLabel,
+                ),
                 items: Gender.all
-                    .map((g) => DropdownMenuItem(value: g, child: Text(Gender.label(g, context.l10n))))
+                    .map(
+                      (g) => DropdownMenuItem(
+                        value: g,
+                        child: Text(Gender.label(g, context.l10n)),
+                      ),
+                    )
                     .toList(),
                 onChanged: (v) => setState(() => _gender = v ?? _gender),
               ),
               const SizedBox(height: 14),
-              Text(context.l10n.iAmSeeking, style: const TextStyle(fontSize: 13, color: AppColors.muted)),
+              Text(
+                context.l10n.iAmSeeking,
+                style: const TextStyle(fontSize: 13, color: AppColors.muted),
+              ),
               Wrap(
                 spacing: 8,
                 children: Gender.all.map((g) {
@@ -212,44 +258,57 @@ class _ProfilEditScreenState extends ConsumerState<ProfilEditScreen> {
                     selected: selected,
                     selectedColor: AppColors.accentSoft,
                     onSelected: (v) => setState(
-                      () => v ? _seekingGenders.add(g) : _seekingGenders.remove(g),
+                      () => v
+                          ? _seekingGenders.add(g)
+                          : _seekingGenders.remove(g),
                     ),
                   );
                 }).toList(),
               ),
               const SizedBox(height: 14),
-              TextFormField(
-                controller: _countryController,
-                decoration: InputDecoration(labelText: context.l10n.countryLabel),
-                validator: (v) => (v == null || v.trim().isEmpty) ? context.l10n.requiredField : null,
+              CountryField(
+                value: _country,
+                label: context.l10n.countryLabel,
+                onChanged: (v) => setState(() => _country = v),
               ),
               const SizedBox(height: 14),
-              TextFormField(
+              CityField(
                 controller: _cityController,
-                decoration: InputDecoration(labelText: context.l10n.cityLabel),
-                validator: (v) => (v == null || v.trim().isEmpty) ? context.l10n.requiredField : null,
+                country: _country,
+                label: context.l10n.cityLabel,
+                validator: (v) => (v == null || v.trim().isEmpty)
+                    ? context.l10n.requiredField
+                    : null,
               ),
               const SizedBox(height: 14),
               TextFormField(
                 controller: _bioController,
                 maxLines: 4,
                 decoration: InputDecoration(labelText: context.l10n.bioLabel),
-                validator: (v) => (v == null || v.trim().isEmpty) ? context.l10n.requiredField : null,
+                validator: (v) => (v == null || v.trim().isEmpty)
+                    ? context.l10n.requiredField
+                    : null,
               ),
               const SizedBox(height: 14),
               TextFormField(
                 controller: _professionController,
-                decoration: InputDecoration(labelText: context.l10n.professionLabel),
+                decoration: InputDecoration(
+                  labelText: context.l10n.professionLabel,
+                ),
               ),
               const SizedBox(height: 14),
               TextFormField(
                 controller: _languagesController,
-                decoration: InputDecoration(labelText: context.l10n.languagesLabel),
+                decoration: InputDecoration(
+                  labelText: context.l10n.languagesLabel,
+                ),
               ),
               const SizedBox(height: 14),
               TextFormField(
                 controller: _interestsController,
-                decoration: InputDecoration(labelText: context.l10n.interestsLabel),
+                decoration: InputDecoration(
+                  labelText: context.l10n.interestsLabel,
+                ),
               ),
               const SizedBox(height: 14),
               TextFormField(
@@ -262,58 +321,98 @@ class _ProfilEditScreenState extends ConsumerState<ProfilEditScreen> {
               TextFormField(
                 controller: _valuesController,
                 maxLines: 3,
-                decoration: InputDecoration(labelText: context.l10n.valuesLabel),
+                decoration: InputDecoration(
+                  labelText: context.l10n.valuesLabel,
+                ),
               ),
               const SizedBox(height: 14),
               DropdownButtonFormField<String>(
                 initialValue: _relationshipIntent,
-                decoration: InputDecoration(labelText: context.l10n.relationshipIntentLabel),
+                decoration: InputDecoration(
+                  labelText: context.l10n.relationshipIntentLabel,
+                ),
                 items: RelationshipIntent.all
-                    .map((v) =>
-                        DropdownMenuItem(value: v, child: Text(RelationshipIntent.label(v, context.l10n))))
+                    .map(
+                      (v) => DropdownMenuItem(
+                        value: v,
+                        child: Text(RelationshipIntent.label(v, context.l10n)),
+                      ),
+                    )
                     .toList(),
-                onChanged: (v) => setState(() => _relationshipIntent = v ?? _relationshipIntent),
+                onChanged: (v) => setState(
+                  () => _relationshipIntent = v ?? _relationshipIntent,
+                ),
               ),
               const SizedBox(height: 24),
               Text(
                 context.l10n.yourFicheSectionTitle,
-                style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: AppColors.accent, letterSpacing: 0.5),
+                style: const TextStyle(
+                  fontSize: 12,
+                  fontWeight: FontWeight.bold,
+                  color: AppColors.accent,
+                  letterSpacing: 0.5,
+                ),
               ),
               const SizedBox(height: 14),
               TextFormField(
                 controller: _heightController,
                 keyboardType: TextInputType.number,
-                decoration: InputDecoration(labelText: context.l10n.heightLabel),
+                decoration: InputDecoration(
+                  labelText: context.l10n.heightLabel,
+                ),
               ),
               const SizedBox(height: 14),
               TextFormField(
                 controller: _educationController,
-                decoration: InputDecoration(labelText: context.l10n.educationLevelLabel),
+                decoration: InputDecoration(
+                  labelText: context.l10n.educationLevelLabel,
+                ),
               ),
               const SizedBox(height: 14),
               DropdownButtonFormField<String>(
                 initialValue: _smokingHabit,
-                decoration: InputDecoration(labelText: context.l10n.smokingLabel),
+                decoration: InputDecoration(
+                  labelText: context.l10n.smokingLabel,
+                ),
                 items: LifestyleHabit.all
-                    .map((v) => DropdownMenuItem(value: v, child: Text(LifestyleHabit.label(v, context.l10n))))
+                    .map(
+                      (v) => DropdownMenuItem(
+                        value: v,
+                        child: Text(LifestyleHabit.label(v, context.l10n)),
+                      ),
+                    )
                     .toList(),
                 onChanged: (v) => setState(() => _smokingHabit = v),
               ),
               const SizedBox(height: 14),
               DropdownButtonFormField<String>(
                 initialValue: _drinkingHabit,
-                decoration: InputDecoration(labelText: context.l10n.drinkingLabel),
+                decoration: InputDecoration(
+                  labelText: context.l10n.drinkingLabel,
+                ),
                 items: LifestyleHabit.all
-                    .map((v) => DropdownMenuItem(value: v, child: Text(LifestyleHabit.label(v, context.l10n))))
+                    .map(
+                      (v) => DropdownMenuItem(
+                        value: v,
+                        child: Text(LifestyleHabit.label(v, context.l10n)),
+                      ),
+                    )
                     .toList(),
                 onChanged: (v) => setState(() => _drinkingHabit = v),
               ),
               const SizedBox(height: 14),
               DropdownButtonFormField<String>(
                 initialValue: _childrenStatus,
-                decoration: InputDecoration(labelText: context.l10n.childrenLabel),
+                decoration: InputDecoration(
+                  labelText: context.l10n.childrenLabel,
+                ),
                 items: ChildrenStatus.all
-                    .map((v) => DropdownMenuItem(value: v, child: Text(ChildrenStatus.label(v, context.l10n))))
+                    .map(
+                      (v) => DropdownMenuItem(
+                        value: v,
+                        child: Text(ChildrenStatus.label(v, context.l10n)),
+                      ),
+                    )
                     .toList(),
                 onChanged: (v) => setState(() => _childrenStatus = v),
               ),
@@ -326,8 +425,10 @@ class _ProfilEditScreenState extends ConsumerState<ProfilEditScreen> {
                 ),
               ),
               const SizedBox(height: 14),
-              Text(context.l10n.qualitiesSectionHint,
-                  style: const TextStyle(fontSize: 13, color: AppColors.muted)),
+              Text(
+                context.l10n.qualitiesSectionHint,
+                style: const TextStyle(fontSize: 13, color: AppColors.muted),
+              ),
               const SizedBox(height: 8),
               Wrap(
                 spacing: 8,
@@ -358,7 +459,10 @@ class _ProfilEditScreenState extends ConsumerState<ProfilEditScreen> {
                     ? const SizedBox(
                         height: 18,
                         width: 18,
-                        child: CircularProgressIndicator(strokeWidth: 2, color: AppColors.noirProfond),
+                        child: CircularProgressIndicator(
+                          strokeWidth: 2,
+                          color: AppColors.noirProfond,
+                        ),
                       )
                     : Text(context.l10n.saveMyProfile),
               ),
