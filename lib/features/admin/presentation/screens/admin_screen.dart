@@ -563,7 +563,7 @@ class _UsersTab extends ConsumerWidget {
                         ref.invalidate(adminUsersProvider);
                       },
                       style: TextButton.styleFrom(
-                        foregroundColor: suspended ? Colors.green : AppColors.accent,
+                        foregroundColor: suspended ? AppColors.online : AppColors.accent,
                       ),
                       child: Text(suspended ? 'Réactiver' : 'Suspendre'),
                     ),

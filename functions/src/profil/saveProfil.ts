@@ -117,6 +117,20 @@ function closedValueCaseInsensitive(value: unknown, field: string, allowed: read
   return match;
 }
 
+// `city` reste du texte libre (aucune liste fermée, voir plus bas) :
+// impossible de corriger sa casse avec certitude dans le cas général
+// (ex. "Aix-en-Provence" a volontairement un "en" en minuscule). On ne
+// corrige donc que le cas trouvé en vérifiant les données réelles avant
+// ce correctif (12/11/2026) — une ville saisie entièrement en minuscule
+// ("paris") — en capitalisant seulement la première lettre, jamais
+// chaque mot. Une saisie déjà correctement capitalisée par l'utilisateur
+// (ou par une suggestion de core/data/major_cities.dart côté client)
+// n'est jamais modifiée.
+function capitalizeFirstLetter(value: string): string {
+  if (value.length === 0) return value;
+  return value[0].toUpperCase() + value.slice(1);
+}
+
 /**
  * Enregistre le profil public (`users/{uid}`) — remplace l'écriture
  * directe du client (firestore.rules n'accepte plus `create`/`update` sur
@@ -183,7 +197,7 @@ export const saveProfil = onCall({ region: REGION }, async (request) => {
       throw err;
     }
   }
-  const city = requiredText(data.city, "city", MAX_SHORT_TEXT);
+  const city = capitalizeFirstLetter(requiredText(data.city, "city", MAX_SHORT_TEXT));
   const bio = requiredText(data.bio, "bio", MAX_BIO_LENGTH);
   const relationshipIntent = closedValue(data.relationshipIntent, "relationshipIntent", RELATIONSHIP_INTENTS);
 

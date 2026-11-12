@@ -69,6 +69,17 @@ String _readableSwipeError(Object error, Locale? locale) {
 
 class DecouvrirController extends AsyncNotifier<DecouvrirState> {
   bool _swipeInFlight = false;
+  // Uid actuellement en attente de réponse réseau dans `swipe()`, et si ce
+  // candidat précis a été bloqué (`removeCandidate`) PENDANT cette attente
+  // — jamais un Set qui persisterait entre deux appels : une première
+  // version gardait les uids bloqués dans un Set jusqu'à ce qu'un swipe
+  // correspondant les consomme, ce qui faisait planer indéfiniment un
+  // blocage ancien sur un futur match bien réel si la personne était
+  // débloquée puis reproposée plus tard (trouvé par revue de code). Ces
+  // deux champs sont réinitialisés à chaque appel de `swipe()`, donc rien
+  // ne peut jamais rester périmé d'un appel à l'autre.
+  String? _inFlightTargetUid;
+  bool _inFlightTargetBlocked = false;
 
   @override
   Future<DecouvrirState> build() async {
@@ -85,25 +96,57 @@ class DecouvrirController extends AsyncNotifier<DecouvrirState> {
     final remaining = current.candidates.sublist(1);
 
     _swipeInFlight = true;
+    _inFlightTargetUid = target.uid;
+    _inFlightTargetBlocked = false;
     try {
       final matched = await ref.read(decouvrirRepositoryProvider).swipe(target.uid, action);
+      // Repart de la liste EN VIGUEUR au moment où l'appel réseau se
+      // termine, pas de l'instantané `remaining` capturé avant l'attente
+      // — si `removeCandidate` (blocage depuis le menu "⋮", resté
+      // accessible sur la carte pendant l'attente) a modifié l'état
+      // pendant ce swipe, écraser avec l'instantané périmé aurait fait
+      // réapparaître un profil déjà bloqué, voire déclenché le dialogue
+      // "C'est un match !" pour lui (trouvé par revue de code).
+      final liveCandidates = state.value?.candidates ?? remaining;
       state = AsyncData(
-        DecouvrirState(candidates: remaining, justMatchedWith: matched ? target : null),
+        DecouvrirState(
+          candidates: liveCandidates.where((c) => c.uid != target.uid).toList(),
+          justMatchedWith: (matched && !_inFlightTargetBlocked) ? target : null,
+        ),
       );
     } catch (e) {
       // Le profil est retiré de la pile dans tous les cas (on ne le
       // représente pas), mais la liste de candidats reste affichée —
       // seul un message d'erreur s'ajoute, sans faire planter tout
       // l'état de l'écran comme le ferait un AsyncError ici.
+      final liveCandidates = state.value?.candidates ?? remaining;
       state = AsyncData(
         DecouvrirState(
-          candidates: remaining,
+          candidates: liveCandidates.where((c) => c.uid != target.uid).toList(),
           errorMessage: _readableSwipeError(e, ref.read(localeControllerProvider)),
         ),
       );
     } finally {
       _swipeInFlight = false;
+      _inFlightTargetUid = null;
     }
+  }
+
+  /// Retire immédiatement un candidat de la pile en mémoire sans
+  /// resolliciter le serveur — utilisé après un blocage réussi (trouvé
+  /// par audit : sans ça, la personne qu'on vient de bloquer depuis le
+  /// menu "⋮" restait affichée et swipable tant que `build()` n'était pas
+  /// relancé, ex. tant qu'on ne quittait pas puis revenait sur l'onglet).
+  void removeCandidate(String uid) {
+    if (uid == _inFlightTargetUid) _inFlightTargetBlocked = true;
+    final current = state.value;
+    if (current == null) return;
+    state = AsyncData(
+      DecouvrirState(
+        candidates: current.candidates.where((c) => c.uid != uid).toList(),
+        justMatchedWith: current.justMatchedWith,
+      ),
+    );
   }
 
   Future<void> refresh() async {

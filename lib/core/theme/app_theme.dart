@@ -48,6 +48,14 @@ class AppColors {
   static const surfaceDark = noirProfond;
   static const surfaceDarkSoft = brunProfond;
   static const onSurfaceDark = ivoire;
+
+  // Seule couleur hors palette imposée : le vert "actif/en ligne" est une
+  // convention universelle (badge "En ligne" de Découvrir, bouton
+  // "Réactiver" de l'admin) qu'aucune teinte or/ivoire/brun ne peut
+  // remplacer sans perdre son sens immédiat. Centralisée ici (trouvée
+  // dupliquée en `Colors.greenAccent`/`Colors.green` à deux endroits par
+  // audit) plutôt que répétée en couleur Material brute à chaque écran.
+  static const online = Color(0xFF4CAF7D);
 }
 
 /// Espacements et rayons centralisés — un seul endroit à changer pour

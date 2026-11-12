@@ -14,9 +14,9 @@ import '../../../communaute/presentation/screens/my_participations_screen.dart';
 import '../../../communaute/presentation/screens/organizer_dashboard_screen.dart';
 import '../../../communaute/presentation/screens/organizer_request_screen.dart';
 import '../../../compatibilite/presentation/screens/compat_screen.dart';
-import '../../../decouvrir/presentation/decouvrir_controller.dart';
 import '../../../identite/presentation/screens/identite_screen.dart';
 import '../../../premium/presentation/screens/premium_screen.dart';
+import '../photo_controller.dart';
 import '../profil_controller.dart';
 import 'photos_section.dart';
 import 'profil_edit_screen.dart';
@@ -37,8 +37,20 @@ class MonProfilScreen extends ConsumerWidget {
     final status = ref.watch(userStatusProvider).value;
     final isVerified = status?['isVerified'] == true;
     final organizerStatus = ref.watch(myOrganizerStatusProvider).value;
-    final uid = ref.watch(firebaseAuthProvider).currentUser?.uid;
-    final photoUrl = uid == null ? null : ref.watch(candidateFirstPhotoUrlProvider(uid)).value;
+    // Avatar dérivé de `myPhotosProvider` (un Stream, déjà utilisé par
+    // PhotosSection juste en dessous) plutôt que de
+    // `candidateFirstPhotoUrlProvider` (pensé pour un profil TIERS, un
+    // FutureProvider à usage unique jamais invalidé) — trouvé par audit :
+    // ajouter/supprimer une photo mettait bien à jour la galerie du bas
+    // mais jamais ce grand avatar, qui gardait l'ancienne photo pour le
+    // reste de la session tant que l'onglet restait ouvert dans
+    // l'IndexedStack de MainShell.
+    final myPhotos = ref.watch(myPhotosProvider).value ?? const [];
+    final approvedPhotos = myPhotos.where((p) => p.status == 'approved');
+    final firstApprovedPhoto = approvedPhotos.isEmpty ? null : approvedPhotos.first;
+    final photoUrl = firstApprovedPhoto == null
+        ? null
+        : ref.watch(photoDownloadUrlProvider(firstApprovedPhoto.storagePath)).value;
 
     // Les deux compteurs reflètent exactement ce que le serveur a calculé
     // (functions/src/premium/useJeton.ts, activateBoost.ts) — jamais de

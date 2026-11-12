@@ -512,7 +512,7 @@ class _CandidateCardContent extends ConsumerWidget {
                               width: 8,
                               height: 8,
                               decoration: const BoxDecoration(
-                                color: Colors.greenAccent,
+                                color: AppColors.online,
                                 shape: BoxShape.circle,
                               ),
                             ),
@@ -541,6 +541,9 @@ class _CandidateCardContent extends ConsumerWidget {
                               ref,
                               targetUid: candidate.uid,
                               displayName: candidate.displayName,
+                              onBlocked: () => ref
+                                  .read(decouvrirControllerProvider.notifier)
+                                  .removeCandidate(candidate.uid),
                             ),
                             child: Text(context.l10n.blockProfileAction),
                           ),

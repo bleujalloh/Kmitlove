@@ -128,7 +128,22 @@ class _ReceivedTab extends ConsumerWidget {
     if (likes.isPremium) {
       return _ProfileGrid(
         profiles: likes.likesReceived,
-        onLongPress: (p) => showBlockProfileSheet(context, ref, targetUid: p.uid, displayName: p.displayName),
+        onLongPress: (p) => showBlockProfileSheet(
+          context,
+          ref,
+          targetUid: p.uid,
+          displayName: p.displayName,
+          onBlocked: () {
+            ref.invalidate(likesProvider);
+            // Le même profil peut aussi être en cache dans la pile
+            // Découvrir (decouvrirControllerProvider n'est pas autoDispose
+            // et MainShell garde cet onglet vivant dans un IndexedStack) —
+            // sans ce retrait explicite, bloquer depuis Likes laissait la
+            // personne swipable en revenant sur Découvrir (trouvé par
+            // revue de code, même défaut que l'inverse déjà corrigé).
+            ref.read(decouvrirControllerProvider.notifier).removeCandidate(p.uid);
+          },
+        ),
       );
     }
     return ListView(
