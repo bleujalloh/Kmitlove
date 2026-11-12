@@ -184,6 +184,7 @@
   "lookingForLabel": "What you're looking for in a partner (optional)",
   "qualitiesSectionHint": "Your qualities (optional, pick a few)",
   "profileSaveFailed": "Couldn't save your profile, check your connection and try again.",
+  "profileSaved": "Profile saved.",
   "saveMyProfile": "Save my profile",
 
   "photosSectionTitle": "PHOTOS",

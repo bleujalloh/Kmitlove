@@ -543,6 +543,9 @@ class AppLocalizationsEn extends AppLocalizations {
       'Couldn\'t save your profile, check your connection and try again.';
 
   @override
+  String get profileSaved => 'Profile saved.';
+
+  @override
   String get saveMyProfile => 'Save my profile';
 
   @override

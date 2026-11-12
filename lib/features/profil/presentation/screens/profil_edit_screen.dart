@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../../core/theme/app_theme.dart';
+import '../../../../core/utils/age.dart';
 import '../../../../l10n/l10n_extensions.dart';
 import '../../domain/profil.dart';
 import '../profil_controller.dart';
@@ -79,15 +80,7 @@ class _ProfilEditScreenState extends ConsumerState<ProfilEditScreen> {
   List<String> _splitCsv(String text) =>
       text.split(',').map((s) => s.trim()).where((s) => s.isNotEmpty).toList();
 
-  bool _isAdult(DateTime birthDate) {
-    final now = DateTime.now();
-    var age = now.year - birthDate.year;
-    if (now.month < birthDate.month ||
-        (now.month == birthDate.month && now.day < birthDate.day)) {
-      age -= 1;
-    }
-    return age >= 18;
-  }
+  bool _isAdult(DateTime birthDate) => ageFromBirthDate(birthDate) >= 18;
 
   Future<void> _pickBirthDate() async {
     // Bug remonté sur appareil réel (11/11) : le sélecteur proposait des
@@ -155,7 +148,17 @@ class _ProfilEditScreenState extends ConsumerState<ProfilEditScreen> {
       qualities: _qualities.toList(),
     );
 
-    await ref.read(profilControllerProvider.notifier).save(profil);
+    final ok = await ref.read(profilControllerProvider.notifier).save(profil);
+    // Aucune confirmation visible ici auparavant (ni message, ni retour en
+    // arrière) : un enregistrement réussi et un enregistrement resté sans
+    // suite avaient exactement le même rendu à l'écran — signalé par le
+    // propriétaire sur appareil réel ("c'est comme si tu n'as rien
+    // enregistré, ça reste toujours pareil").
+    if (ok && mounted) {
+      ScaffoldMessenger.of(context)
+          .showSnackBar(SnackBar(content: Text(context.l10n.profileSaved)));
+      Navigator.of(context).pop();
+    }
   }
 
   @override

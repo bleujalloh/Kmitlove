@@ -194,6 +194,7 @@
   "lookingForLabel": "Ce que tu recherches chez l'autre (facultatif)",
   "qualitiesSectionHint": "Tes qualités (facultatif, choisis-en quelques-unes)",
   "profileSaveFailed": "Impossible d'enregistrer ton profil, vérifie ta connexion et réessaie.",
+  "profileSaved": "Profil enregistré.",
   "saveMyProfile": "Enregistrer mon profil",
 
   "photosSectionTitle": "PHOTOS",

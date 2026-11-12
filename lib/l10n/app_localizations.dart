@@ -1076,6 +1076,12 @@ abstract class AppLocalizations {
   /// **'Impossible d\'enregistrer ton profil, vérifie ta connexion et réessaie.'**
   String get profileSaveFailed;
 
+  /// No description provided for @profileSaved.
+  ///
+  /// In fr, this message translates to:
+  /// **'Profil enregistré.'**
+  String get profileSaved;
+
   /// No description provided for @saveMyProfile.
   ///
   /// In fr, this message translates to:

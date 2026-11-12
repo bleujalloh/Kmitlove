@@ -547,6 +547,9 @@ class AppLocalizationsFr extends AppLocalizations {
       'Impossible d\'enregistrer ton profil, vérifie ta connexion et réessaie.';
 
   @override
+  String get profileSaved => 'Profil enregistré.';
+
+  @override
   String get saveMyProfile => 'Enregistrer mon profil';
 
   @override
