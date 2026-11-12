@@ -2,9 +2,7 @@ import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_riverpod/legacy.dart';
 
-import '../../../core/providers/firebase_providers.dart';
 import '../../../core/providers/locale_provider.dart';
-import '../../../core/utils/retry.dart';
 import '../../auth/presentation/auth_controller.dart';
 import '../../profil/presentation/photo_controller.dart';
 import '../data/decouvrir_repository.dart';
@@ -26,25 +24,16 @@ final locationServiceProvider = Provider<LocationService>((ref) {
 /// Firestore : une photo approuvée est lisible par tout membre connecté
 /// (firestore.rules), pas besoin d'une Cloud Function dédiée.
 final candidateFirstPhotoUrlProvider = FutureProvider.autoDispose.family<String?, String>((ref, uid) async {
-  final snap = await ref
-      .watch(firestoreProvider)
-      .collection('users')
-      .doc(uid)
-      .collection('photos')
-      .where('status', isEqualTo: 'approved')
-      .limit(1)
-      .get();
-  if (snap.docs.isEmpty) return null;
-  final storagePath = snap.docs.first.data()['storagePath'] as String?;
-  if (storagePath == null) return null;
-  final photoRef = ref.watch(firebaseStorageProvider).ref(storagePath);
+  final paths = await ref.watch(photoRepositoryProvider).getApprovedPhotoStoragePaths(uid, limit: 1);
+  if (paths.isEmpty) return null;
   // Ce FutureProvider ne se relance jamais tout seul (pas un Stream) — si
   // le tout premier appel Storage échoue à cause d'une course au
   // démarrage à froid (jeton App Check/Play Integrity pas encore prêt),
   // la carte resterait sans photo pour le reste de la session (bug
   // remarqué le 11/11 sur l'onglet Profil, qui appelle ce même provider
-  // en tout premier à l'ouverture de l'app).
-  return retryAsync(() => photoRef.getDownloadURL());
+  // en tout premier à l'ouverture de l'app) — retryAsync déjà appliqué
+  // dans PhotoRepository.getDownloadUrl.
+  return ref.watch(photoRepositoryProvider).getDownloadUrl(paths.first);
 });
 
 /// Filtres manuels de Découvrir (docs/regles-complementaires-concurrents.md

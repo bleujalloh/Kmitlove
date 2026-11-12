@@ -17,6 +17,23 @@ class PhotoRepository {
   final FirebaseStorage _storage;
   final FirebaseFirestore _firestore;
 
+  /// Chemins Storage des photos APPROUVÉES d'un membre — partagé entre
+  /// `candidateFirstPhotoUrlProvider` (decouvrir_controller.dart, une
+  /// seule photo pour la carte) et `targetProfilePhotoUrlsProvider`
+  /// (profil_detail_controller.dart, toutes les photos pour le
+  /// carrousel), plutôt que deux requêtes réimplémentées séparément
+  /// (trouvé par revue de code).
+  Future<List<String>> getApprovedPhotoStoragePaths(String uid, {int? limit}) async {
+    Query<Map<String, dynamic>> query = _firestore
+        .collection('users')
+        .doc(uid)
+        .collection('photos')
+        .where('status', isEqualTo: 'approved');
+    if (limit != null) query = query.limit(limit);
+    final snap = await query.get();
+    return snap.docs.map((d) => d.data()['storagePath'] as String?).whereType<String>().toList();
+  }
+
   Stream<List<ProfilPhoto>> watchPhotos(String uid) {
     return _firestore
         .collection('users')

@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../../core/providers/firebase_providers.dart';
 import '../../../../core/theme/app_theme.dart';
+import '../../../../core/utils/age.dart';
 import '../../../../core/widgets/settings_action.dart';
 import '../../../../l10n/l10n_extensions.dart';
 import '../../../admin/presentation/admin_controller.dart';
@@ -28,15 +29,6 @@ import 'profil_edit_screen.dart';
 /// mais rien ne montrait jamais la fiche elle-même d'un coup d'œil.
 class MonProfilScreen extends ConsumerWidget {
   const MonProfilScreen({super.key});
-
-  int _age(DateTime birthDate) {
-    final now = DateTime.now();
-    var age = now.year - birthDate.year;
-    if (now.month < birthDate.month || (now.month == birthDate.month && now.day < birthDate.day)) {
-      age -= 1;
-    }
-    return age;
-  }
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -164,7 +156,7 @@ class MonProfilScreen extends ConsumerWidget {
                         children: [
                           Flexible(
                             child: Text(
-                              '${profil.displayName}, ${_age(profil.birthDate)}',
+                              '${profil.displayName}, ${ageFromBirthDate(profil.birthDate)}',
                               style: const TextStyle(fontSize: 22, fontWeight: FontWeight.bold, color: AppColors.ink),
                               overflow: TextOverflow.ellipsis,
                             ),

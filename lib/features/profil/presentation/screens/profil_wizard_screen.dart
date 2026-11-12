@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../../core/theme/app_theme.dart';
+import '../../../../core/utils/age.dart';
 import '../../../../l10n/l10n_extensions.dart';
 import '../../domain/profil.dart';
 import '../profil_controller.dart';
@@ -84,15 +85,7 @@ class _ProfilWizardScreenState extends ConsumerState<ProfilWizardScreen> {
   List<String> _splitCsv(String text) =>
       text.split(',').map((s) => s.trim()).where((s) => s.isNotEmpty).toList();
 
-  bool _isAdult(DateTime birthDate) {
-    final now = DateTime.now();
-    var age = now.year - birthDate.year;
-    if (now.month < birthDate.month ||
-        (now.month == birthDate.month && now.day < birthDate.day)) {
-      age -= 1;
-    }
-    return age >= 18;
-  }
+  bool _isAdult(DateTime birthDate) => ageFromBirthDate(birthDate) >= 18;
 
   Future<void> _pickBirthDate() async {
     final eighteenYearsAgo = DateTime(

@@ -6,6 +6,7 @@ import '../../../../core/widgets/block_action.dart';
 import '../../../../core/widgets/empty_state_cards.dart';
 import '../../../../l10n/l10n_extensions.dart';
 import '../../../decouvrir/presentation/decouvrir_controller.dart';
+import '../../../profil/presentation/screens/profil_detail_screen.dart';
 import '../../data/likes_repository.dart';
 import '../../domain/mini_profile.dart';
 import '../likes_controller.dart';
@@ -262,6 +263,11 @@ class _ProfileGrid extends ConsumerWidget {
         final p = profiles[i];
         final photoUrl = ref.watch(candidateFirstPhotoUrlProvider(p.uid)).value;
         return InkWell(
+          onTap: () => Navigator.of(context).push(
+            MaterialPageRoute(
+              builder: (_) => ProfilDetailScreen(uid: p.uid, isVerified: p.isVerified),
+            ),
+          ),
           onLongPress: onLongPress == null ? null : () => onLongPress!(p),
           borderRadius: BorderRadius.circular(16),
           child: Container(
