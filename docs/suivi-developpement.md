@@ -724,3 +724,22 @@ une maquette visuelle précise fournie. `ProfilDetailScreen` reste utilisé tel 
   `flutter analyze`/`flutter test` et par relecture du code — accès appareil toujours indisponible
   pour cette session, en particulier le ressenti réel du retrait immédiat d'un profil bloqué de la
   pile Découvrir pendant un swipe.
+
+## Suivi 2026-11-12 (suite) — Refonte visuelle de Likes (prototype validé)
+
+- [x] **Testé et validé (déployé, pas de changement serveur nécessaire)** : pilules "Reçus"/"Envoyés"
+  alignées sur le système de pilules déjà en place (Communauté) via un nouveau widget partagé
+  `TabPill` (`lib/core/widgets/tab_pill.dart`), qui remplace aussi la copie précédemment dupliquée
+  dans `communaute_screen.dart`. Icône d'actualisation ajoutée dans l'AppBar. L'illustration en
+  éventail de l'état vide existait déjà dans la palette MERUT (`EmptyStateCards`) ; ajout des deux
+  boutons du prototype ("Booste ton profil", "Passe à la version supérieure") sous le texte "Aucun
+  Like pour le moment".
+- [x] **"Booste ton profil" relié au mécanisme gratuit déjà existant, jamais inventé** : appelle
+  `activateBoost` (jetons), extrait de `PremiumScreen` vers un widget partagé
+  (`activateProfileBoost`) pour ne pas dupliquer l'appel Cloud Function ni sa gestion d'erreurs —
+  exactement le même bouton que l'onglet Profil, pas une nouvelle fonctionnalité.
+- [x] **"Passe à la version supérieure" ne déclenche aucun achat** : route simplement vers
+  `PremiumScreen` déjà existant, qui communique déjà l'état réel sans bouton d'achat fonctionnel —
+  les paiements restent en pause (`functions/src/index.ts`), rien de nouveau n'a été activé.
+- [ ] **Non vérifié sur appareil réel** : vérifié par `flutter analyze`/`flutter test` et relecture
+  du code uniquement — accès appareil toujours indisponible pour cette session.
