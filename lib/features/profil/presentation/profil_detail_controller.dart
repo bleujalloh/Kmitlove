@@ -1,7 +1,6 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../core/providers/firebase_providers.dart';
-import '../../../core/utils/age.dart';
 import 'photo_controller.dart';
 
 class TargetProfile {
@@ -47,12 +46,12 @@ class TargetProfile {
 /// est publiquement lisible par tout membre connecté (firestore.rules),
 /// même raisonnement que candidateFirstPhotoUrlProvider.ts
 /// (decouvrir_controller.dart) — pas besoin d'une Cloud Function dédiée.
-/// `birthDate` est un champ obligatoire et validé à l'écriture
-/// (saveProfil.ts) : `DateTime.parse` (qui lève une exception s'il est
-/// absent ou corrompu) plutôt qu'un `tryParse` masqué par un âge par
-/// défaut de 0 — même choix que Profil.fromMap (profil/domain/profil.dart),
-/// une donnée invalide doit échouer bruyamment, pas s'afficher comme
-/// si la personne venait de naître (trouvé par revue de code).
+///
+/// `age` (jamais `birthDate`, qui ne vit plus que dans `user_status/{uid}`
+/// depuis le 12/11/2026 — règlement permanent section 17, la date de
+/// naissance exacte d'un AUTRE membre ne doit jamais être lisible) est
+/// déjà calculé et stocké sur le document public par saveProfil.ts —
+/// jamais recalculé ici à partir d'une donnée qui n'existe plus.
 final targetProfileProvider = FutureProvider.autoDispose
     .family<TargetProfile?, String>((ref, uid) async {
       final doc = await ref
@@ -62,10 +61,19 @@ final targetProfileProvider = FutureProvider.autoDispose
           .get();
       final data = doc.data();
       if (data == null) return null;
+      // `age` absent (profil pas encore resauvegardé depuis le passage à
+      // un champ public calculé, 12/11/2026) doit échouer bruyamment,
+      // pas s'afficher comme si la personne venait de naître — même
+      // choix que `DateTime.parse` sur `birthDate` avant ce correctif
+      // (trouvé par revue de code : un `?? 0` ici aurait justement
+      // réintroduit l'anti-motif que ce choix évitait).
+      if (data['age'] is! num) {
+        throw StateError('Profil incomplet : age manquant pour $uid.');
+      }
       return TargetProfile(
         uid: uid,
         displayName: data['displayName'] as String? ?? '',
-        age: ageFromBirthDate(DateTime.parse(data['birthDate'] as String)),
+        age: (data['age'] as num).toInt(),
         city: data['city'] as String? ?? '',
         country: data['country'] as String? ?? '',
         bio: data['bio'] as String? ?? '',

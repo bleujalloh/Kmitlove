@@ -9,7 +9,6 @@ import {
   MIN_APPROVED_PHOTOS_TO_BE_DISCOVERABLE,
   ONLINE_THRESHOLD_MINUTES,
 } from "../config";
-import { computeAge } from "../shared/age";
 import { distanceKm } from "../shared/distance";
 import { computeProfileCompletionPercent } from "../shared/profileCompletion";
 
@@ -57,7 +56,18 @@ export const getDiscoverCandidates = onCall({ region: REGION }, async (request) 
     return { candidates: [] };
   }
 
-  const myAge = computeAge(myProfil.birthDate);
+  // `age` est désormais calculé une fois par saveProfil.ts et stocké
+  // directement sur le document public (règlement permanent section 17,
+  // 12/11/2026 : la date de naissance exacte n'est plus jamais exposée,
+  // même sur son propre document) — jamais recalculé ici à partir d'un
+  // `birthDate` qui n'existe plus sur `users/{uid}`. Échec explicite
+  // plutôt qu'un NaN silencieux (minAge/maxAge deviendraient NaN, et
+  // Découvrir renverrait toujours une liste vide sans jamais expliquer
+  // pourquoi) si ce profil n'a jamais resauvegardé depuis ce correctif.
+  if (typeof myProfil.age !== "number") {
+    throw new HttpsError("failed-precondition", "Profil incomplet, réenregistre-le.");
+  }
+  const myAge = myProfil.age;
   // Par défaut ±8 ans autour de son âge (docs/regles-complementaires-concurrents.md
   // section 3), remplaçable par les filtres manuels envoyés par le client.
   const minAge = filters.minAge ?? myAge - 8;
@@ -100,8 +110,11 @@ export const getDiscoverCandidates = onCall({ region: REGION }, async (request) 
     const data = doc.data();
     const candidateSeekingGenders: string[] = data.seekingGenders ?? [];
     if (!candidateSeekingGenders.includes(myGender)) return false;
-    const age = computeAge(data.birthDate);
-    return age >= minAge && age <= maxAge;
+    // Un profil qui n'a jamais resauvegardé depuis ce correctif n'aurait
+    // pas encore `age` — exclu plutôt que planté/inclus avec un âge
+    // inventé (même raisonnement que getLikes.ts).
+    if (typeof data.age !== "number") return false;
+    return data.age >= minAge && data.age <= maxAge;
   });
 
   const statusSnaps = preFiltered.length > 0
@@ -202,7 +215,7 @@ export const getDiscoverCandidates = onCall({ region: REGION }, async (request) 
     eligible.push({
       uid: doc.id,
       displayName: data.displayName,
-      age: computeAge(data.birthDate),
+      age: data.age,
       city: data.city,
       country: data.country,
       bio: data.bio,

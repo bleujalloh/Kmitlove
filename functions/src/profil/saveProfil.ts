@@ -1,5 +1,5 @@
 import { onCall, HttpsError } from "firebase-functions/v2/https";
-import { getFirestore } from "firebase-admin/firestore";
+import { getFirestore, FieldValue } from "firebase-admin/firestore";
 
 import { REGION } from "../config";
 import { computeAge } from "../shared/age";
@@ -218,43 +218,67 @@ export const saveProfil = onCall({ region: REGION }, async (request) => {
   // compat_repository.dart, voir l'exception dédiée dans firestore.rules) :
   // un .set() sans merge les effacerait silencieusement à chaque
   // modification de profil.
-  await db
-    .collection("users")
-    .doc(uid)
-    .set(
-      {
-        displayName,
-        birthDate,
-        gender,
-        seekingGenders,
-        country,
-        city,
-        // Normalisées en minuscules pour le filtre pays/ville de Découvrir
-        // (getCandidates.ts) — une comparaison Firestore "==" est
-        // sensible à la casse. `country` passe maintenant par un
-        // sélecteur fermé (voir plus haut) ; `city` reste du texte libre
-        // saisi par chacun (aucune base de villes exhaustive, voir
-        // core/data/major_cities.dart côté client pour le compromis
-        // retenu), donc toujours sans liste fermée ici.
-        countryLower: country.toLowerCase(),
-        cityLower: city.toLowerCase(),
-        bio,
-        relationshipIntent,
-        profession,
-        languages,
-        interests,
-        culturalOrigins,
-        values,
-        heightCm,
-        educationLevel,
-        smokingHabit,
-        drinkingHabit,
-        childrenStatus,
-        lookingFor,
-        qualities,
-      },
-      { merge: true },
-    );
+  // `birthDate` (date de naissance EXACTE) n'est plus jamais écrite sur
+  // le document public — demande explicite de l'utilisateur, 12/11/2026
+  // (règlement permanent section 17, "la règle la plus stricte gagne") :
+  // même si `users/{uid}` était déjà pensé pour être largement lisible,
+  // exposer la date de naissance précise à n'importe quel membre
+  // connecté allait au-delà de ce qui est réellement nécessaire (l'âge
+  // suffit partout). Stockée uniquement dans `user_status/{uid}`
+  // (lisible par son seul propriétaire, firestore.rules), jamais
+  // ailleurs ; seul `age`, recalculé ici à chaque sauvegarde, est rendu
+  // public.
+  //
+  // Les deux écritures (privée + publique) sont groupées dans un seul
+  // WriteBatch — sans ça, un échec entre les deux aurait pu laisser
+  // birthDate enregistrée dans user_status sans que users/{uid} soit
+  // jamais mis à jour (ou l'inverse), au lieu de réussir ou échouer
+  // ensemble (trouvé par revue de code).
+  const batch = db.batch();
+  batch.set(db.collection("user_status").doc(uid), { birthDate }, { merge: true });
+  batch.set(
+    db.collection("users").doc(uid),
+    {
+      displayName,
+      age: computeAge(birthDate),
+      // Efface explicitement un éventuel `birthDate` hérité de versions
+      // précédentes de cette fonction (avant ce correctif, elle était
+      // écrite ici en clair) — `merge: true` n'enlève jamais tout seul
+      // un champ qu'on ne repasse pas, donc sans ce `delete()` explicite
+      // elle serait restée exposée indéfiniment sur ce document public
+      // à chaque futur enregistrement.
+      birthDate: FieldValue.delete(),
+      gender,
+      seekingGenders,
+      country,
+      city,
+      // Normalisées en minuscules pour le filtre pays/ville de Découvrir
+      // (getCandidates.ts) — une comparaison Firestore "==" est
+      // sensible à la casse. `country` passe maintenant par un
+      // sélecteur fermé (voir plus haut) ; `city` reste du texte libre
+      // saisi par chacun (aucune base de villes exhaustive, voir
+      // core/data/major_cities.dart côté client pour le compromis
+      // retenu), donc toujours sans liste fermée ici.
+      countryLower: country.toLowerCase(),
+      cityLower: city.toLowerCase(),
+      bio,
+      relationshipIntent,
+      profession,
+      languages,
+      interests,
+      culturalOrigins,
+      values,
+      heightCm,
+      educationLevel,
+      smokingHabit,
+      drinkingHabit,
+      childrenStatus,
+      lookingFor,
+      qualities,
+    },
+    { merge: true },
+  );
+  await batch.commit();
 
   return { ok: true };
 });

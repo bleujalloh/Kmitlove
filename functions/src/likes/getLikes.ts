@@ -2,7 +2,6 @@ import { onCall, HttpsError } from "firebase-functions/v2/https";
 import { getFirestore } from "firebase-admin/firestore";
 
 import { REGION } from "../config";
-import { computeAge } from "../shared/age";
 
 /**
  * Qui m'a liké / mes likes (cahier des charges section 4.5). "Qui m'a
@@ -95,10 +94,17 @@ async function fetchMiniProfiles(db: ReturnType<typeof getFirestore>, uids: stri
     if (statusSnaps[i].data()?.filtrageStatus !== "active") continue;
 
     const data = profileSnap.data()!;
+    // `age` est calculé une fois par saveProfil.ts (règlement permanent
+    // section 17, 12/11/2026 : birthDate n'est plus jamais publique) —
+    // un profil qui n'a jamais encore resauvegardé après ce correctif
+    // n'en aurait pas ; ignoré plutôt que planté/affiché avec un âge
+    // inventé côté client (même raisonnement que pour les comptes
+    // suspendus juste au-dessus).
+    if (typeof data.age !== "number") continue;
     result.push({
       uid: profileSnap.id,
       displayName: data.displayName,
-      age: computeAge(data.birthDate),
+      age: data.age,
       city: data.city,
       isVerified: statusSnaps[i].data()?.isVerified === true,
     });
