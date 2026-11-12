@@ -673,3 +673,54 @@ une maquette visuelle précise fournie. `ProfilDetailScreen` reste utilisé tel 
   directe des données de production et par la logique du code, pas encore par un appareil physique
   rechargeant un profil réel après une nouvelle build — accès appareil toujours indisponible pour
   cette session.
+
+## Suivi 2026-11-12 (suite) — Chantier 4 : audit complet des onglets (synchronisation, cohérence, parcours)
+
+- [x] **Casse de la ville normalisée (testé et validé, déployé)** : même logique que le correctif
+  pays du 12/11 — `city` est désormais capitalisée (première lettre seulement, jamais chaque mot,
+  pour ne pas abîmer un nom composé comme "Aix-en-Provence") à l'enregistrement
+  (`capitalizeFirstLetter`, `saveProfil.ts`, redéployé). Le seul compte réel trouvé avec une ville
+  en minuscule ("paris") a été corrigé directement en production après vérification des données
+  réelles — même méthode que pour le pays.
+- [x] **Audit systématique passé sur les 5 onglets + la coquille de navigation, testé et validé
+  (déployé)** : Messages, Communauté et `MainShell` n'ont révélé aucun problème concret (déjà
+  construits sur des `StreamProvider` qui reflètent l'état serveur en direct, aucune navigation
+  morte, "Devenir organisateur" est une vraie destination fonctionnelle). Six vrais bugs trouvés et
+  corrigés ailleurs :
+  - Bloquer un profil depuis Découvrir ou Likes ne le retirait jamais de la pile/liste déjà
+    chargée dans l'AUTRE onglet (ni même le sien, pour Découvrir) — restait visible et swipable
+    jusqu'à fermeture de l'onglet. `showBlockProfileSheet` appelle maintenant un `onBlocked`
+    optionnel après un blocage réellement réussi (jamais dans le même try/catch que l'appel réseau,
+    pour qu'une erreur locale ne s'affiche jamais comme un blocage raté) ; chaque écran retire la
+    personne de SA liste et de celle de l'autre onglet.
+  - Un blocage pendant un swipe déjà en cours pouvait faire réapparaître la personne ou déclencher
+    le dialogue de match pour elle selon le moment exact de la réponse serveur — corrigé en suivant
+    explicitement l'uid en attente plutôt que sa simple présence/absence dans la liste (qui aurait
+    aussi réagi, à tort, à un changement de filtre survenu pendant la même attente).
+  - Le grand avatar de l'onglet Profil restait figé après ajout/suppression d'une photo (lisait un
+    `FutureProvider` à usage unique jamais invalidé) alors que la galerie juste en dessous se
+    mettait à jour en direct — vient maintenant du même flux que la galerie. La "photo principale"
+    (la plus ancienne approuvée) est désormais définie et triée de façon identique pour son
+    propriétaire et pour les autres membres, et le tri de la galerie elle-même est refait côté
+    client pour éviter qu'une photo tout juste ajoutée saute en tête pendant la fraction de seconde
+    où son horodatage serveur n'est pas encore résolu.
+  - Deux couleurs Material brutes (badge "En ligne" de Découvrir, bouton "Réactiver" de l'admin)
+    remplacées par un unique `AppColors.online` — la seule teinte hors palette imposée, désormais
+    centralisée au lieu de dupliquée à deux endroits.
+- [x] **Revue de code (effort high, quatre passes) passée sur ce chantier, corrections réelles à
+  chaque fois** : un correctif de la course blocage/swipe inférait d'abord le blocage depuis la
+  seule absence du candidat dans la liste — un changement de filtre survenu pendant l'attente
+  aurait produit le même symptôme à tort, corrigé en suivant l'uid explicitement. Une première
+  version de ce même suivi gardait les uids bloqués dans un `Set` qui ne s'effaçait jamais tout
+  seul — un profil débloqué puis reproposé plus tard aurait fait disparaître un vrai dialogue de
+  match, corrigé en repartant de deux champs réinitialisés à chaque appel plutôt que d'un état qui
+  persiste.
+- [ ] **Limite assumée, pas un oubli** : la normalisation de casse ne couvre que le cas réellement
+  trouvé en vérifiant les données (tout en minuscule) — une ville mal orthographiée autrement
+  ("PARIS", "pAris") ne serait pas corrigée automatiquement, `city` restant du texte libre sans
+  liste fermée possible (aucune base de villes exhaustive, voir le suivi du 12/11 sur le sélecteur
+  pays/ville).
+- [ ] **Non vérifié sur appareil réel** : les six correctifs ci-dessus n'ont été vérifiés que par
+  `flutter analyze`/`flutter test` et par relecture du code — accès appareil toujours indisponible
+  pour cette session, en particulier le ressenti réel du retrait immédiat d'un profil bloqué de la
+  pile Découvrir pendant un swipe.
