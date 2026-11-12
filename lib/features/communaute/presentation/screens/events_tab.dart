@@ -18,19 +18,13 @@ const _conferenceCategories = ['conference', 'rencontre', 'debat', 'projection']
 /// les événements avec filtres. Remplace l'ancien fil générique pour les
 /// événements uniquement ; le fil de publications classique reste sur
 /// l'onglet "Communauté".
-class EventsTab extends ConsumerStatefulWidget {
+class EventsTab extends ConsumerWidget {
   const EventsTab({super.key});
 
   @override
-  ConsumerState<EventsTab> createState() => _EventsTabState();
-}
-
-class _EventsTabState extends ConsumerState<EventsTab> {
-  String? _categoryFilter;
-  String? _formatFilter;
-
-  @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final categoryFilter = ref.watch(eventsCategoryFilterProvider);
+    final formatFilter = ref.watch(eventsFormatFilterProvider);
     final eventsAsync = ref.watch(allPublishedEventsProvider);
     final myProfil = ref.watch(profilProvider).value;
     final organizerStatus = ref.watch(myOrganizerStatusProvider).value;
@@ -38,6 +32,14 @@ class _EventsTabState extends ConsumerState<EventsTab> {
     return Scaffold(
       appBar: AppBar(
         title: Text(context.l10n.navEvents),
+        // Communauté a maintenant sa propre AppBar avec retour (toujours
+        // atteinte via Navigator.push depuis Messages, 12/11/2026) — cette
+        // AppBar imbriquée (sous-onglet "Événements", affichée au milieu
+        // de l'écran, pas tout en haut) verrait sinon apparaître SA
+        // PROPRE flèche retour en plus de celle de l'AppBar englobante,
+        // deux contrôles distincts faisant strictement la même chose
+        // (trouvé par revue de code).
+        automaticallyImplyLeading: false,
         actions: [
           IconButton(
             tooltip: context.l10n.redeemInviteCodeButton,
@@ -85,8 +87,8 @@ class _EventsTabState extends ConsumerState<EventsTab> {
           final private = upcoming.where((e) => e.type == 'evenement_prive').toList();
           final conferences = upcoming.where((e) => _conferenceCategories.contains(e.category)).toList();
           final filtered = upcoming.where((e) {
-            if (_categoryFilter != null && e.category != _categoryFilter) return false;
-            if (_formatFilter != null && e.format != _formatFilter) return false;
+            if (categoryFilter != null && e.category != categoryFilter) return false;
+            if (formatFilter != null && e.format != formatFilter) return false;
             return true;
           }).toList();
 
@@ -124,18 +126,21 @@ class _EventsTabState extends ConsumerState<EventsTab> {
                 children: [
                   ..._eventCategories.map((c) => FilterChip(
                         label: Text(eventCategoryLabel(c, context.l10n)),
-                        selected: _categoryFilter == c,
-                        onSelected: (v) => setState(() => _categoryFilter = v ? c : null),
+                        selected: categoryFilter == c,
+                        onSelected: (v) =>
+                            ref.read(eventsCategoryFilterProvider.notifier).state = v ? c : null,
                       )),
                   FilterChip(
                     label: Text(context.l10n.eventFormatPresentiel),
-                    selected: _formatFilter == 'presentiel',
-                    onSelected: (v) => setState(() => _formatFilter = v ? 'presentiel' : null),
+                    selected: formatFilter == 'presentiel',
+                    onSelected: (v) => ref.read(eventsFormatFilterProvider.notifier).state =
+                        v ? 'presentiel' : null,
                   ),
                   FilterChip(
                     label: Text(context.l10n.eventFormatEnLigne),
-                    selected: _formatFilter == 'en_ligne',
-                    onSelected: (v) => setState(() => _formatFilter = v ? 'en_ligne' : null),
+                    selected: formatFilter == 'en_ligne',
+                    onSelected: (v) => ref.read(eventsFormatFilterProvider.notifier).state =
+                        v ? 'en_ligne' : null,
                   ),
                 ],
               ),

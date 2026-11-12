@@ -22,11 +22,13 @@ import 'photos_section.dart';
 import 'profil_edit_screen.dart';
 
 /// Onglet "Profil" — ta propre fiche telle que tu peux la revoir et la
-/// compléter, cinquième onglet (comme sur les applications de rencontre
-/// courantes : Découvrir/Likes/Messages/Communauté/Profil). N'existait
-/// pas avant (remarqué le 11/11) : les réglages secondaires étaient
-/// atteignables depuis n'importe quel onglet via une icône engrenage,
-/// mais rien ne montrait jamais la fiche elle-même d'un coup d'œil.
+/// compléter, dernier des 4 onglets de la barre du bas (Découvrir/Likes/
+/// Messages/Profil — Communauté n'en fait plus partie depuis le
+/// 12/11/2026, accessible depuis une pilule dans l'AppBar de Messages).
+/// N'existait pas avant (remarqué le 11/11) : les réglages secondaires
+/// étaient atteignables depuis n'importe quel onglet via une icône
+/// engrenage, mais rien ne montrait jamais la fiche elle-même d'un coup
+/// d'œil.
 class MonProfilScreen extends ConsumerWidget {
   const MonProfilScreen({super.key});
 

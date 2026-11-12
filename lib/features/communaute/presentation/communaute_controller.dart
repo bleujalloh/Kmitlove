@@ -1,12 +1,34 @@
 import 'dart:io';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_riverpod/legacy.dart';
 
 import '../../../core/providers/firebase_providers.dart';
 import '../../auth/presentation/auth_controller.dart';
 import '../../profil/presentation/photo_controller.dart';
 import '../data/communaute_repository.dart';
 import '../domain/community_post.dart';
+
+// Sous-onglet actif (Communauté/Événements/Actualités/Conseils) gardé ici
+// plutôt qu'en état local de CommunauteScreen : depuis que Communauté
+// n'est plus un onglet de la barre du bas (12/11/2026) mais atteint via
+// Navigator.push (pilule de l'AppBar Messages), l'écran est détruit à
+// chaque retour en arrière puis recréé à la prochaine ouverture — un
+// StateProvider (jamais réinitialisé tant que l'app tourne) garde le
+// sous-onglet choisi d'une visite à l'autre, comme discoverFiltersProvider
+// le fait déjà pour les filtres Découvrir (trouvé par revue de code :
+// sans ça, revenir sur Communauté retombait toujours sur le fil social
+// même si on avait quitté depuis "Conseils").
+final communauteTabProvider = StateProvider<int>((ref) => 0);
+
+// Même raisonnement que communauteTabProvider ci-dessus, appliqué aux
+// filtres du sous-onglet Événements (EventsTab) : gardés ici plutôt
+// qu'en état local, pour ne pas se réinitialiser à chaque retour en
+// arrière depuis Communauté (trouvé par revue de code : le premier
+// passage ne corrigeait que le sous-onglet actif, pas ces filtres-là,
+// qui subissaient exactement le même défaut).
+final eventsCategoryFilterProvider = StateProvider<String?>((ref) => null);
+final eventsFormatFilterProvider = StateProvider<String?>((ref) => null);
 
 final communauteRepositoryProvider = Provider<CommunauteRepository>((ref) {
   return CommunauteRepository(

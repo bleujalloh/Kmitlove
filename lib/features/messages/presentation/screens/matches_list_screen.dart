@@ -3,7 +3,9 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../../core/theme/app_theme.dart';
 import '../../../../core/widgets/empty_state_cards.dart';
+import '../../../../core/widgets/tab_pill.dart';
 import '../../../../l10n/l10n_extensions.dart';
+import '../../../communaute/presentation/screens/communaute_screen.dart';
 import '../messages_controller.dart';
 import 'chat_screen.dart';
 
@@ -17,7 +19,29 @@ class MatchesListScreen extends ConsumerWidget {
     final matchesAsync = ref.watch(matchesProvider);
 
     return Scaffold(
-      appBar: AppBar(title: Text(context.l10n.navMessages)),
+      appBar: AppBar(
+        title: Text(context.l10n.navMessages, overflow: TextOverflow.ellipsis),
+        actions: [
+          Padding(
+            padding: const EdgeInsets.only(right: 12),
+            child: Center(
+              // Communauté n'est plus un onglet de la barre du bas (demande
+              // confirmée du propriétaire, capture d'écran annotée,
+              // 12/11/2026) — accessible depuis cette pilule, même style
+              // que les pilules déjà en place ailleurs (filtres Découvrir,
+              // onglets Likes), réutilisée telle quelle (TabPill).
+              child: TabPill(
+                icon: Icons.groups_outlined,
+                label: context.l10n.navCommunity,
+                selected: false,
+                onTap: () => Navigator.of(context).push(
+                  MaterialPageRoute(builder: (_) => const CommunauteScreen()),
+                ),
+              ),
+            ),
+          ),
+        ],
+      ),
       body: matchesAsync.when(
         loading: () => const Center(child: CircularProgressIndicator()),
         error: (e, st) => Center(child: Text(context.l10n.conversationsLoadFailed)),

@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../features/auth/presentation/auth_controller.dart';
-import '../../features/communaute/presentation/screens/communaute_screen.dart';
 import '../../features/decouvrir/presentation/screens/decouvrir_screen.dart';
 import '../../features/likes/presentation/screens/likes_screen.dart';
 import '../../features/messages/presentation/screens/matches_list_screen.dart';
@@ -11,14 +10,17 @@ import '../../features/notifications/push_controller.dart';
 import '../../features/profil/presentation/screens/mon_profil_screen.dart';
 import '../../l10n/l10n_extensions.dart';
 
-/// Vraie navigation principale à 5 onglets (Découvrir/Likes/Messages/
-/// Communauté/Profil), fidèle au prototype visuel validé — remplace
-/// l'ancien PlaceholderHomeScreen (liste de boutons provisoire, jamais
-/// prévue comme écran final, voir docs/suivi-developpement.md). Les
+/// Vraie navigation principale à 4 onglets (Découvrir/Likes/Messages/
+/// Profil), fidèle au prototype visuel validé — remplace l'ancien
+/// PlaceholderHomeScreen (liste de boutons provisoire, jamais prévue
+/// comme écran final, voir docs/suivi-developpement.md). Les
 /// fonctionnalités secondaires (Premium, test de compatibilité,
 /// vérification d'identité, administration) vivent maintenant sur
 /// l'onglet Profil plutôt que dans Paramètres (remarqué le 11/11 : rien
-/// ne montrait jamais la fiche elle-même d'un coup d'œil).
+/// ne montrait jamais la fiche elle-même d'un coup d'œil). Communauté
+/// n'est plus un onglet de la barre du bas (demande confirmée du
+/// propriétaire, capture d'écran annotée, 12/11/2026) : accessible
+/// depuis une pilule dans l'AppBar de Messages (matches_list_screen.dart).
 class MainShell extends ConsumerStatefulWidget {
   const MainShell({super.key});
 
@@ -36,7 +38,6 @@ class _MainShellState extends ConsumerState<MainShell> {
     DecouvrirScreen(),
     LikesScreen(),
     MatchesListScreen(),
-    CommunauteScreen(),
     MonProfilScreen(),
   ];
 
@@ -88,11 +89,6 @@ class _MainShellState extends ConsumerState<MainShell> {
             icon: const Icon(Icons.chat_bubble_outline),
             selectedIcon: const Icon(Icons.chat_bubble),
             label: context.l10n.navMessages,
-          ),
-          NavigationDestination(
-            icon: const Icon(Icons.groups_outlined),
-            selectedIcon: const Icon(Icons.groups),
-            label: context.l10n.navCommunity,
           ),
           NavigationDestination(
             icon: const Icon(Icons.person_outline),

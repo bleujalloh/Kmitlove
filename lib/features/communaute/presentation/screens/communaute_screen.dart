@@ -15,20 +15,24 @@ const _annonceTypes = ['annonce_publique', 'annonce_privee', 'annonce_libre'];
 /// Communauté — 4 espaces en pilules (référence visuelle validée par le
 /// propriétaire, 11/11/2026) : Communauté (fil social), Événements
 /// (découverte, spec section 1/10), Actualités (annonces), Conseils.
-class CommunauteScreen extends StatefulWidget {
+class CommunauteScreen extends ConsumerWidget {
   const CommunauteScreen({super.key});
 
-  @override
-  State<CommunauteScreen> createState() => _CommunauteScreenState();
-}
-
-class _CommunauteScreenState extends State<CommunauteScreen> {
-  int _tab = 0;
   static const _screens = [_FeedTab(), EventsTab(), _NewsTab(), _TipsTab()];
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final tab = ref.watch(communauteTabProvider);
+    void setTab(int i) => ref.read(communauteTabProvider.notifier).state = i;
+
     return Scaffold(
+      // Communauté n'est plus un onglet de la barre du bas (demande
+      // confirmée du propriétaire, 12/11/2026) — toujours atteint
+      // maintenant via Navigator.push (pilule de l'AppBar Messages),
+      // donc a besoin d'une vraie AppBar avec retour : sans elle, cet
+      // écran aurait été un cul-de-sac complet sur une plateforme sans
+      // geste "retour" matériel.
+      appBar: AppBar(title: Text(context.l10n.navCommunity)),
       body: SafeArea(
         child: Column(
           children: [
@@ -41,35 +45,35 @@ class _CommunauteScreenState extends State<CommunauteScreen> {
                     TabPill(
                       icon: Icons.groups_outlined,
                       label: context.l10n.navCommunity,
-                      selected: _tab == 0,
-                      onTap: () => setState(() => _tab = 0),
+                      selected: tab == 0,
+                      onTap: () => setTab(0),
                     ),
                     const SizedBox(width: 8),
                     TabPill(
                       icon: Icons.event_outlined,
                       label: context.l10n.navEvents,
-                      selected: _tab == 1,
-                      onTap: () => setState(() => _tab = 1),
+                      selected: tab == 1,
+                      onTap: () => setTab(1),
                     ),
                     const SizedBox(width: 8),
                     TabPill(
                       icon: Icons.campaign_outlined,
                       label: context.l10n.navNews,
-                      selected: _tab == 2,
-                      onTap: () => setState(() => _tab = 2),
+                      selected: tab == 2,
+                      onTap: () => setTab(2),
                     ),
                     const SizedBox(width: 8),
                     TabPill(
                       icon: Icons.star_outline,
                       label: context.l10n.navTips,
-                      selected: _tab == 3,
-                      onTap: () => setState(() => _tab = 3),
+                      selected: tab == 3,
+                      onTap: () => setTab(3),
                     ),
                   ],
                 ),
               ),
             ),
-            Expanded(child: IndexedStack(index: _tab, children: _screens)),
+            Expanded(child: IndexedStack(index: tab, children: _screens)),
           ],
         ),
       ),
