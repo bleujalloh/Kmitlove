@@ -1335,6 +1335,12 @@ class AppLocalizationsFr extends AppLocalizations {
   String get boostCounterIncluded => 'Inclus';
 
   @override
+  String get boostYourProfileButton => 'Booste ton profil';
+
+  @override
+  String get upgradeToPremiumButton => 'Passe à la version supérieure';
+
+  @override
   String get language => 'Langue';
 
   @override

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../../core/theme/app_theme.dart';
+import '../../../../core/widgets/tab_pill.dart';
 import '../../../../l10n/l10n_extensions.dart';
 import '../../domain/community_post.dart';
 import '../communaute_controller.dart';
@@ -37,28 +38,28 @@ class _CommunauteScreenState extends State<CommunauteScreen> {
                 scrollDirection: Axis.horizontal,
                 child: Row(
                   children: [
-                    _TabPill(
+                    TabPill(
                       icon: Icons.groups_outlined,
                       label: context.l10n.navCommunity,
                       selected: _tab == 0,
                       onTap: () => setState(() => _tab = 0),
                     ),
                     const SizedBox(width: 8),
-                    _TabPill(
+                    TabPill(
                       icon: Icons.event_outlined,
                       label: context.l10n.navEvents,
                       selected: _tab == 1,
                       onTap: () => setState(() => _tab = 1),
                     ),
                     const SizedBox(width: 8),
-                    _TabPill(
+                    TabPill(
                       icon: Icons.campaign_outlined,
                       label: context.l10n.navNews,
                       selected: _tab == 2,
                       onTap: () => setState(() => _tab = 2),
                     ),
                     const SizedBox(width: 8),
-                    _TabPill(
+                    TabPill(
                       icon: Icons.star_outline,
                       label: context.l10n.navTips,
                       selected: _tab == 3,
@@ -69,46 +70,6 @@ class _CommunauteScreenState extends State<CommunauteScreen> {
               ),
             ),
             Expanded(child: IndexedStack(index: _tab, children: _screens)),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-class _TabPill extends StatelessWidget {
-  const _TabPill({required this.icon, required this.label, required this.selected, required this.onTap});
-
-  final IconData icon;
-  final String label;
-  final bool selected;
-  final VoidCallback onTap;
-
-  @override
-  Widget build(BuildContext context) {
-    return InkWell(
-      onTap: onTap,
-      borderRadius: BorderRadius.circular(999),
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 9),
-        decoration: BoxDecoration(
-          color: selected ? AppColors.accent : AppColors.backgroundSoft,
-          borderRadius: BorderRadius.circular(999),
-          border: Border.all(color: selected ? AppColors.accent : AppColors.border),
-        ),
-        child: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Icon(icon, size: 16, color: selected ? AppColors.noirProfond : AppColors.muted),
-            const SizedBox(width: 6),
-            Text(
-              label,
-              style: TextStyle(
-                fontSize: 13,
-                fontWeight: FontWeight.w600,
-                color: selected ? AppColors.noirProfond : AppColors.ink,
-              ),
-            ),
           ],
         ),
       ),

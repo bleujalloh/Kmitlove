@@ -2510,6 +2510,18 @@ abstract class AppLocalizations {
   /// **'Inclus'**
   String get boostCounterIncluded;
 
+  /// No description provided for @boostYourProfileButton.
+  ///
+  /// In fr, this message translates to:
+  /// **'Booste ton profil'**
+  String get boostYourProfileButton;
+
+  /// No description provided for @upgradeToPremiumButton.
+  ///
+  /// In fr, this message translates to:
+  /// **'Passe à la version supérieure'**
+  String get upgradeToPremiumButton;
+
   /// No description provided for @language.
   ///
   /// In fr, this message translates to:

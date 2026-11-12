@@ -437,6 +437,8 @@
   "jetonsCounterLabel": "Tokens",
   "boostCounterLabel": "Boost",
   "boostCounterIncluded": "Included",
+  "boostYourProfileButton": "Boost your profile",
+  "upgradeToPremiumButton": "Upgrade to Premium",
   "language": "Language",
   "exportMyData": "Export my data",
   "gdprPortabilityRight": "GDPR right to portability",

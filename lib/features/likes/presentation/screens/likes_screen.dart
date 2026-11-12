@@ -3,8 +3,11 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../../core/theme/app_theme.dart';
 import '../../../../core/widgets/block_action.dart';
+import '../../../../core/widgets/boost_action.dart';
 import '../../../../core/widgets/empty_state_cards.dart';
+import '../../../../core/widgets/tab_pill.dart';
 import '../../../../l10n/l10n_extensions.dart';
+import '../../../premium/presentation/screens/premium_screen.dart';
 import '../../../decouvrir/presentation/decouvrir_controller.dart';
 import '../../../profil/presentation/screens/profil_detail_screen.dart';
 import '../../data/likes_repository.dart';
@@ -30,7 +33,16 @@ class _LikesScreenState extends ConsumerState<LikesScreen> {
     final likesAsync = ref.watch(likesProvider);
 
     return Scaffold(
-      appBar: AppBar(title: Text(context.l10n.navLikes)),
+      appBar: AppBar(
+        title: Text(context.l10n.navLikes),
+        actions: [
+          IconButton(
+            tooltip: context.l10n.refreshButton,
+            icon: const Icon(Icons.refresh),
+            onPressed: () => ref.invalidate(likesProvider),
+          ),
+        ],
+      ),
       body: likesAsync.when(
         loading: () => const Center(child: CircularProgressIndicator()),
         error: (e, st) => Center(child: Text(context.l10n.likesLoadFailed)),
@@ -40,26 +52,20 @@ class _LikesScreenState extends ConsumerState<LikesScreen> {
               children: [
                 Padding(
                   padding: const EdgeInsets.fromLTRB(20, 12, 20, 12),
-                  child: Container(
-                    decoration: BoxDecoration(
-                      color: AppColors.backgroundSoft,
-                      borderRadius: BorderRadius.circular(999),
-                    ),
-                    padding: const EdgeInsets.all(4),
-                    child: Row(
-                      children: [
-                        _TabButton(
-                          label: context.l10n.likedYouTab(likes.likesReceivedCount),
-                          selected: _tab == 0,
-                          onTap: () => setState(() => _tab = 0),
-                        ),
-                        _TabButton(
-                          label: context.l10n.myLikesTab,
-                          selected: _tab == 1,
-                          onTap: () => setState(() => _tab = 1),
-                        ),
-                      ],
-                    ),
+                  child: Row(
+                    children: [
+                      TabPill(
+                        label: context.l10n.likedYouTab(likes.likesReceivedCount),
+                        selected: _tab == 0,
+                        onTap: () => setState(() => _tab = 0),
+                      ),
+                      const SizedBox(width: 8),
+                      TabPill(
+                        label: context.l10n.myLikesTab,
+                        selected: _tab == 1,
+                        onTap: () => setState(() => _tab = 1),
+                      ),
+                    ],
                   ),
                 ),
                 Expanded(
@@ -76,40 +82,6 @@ class _LikesScreenState extends ConsumerState<LikesScreen> {
   }
 }
 
-class _TabButton extends StatelessWidget {
-  const _TabButton({required this.label, required this.selected, required this.onTap});
-
-  final String label;
-  final bool selected;
-  final VoidCallback onTap;
-
-  @override
-  Widget build(BuildContext context) {
-    return Expanded(
-      child: InkWell(
-        onTap: onTap,
-        borderRadius: BorderRadius.circular(999),
-        child: Container(
-          padding: const EdgeInsets.symmetric(vertical: 8),
-          decoration: BoxDecoration(
-            color: selected ? AppColors.accent : Colors.transparent,
-            borderRadius: BorderRadius.circular(999),
-          ),
-          alignment: Alignment.center,
-          child: Text(
-            label,
-            style: TextStyle(
-              fontSize: 12.5,
-              fontWeight: FontWeight.w600,
-              color: selected ? AppColors.noirProfond : AppColors.muted,
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-}
-
 class _ReceivedTab extends ConsumerWidget {
   const _ReceivedTab({required this.likes});
 
@@ -118,10 +90,55 @@ class _ReceivedTab extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     if (likes.likesReceivedCount == 0) {
-      return Center(
-        child: EmptyStateCards(
-          title: context.l10n.noOneLikedYouYet,
-          subtitle: context.l10n.noOneLikedYouYetHint,
+      return SingleChildScrollView(
+        padding: const EdgeInsets.fromLTRB(20, 24, 20, 24),
+        child: Column(
+          children: [
+            EmptyStateCards(
+              title: context.l10n.noOneLikedYouYet,
+              subtitle: context.l10n.noOneLikedYouYetHint,
+            ),
+            const SizedBox(height: 32),
+            SizedBox(
+              width: double.infinity,
+              child: ElevatedButton.icon(
+                // Boost gratuit déjà existant (jetons), jamais un nouvel
+                // achat ni une fonctionnalité inventée — demande explicite
+                // du propriétaire, 12/11/2026 : même mécanisme que
+                // l'onglet Profil (activateProfileBoost, partagé avec
+                // PremiumScreen).
+                onPressed: () => activateProfileBoost(context, ref),
+                icon: const Icon(Icons.bolt),
+                label: Text(context.l10n.boostYourProfileButton),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: AppColors.accent,
+                  foregroundColor: AppColors.noirProfond,
+                  padding: const EdgeInsets.symmetric(vertical: 14),
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(999)),
+                ),
+              ),
+            ),
+            const SizedBox(height: 12),
+            SizedBox(
+              width: double.infinity,
+              child: OutlinedButton(
+                // Route vers l'écran Premium déjà existant, qui communique
+                // déjà l'état réel sans bouton d'achat fonctionnel — les
+                // paiements restent en pause (functions/src/index.ts),
+                // jamais un achat réel ou simulé déclenché ici.
+                onPressed: () => Navigator.of(context).push(
+                  MaterialPageRoute(builder: (_) => const PremiumScreen()),
+                ),
+                style: OutlinedButton.styleFrom(
+                  foregroundColor: AppColors.ink,
+                  side: const BorderSide(color: AppColors.border),
+                  padding: const EdgeInsets.symmetric(vertical: 14),
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(999)),
+                ),
+                child: Text(context.l10n.upgradeToPremiumButton),
+              ),
+            ),
+          ],
         ),
       );
     }

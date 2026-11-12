@@ -1,10 +1,9 @@
-import 'package:cloud_functions/cloud_functions.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../../core/theme/app_theme.dart';
+import '../../../../core/widgets/boost_action.dart';
 import '../../../../l10n/l10n_extensions.dart';
-import '../../../auth/presentation/auth_controller.dart';
 import '../premium_controller.dart';
 
 /// Écran Premium / jetons (cahier des charges section 5). Les produits
@@ -14,26 +13,6 @@ import '../premium_controller.dart';
 /// pas un bug.
 class PremiumScreen extends ConsumerWidget {
   const PremiumScreen({super.key});
-
-  Future<void> _activateBoost(BuildContext context, WidgetRef ref) async {
-    try {
-      await ref.read(cloudFunctionsProvider).httpsCallable('activateBoost').call();
-      if (context.mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(context.l10n.boostActivated)),
-        );
-      }
-    } on FirebaseFunctionsException catch (e) {
-      if (context.mounted) {
-        final message = e.code == 'permission-denied'
-            ? context.l10n.boostPremiumOnly
-            : e.code == 'resource-exhausted'
-                ? context.l10n.boostAlreadyUsed
-                : context.l10n.boostActivateFailed;
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(message)));
-      }
-    }
-  }
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -67,7 +46,7 @@ class PremiumScreen extends ConsumerWidget {
                     ),
                   ),
                   ElevatedButton(
-                    onPressed: () => _activateBoost(context, ref),
+                    onPressed: () => activateProfileBoost(context, ref),
                     child: Text(context.l10n.activateButton),
                   ),
                 ],
