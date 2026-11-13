@@ -97,7 +97,7 @@ class _ReceivedTab extends ConsumerWidget {
             EmptyStateCards(
               title: context.l10n.noOneLikedYouYet,
               subtitle: context.l10n.noOneLikedYouYetHint,
-              photoUrls: ref.watch(suggestedProfilePhotosProvider),
+              profiles: ref.watch(suggestedProfilesProvider),
             ),
             const SizedBox(height: 32),
             SizedBox(
@@ -234,7 +234,7 @@ class _MyLikesTab extends ConsumerWidget {
           icon: Icons.send_outlined,
           title: context.l10n.noPendingLikesYet,
           subtitle: context.l10n.noPendingLikesYetHint,
-          photoUrls: ref.watch(suggestedProfilePhotosProvider),
+          profiles: ref.watch(suggestedProfilesProvider),
         ),
       );
     }

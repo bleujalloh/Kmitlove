@@ -1,3 +1,4 @@
+import '../../../core/widgets/empty_state_cards.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_riverpod/legacy.dart';
@@ -36,16 +37,18 @@ final candidateFirstPhotoUrlProvider = FutureProvider.autoDispose.family<String?
   return ref.watch(photoRepositoryProvider).getDownloadUrl(paths.first);
 });
 
-/// Photos (au plus 3) des prochains profils que Découvrir propose déjà au
-/// membre — illustre les écrans vides Likes/Messages avec de vrais profils
-/// existants (EmptyStateCards). Réutilise la file de candidats et le
-/// fournisseur de photos de Découvrir : aucune requête ni donnée en plus,
-/// et aucun profil que le membre ne verrait pas déjà dans Découvrir.
-final suggestedProfilePhotosProvider = Provider.autoDispose<List<String>>((ref) {
+/// Les prochains profils (au plus 3) que Découvrir propose déjà au membre,
+/// avec leur photo quand elle existe — illustre les écrans vides
+/// Likes/Messages avec de vrais profils existants (EmptyStateCards).
+/// Réutilise la file de candidats et le fournisseur de photos de
+/// Découvrir : aucune requête ni donnée en plus, et aucun profil que le
+/// membre ne verrait pas déjà dans Découvrir.
+final suggestedProfilesProvider = Provider.autoDispose<List<EmptyStateProfile>>((ref) {
   final candidates = ref.watch(decouvrirControllerProvider).value?.candidates ?? const <Candidate>[];
   return [
-    for (final c in candidates.take(3)) ref.watch(candidateFirstPhotoUrlProvider(c.uid)).value,
-  ].whereType<String>().toList();
+    for (final c in candidates.take(3))
+      (name: c.displayName, photoUrl: ref.watch(candidateFirstPhotoUrlProvider(c.uid)).value),
+  ];
 });
 
 /// Filtres manuels de Découvrir (docs/regles-complementaires-concurrents.md
