@@ -164,7 +164,7 @@ class _QuestionTile extends StatelessWidget {
                       padding: const EdgeInsets.symmetric(vertical: 10),
                       alignment: Alignment.center,
                       decoration: BoxDecoration(
-                        color: selected ? AppColors.accentSoft : AppColors.background,
+                        color: selected ? AppColors.accentSoft : AppColors.backgroundSoft,
                         border: Border.all(
                           color: selected ? AppColors.accent : AppColors.border,
                         ),

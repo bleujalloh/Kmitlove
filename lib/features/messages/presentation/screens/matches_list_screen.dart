@@ -30,9 +30,8 @@ class MatchesListScreen extends ConsumerWidget {
           // lien texte, sans pastille.
           Padding(
             padding: const EdgeInsets.only(right: 8),
-            child: TextButton.icon(
-              icon: const Icon(Icons.groups_outlined, size: 20),
-              label: Text(context.l10n.navCommunity),
+            child: TextButton(
+              child: Text(context.l10n.navCommunity),
               onPressed: () => Navigator.of(context).push(
                 MaterialPageRoute(builder: (_) => const CommunauteScreen()),
               ),

@@ -2,10 +2,11 @@ import 'package:flutter/material.dart';
 
 import '../theme/app_theme.dart';
 
-/// Onglet à soulignement (Communauté, Likes...) : texte seul, trait d'or de
-/// 2 px sous l'onglet actif, aucune pastille ni contour arrondi (demande du
-/// propriétaire, 13/11/2026 : pas de bordure arrondie sur les onglets et
-/// sous-onglets). Remplace l'ancien `AppTab`. `icon` reste optionnel.
+/// Onglet : du texte seul. L'onglet actif est en gras et en or, les autres en
+/// gris — ni pastille, ni contour, ni trait de soulignement, ni pictogramme
+/// (demande du propriétaire, 13-14/11/2026 : « pas de bordure arrondie »,
+/// puis « supprime toutes les lignes, sous-lignes et pictogrammes »). Le
+/// paramètre `icon` est conservé pour les appelants mais n'est plus affiché.
 class AppTab extends StatelessWidget {
   const AppTab({super.key, this.icon, required this.label, required this.selected, required this.onTap});
 
@@ -18,31 +19,16 @@ class AppTab extends StatelessWidget {
   Widget build(BuildContext context) {
     return InkWell(
       onTap: onTap,
-      child: AnimatedContainer(
-        duration: const Duration(milliseconds: 200),
-        curve: Curves.easeOut,
+      child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
-        decoration: BoxDecoration(
-          border: Border(
-            bottom: BorderSide(color: selected ? AppColors.accent : Colors.transparent, width: 2),
+        child: AnimatedDefaultTextStyle(
+          duration: const Duration(milliseconds: 180),
+          style: TextStyle(
+            fontSize: 15,
+            fontWeight: selected ? FontWeight.w700 : FontWeight.w500,
+            color: selected ? AppColors.accent : AppColors.muted,
           ),
-        ),
-        child: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            if (icon != null) ...[
-              Icon(icon, size: 18, color: selected ? AppColors.accent : AppColors.muted),
-              const SizedBox(width: 6),
-            ],
-            Text(
-              label,
-              style: TextStyle(
-                fontSize: 14,
-                fontWeight: selected ? FontWeight.w700 : FontWeight.w500,
-                color: selected ? AppColors.ink : AppColors.muted,
-              ),
-            ),
-          ],
+          child: Text(label),
         ),
       ),
     );

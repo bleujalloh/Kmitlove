@@ -50,11 +50,8 @@ class _LikesScreenState extends ConsumerState<LikesScreen> {
           return SafeArea(
             child: Column(
               children: [
-                Container(
+                Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 12),
-                  decoration: BoxDecoration(
-                    border: Border(bottom: BorderSide(color: AppColors.border)),
-                  ),
                   child: Row(
                     children: [
                       AppTab(

@@ -353,17 +353,12 @@ class _FiltersBar extends ConsumerWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        OutlinedButton.icon(
+        OutlinedButton(
           onPressed: () => showEventFiltersSheet(context),
-          icon: const Icon(Icons.tune, size: 18),
-          label: Text(
+          child: Text(
             filters.isActive
                 ? '${context.l10n.eventsFiltersButton} · ${filters.activeCount}'
                 : context.l10n.eventsFiltersButton,
-          ),
-          style: OutlinedButton.styleFrom(
-            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
-            side: BorderSide(color: filters.isActive ? AppColors.accent : AppColors.border),
           ),
         ),
         if (chips.isNotEmpty) ...[

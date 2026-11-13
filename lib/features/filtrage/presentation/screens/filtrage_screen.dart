@@ -227,7 +227,7 @@ class _AnswerOption extends StatelessWidget {
         child: Container(
           padding: const EdgeInsets.all(16),
           decoration: BoxDecoration(
-            color: isSelected ? AppColors.accentSoft : AppColors.background,
+            color: isSelected ? AppColors.accentSoft : AppColors.backgroundSoft,
             border: Border.all(
               color: isSelected ? AppColors.accent : AppColors.border,
               width: 1.5,

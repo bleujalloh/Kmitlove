@@ -300,10 +300,8 @@ class _CommunautePillBarState extends State<_CommunautePillBar> {
       (Icons.campaign_outlined, context.l10n.navNews),
       (Icons.star_outline, context.l10n.navTips),
     ];
-    return Container(
-      decoration: BoxDecoration(
-        border: Border(bottom: BorderSide(color: AppColors.border)),
-      ),
+    return Padding(
+      padding: const EdgeInsets.only(top: 4),
       child: SingleChildScrollView(
         scrollDirection: Axis.horizontal,
         padding: const EdgeInsets.symmetric(horizontal: 16),

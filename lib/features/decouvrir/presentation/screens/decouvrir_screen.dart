@@ -1095,13 +1095,10 @@ class _LocationSwitchPillState extends ConsumerState<_LocationSwitchPill> {
       decoration: BoxDecoration(
         color: AppColors.backgroundSoft,
         borderRadius: BorderRadius.circular(AppRadii.sm),
-        border: Border.all(color: AppColors.border),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Icon(Icons.my_location, size: 15, color: AppColors.accent),
-          const SizedBox(width: 6),
           Text(
             context.l10n.myLocationPillLabel,
             style: TextStyle(
@@ -1172,19 +1169,10 @@ class _FilterPill extends StatelessWidget {
           decoration: BoxDecoration(
             color: filled ? AppColors.accent : AppColors.backgroundSoft,
             borderRadius: BorderRadius.circular(AppRadii.sm),
-            border: Border.all(
-              color: filled ? AppColors.accent : AppColors.border,
-            ),
           ),
           child: Row(
             mainAxisSize: MainAxisSize.min,
             children: [
-              Icon(
-                icon,
-                size: 15,
-                color: filled ? AppColors.noirProfond : AppColors.accent,
-              ),
-              const SizedBox(width: 6),
               Text(
                 label,
                 style: TextStyle(
@@ -1474,7 +1462,7 @@ class _RoundButton extends StatelessWidget {
         width: size,
         height: size,
         decoration: BoxDecoration(
-          color: background ?? AppColors.background,
+          color: background ?? AppColors.backgroundSoft,
           shape: BoxShape.circle,
           border: background == null
               ? Border.all(color: AppColors.border)

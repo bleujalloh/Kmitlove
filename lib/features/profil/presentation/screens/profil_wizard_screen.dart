@@ -667,7 +667,7 @@ class _StepChoiceList extends StatelessWidget {
                 decoration: BoxDecoration(
                   color: isSelected
                       ? AppColors.accentSoft
-                      : AppColors.background,
+                      : AppColors.backgroundSoft,
                   border: Border.all(
                     color: isSelected ? AppColors.accent : AppColors.border,
                     width: 1.5,
@@ -735,7 +735,7 @@ class _StepMultiChoiceList extends StatelessWidget {
                 decoration: BoxDecoration(
                   color: isSelected
                       ? AppColors.accentSoft
-                      : AppColors.background,
+                      : AppColors.backgroundSoft,
                   border: Border.all(
                     color: isSelected ? AppColors.accent : AppColors.border,
                     width: 1.5,

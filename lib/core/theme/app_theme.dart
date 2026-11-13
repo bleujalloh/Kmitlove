@@ -48,7 +48,7 @@ class AppPalette {
     backgroundSoft: Color(0xFF202024),
     ink: Color(0xFFF4F4F5),
     muted: Color(0xFFA1A1AA),
-    border: Color(0xFF2E2E33),
+    border: Color(0xFF202024),
     accent: AppColors.orAntique,
     accentSoft: Color(0xFF2E2819),
     placeholder: Color(0xFF2A2A2E),
@@ -65,7 +65,7 @@ class AppPalette {
     backgroundSoft: Color(0xFFF5F5F6),
     ink: Color(0xFF18181B),
     muted: Color(0xFF62626B),
-    border: Color(0xFFE6E6E9),
+    border: Color(0xFFF5F5F6),
     accent: Color(0xFF9E7416),
     accentSoft: Color(0xFFF3ECD9),
     placeholder: Color(0xFFE7E7EA),
@@ -200,7 +200,7 @@ ThemeData buildAppTheme(Brightness brightness) {
     textTheme: GoogleFonts.manropeTextTheme(
       ThemeData(brightness: brightness).textTheme,
     ).apply(bodyColor: AppColors.ink, displayColor: AppColors.ink),
-    dividerTheme: DividerThemeData(color: AppColors.border, thickness: 1),
+    dividerTheme: const DividerThemeData(color: Colors.transparent, thickness: 0, space: 1),
     elevatedButtonTheme: ElevatedButtonThemeData(
       style: ElevatedButton.styleFrom(
         backgroundColor: AppColors.accent,
@@ -216,7 +216,8 @@ ThemeData buildAppTheme(Brightness brightness) {
     outlinedButtonTheme: OutlinedButtonThemeData(
       style: OutlinedButton.styleFrom(
         foregroundColor: AppColors.ink,
-        side: BorderSide(color: AppColors.border, width: 1.4),
+        backgroundColor: AppColors.backgroundSoft,
+        side: BorderSide.none,
         padding: const EdgeInsets.symmetric(vertical: 14),
         textStyle: const TextStyle(fontWeight: FontWeight.w600),
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(AppRadii.md)),
@@ -287,7 +288,7 @@ ThemeData buildAppTheme(Brightness brightness) {
       backgroundColor: AppColors.backgroundSoft,
       selectedColor: AppColors.accentSoft,
       labelStyle: TextStyle(color: AppColors.ink),
-      side: BorderSide(color: AppColors.border),
+      side: BorderSide.none,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(AppRadii.sm)),
     ),
     switchTheme: SwitchThemeData(
