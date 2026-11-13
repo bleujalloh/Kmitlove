@@ -41,6 +41,7 @@ export { adminListModerationRequests, adminResolveModerationRequest } from "./ad
 export { resolveFiltrageReview } from "./admin/resolveFiltrageReview";
 export { adminListPendingCommunityPosts, adminReviewCommunityPost } from "./admin/reviewCommunityPost";
 export { autoApprovePhotos } from "./photos/autoApprovePhotos";
+export { purgeRejectedPhotos } from "./photos/purgeRejectedPhotos";
 export { adminListPendingPhotos, adminReviewPhoto } from "./photos/adminReviewPhoto";
 export { moderatePhotoContent } from "./photos/moderatePhotoContent";
 export { submitIdentityVerification } from "./identite/submitIdentityVerification";

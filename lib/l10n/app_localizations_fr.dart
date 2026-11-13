@@ -859,7 +859,7 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get photoRejectedHint =>
-      'Les autres membres ne la voient pas. Choisis une photo de toi, visage visible et tenue correcte, puis supprime celle-ci.';
+      'Les autres membres ne la voient pas. Elle sera supprimée automatiquement 30 jours après le refus. Choisis une photo de toi, visage visible et tenue correcte, puis supprime celle-ci.';
 
   @override
   String get messageTimeYesterday => 'hier';

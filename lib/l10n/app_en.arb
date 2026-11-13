@@ -279,7 +279,7 @@
   "deletePhotoButton": "Delete this photo",
   "photoRejectedAutoReason": "Automatically rejected: moderation detected sensitive content (nudity, suggestive outfit or violence).",
   "photoRejectedManualReason": "Rejected by a moderator.",
-  "photoRejectedHint": "Other members can't see it. Pick a photo of yourself with your face visible and appropriate clothing, then delete this one.",
+  "photoRejectedHint": "Other members can't see it. It will be deleted automatically 30 days after the refusal. Pick a photo of yourself with your face visible and appropriate clothing, then delete this one.",
   "messageTimeYesterday": "yesterday",
   "sayHelloPreview": "Say hello 👋",
   "beforeSendingPhotoTitle": "Before sending a photo",

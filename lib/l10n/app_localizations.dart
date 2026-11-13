@@ -1607,7 +1607,7 @@ abstract class AppLocalizations {
   /// No description provided for @photoRejectedHint.
   ///
   /// In fr, this message translates to:
-  /// **'Les autres membres ne la voient pas. Choisis une photo de toi, visage visible et tenue correcte, puis supprime celle-ci.'**
+  /// **'Les autres membres ne la voient pas. Elle sera supprimée automatiquement 30 jours après le refus. Choisis une photo de toi, visage visible et tenue correcte, puis supprime celle-ci.'**
   String get photoRejectedHint;
 
   /// Heure d'une conversation dont le dernier message date de la veille (liste Messages)

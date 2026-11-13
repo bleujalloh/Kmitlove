@@ -102,6 +102,10 @@ export const PLAY_RTDN_TOPIC = "play-billing-rtdn";
 // disponible en permanence.
 export const PHOTO_AUTO_APPROVE_HOURS = 48;
 
+// Durée de conservation d'une photo refusée avant suppression automatique
+// (photos/purgeRejectedPhotos.ts, docs/rgpd-registre-des-traitements.md §7).
+export const REJECTED_PHOTO_RETENTION_DAYS = 30;
+
 // docs/regles-complementaires-concurrents.md section 3
 export const MATCH_EXPIRY_DAYS = 7;
 

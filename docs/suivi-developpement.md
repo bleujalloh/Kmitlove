@@ -875,3 +875,11 @@ Demande du propriétaire : dans l'onglet Profil, les photos téléchargées ou e
 - [x] **Vérifié sur appareil** (visionneuse de mes photos) : photo en attente/refusée affichée en plein écran, statut « Refusée », raison (« Refusée automatiquement : la modération a détecté un contenu sensible… »), bouton « Supprimer cette photo » visible (suppression non testée sur la vraie photo du propriétaire).
 - [x] **Photos consultables en grand sur les autres pages** (visionneuse générique `core/widgets/image_viewer.dart`, balayage et zoom) : fiche profil d'un autre membre (carrousel), photo révélée d'une conversation, affiche d'un événement. Avatar de l'onglet Profil : affiche désormais ma première photo même en attente ou refusée (moi seul la vois) et un toucher l'ouvre dans la visionneuse de mes photos. Bouton « Supprimer cette photo » : marges internes ajoutées (le texte touchait le bord).
 - [ ] Non vérifié sur appareil réel : ces ouvertures en grand (MERUT n'était plus au premier plan) et la fiche « Voir mon profil comme les autres » (ouverture jamais vue à l'écran). Analyse propre, 17 tests verts.
+
+## Suivi 2026-11-13 (suite) — photos refusées : purge automatique, pas de recours
+
+Décision du propriétaire : **aucun recours humain pour les photos refusées, sauf à l'inscription** (le questionnaire de filtrage garde son recours). Purge automatique conservée.
+
+- [x] Code : `purgeRejectedPhotos` (tâche quotidienne, `REJECTED_PHOTO_RETENTION_DAYS = 30`) supprime le fichier Storage puis le document des photos refusées depuis plus de 30 jours (date du refus = `reviewedAt`, sinon `moderatedAt`, sinon `uploadedAt`) ; texte de la visionneuse : « Elle sera supprimée automatiquement 30 jours après le refus ». Script de test réel `scripts/test_purge_rejected_photos.py` (4 cas : refus ancien purgé ; refus récent d'une photo ancienne conservé ; refus modérateur récent conservé ; photo approuvée conservée). Analyse propre.
+- [ ] **NON DÉPLOYÉ** : le déploiement de la purge (suppression automatique de données) a été refusé par le garde-fou de l'environnement, il faut l'accord explicite « déploie la purge » du propriétaire. Tant que ce n'est pas fait, aucune photo n'est purgée (aucun effet sur les données existantes).
+- [ ] Documentation RGPD mise à jour (§5, §7, §7 bis, §11) : recours = décision assumée et atténuée.

@@ -64,7 +64,7 @@ Sous-traitant principal : **Google LLC / Google Cloud** (Firebase Auth, Firestor
 | Effacement (art. 17) | Paramètres → supprimer mon compte (`deleteAccount`) | **Conforme pour le périmètre listé en §6** ; points restants en §6 |
 | Limitation / opposition (art. 18, 21) | — | **[ÉCART]** pas de parcours dédié ; suppression du compte ou contact du responsable de traitement |
 | Retrait du consentement | Bouton « Ma position », permission de notifications, masquage du profil | Conforme pour la position et les notifications. Pas de consentement art. 9 à retirer tant qu'il n'est pas recueilli (§3) |
-| Décision automatisée (art. 22) | Questionnaire de filtrage : recours humain (`requestFiltrageReview`). Photos : voir §8 | Filtrage conforme ; photos **[ÉCART]** |
+| Décision automatisée (art. 22) | Questionnaire de filtrage : recours humain (`requestFiltrageReview`). Photos : pas de recours, décision du propriétaire (§7 bis point 3) | Filtrage conforme ; photos : **risque assumé** et atténué (§7 bis) |
 | Information (art. 13-14) | — | **[ÉCART]** aucune politique de confidentialité n'est affichée ni liée dans l'app |
 
 ## 6. Effacement de compte : périmètre exact
@@ -82,7 +82,7 @@ Sous-traitant principal : **Google LLC / Google Cloud** (Firebase Auth, Firestor
 | Donnée | Aujourd'hui | Proposition (la plus protectrice) |
 |---|---|---|
 | Compte inactif | Profil masqué des autres après 30 jours (`INACTIVE_ACCOUNT_DAYS`), jamais supprimé **[ÉCART]** | Prévenir puis supprimer après 24 mois d'inactivité |
-| Photo refusée | Conservée indéfiniment | Purger 30 jours après le refus (le membre peut la supprimer immédiatement) |
+| Photo refusée | Supprimée automatiquement 30 jours après le refus (`purgeRejectedPhotos`) ; suppression immédiate possible par le membre | Décidé et implanté |
 | Selfie de vérification | Conservé jusqu'à suppression du compte | Supprimer dès la décision du modérateur ; ne garder que `isVerified` |
 | Match sans message | Marqué « expiré » après 7 jours, jamais supprimé | Supprimer après 90 jours |
 | Signalements et journaux d'administration | Non fixée | 12 mois après clôture |
@@ -97,8 +97,8 @@ Parcours **actuel** : l'analyse automatique (Cloud Vision) refuse immédiatement
 **Recommandations** (par ordre de priorité) :
 1. **Expliquer clairement** la raison et ce qui est attendu (photo de soi, visage visible, tenue correcte) — **fait** (visionneuse du Profil).
 2. **Permettre de supprimer et de remplacer** en un geste — **fait** (bouton dans la visionneuse).
-3. **Offrir un recours humain** : un refus automatique est une décision automatisée qui limite l'accès au service (art. 22) ; l'analyse automatique peut se tromper (faux positifs fréquents sur les photos de sport ou de plage). Ajouter un bouton « Demander une révision » qui place la photo dans la file des modérateurs (`adminListPendingPhotos`, déjà existante), **sans** approbation automatique à 48 heures pour ces photos. **[DÉCISION] non implanté.**
-4. **Purger automatiquement** les photos refusées après 30 jours (minimisation, §7). **[DÉCISION] non implanté.**
+3. **Recours humain : décision du propriétaire du 2026-11-13 — aucun recours pour les photos, sauf à l'inscription** (le questionnaire de filtrage garde son recours humain, `requestFiltrageReview`). Le refus d'une photo ne bloque pas le compte : le membre supprime la photo et en envoie une autre. Risque à connaître : le refus automatique est une décision fondée uniquement sur un traitement automatisé (art. 22). Les atténuations retenues sont que la décision ne porte que sur une photo (jamais sur l'accès au compte), que la raison est expliquée au membre, et qu'il peut remplacer la photo immédiatement. Un modérateur humain peut toujours refuser ou valider une photo en attente depuis l'espace admin.
+4. **Purge automatique des photos refusées 30 jours après le refus** (minimisation, §7) — `purgeRejectedPhotos`, tâche quotidienne : supprime le fichier Storage puis le document. Le membre peut la supprimer lui-même avant. Aucune suspension de la purge, puisqu'il n'y a pas de recours. **[Implantée dans le dépôt ; état de déploiement : voir `docs/suivi-developpement.md`.]**
 5. **Notifier** le membre (notification push) quand une photo est refusée, pour qu'il n'ait pas à ouvrir l'onglet Profil. Non implanté.
 6. Ne pas compter une photo refusée dans la limite de 6 photos. Non implanté.
 
@@ -129,8 +129,7 @@ En place : règles Firestore et Storage versionnées et vérifiées identiques �
 |---|---|---|
 | P0 avant ouverture | Créer le projet de production avec Firestore/Storage en **UE** (§4) | Décision + infrastructure |
 | P0 avant ouverture | Politique de confidentialité, consentement art. 9, mentions légales (§10) | Rédaction + écran |
-| P1 | Recours humain pour les photos refusées (§7 bis, point 3) | Développement |
-| P1 | Purges : photos refusées, selfie après décision, comptes inactifs (§7) | Développement |
+| P1 | Purges restantes : selfie après décision, comptes inactifs (§7) — la purge des photos refusées est faite | Développement |
 | P1 | Compléter l'export des données (§5) | Développement |
 | P1 | Activer App Check ; limiter les messages et signalements (§9) | Développement |
 | P2 | AIPD, procédure de violation, DPO à décider, durées des signalements | Juridique |

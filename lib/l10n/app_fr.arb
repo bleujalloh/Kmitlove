@@ -299,7 +299,7 @@
   "deletePhotoButton": "Supprimer cette photo",
   "photoRejectedAutoReason": "Refusée automatiquement : la modération a détecté un contenu sensible (nudité, tenue suggestive ou violence).",
   "photoRejectedManualReason": "Refusée par un modérateur.",
-  "photoRejectedHint": "Les autres membres ne la voient pas. Choisis une photo de toi, visage visible et tenue correcte, puis supprime celle-ci.",
+  "photoRejectedHint": "Les autres membres ne la voient pas. Elle sera supprimée automatiquement 30 jours après le refus. Choisis une photo de toi, visage visible et tenue correcte, puis supprime celle-ci.",
   "messageTimeYesterday": "hier",
   "@messageTimeYesterday": {"description": "Heure d'une conversation dont le dernier message date de la veille (liste Messages)"},
   "sayHelloPreview": "Dites bonjour 👋",
