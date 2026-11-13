@@ -2756,6 +2756,60 @@ abstract class AppLocalizations {
   /// **'≤ {km} km'**
   String maxDistancePill(int km);
 
+  /// No description provided for @genderFilterAll.
+  ///
+  /// In fr, this message translates to:
+  /// **'Tous'**
+  String get genderFilterAll;
+
+  /// No description provided for @genderFilterMenPlural.
+  ///
+  /// In fr, this message translates to:
+  /// **'Hommes'**
+  String get genderFilterMenPlural;
+
+  /// No description provided for @genderFilterWomenPlural.
+  ///
+  /// In fr, this message translates to:
+  /// **'Femmes'**
+  String get genderFilterWomenPlural;
+
+  /// No description provided for @myLocationPillLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ma position'**
+  String get myLocationPillLabel;
+
+  /// No description provided for @morePillLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Plus'**
+  String get morePillLabel;
+
+  /// No description provided for @selectCountryFirstHint.
+  ///
+  /// In fr, this message translates to:
+  /// **'Choisis d\'abord un pays.'**
+  String get selectCountryFirstHint;
+
+  /// No description provided for @changeCountryOption.
+  ///
+  /// In fr, this message translates to:
+  /// **'Changer de pays'**
+  String get changeCountryOption;
+
+  /// No description provided for @removeCountryFilterOption.
+  ///
+  /// In fr, this message translates to:
+  /// **'Retirer le filtre pays'**
+  String get removeCountryFilterOption;
+
+  /// No description provided for @agePillPlaceholder.
+  ///
+  /// In fr, this message translates to:
+  /// **'Âge'**
+  String get agePillPlaceholder;
+
   /// No description provided for @cancelParticipationButton.
   ///
   /// In fr, this message translates to:

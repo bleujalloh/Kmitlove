@@ -1469,6 +1469,33 @@ class AppLocalizationsFr extends AppLocalizations {
   }
 
   @override
+  String get genderFilterAll => 'Tous';
+
+  @override
+  String get genderFilterMenPlural => 'Hommes';
+
+  @override
+  String get genderFilterWomenPlural => 'Femmes';
+
+  @override
+  String get myLocationPillLabel => 'Ma position';
+
+  @override
+  String get morePillLabel => 'Plus';
+
+  @override
+  String get selectCountryFirstHint => 'Choisis d\'abord un pays.';
+
+  @override
+  String get changeCountryOption => 'Changer de pays';
+
+  @override
+  String get removeCountryFilterOption => 'Retirer le filtre pays';
+
+  @override
+  String get agePillPlaceholder => 'Âge';
+
+  @override
   String get cancelParticipationButton => 'Annuler ma participation';
 
   @override

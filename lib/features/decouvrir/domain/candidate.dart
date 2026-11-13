@@ -68,6 +68,8 @@ class DiscoverFilters {
     this.maxDistanceKm = 100,
     this.country,
     this.city,
+    this.gender,
+    this.useMyLocation = true,
   });
 
   final int? minAge;
@@ -81,6 +83,17 @@ class DiscoverFilters {
   final String? country;
   final String? city;
 
+  /// Filtre rapide "Tous/Hommes/Femmes" de la rangée de pilules (maquette
+  /// visuelle validée le 12/11/2026) — `null` = "Tous" = comportement
+  /// inchangé (seekingGenders du profil). Distinct de seekingGenders :
+  /// restreint ponctuellement cette recherche sans modifier le profil.
+  final String? gender;
+
+  /// Interrupteur "Ma position" de la même rangée — `false` désactive le
+  /// tri/filtre par distance côté serveur même si des coordonnées GPS
+  /// sont déjà enregistrées, sans les effacer.
+  final bool useMyLocation;
+
   Map<String, dynamic> toMap() => {
     if (minAge != null) 'minAge': minAge,
     if (maxAge != null) 'maxAge': maxAge,
@@ -88,6 +101,8 @@ class DiscoverFilters {
     if (country != null && country!.trim().isNotEmpty)
       'country': country!.trim(),
     if (city != null && city!.trim().isNotEmpty) 'city': city!.trim(),
+    if (gender != null) 'gender': gender,
+    if (!useMyLocation) 'useMyLocation': false,
   };
 
   DiscoverFilters copyWith({
@@ -96,12 +111,18 @@ class DiscoverFilters {
     int? maxDistanceKm,
     String? country,
     String? city,
+    String? gender,
+    bool? useMyLocation,
     bool clearLocation = false,
+    bool clearCity = false,
+    bool clearGender = false,
   }) => DiscoverFilters(
     minAge: minAge ?? this.minAge,
     maxAge: maxAge ?? this.maxAge,
     maxDistanceKm: maxDistanceKm ?? this.maxDistanceKm,
     country: clearLocation ? null : (country ?? this.country),
-    city: clearLocation ? null : (city ?? this.city),
+    city: (clearLocation || clearCity) ? null : (city ?? this.city),
+    gender: clearGender ? null : (gender ?? this.gender),
+    useMyLocation: useMyLocation ?? this.useMyLocation,
   );
 }

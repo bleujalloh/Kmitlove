@@ -789,3 +789,35 @@ une maquette visuelle précise fournie. `ProfilDetailScreen` reste utilisé tel 
   du code uniquement — en particulier le scénario réel "compte A se déconnecte, compte B se
   connecte sur le même appareil sans fermer l'app" n'a pas pu être rejoué physiquement, accès
   appareil toujours indisponible pour cette session.
+
+## Suivi 2026-11-13 — Découvrir : deux rangées de pilules de filtres (prototype validé)
+
+- [x] **Testé et validé (compilation, tests unitaires, déployé côté serveur)** : deux rangées de
+  pilules visibles sous le sous-titre, remplaçant la feuille cachée. Rangée 1 : Filtres, genre
+  (Tous/Hommes/Femmes), âge, distance. Rangée 2 : interrupteur « Ma position », Pays, Ville, Plus.
+  Chaque sélection modifie `discoverFiltersProvider`, qui relance `getDiscoverCandidates`.
+- [x] **Nouveau filtre genre, côté serveur** (`getDiscoverCandidates`) : liste fermée partagée
+  (`shared/genders.ts`, aussi utilisée par `saveProfil`). Il ne fait que RESTREINDRE `seekingGenders`
+  du profil, jamais l'élargir : un genre que le profil ne recherche pas renvoie une liste vide
+  (règle la plus stricte). Types validés côté serveur (genre string de la liste fermée,
+  `useMyLocation` booléen).
+- [x] **Interrupteur « Ma position » relié au GPS existant** : l'activer sans position enregistrée
+  lance la vraie demande GPS (`updateMyLocation`) et reste coupé si elle échoue ; un nouveau champ
+  serveur `useMyLocation=false` désactive la distance sans effacer les coordonnées. Le bouton
+  « Mettre à jour ma position » de la feuille le réactive aussi.
+- [x] **Pays/Ville réels, pas de texte libre** : pilule Pays = sélecteur ISO (changer/retirer une
+  fois actif) ; pilule Ville = suggestions réelles + saisie libre ; même logique de nom français que
+  l'inscription (fonction partagée `frenchCountryName`). Changer de pays efface la ville. La feuille
+  complète utilise aussi ces sélecteurs ; son « Appliquer » ne réinitialise plus genre ni position.
+- [x] **Choix assumés** : « Âge » est affiché sans chiffres tant qu'aucune plage n'est réglée (pas de
+  valeur inventée) ; « Filtres », « Plus », âge et distance ouvrent la même feuille complète
+  (réglages réels, pas décoratifs) ; la maquette claire n'est PAS reprise, thème sombre conservé
+  (disposition seulement).
+- [ ] **Limites connues, pas des oublis** : si `seekingGenders` du profil change alors qu'un genre
+  est filtré, la liste reste vide sans message jusqu'à ce qu'on repasse sur « Tous » ; l'atténuation
+  de la pilule distance est un indice d'affichage, le serveur reste l'autorité ; aucun test
+  automatisé côté serveur (pas d'infrastructure de test de fonctions dans le projet) — seuls
+  `DiscoverFilters.toMap/copyWith` ont des tests unitaires.
+- [ ] **Non vérifié sur appareil réel** (accès indisponible) : ergonomie réelle des pilules, de
+  l'interrupteur et du sélecteur de pays non testée physiquement ; le client n'est pas encore
+  empaqueté en APK.

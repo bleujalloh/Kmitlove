@@ -22,6 +22,14 @@ import '../data/major_cities.dart';
 /// `saveProfil.ts` valide le nom retenu contre la liste fermée
 /// VALID_COUNTRY_NAMES côté serveur — jamais une confiance aveugle à ce
 /// que le client envoie.
+/// Nom français stocké pour un pays choisi — source unique partagée par
+/// CountryField et le sélecteur de la rangée de pilules Découvrir, pour
+/// que le nom filtré corresponde toujours exactement à celui enregistré
+/// (VALID_COUNTRY_NAMES, countryLower).
+String frenchCountryName(Country country) =>
+    CountryLocalizations(const Locale('fr')).countryName(countryCode: country.countryCode) ??
+    country.name;
+
 class CountryField extends StatelessWidget {
   const CountryField({
     super.key,
@@ -40,12 +48,7 @@ class CountryField extends StatelessWidget {
       onTap: () => showCountryPicker(
         context: context,
         showPhoneCode: false,
-        onSelect: (country) => onChanged(
-          CountryLocalizations(
-                const Locale('fr'),
-              ).countryName(countryCode: country.countryCode) ??
-              country.name,
-        ),
+        onSelect: (country) => onChanged(frenchCountryName(country)),
       ),
       child: InputDecorator(
         decoration: InputDecoration(

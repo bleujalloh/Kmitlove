@@ -3,6 +3,7 @@ import { getFirestore, FieldValue } from "firebase-admin/firestore";
 
 import { REGION } from "../config";
 import { computeAge } from "../shared/age";
+import { GENDERS } from "../shared/genders";
 import { VALID_COUNTRY_NAMES } from "../shared/validCountries";
 
 const MIN_ADULT_AGE = 18;
@@ -21,8 +22,10 @@ const MAX_HEIGHT_CM = 250;
 // appel direct à l'API Firestore, comme utilisé pour le seed de test ce
 // jour) pourrait enregistrer un troisième genre ou une intention "relation
 // libre" contraire au kemetisme — même principe que la confirmation d'âge
-// (docs/suivi-developpement.md, section du 11/11/2026).
-const GENDERS = ["Femme", "Homme"];
+// (docs/suivi-developpement.md, section du 11/11/2026). GENDERS vit
+// maintenant dans shared/genders.ts (12/11/2026) : getCandidates.ts en a
+// aussi besoin pour valider le nouveau filtre rapide "Tous/Hommes/Femmes"
+// de Découvrir, jamais une seconde liste tenue à la main en parallèle.
 const RELATIONSHIP_INTENTS = [
   "relation_serieuse",
   "relation_durable_famille",

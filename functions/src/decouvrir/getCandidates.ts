@@ -10,6 +10,7 @@ import {
   ONLINE_THRESHOLD_MINUTES,
 } from "../config";
 import { distanceKm } from "../shared/distance";
+import { GENDERS } from "../shared/genders";
 import { computeProfileCompletionPercent } from "../shared/profileCompletion";
 
 interface DiscoverFilters {
@@ -23,6 +24,21 @@ interface DiscoverFilters {
   // n'a pas de sens pour comparer deux pays différents).
   country?: string;
   city?: string;
+  // Filtre rapide "Tous/Hommes/Femmes" de la rangée de pilules Découvrir
+  // (maquette visuelle validée le 12/11/2026) — distinct de
+  // `seekingGenders` du profil (préférence de fond, modifiable seulement
+  // via l'édition de profil) : restreint PONCTUELLEMENT cette recherche à
+  // un seul genre parmi ceux de seekingGenders, jamais en dehors.
+  // Absent = "Tous" = comportement inchangé (seekingGenders).
+  gender?: string | null;
+  // Interrupteur "Ma position" de la même rangée — relie la case à cocher
+  // à la logique GPS déjà existante (locationLat/locationLng écrits par
+  // updateMyLocation.ts) plutôt que de l'utiliser implicitement dès que
+  // des coordonnées existent : `false` explicite désactive le tri/filtre
+  // par distance même si des coordonnées sont déjà enregistrées, sans les
+  // effacer (l'utilisateur peut les réactiver en rebasculant, sans refaire
+  // de localisation GPS). Absent/`true` = comportement inchangé.
+  useMyLocation?: boolean | null;
 }
 
 const MAX_LOCATION_FILTER_LENGTH = 60;
@@ -82,17 +98,44 @@ export const getDiscoverCandidates = onCall({ region: REGION }, async (request) 
     : null;
   const hasLocationFilter = countryFilter !== null;
 
+  // Liste fermée, comme pour l'enregistrement du profil (saveProfil.ts) —
+  // jamais une valeur de genre inventée côté client pour cette recherche.
+  if (filters.gender != null && (typeof filters.gender !== "string" || !GENDERS.includes(filters.gender))) {
+    throw new HttpsError("invalid-argument", "Genre de filtre invalide.");
+  }
+  if (filters.useMyLocation != null && typeof filters.useMyLocation !== "boolean") {
+    throw new HttpsError("invalid-argument", "useMyLocation invalide.");
+  }
+  const genderFilter = filters.gender ?? null;
+  // Le filtre rapide ne fait que RESTREINDRE la préférence de fond du
+  // profil (seekingGenders), jamais l'élargir (règlement permanent
+  // section 17, la règle la plus stricte gagne) : demander un genre que
+  // son propre profil ne recherche pas ne renvoie personne, plutôt que de
+  // contourner seekingGenders par ce biais.
+  if (genderFilter !== null && !mySeekingGenders.includes(genderFilter)) {
+    return { candidates: [] };
+  }
+
   const myStatus = myStatusSnap.data();
   const myLat = myStatus?.locationLat as number | undefined;
   const myLng = myStatus?.locationLng as number | undefined;
-  const hasMyLocation = !hasLocationFilter && typeof myLat === "number" && typeof myLng === "number";
+  const wantsLocation = filters.useMyLocation !== false;
+  const hasMyLocation =
+    wantsLocation && !hasLocationFilter && typeof myLat === "number" && typeof myLng === "number";
 
   const mySwipesSnap = await db.collection("swipes").where("fromUid", "==", uid).get();
   const alreadySwiped = new Set(mySwipesSnap.docs.map((doc) => doc.data().toUid as string));
 
-  let poolQuery = db
-    .collection("users")
-    .where("gender", "in", mySeekingGenders.slice(0, 10)) as FirebaseFirestore.Query;
+  // Le filtre rapide "Tous/Hommes/Femmes" (genderFilter), quand actif,
+  // est déjà garanti inclus dans seekingGenders (contrôle plus haut) :
+  // une simple égalité suffit donc à exprimer l'intersection des deux,
+  // sans combiner "==" et "in" sur le même champ dans une seule requête
+  // Firestore.
+  let poolQuery = (
+    genderFilter !== null
+      ? db.collection("users").where("gender", "==", genderFilter)
+      : db.collection("users").where("gender", "in", mySeekingGenders.slice(0, 10))
+  ) as FirebaseFirestore.Query;
   if (countryFilter !== null) {
     poolQuery = poolQuery.where("countryLower", "==", countryFilter);
     if (cityFilter !== null) {

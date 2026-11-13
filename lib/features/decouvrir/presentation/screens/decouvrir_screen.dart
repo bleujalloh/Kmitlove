@@ -1,12 +1,16 @@
+import 'package:country_picker/country_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../../core/providers/firebase_providers.dart';
 import '../../../../core/theme/app_theme.dart';
 import '../../../../core/widgets/block_action.dart';
+import '../../../../core/widgets/country_field.dart';
 import '../../../../core/widgets/profile_fact_sheet.dart';
 import '../../../../l10n/l10n_extensions.dart';
 import '../../../compatibilite/presentation/compat_controller.dart';
+import '../../../profil/domain/profil.dart';
+import '../../../profil/presentation/profil_controller.dart';
 import '../../domain/candidate.dart';
 import '../decouvrir_controller.dart';
 
@@ -45,6 +49,12 @@ class DecouvrirScreen extends ConsumerWidget {
     });
 
     final filters = ref.watch(discoverFiltersProvider);
+    // Position réellement enregistrée côté serveur (user_status, lisible
+    // par son seul propriétaire, écrite par updateMyLocation.ts) — jamais
+    // supposée : c'est elle, pas l'interrupteur seul, qui décide si la
+    // distance peut s'appliquer.
+    final hasSavedLocation =
+        ref.watch(userStatusProvider).value?['locationLat'] is num;
 
     return Scaffold(
       // Sans AppBar, ni bouton retour automatique ni titre cohérent avec
@@ -67,6 +77,16 @@ class DecouvrirScreen extends ConsumerWidget {
                     ),
                   ),
                   const SizedBox(height: 10),
+                  // Deux rangées de pilules, toutes fonctionnelles (maquette
+                  // visuelle validée le 12/11/2026, demande explicite : "il
+                  // faut que le filtrage marche sur toutes les options") —
+                  // chacune relie une vraie action à discoverFiltersProvider,
+                  // jamais un élément décoratif. Toujours visibles (pas de
+                  // masquage conditionnel comme avant) ; quand un réglage
+                  // n'a pas encore de valeur explicite, la pilule affiche un
+                  // libellé neutre plutôt qu'une valeur inventée (ex. "Âge"
+                  // plutôt qu'une plage par défaut que le client ne connaît
+                  // pas réellement, calculée côté serveur).
                   SingleChildScrollView(
                     scrollDirection: Axis.horizontal,
                     child: Row(
@@ -75,44 +95,78 @@ class DecouvrirScreen extends ConsumerWidget {
                           icon: Icons.tune,
                           label: context.l10n.filtersPillLabel,
                           filled: true,
-                          onTap: () => showModalBottomSheet(
-                            context: context,
-                            isScrollControlled: true,
-                            builder: (_) => const _FiltersSheet(),
-                          ),
+                          onTap: () => _openFiltersSheet(context),
                         ),
                         const SizedBox(width: 8),
-                        // Chaque pastille reflète l'état réel de
-                        // discoverFiltersProvider, jamais une valeur figée
-                        // (maquette visuelle validée le 12/11/2026) — l'âge
-                        // n'est affiché que s'il a été réglé explicitement
-                        // par le membre : tant qu'il reste absent, le
-                        // serveur applique sa propre plage par défaut
-                        // (±8 ans autour du sien, getCandidates.ts), que le
-                        // client ne connaît pas et ne doit donc jamais
-                        // prétendre afficher.
-                        if (filters.minAge != null && filters.maxAge != null)
-                          _FilterPill(
-                            icon: Icons.calendar_today_outlined,
-                            label: context.l10n.ageRangePill(
-                              filters.minAge!,
-                              filters.maxAge!,
-                            ),
+                        _FilterPill(
+                          icon: Icons.wc_outlined,
+                          label: _genderPillLabel(context, filters.gender),
+                          chevron: true,
+                          onTap: () => _openGenderSheet(context, ref),
+                        ),
+                        const SizedBox(width: 8),
+                        _FilterPill(
+                          icon: Icons.calendar_today_outlined,
+                          label:
+                              filters.minAge != null && filters.maxAge != null
+                              ? context.l10n.ageRangePill(
+                                  filters.minAge!,
+                                  filters.maxAge!,
+                                )
+                              : context.l10n.agePillPlaceholder,
+                          chevron: true,
+                          onTap: () => _openFiltersSheet(context),
+                        ),
+                        const SizedBox(width: 8),
+                        // Estompée quand la distance n'a aucun effet réel
+                        // côté serveur (getCandidates.ts) : un filtre pays
+                        // est actif, l'interrupteur "Ma position" est
+                        // coupé, ou aucune position n'a jamais été
+                        // enregistrée — plutôt qu'afficher "≤ 100 km"
+                        // comme si ce rayon s'appliquait.
+                        _FilterPill(
+                          icon: Icons.place_outlined,
+                          label: context.l10n.maxDistancePill(
+                            filters.maxDistanceKm,
                           ),
-                        if (filters.minAge != null && filters.maxAge != null)
-                          const SizedBox(width: 8),
-                        if (filters.country != null)
-                          _FilterPill(
-                            icon: Icons.place_outlined,
-                            label: filters.city ?? filters.country!,
-                          )
-                        else
-                          _FilterPill(
-                            icon: Icons.place_outlined,
-                            label: context.l10n.maxDistancePill(
-                              filters.maxDistanceKm,
-                            ),
-                          ),
+                          chevron: true,
+                          dimmed:
+                              filters.country != null ||
+                              !filters.useMyLocation ||
+                              !hasSavedLocation,
+                          onTap: () => _openFiltersSheet(context),
+                        ),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  SingleChildScrollView(
+                    scrollDirection: Axis.horizontal,
+                    child: Row(
+                      children: [
+                        _LocationSwitchPill(hasSavedLocation: hasSavedLocation),
+                        const SizedBox(width: 8),
+                        _FilterPill(
+                          icon: Icons.public_outlined,
+                          label: filters.country ?? context.l10n.countryLabel,
+                          chevron: true,
+                          onTap: () => _openCountryPill(context, ref),
+                        ),
+                        const SizedBox(width: 8),
+                        _FilterPill(
+                          icon: Icons.location_city_outlined,
+                          label: filters.city ?? context.l10n.cityLabel,
+                          chevron: true,
+                          dimmed: filters.country == null,
+                          onTap: () => _openCitySheet(context, ref),
+                        ),
+                        const SizedBox(width: 8),
+                        _FilterPill(
+                          icon: Icons.tune,
+                          label: context.l10n.morePillLabel,
+                          chevron: true,
+                          onTap: () => _openFiltersSheet(context),
+                        ),
                       ],
                     ),
                   ),
@@ -652,51 +706,413 @@ class _CandidateCardContent extends ConsumerWidget {
   }
 }
 
+void _openFiltersSheet(BuildContext context) {
+  showModalBottomSheet(
+    context: context,
+    isScrollControlled: true,
+    builder: (_) => const _FiltersSheet(),
+  );
+}
+
+String _genderPillLabel(BuildContext context, String? gender) {
+  switch (gender) {
+    case Gender.homme:
+      return context.l10n.genderFilterMenPlural;
+    case Gender.femme:
+      return context.l10n.genderFilterWomenPlural;
+    default:
+      return context.l10n.genderFilterAll;
+  }
+}
+
+/// Filtre rapide "Tous/Hommes/Femmes" (maquette visuelle validée le
+/// 12/11/2026) — restreint ponctuellement la recherche à un seul genre
+/// PARMI ceux que le profil recherche déjà (`seekingGenders`), jamais en
+/// dehors : getCandidates.ts applique la même intersection côté serveur,
+/// donc un choix hors préférence est proposé désactivé ici plutôt que de
+/// laisser choisir une option qui ne renverrait jamais personne.
+void _openGenderSheet(BuildContext context, WidgetRef ref) {
+  final current = ref.read(discoverFiltersProvider).gender;
+  // Profil pas encore chargé : on ne grise rien (le serveur applique de
+  // toute façon l'intersection avec seekingGenders).
+  final profilSeeking = ref.read(profilProvider).value?.seekingGenders;
+  bool allowed(String g) => profilSeeking == null || profilSeeking.contains(g);
+
+  void select(BuildContext sheetContext, String? gender) {
+    final filters = ref.read(discoverFiltersProvider);
+    ref.read(discoverFiltersProvider.notifier).state = filters.copyWith(
+      gender: gender,
+      clearGender: gender == null,
+    );
+    Navigator.of(sheetContext).pop();
+  }
+
+  showModalBottomSheet(
+    context: context,
+    builder: (sheetContext) => SafeArea(
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          _GenderOptionTile(
+            label: context.l10n.genderFilterAll,
+            selected: current == null,
+            onTap: () => select(sheetContext, null),
+          ),
+          _GenderOptionTile(
+            label: context.l10n.genderFilterWomenPlural,
+            selected: current == Gender.femme,
+            onTap: allowed(Gender.femme)
+                ? () => select(sheetContext, Gender.femme)
+                : null,
+          ),
+          _GenderOptionTile(
+            label: context.l10n.genderFilterMenPlural,
+            selected: current == Gender.homme,
+            onTap: allowed(Gender.homme)
+                ? () => select(sheetContext, Gender.homme)
+                : null,
+          ),
+        ],
+      ),
+    ),
+  );
+}
+
+/// Sélecteur pays réel (liste ISO 3166-1 complète via `country_picker`,
+/// même mécanisme que CountryField à l'inscription) — jamais un champ
+/// texte libre, demande explicite du propriétaire le 12/11/2026. Choisir
+/// un nouveau pays efface la ville déjà sélectionnée : une ville
+/// retenue pour l'ancien pays n'a plus de sens pour le nouveau.
+void _pickCountry(BuildContext context, WidgetRef ref) {
+  showCountryPicker(
+    context: context,
+    showPhoneCode: false,
+    onSelect: (country) {
+      final name = frenchCountryName(country);
+      final filters = ref.read(discoverFiltersProvider);
+      ref.read(discoverFiltersProvider.notifier).state = filters.copyWith(
+        country: name,
+        clearCity: true,
+      );
+    },
+  );
+}
+
+/// Pilule "Pays" : ouvre directement le sélecteur tant qu'aucun pays
+/// n'est choisi ; une fois un pays actif, propose de le changer ou de
+/// retirer le filtre (le sélecteur lui-même n'a pas d'entrée "aucun").
+void _openCountryPill(BuildContext context, WidgetRef ref) {
+  if (ref.read(discoverFiltersProvider).country == null) {
+    _pickCountry(context, ref);
+    return;
+  }
+  showModalBottomSheet(
+    context: context,
+    builder: (sheetContext) => SafeArea(
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          ListTile(
+            leading: const Icon(Icons.public_outlined),
+            title: Text(context.l10n.changeCountryOption),
+            onTap: () {
+              Navigator.of(sheetContext).pop();
+              _pickCountry(context, ref);
+            },
+          ),
+          ListTile(
+            leading: const Icon(Icons.close),
+            title: Text(context.l10n.removeCountryFilterOption),
+            onTap: () {
+              final filters = ref.read(discoverFiltersProvider);
+              ref.read(discoverFiltersProvider.notifier).state = filters
+                  .copyWith(clearLocation: true);
+              Navigator.of(sheetContext).pop();
+            },
+          ),
+        ],
+      ),
+    ),
+  );
+}
+
+void _openCitySheet(BuildContext context, WidgetRef ref) {
+  if (ref.read(discoverFiltersProvider).country == null) {
+    // La ville n'a d'effet côté serveur que combinée à un pays
+    // (getCandidates.ts : cityFilter n'est appliqué que si countryFilter
+    // est déjà actif) — prévenir plutôt que laisser une pilule "active"
+    // en apparence mais sans aucun effet réel.
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text(context.l10n.selectCountryFirstHint)),
+    );
+    return;
+  }
+  showModalBottomSheet(
+    context: context,
+    isScrollControlled: true,
+    builder: (_) => const _CitySheet(),
+  );
+}
+
+class _GenderOptionTile extends StatelessWidget {
+  const _GenderOptionTile({
+    required this.label,
+    required this.selected,
+    required this.onTap,
+  });
+
+  final String label;
+  final bool selected;
+  final VoidCallback? onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    return ListTile(
+      enabled: onTap != null,
+      leading: Icon(
+        selected ? Icons.radio_button_checked : Icons.radio_button_unchecked,
+        color: selected ? AppColors.accent : AppColors.muted,
+      ),
+      title: Text(label),
+      onTap: onTap,
+    );
+  }
+}
+
+/// Feuille "Ville" — autocomplétion sur les suggestions réelles déjà
+/// construites (core/data/major_cities.dart), saisie libre toujours
+/// possible au-delà (même CityField qu'à l'inscription, aucune liste
+/// exhaustive de villes n'existe pour ce projet). Valider un champ vide
+/// retire le filtre ville.
+class _CitySheet extends ConsumerStatefulWidget {
+  const _CitySheet();
+
+  @override
+  ConsumerState<_CitySheet> createState() => _CitySheetState();
+}
+
+class _CitySheetState extends ConsumerState<_CitySheet> {
+  late final TextEditingController _controller;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = TextEditingController(
+      text: ref.read(discoverFiltersProvider).city ?? '',
+    );
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: EdgeInsets.fromLTRB(
+        24,
+        20,
+        24,
+        24 + MediaQuery.of(context).viewInsets.bottom,
+      ),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            context.l10n.cityLabel,
+            style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+          ),
+          const SizedBox(height: 14),
+          CityField(
+            controller: _controller,
+            country: ref.watch(discoverFiltersProvider).country,
+            label: context.l10n.cityLabel,
+          ),
+          const SizedBox(height: 14),
+          ElevatedButton(
+            onPressed: () {
+              final city = _controller.text.trim();
+              final filters = ref.read(discoverFiltersProvider);
+              ref.read(discoverFiltersProvider.notifier).state = filters
+                  .copyWith(
+                    city: city.isEmpty ? null : city,
+                    clearCity: city.isEmpty,
+                  );
+              Navigator.of(context).pop();
+            },
+            child: Text(context.l10n.applyButton),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+/// Interrupteur "Ma position" (maquette visuelle validée le 12/11/2026) —
+/// relie la logique GPS déjà existante (LocationService.updateMyLocation,
+/// locationLat/locationLng dans user_status) à un contrôle visible et
+/// basculable directement sur Découvrir. L'interrupteur n'apparaît activé
+/// que si une position est RÉELLEMENT enregistrée côté serveur et que le
+/// membre veut l'utiliser — jamais "activé" par défaut sans position.
+/// Activer sans position connue déclenche une vraie demande GPS (même
+/// action que le bouton "Mettre à jour ma position" de la feuille) ;
+/// désactiver dit au serveur d'ignorer la distance sans effacer les
+/// coordonnées (useMyLocation, getCandidates.ts).
+class _LocationSwitchPill extends ConsumerStatefulWidget {
+  const _LocationSwitchPill({required this.hasSavedLocation});
+
+  final bool hasSavedLocation;
+
+  @override
+  ConsumerState<_LocationSwitchPill> createState() =>
+      _LocationSwitchPillState();
+}
+
+class _LocationSwitchPillState extends ConsumerState<_LocationSwitchPill> {
+  bool _requesting = false;
+
+  Future<void> _toggle(bool enabled) async {
+    if (enabled && !widget.hasSavedLocation) {
+      setState(() => _requesting = true);
+      var ok = false;
+      try {
+        ok = await ref.read(locationServiceProvider).updateMyLocation();
+      } catch (_) {
+        ok = false;
+      }
+      if (!mounted) return;
+      setState(() => _requesting = false);
+      if (!ok) {
+        // Position refusée/indisponible : l'interrupteur reste coupé,
+        // jamais affiché "activé" sans position réellement obtenue.
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(context.l10n.locationUnavailable)),
+        );
+        return;
+      }
+    }
+    // Toujours une nouvelle instance : relance la recherche avec le
+    // nouvel état (decouvrirControllerProvider observe ce provider).
+    final filters = ref.read(discoverFiltersProvider);
+    ref.read(discoverFiltersProvider.notifier).state = filters.copyWith(
+      useMyLocation: enabled,
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final useMyLocation = ref.watch(discoverFiltersProvider).useMyLocation;
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
+      decoration: BoxDecoration(
+        color: AppColors.backgroundSoft,
+        borderRadius: BorderRadius.circular(999),
+        border: Border.all(color: AppColors.border),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          const Icon(Icons.my_location, size: 15, color: AppColors.accent),
+          const SizedBox(width: 6),
+          Text(
+            context.l10n.myLocationPillLabel,
+            style: const TextStyle(
+              fontSize: 12.5,
+              fontWeight: FontWeight.w600,
+              color: AppColors.ink,
+            ),
+          ),
+          const SizedBox(width: 8),
+          SizedBox(
+            height: 24,
+            width: 40,
+            child: _requesting
+                ? const Center(
+                    child: SizedBox(
+                      width: 16,
+                      height: 16,
+                      child: CircularProgressIndicator(strokeWidth: 2),
+                    ),
+                  )
+                : FittedBox(
+                    child: Switch(
+                      value: useMyLocation && widget.hasSavedLocation,
+                      activeTrackColor: AppColors.accent,
+                      onChanged: _toggle,
+                    ),
+                  ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
 class _FilterPill extends StatelessWidget {
   const _FilterPill({
     required this.icon,
     required this.label,
     this.onTap,
     this.filled = false,
+    this.chevron = false,
+    this.dimmed = false,
   });
 
   final IconData icon;
   final String label;
   final VoidCallback? onTap;
   final bool filled;
+  final bool chevron;
+  // Réglage affiché mais sans effet réel dans l'état courant — reste
+  // cliquable pour pouvoir le modifier.
+  final bool dimmed;
 
   @override
   Widget build(BuildContext context) {
-    return InkWell(
-      onTap: onTap,
-      borderRadius: BorderRadius.circular(999),
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 9),
-        decoration: BoxDecoration(
-          color: filled ? AppColors.accent : AppColors.backgroundSoft,
-          borderRadius: BorderRadius.circular(999),
-          border: Border.all(
-            color: filled ? AppColors.accent : AppColors.border,
+    return Opacity(
+      opacity: dimmed ? 0.45 : 1,
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(999),
+        child: Container(
+          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 9),
+          decoration: BoxDecoration(
+            color: filled ? AppColors.accent : AppColors.backgroundSoft,
+            borderRadius: BorderRadius.circular(999),
+            border: Border.all(
+              color: filled ? AppColors.accent : AppColors.border,
+            ),
           ),
-        ),
-        child: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Icon(
-              icon,
-              size: 15,
-              color: filled ? AppColors.noirProfond : AppColors.accent,
-            ),
-            const SizedBox(width: 6),
-            Text(
-              label,
-              style: TextStyle(
-                fontSize: 12.5,
-                fontWeight: FontWeight.w600,
-                color: filled ? AppColors.noirProfond : AppColors.ink,
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Icon(
+                icon,
+                size: 15,
+                color: filled ? AppColors.noirProfond : AppColors.accent,
               ),
-            ),
-          ],
+              const SizedBox(width: 6),
+              Text(
+                label,
+                style: TextStyle(
+                  fontSize: 12.5,
+                  fontWeight: FontWeight.w600,
+                  color: filled ? AppColors.noirProfond : AppColors.ink,
+                ),
+              ),
+              if (chevron) ...[
+                const SizedBox(width: 4),
+                Icon(
+                  Icons.keyboard_arrow_down,
+                  size: 16,
+                  color: filled ? AppColors.noirProfond : AppColors.muted,
+                ),
+              ],
+            ],
+          ),
         ),
       ),
     );
@@ -744,7 +1160,8 @@ class _FiltersSheet extends ConsumerStatefulWidget {
 class _FiltersSheetState extends ConsumerState<_FiltersSheet> {
   late RangeValues _ageRange;
   late double _distance;
-  late final TextEditingController _countryController;
+  late String? _country;
+  bool _ageTouched = false;
   late final TextEditingController _cityController;
   bool _requestingLocation = false;
 
@@ -757,13 +1174,12 @@ class _FiltersSheetState extends ConsumerState<_FiltersSheet> {
       (current.maxAge ?? 60).toDouble(),
     );
     _distance = current.maxDistanceKm.toDouble();
-    _countryController = TextEditingController(text: current.country ?? '');
+    _country = current.country;
     _cityController = TextEditingController(text: current.city ?? '');
   }
 
   @override
   void dispose() {
-    _countryController.dispose();
     _cityController.dispose();
     super.dispose();
   }
@@ -799,7 +1215,10 @@ class _FiltersSheetState extends ConsumerState<_FiltersSheet> {
             max: 80,
             divisions: 62,
             activeColor: AppColors.accent,
-            onChanged: (v) => setState(() => _ageRange = v),
+            onChanged: (v) => setState(() {
+              _ageRange = v;
+              _ageTouched = true;
+            }),
           ),
           const SizedBox(height: 10),
           Text(
@@ -820,9 +1239,23 @@ class _FiltersSheetState extends ConsumerState<_FiltersSheet> {
                 ? null
                 : () async {
                     setState(() => _requestingLocation = true);
-                    final ok = await ref
-                        .read(locationServiceProvider)
-                        .updateMyLocation();
+                    var ok = false;
+                    try {
+                      ok = await ref
+                          .read(locationServiceProvider)
+                          .updateMyLocation();
+                    } catch (_) {
+                      ok = false;
+                    }
+                    // Une position fraîchement enregistrée réactive aussi
+                    // l'interrupteur "Ma position" : sinon le message
+                    // "position mise à jour" s'afficherait alors que le
+                    // serveur continue d'ignorer la distance.
+                    if (ok) {
+                      final f = ref.read(discoverFiltersProvider);
+                      ref.read(discoverFiltersProvider.notifier).state = f
+                          .copyWith(useMyLocation: true);
+                    }
                     if (mounted) setState(() => _requestingLocation = false);
                     if (context.mounted) {
                       ScaffoldMessenger.of(context).showSnackBar(
@@ -854,28 +1287,67 @@ class _FiltersSheetState extends ConsumerState<_FiltersSheet> {
             style: const TextStyle(fontSize: 12.5, color: AppColors.muted),
           ),
           const SizedBox(height: 10),
-          TextField(
-            controller: _countryController,
-            decoration: InputDecoration(labelText: context.l10n.countryLabel),
+          // Sélecteurs réels (liste ISO 3166-1 / suggestions de villes déjà
+          // construites), jamais des champs texte libres — même widgets
+          // qu'à l'inscription (CountryField/CityField), demande explicite
+          // du propriétaire le 12/11/2026.
+          CountryField(
+            value: _country,
+            label: context.l10n.countryLabel,
+            onChanged: (name) => setState(() {
+              _country = name;
+              _cityController.clear();
+            }),
           ),
           const SizedBox(height: 10),
-          TextField(
+          // Clé liée au pays : CityField garde son propre champ interne,
+          // qu'un simple `_cityController.clear()` ne vide pas à l'écran —
+          // le recréer au changement de pays évite d'afficher encore la
+          // ville de l'ancien pays alors qu'elle n'est plus retenue.
+          CityField(
+            key: ValueKey(_country),
             controller: _cityController,
-            decoration: InputDecoration(labelText: context.l10n.cityLabel),
+            country: _country,
+            label: context.l10n.cityLabel,
           ),
+          if (_country != null)
+            Align(
+              alignment: Alignment.centerLeft,
+              child: TextButton.icon(
+                onPressed: () => setState(() {
+                  _country = null;
+                  _cityController.clear();
+                }),
+                icon: const Icon(Icons.close, size: 16),
+                label: Text(context.l10n.removeCountryFilterOption),
+              ),
+            ),
           const SizedBox(height: 14),
           ElevatedButton(
             onPressed: () {
-              final country = _countryController.text.trim();
               final city = _cityController.text.trim();
+              final current = ref.read(discoverFiltersProvider);
+              // Âge laissé tel quel si le curseur n'a pas été touché :
+              // ouvrir la feuille pour régler autre chose (la pilule
+              // distance y mène aussi) ne doit pas figer en douce une
+              // plage 18-60 à la place de la plage par défaut du serveur.
+              final keepAge = !_ageTouched;
               ref
                   .read(discoverFiltersProvider.notifier)
                   .state = DiscoverFilters(
-                minAge: _ageRange.start.round(),
-                maxAge: _ageRange.end.round(),
+                minAge: keepAge ? current.minAge : _ageRange.start.round(),
+                maxAge: keepAge ? current.maxAge : _ageRange.end.round(),
                 maxDistanceKm: _distance.round(),
-                country: country.isEmpty ? null : country,
-                city: city.isEmpty ? null : city,
+                country: _country,
+                // Une ville sans pays n'a aucun effet côté serveur.
+                city: _country == null || city.isEmpty ? null : city,
+                // Jamais réinitialisés par cette feuille : le genre et
+                // l'interrupteur "Ma position" vivent maintenant sur les
+                // pilules dédiées (trouvé en écrivant ce correctif —
+                // reconstruire DiscoverFilters ici sans les reporter les
+                // aurait silencieusement effacés à chaque "Appliquer").
+                gender: current.gender,
+                useMyLocation: current.useMyLocation,
               );
               Navigator.of(context).pop();
             },
