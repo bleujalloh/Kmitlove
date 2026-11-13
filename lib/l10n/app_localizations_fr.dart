@@ -862,6 +862,85 @@ class AppLocalizationsFr extends AppLocalizations {
       'Les autres membres ne la voient pas. Elle sera supprimée automatiquement 30 jours après le refus. Choisis une photo de toi, visage visible et tenue correcte, puis supprime celle-ci.';
 
   @override
+  String get eventsFiltersButton => 'Filtres';
+
+  @override
+  String get eventsFiltersTitle => 'Filtrer les événements';
+
+  @override
+  String get eventsFilterDate => 'Date';
+
+  @override
+  String get eventsDateAny => 'Toutes les dates';
+
+  @override
+  String get eventsDateToday => 'Aujourd\'hui';
+
+  @override
+  String get eventsDateWeek => '7 prochains jours';
+
+  @override
+  String get eventsDateMonth => '30 prochains jours';
+
+  @override
+  String get eventsDateCustom => 'Choisir des dates';
+
+  @override
+  String get eventsFilterCountry => 'Pays';
+
+  @override
+  String get eventsFilterCity => 'Ville';
+
+  @override
+  String get eventsFilterDistance => 'Distance maximale';
+
+  @override
+  String get eventsDistanceNeedsPosition =>
+      'Active « Ma position » dans Découvrir pour filtrer par distance.';
+
+  @override
+  String get eventsDistanceApproximate =>
+      'Distance approximative, calculée jusqu\'au centre de la ville de l\'événement.';
+
+  @override
+  String get eventsFilterCategory => 'Catégorie';
+
+  @override
+  String get eventsFilterFormat => 'Format';
+
+  @override
+  String get eventsFilterAccess => 'Accès';
+
+  @override
+  String get eventsFilterAvailable => 'Seulement avec des places disponibles';
+
+  @override
+  String get eventsFiltersReset => 'Réinitialiser';
+
+  @override
+  String get eventsFiltersApply => 'Appliquer';
+
+  @override
+  String get eventsNoResults => 'Aucun événement ne correspond à ces filtres.';
+
+  @override
+  String eventsDistanceValue(int km) {
+    return '$km km';
+  }
+
+  @override
+  String eventsResultsCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count événements',
+      one: '1 événement',
+      zero: 'Aucun événement',
+    );
+    return '$_temp0';
+  }
+
+  @override
   String get messageTimeYesterday => 'hier';
 
   @override

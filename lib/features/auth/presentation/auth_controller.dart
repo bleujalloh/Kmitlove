@@ -230,8 +230,7 @@ class AuthController extends AsyncNotifier<void> {
     await unregisterCurrentPushToken(ref);
     ref.invalidate(discoverFiltersProvider);
     ref.invalidate(communauteTabProvider);
-    ref.invalidate(eventsCategoryFilterProvider);
-    ref.invalidate(eventsFormatFilterProvider);
+    ref.invalidate(eventFiltersProvider);
     ref.invalidate(pendingAdultConfirmationProvider);
     // Sans ce invalidate, le compte SUIVANT sur le même appareil (même
     // session d'app, pas de redémarrage) n'aurait jamais son jeton push

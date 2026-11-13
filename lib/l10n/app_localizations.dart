@@ -1610,6 +1610,138 @@ abstract class AppLocalizations {
   /// **'Les autres membres ne la voient pas. Elle sera supprimée automatiquement 30 jours après le refus. Choisis une photo de toi, visage visible et tenue correcte, puis supprime celle-ci.'**
   String get photoRejectedHint;
 
+  /// No description provided for @eventsFiltersButton.
+  ///
+  /// In fr, this message translates to:
+  /// **'Filtres'**
+  String get eventsFiltersButton;
+
+  /// No description provided for @eventsFiltersTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Filtrer les événements'**
+  String get eventsFiltersTitle;
+
+  /// No description provided for @eventsFilterDate.
+  ///
+  /// In fr, this message translates to:
+  /// **'Date'**
+  String get eventsFilterDate;
+
+  /// No description provided for @eventsDateAny.
+  ///
+  /// In fr, this message translates to:
+  /// **'Toutes les dates'**
+  String get eventsDateAny;
+
+  /// No description provided for @eventsDateToday.
+  ///
+  /// In fr, this message translates to:
+  /// **'Aujourd\'hui'**
+  String get eventsDateToday;
+
+  /// No description provided for @eventsDateWeek.
+  ///
+  /// In fr, this message translates to:
+  /// **'7 prochains jours'**
+  String get eventsDateWeek;
+
+  /// No description provided for @eventsDateMonth.
+  ///
+  /// In fr, this message translates to:
+  /// **'30 prochains jours'**
+  String get eventsDateMonth;
+
+  /// No description provided for @eventsDateCustom.
+  ///
+  /// In fr, this message translates to:
+  /// **'Choisir des dates'**
+  String get eventsDateCustom;
+
+  /// No description provided for @eventsFilterCountry.
+  ///
+  /// In fr, this message translates to:
+  /// **'Pays'**
+  String get eventsFilterCountry;
+
+  /// No description provided for @eventsFilterCity.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ville'**
+  String get eventsFilterCity;
+
+  /// No description provided for @eventsFilterDistance.
+  ///
+  /// In fr, this message translates to:
+  /// **'Distance maximale'**
+  String get eventsFilterDistance;
+
+  /// No description provided for @eventsDistanceNeedsPosition.
+  ///
+  /// In fr, this message translates to:
+  /// **'Active « Ma position » dans Découvrir pour filtrer par distance.'**
+  String get eventsDistanceNeedsPosition;
+
+  /// No description provided for @eventsDistanceApproximate.
+  ///
+  /// In fr, this message translates to:
+  /// **'Distance approximative, calculée jusqu\'au centre de la ville de l\'événement.'**
+  String get eventsDistanceApproximate;
+
+  /// No description provided for @eventsFilterCategory.
+  ///
+  /// In fr, this message translates to:
+  /// **'Catégorie'**
+  String get eventsFilterCategory;
+
+  /// No description provided for @eventsFilterFormat.
+  ///
+  /// In fr, this message translates to:
+  /// **'Format'**
+  String get eventsFilterFormat;
+
+  /// No description provided for @eventsFilterAccess.
+  ///
+  /// In fr, this message translates to:
+  /// **'Accès'**
+  String get eventsFilterAccess;
+
+  /// No description provided for @eventsFilterAvailable.
+  ///
+  /// In fr, this message translates to:
+  /// **'Seulement avec des places disponibles'**
+  String get eventsFilterAvailable;
+
+  /// No description provided for @eventsFiltersReset.
+  ///
+  /// In fr, this message translates to:
+  /// **'Réinitialiser'**
+  String get eventsFiltersReset;
+
+  /// No description provided for @eventsFiltersApply.
+  ///
+  /// In fr, this message translates to:
+  /// **'Appliquer'**
+  String get eventsFiltersApply;
+
+  /// No description provided for @eventsNoResults.
+  ///
+  /// In fr, this message translates to:
+  /// **'Aucun événement ne correspond à ces filtres.'**
+  String get eventsNoResults;
+
+  /// No description provided for @eventsDistanceValue.
+  ///
+  /// In fr, this message translates to:
+  /// **'{km} km'**
+  String eventsDistanceValue(int km);
+
+  /// No description provided for @eventsResultsCount.
+  ///
+  /// In fr, this message translates to:
+  /// **'{count, plural, =0{Aucun événement} =1{1 événement} other{{count} événements}}'**
+  String eventsResultsCount(int count);
+
   /// Heure d'une conversation dont le dernier message date de la veille (liste Messages)
   ///
   /// In fr, this message translates to:

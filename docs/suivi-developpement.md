@@ -886,3 +886,12 @@ Décision du propriétaire : **aucun recours humain pour les photos refusées, s
 
 - [x] **Vérifié sur appareil (2026-11-13, 21:12)** : avatar du Profil affiche la photo du membre même refusée ; ligne « Voir mon profil comme les autres » ouvre l'aperçu (silhouette puisqu'aucune photo validée, bandeau « Aperçu : voici ce que les autres membres voient. Seules tes photos validées sont visibles. », nom, âge, ville, description, recherche).
 - [ ] Non vérifié sur appareil : ouverture en grand d'une photo d'un autre membre, d'une photo de conversation et d'une affiche (les comptes de test n'ont aucune photo réelle ; à tester avec de vraies photos).
+
+## Suivi 2026-11-13 (suite) — Communauté : filtres des événements, pilules centrées
+
+Demande du propriétaire (captures annotées) : filtrer les événements par distance, pays, ville, date, etc. ; centrer la pilule de l'onglet actif ; expliquer l'onglet Conseils.
+
+- [x] **Filtres de l'onglet Événements** (`event_filters.dart`, `event_filters_sheet.dart`, `events_tab.dart`) : date (aujourd'hui, 7 jours, 30 jours, plage choisie), pays (sélecteur existant `CountryField`), ville (contient, sans casse), distance maximale (5 à 500 km), catégorie, format, accès (libre, sur demande, sur invitation), seulement les événements avec des places. Bouton « Filtres · N » + pastilles supprimables ; quand un filtre est actif, la page montre le nombre de résultats et la liste filtrée ; sans filtre, les sections habituelles (à la une, à venir, près de moi, privés, conférences, tous). Remplace les deux anciens filtres catégorie/format (réinitialisés à la déconnexion). 7 tests (`event_filters_test.dart`).
+- [x] **Distance des événements** : approximative, calculée sur l'appareil depuis la position enregistrée du membre (« Ma position ») jusqu'au centre de la ville de l'événement (géocodage direct, mis en cache) ; les événements n'ont que ville et pays publics, le lieu précis reste privé. Les événements en ligne ou à ville introuvable sont exclus quand ce filtre est actif. Sans position enregistrée, la feuille explique d'activer « Ma position ». **Limite assumée** : filtre d'affichage côté appareil, pas une règle métier ; une distance exacte demanderait des coordonnées stockées à la création d'un événement.
+- [x] **Pilules de Communauté** : l'onglet actif est ramené au centre de la rangée (Actualités, Conseils), `_CommunautePillBar`.
+- [ ] Non vérifié sur appareil réel. Analyse propre, 24 tests verts.

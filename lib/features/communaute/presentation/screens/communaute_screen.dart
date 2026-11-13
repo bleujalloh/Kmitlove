@@ -37,43 +37,7 @@ class CommunauteScreen extends ConsumerWidget {
       body: SafeArea(
         child: Column(
           children: [
-            Padding(
-              padding: const EdgeInsets.fromLTRB(16, 12, 16, 8),
-              child: SingleChildScrollView(
-                scrollDirection: Axis.horizontal,
-                child: Row(
-                  children: [
-                    TabPill(
-                      icon: Icons.groups_outlined,
-                      label: context.l10n.navCommunity,
-                      selected: tab == 0,
-                      onTap: () => setTab(0),
-                    ),
-                    const SizedBox(width: 8),
-                    TabPill(
-                      icon: Icons.event_outlined,
-                      label: context.l10n.navEvents,
-                      selected: tab == 1,
-                      onTap: () => setTab(1),
-                    ),
-                    const SizedBox(width: 8),
-                    TabPill(
-                      icon: Icons.campaign_outlined,
-                      label: context.l10n.navNews,
-                      selected: tab == 2,
-                      onTap: () => setTab(2),
-                    ),
-                    const SizedBox(width: 8),
-                    TabPill(
-                      icon: Icons.star_outline,
-                      label: context.l10n.navTips,
-                      selected: tab == 3,
-                      onTap: () => setTab(3),
-                    ),
-                  ],
-                ),
-              ),
-            ),
+            _CommunautePillBar(tab: tab, onSelect: setTab),
             Expanded(child: IndexedStack(index: tab, children: _screens)),
           ],
         ),
@@ -281,6 +245,81 @@ class _PostCard extends StatelessWidget {
             : null,
         onTap: () => Navigator.of(context).push(
           MaterialPageRoute(builder: (_) => PostDetailScreen(post: post)),
+        ),
+      ),
+    );
+  }
+}
+
+/// Rangée de pilules de Communauté : l'onglet actif est ramené au centre
+/// de l'écran (demande du propriétaire, 13/11/2026 : sur « Actualités » ou
+/// « Conseils », la pilule choisie était coupée sur le bord).
+class _CommunautePillBar extends StatefulWidget {
+  const _CommunautePillBar({required this.tab, required this.onSelect});
+
+  final int tab;
+  final ValueChanged<int> onSelect;
+
+  @override
+  State<_CommunautePillBar> createState() => _CommunautePillBarState();
+}
+
+class _CommunautePillBarState extends State<_CommunautePillBar> {
+  final _keys = List.generate(4, (_) => GlobalKey());
+
+  @override
+  void initState() {
+    super.initState();
+    _centerSelected(animate: false);
+  }
+
+  @override
+  void didUpdateWidget(covariant _CommunautePillBar oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.tab != widget.tab) _centerSelected(animate: true);
+  }
+
+  void _centerSelected({required bool animate}) {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final ctx = _keys[widget.tab].currentContext;
+      if (ctx == null) return;
+      Scrollable.ensureVisible(
+        ctx,
+        alignment: 0.5,
+        duration: animate ? const Duration(milliseconds: 250) : Duration.zero,
+        curve: Curves.easeOut,
+      );
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final items = [
+      (Icons.groups_outlined, context.l10n.navCommunity),
+      (Icons.event_outlined, context.l10n.navEvents),
+      (Icons.campaign_outlined, context.l10n.navNews),
+      (Icons.star_outline, context.l10n.navTips),
+    ];
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(0, 12, 0, 8),
+      child: SingleChildScrollView(
+        scrollDirection: Axis.horizontal,
+        padding: const EdgeInsets.symmetric(horizontal: 16),
+        child: Row(
+          children: [
+            for (var i = 0; i < items.length; i++) ...[
+              if (i > 0) const SizedBox(width: 8),
+              KeyedSubtree(
+                key: _keys[i],
+                child: TabPill(
+                  icon: items[i].$1,
+                  label: items[i].$2,
+                  selected: widget.tab == i,
+                  onTap: () => widget.onSelect(i),
+                ),
+              ),
+            ],
+          ],
         ),
       ),
     );

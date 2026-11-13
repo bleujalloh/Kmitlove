@@ -853,6 +853,85 @@ class AppLocalizationsEn extends AppLocalizations {
       'Other members can\'t see it. It will be deleted automatically 30 days after the refusal. Pick a photo of yourself with your face visible and appropriate clothing, then delete this one.';
 
   @override
+  String get eventsFiltersButton => 'Filters';
+
+  @override
+  String get eventsFiltersTitle => 'Filter events';
+
+  @override
+  String get eventsFilterDate => 'Date';
+
+  @override
+  String get eventsDateAny => 'Any date';
+
+  @override
+  String get eventsDateToday => 'Today';
+
+  @override
+  String get eventsDateWeek => 'Next 7 days';
+
+  @override
+  String get eventsDateMonth => 'Next 30 days';
+
+  @override
+  String get eventsDateCustom => 'Pick dates';
+
+  @override
+  String get eventsFilterCountry => 'Country';
+
+  @override
+  String get eventsFilterCity => 'City';
+
+  @override
+  String get eventsFilterDistance => 'Maximum distance';
+
+  @override
+  String get eventsDistanceNeedsPosition =>
+      'Turn on My location in Discover to filter by distance.';
+
+  @override
+  String get eventsDistanceApproximate =>
+      'Approximate distance, measured to the centre of the event\'s city.';
+
+  @override
+  String get eventsFilterCategory => 'Category';
+
+  @override
+  String get eventsFilterFormat => 'Format';
+
+  @override
+  String get eventsFilterAccess => 'Access';
+
+  @override
+  String get eventsFilterAvailable => 'Only with spots left';
+
+  @override
+  String get eventsFiltersReset => 'Reset';
+
+  @override
+  String get eventsFiltersApply => 'Apply';
+
+  @override
+  String get eventsNoResults => 'No event matches these filters.';
+
+  @override
+  String eventsDistanceValue(int km) {
+    return '$km km';
+  }
+
+  @override
+  String eventsResultsCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count events',
+      one: '1 event',
+      zero: 'No events',
+    );
+    return '$_temp0';
+  }
+
+  @override
   String get messageTimeYesterday => 'yesterday';
 
   @override

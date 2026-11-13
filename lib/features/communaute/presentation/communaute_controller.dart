@@ -1,13 +1,16 @@
 import 'dart:io';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:geocoding/geocoding.dart';
 import 'package:flutter_riverpod/legacy.dart';
 
 import '../../../core/providers/firebase_providers.dart';
 import '../../auth/presentation/auth_controller.dart';
 import '../../profil/presentation/photo_controller.dart';
+import '../../../core/utils/distance.dart';
 import '../data/communaute_repository.dart';
 import '../domain/community_post.dart';
+import '../domain/event_filters.dart';
 
 // Sous-onglet actif (Communauté/Événements/Actualités/Conseils) gardé ici
 // plutôt qu'en état local de CommunauteScreen : depuis que Communauté
@@ -27,8 +30,53 @@ final communauteTabProvider = StateProvider<int>((ref) => 0);
 // arrière depuis Communauté (trouvé par revue de code : le premier
 // passage ne corrigeait que le sous-onglet actif, pas ces filtres-là,
 // qui subissaient exactement le même défaut).
-final eventsCategoryFilterProvider = StateProvider<String?>((ref) => null);
-final eventsFormatFilterProvider = StateProvider<String?>((ref) => null);
+// Filtres de l'onglet Événements (date, pays, ville, distance, catégorie,
+// format, accès, places) — un seul objet immuable, voir
+// domain/event_filters.dart.
+final eventFiltersProvider = StateProvider<EventFilters>((ref) => const EventFilters());
+
+/// Cache de session des coordonnées (centre) d'une ville d'événement :
+/// géocodage direct sur l'appareil, jamais redemandé deux fois.
+final _cityCoordsCache = <String, ({double lat, double lng})?>{};
+
+Future<({double lat, double lng})?> _cityCoords(String city, String country) async {
+  final key = '${city.trim().toLowerCase()}|${country.trim().toLowerCase()}';
+  if (_cityCoordsCache.containsKey(key)) return _cityCoordsCache[key];
+  try {
+    final results = await Geocoding().locationFromAddress('$city, $country');
+    final coords = results.isEmpty ? null : (lat: results.first.latitude, lng: results.first.longitude);
+    _cityCoordsCache[key] = coords;
+    return coords;
+  } catch (_) {
+    return null; // pas mis en cache : l'échec peut être passager (réseau)
+  }
+}
+
+/// Distance (km, à vol d'oiseau, depuis la position enregistrée du membre
+/// jusqu'au centre de la ville de l'événement) de chaque événement
+/// présentiel — calculée seulement quand le filtre de distance est actif.
+/// Approximative par construction : les événements n'ont que ville et
+/// pays publics (le lieu précis reste privé, firestore.rules).
+final eventDistancesProvider = FutureProvider.autoDispose<Map<String, double>>((ref) async {
+  final maxKm = ref.watch(eventFiltersProvider.select((f) => f.maxDistanceKm));
+  if (maxKm == null) return const {};
+  final lat = ref.watch(userStatusProvider.select((s) => s.value?['locationLat']));
+  final lng = ref.watch(userStatusProvider.select((s) => s.value?['locationLng']));
+  if (lat is! num || lng is! num) return const {};
+  final events = await ref.watch(allPublishedEventsProvider.future);
+  final result = <String, double>{};
+  final cities = <String, ({double lat, double lng})?>{};
+  for (final e in events) {
+    final city = e.city;
+    final country = e.country;
+    if (e.isOnline || city == null || country == null) continue;
+    final key = '$city|$country';
+    if (!cities.containsKey(key)) cities[key] = await _cityCoords(city, country);
+    final c = cities[key];
+    if (c != null) result[e.id] = haversineKm(lat.toDouble(), lng.toDouble(), c.lat, c.lng);
+  }
+  return result;
+});
 
 final communauteRepositoryProvider = Provider<CommunauteRepository>((ref) {
   return CommunauteRepository(

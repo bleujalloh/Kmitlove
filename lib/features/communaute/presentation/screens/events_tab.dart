@@ -2,13 +2,16 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../../core/theme/app_theme.dart';
+import '../../../../core/widgets/tab_pill.dart';
 import '../../../../l10n/l10n_extensions.dart';
 import '../../../profil/presentation/profil_controller.dart';
 import '../../domain/community_post.dart';
+import '../../domain/event_filters.dart';
 import '../communaute_controller.dart';
 import 'my_participations_screen.dart';
 import 'organizer_dashboard_screen.dart';
 import 'organizer_request_screen.dart';
+import 'event_filters_sheet.dart';
 import 'post_detail_screen.dart';
 
 const _conferenceCategories = ['conference', 'rencontre', 'debat', 'projection'];
@@ -23,8 +26,8 @@ class EventsTab extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final categoryFilter = ref.watch(eventsCategoryFilterProvider);
-    final formatFilter = ref.watch(eventsFormatFilterProvider);
+    final filters = ref.watch(eventFiltersProvider);
+    final distancesAsync = ref.watch(eventDistancesProvider);
     final eventsAsync = ref.watch(allPublishedEventsProvider);
     final myProfil = ref.watch(profilProvider).value;
     final organizerStatus = ref.watch(myOrganizerStatusProvider).value;
@@ -86,66 +89,64 @@ class EventsTab extends ConsumerWidget {
               : <CommunityPost>[];
           final private = upcoming.where((e) => e.type == 'evenement_prive').toList();
           final conferences = upcoming.where((e) => _conferenceCategories.contains(e.category)).toList();
-          final filtered = upcoming.where((e) {
-            if (categoryFilter != null && e.category != categoryFilter) return false;
-            if (formatFilter != null && e.format != formatFilter) return false;
-            return true;
-          }).toList();
+          final filtered = applyEventFilters(
+            upcoming,
+            filters,
+            now,
+            distancesKm: distancesAsync.value ?? const {},
+          );
 
           return ListView(
             padding: const EdgeInsets.fromLTRB(20, 16, 20, 90),
             children: [
-              if (featured.isNotEmpty) ...[
-                _SectionTitle(context.l10n.eventsFeaturedTitle),
-                _HorizontalEventList(events: featured),
-                const SizedBox(height: 22),
-              ],
-              _SectionTitle(context.l10n.eventsUpcomingTitle),
-              _HorizontalEventList(events: upcoming.take(10).toList()),
-              const SizedBox(height: 22),
-              if (nearMe.isNotEmpty) ...[
-                _SectionTitle(context.l10n.eventsNearMeTitle),
-                _HorizontalEventList(events: nearMe),
-                const SizedBox(height: 22),
-              ],
-              if (private.isNotEmpty) ...[
-                _SectionTitle(context.l10n.eventsPrivateTitle),
-                _HorizontalEventList(events: private),
-                const SizedBox(height: 22),
-              ],
-              if (conferences.isNotEmpty) ...[
-                _SectionTitle(context.l10n.eventsConferencesTitle),
-                _HorizontalEventList(events: conferences),
-                const SizedBox(height: 22),
-              ],
-              _SectionTitle(context.l10n.eventsAllTitle),
-              const SizedBox(height: 8),
-              Wrap(
-                spacing: 8,
-                runSpacing: 8,
-                children: [
-                  ..._eventCategories.map((c) => FilterChip(
-                        label: Text(eventCategoryLabel(c, context.l10n)),
-                        selected: categoryFilter == c,
-                        onSelected: (v) =>
-                            ref.read(eventsCategoryFilterProvider.notifier).state = v ? c : null,
-                      )),
-                  FilterChip(
-                    label: Text(context.l10n.eventFormatPresentiel),
-                    selected: formatFilter == 'presentiel',
-                    onSelected: (v) => ref.read(eventsFormatFilterProvider.notifier).state =
-                        v ? 'presentiel' : null,
-                  ),
-                  FilterChip(
-                    label: Text(context.l10n.eventFormatEnLigne),
-                    selected: formatFilter == 'en_ligne',
-                    onSelected: (v) => ref.read(eventsFormatFilterProvider.notifier).state =
-                        v ? 'en_ligne' : null,
-                  ),
-                ],
-              ),
+              _FiltersBar(filters: filters),
               const SizedBox(height: 14),
-              for (final e in filtered) _EventListTile(event: e),
+              if (filters.isActive) ...[
+                if (filters.maxDistanceKm != null && distancesAsync.isLoading)
+                  const Padding(
+                    padding: EdgeInsets.symmetric(vertical: 24),
+                    child: Center(child: CircularProgressIndicator()),
+                  )
+                else if (filtered.isEmpty)
+                  Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 32),
+                    child: Text(
+                      context.l10n.eventsNoResults,
+                      textAlign: TextAlign.center,
+                      style: const TextStyle(color: AppColors.muted),
+                    ),
+                  )
+                else ...[
+                  _SectionTitle(context.l10n.eventsResultsCount(filtered.length)),
+                  for (final e in filtered) _EventListTile(event: e),
+                ],
+              ] else ...[
+                if (featured.isNotEmpty) ...[
+                  _SectionTitle(context.l10n.eventsFeaturedTitle),
+                  _HorizontalEventList(events: featured),
+                  const SizedBox(height: 22),
+                ],
+                _SectionTitle(context.l10n.eventsUpcomingTitle),
+                _HorizontalEventList(events: upcoming.take(10).toList()),
+                const SizedBox(height: 22),
+                if (nearMe.isNotEmpty) ...[
+                  _SectionTitle(context.l10n.eventsNearMeTitle),
+                  _HorizontalEventList(events: nearMe),
+                  const SizedBox(height: 22),
+                ],
+                if (private.isNotEmpty) ...[
+                  _SectionTitle(context.l10n.eventsPrivateTitle),
+                  _HorizontalEventList(events: private),
+                  const SizedBox(height: 22),
+                ],
+                if (conferences.isNotEmpty) ...[
+                  _SectionTitle(context.l10n.eventsConferencesTitle),
+                  _HorizontalEventList(events: conferences),
+                  const SizedBox(height: 22),
+                ],
+                _SectionTitle(context.l10n.eventsAllTitle),
+                for (final e in upcoming) _EventListTile(event: e),
+              ],
             ],
           );
         },
@@ -153,8 +154,6 @@ class EventsTab extends ConsumerWidget {
     );
   }
 }
-
-const _eventCategories = ['soiree', 'conference', 'atelier', 'exposition', 'debat', 'projection', 'rencontre'];
 
 Future<void> _redeemCodeDialog(BuildContext context, WidgetRef ref) async {
   final codeController = TextEditingController();
@@ -304,5 +303,88 @@ class _EventListTile extends StatelessWidget {
         ),
       ),
     );
+  }
+}
+
+/// Bouton « Filtres » + une pastille supprimable par filtre actif.
+class _FiltersBar extends ConsumerWidget {
+  const _FiltersBar({required this.filters});
+  final EventFilters filters;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final notifier = ref.read(eventFiltersProvider.notifier);
+    void update(EventFilters f) => notifier.state = f;
+    final chips = <Widget>[
+      if (filters.dateMode != EventDateMode.any)
+        InputChip(
+          label: Text(_dateChipLabel(context, filters)),
+          onDeleted: () => update(filters.copyWith(dateMode: EventDateMode.any, customRange: () => null)),
+        ),
+      if (filters.country != null)
+        InputChip(label: Text(filters.country!), onDeleted: () => update(filters.copyWith(country: () => null))),
+      if (filters.city?.trim().isNotEmpty ?? false)
+        InputChip(label: Text(filters.city!), onDeleted: () => update(filters.copyWith(city: () => null))),
+      if (filters.maxDistanceKm != null)
+        InputChip(
+          label: Text('≤ ${context.l10n.eventsDistanceValue(filters.maxDistanceKm!)}'),
+          onDeleted: () => update(filters.copyWith(maxDistanceKm: () => null)),
+        ),
+      if (filters.category != null)
+        InputChip(
+          label: Text(eventCategoryLabel(filters.category!, context.l10n)),
+          onDeleted: () => update(filters.copyWith(category: () => null)),
+        ),
+      if (filters.format != null)
+        InputChip(
+          label: Text(filters.format == 'en_ligne' ? context.l10n.eventFormatEnLigne : context.l10n.eventFormatPresentiel),
+          onDeleted: () => update(filters.copyWith(format: () => null)),
+        ),
+      if (filters.accessMode != null)
+        InputChip(
+          label: Text(eventAccessModeLabel(filters.accessMode!, context.l10n)),
+          onDeleted: () => update(filters.copyWith(accessMode: () => null)),
+        ),
+      if (filters.onlyAvailable)
+        InputChip(
+          label: Text(context.l10n.eventsFilterAvailable),
+          onDeleted: () => update(filters.copyWith(onlyAvailable: false)),
+        ),
+    ];
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        TabPill(
+          icon: Icons.tune,
+          label: filters.isActive
+              ? '${context.l10n.eventsFiltersButton} · ${filters.activeCount}'
+              : context.l10n.eventsFiltersButton,
+          selected: filters.isActive,
+          onTap: () => showEventFiltersSheet(context),
+        ),
+        if (chips.isNotEmpty) ...[
+          const SizedBox(height: 10),
+          Wrap(spacing: 8, runSpacing: 4, children: chips),
+        ],
+      ],
+    );
+  }
+}
+
+String _dateChipLabel(BuildContext context, EventFilters f) {
+  switch (f.dateMode) {
+    case EventDateMode.today:
+      return context.l10n.eventsDateToday;
+    case EventDateMode.week:
+      return context.l10n.eventsDateWeek;
+    case EventDateMode.month:
+      return context.l10n.eventsDateMonth;
+    case EventDateMode.custom:
+      final r = f.customRange;
+      if (r == null) return context.l10n.eventsDateCustom;
+      final loc = MaterialLocalizations.of(context);
+      return '${loc.formatShortDate(r.start)} → ${loc.formatShortDate(r.end)}';
+    case EventDateMode.any:
+      return '';
   }
 }
