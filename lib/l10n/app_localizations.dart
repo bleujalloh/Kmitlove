@@ -1496,6 +1496,12 @@ abstract class AppLocalizations {
   /// **'Complète ton profil et explore Découvrir pour obtenir tes premiers matchs.'**
   String get noMatchesYetHint;
 
+  /// Heure d'une conversation dont le dernier message date de la veille (liste Messages)
+  ///
+  /// In fr, this message translates to:
+  /// **'hier'**
+  String get messageTimeYesterday;
+
   /// No description provided for @sayHelloPreview.
   ///
   /// In fr, this message translates to:

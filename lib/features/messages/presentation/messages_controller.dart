@@ -34,6 +34,13 @@ final chatMessagesProvider =
   return ref.watch(messagesRepositoryProvider).watchMessages(matchId);
 });
 
+/// Dernier message d'une conversation — pastille « non lu » de la liste
+/// Messages (réutilise MessagesRepository, pas un second système de
+/// messagerie).
+final lastMessageProvider = StreamProvider.family<ChatMessage?, String>((ref, matchId) {
+  return ref.watch(messagesRepositoryProvider).watchLastMessage(matchId);
+});
+
 final isBlockedProvider = StreamProvider.family<bool, String>((ref, otherUid) {
   final user = ref.watch(authStateProvider).value;
   if (user == null) return const Stream.empty();

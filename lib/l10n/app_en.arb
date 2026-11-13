@@ -261,6 +261,7 @@
   "conversationsLoadFailed": "Couldn't load conversations.",
   "noMatchesYet": "Your next matches start here",
   "noMatchesYetHint": "Complete your profile and explore Discover to get your first matches.",
+  "messageTimeYesterday": "yesterday",
   "sayHelloPreview": "Say hello 👋",
   "beforeSendingPhotoTitle": "Before sending a photo",
   "beforeSendingPhotoBody": "Respect the community charter: no inappropriate content. The other person can report you.",

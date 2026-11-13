@@ -276,5 +276,253 @@ recommandations d'implémentation sont acceptées par avance. Concrètement :
 
 ---
 
+# 18. OBLIGATION D'IMPLÉMENTATION INTÉGRALE DES PROTOTYPES
+
+*(Ajout du propriétaire du projet, 2026-11-13. Dans son texte d'origine, ces sections portaient les numéros 17 à 23 ; elles sont renumérotées 18 à 24 parce que la section 17 existe déjà dans ce document. Le fond n'a pas été modifié.)*
+
+Tous les prototypes, maquettes, captures d'écran, démonstrations visuelles, documents fonctionnels et exemples interactifs fournis pour MERUT constituent des références de développement à examiner et à implémenter.
+
+Ils ne doivent jamais être considérés comme de simples sources d'inspiration facultatives.
+
+## 18.1. Analyse obligatoire de chaque prototype
+
+Avant de développer une fonctionnalité présentée dans un prototype, tu dois analyser intégralement celui-ci.
+
+Identifier :
+
+- Tous les éléments visuels.
+- Tous les composants.
+- Toutes les actions possibles.
+- Tous les boutons et leurs comportements.
+- Tous les champs et leurs validations.
+- Toutes les interactions.
+- Tous les menus et sous-menus.
+- Tous les états possibles.
+- Toutes les fenêtres et modales.
+- Toutes les règles métier visibles ou impliquées.
+- Tous les parcours utilisateur.
+- Toutes les connexions nécessaires avec les autres fonctionnalités.
+
+Un prototype ne représente pas uniquement une apparence graphique. Il peut également représenter une logique métier, un parcours fonctionnel et des interactions qui doivent être développés.
+
+## 18.2. Obligation de reproduire les fonctionnalités
+
+Chaque élément fonctionnel du prototype doit avoir son équivalent opérationnel dans l'application.
+
+Il est interdit de :
+
+- Reproduire uniquement l'apparence sans développer les interactions.
+- Omettre des boutons ou des fonctionnalités.
+- Remplacer une fonctionnalité complète par une version simplifiée sans autorisation.
+- Ignorer des éléments parce qu'ils semblent secondaires.
+- Transformer un prototype fonctionnel en simple écran statique.
+- Utiliser des données fictives à la place des véritables intégrations.
+- Supprimer des fonctionnalités du prototype sans justification et validation.
+
+L'objectif est de respecter intégralement les fonctionnalités représentées, tout en les intégrant correctement à l'architecture existante.
+
+## 18.3. Vérification de conformité prototype/code
+
+Pour chaque prototype, établir une correspondance entre les éléments représentés et leur implantation réelle.
+
+Chaque élément doit être vérifié individuellement.
+
+Une fonctionnalité ne peut être déclarée terminée que lorsque :
+- Son interface est implantée.
+- Sa logique métier est développée.
+- Ses interactions fonctionnent.
+- Ses données sont correctement reliées.
+- Ses permissions sont respectées.
+- Ses connexions avec les autres modules sont opérationnelles.
+- Les tests appropriés ont été exécutés.
+
+Aucun élément du prototype ne doit être oublié.
+
+# 19. INTERDICTION DE CRÉER DES SYSTÈMES DUPLIQUÉS
+
+Cette règle est fondamentale.
+
+Avant de créer une nouvelle fonctionnalité, un nouveau service, un nouveau composant ou un nouveau mécanisme, tu dois obligatoirement examiner l'architecture existante pour déterminer si un système équivalent existe déjà.
+
+Il est strictement interdit de recréer un système existant simplement en lui donnant un autre nom.
+
+Exemples de duplications interdites :
+
+- Deux systèmes de notifications indépendants.
+- Deux gestions des utilisateurs.
+- Deux systèmes de profils.
+- Deux systèmes de messagerie.
+- Deux gestions des conversations.
+- Deux systèmes de blocage.
+- Deux systèmes de signalement.
+- Deux systèmes de recherche ou de filtrage.
+- Deux systèmes de gestion des abonnements.
+- Deux systèmes de vérification des utilisateurs.
+- Deux mécanismes de gestion des événements.
+- Deux services qui remplissent la même fonction métier.
+
+Cette liste n'est pas exhaustive.
+
+## 19.1. Réutilisation prioritaire de l'existant
+
+Lorsqu'un mécanisme existe déjà :
+
+1. Identifier son emplacement.
+2. Examiner son fonctionnement.
+3. Vérifier s'il répond au besoin.
+4. Étudier les possibilités de réutilisation ou d'extension.
+5. Le connecter à la nouvelle fonctionnalité.
+6. Corriger ses éventuelles limitations.
+7. Tester son fonctionnement avec les autres modules.
+
+La règle est simple : étendre et améliorer l'existant avant d'envisager de créer un nouveau système.
+
+## 19.2. Interdiction des doublons techniques et fonctionnels
+
+Il ne suffit pas de vérifier les noms des fichiers ou des classes.
+
+Deux systèmes peuvent avoir des noms différents tout en remplissant exactement la même fonction.
+
+Tu dois donc comparer également :
+
+- Les responsabilités métier.
+- Les modèles de données.
+- Les services.
+- Les API.
+- Les collections Firebase.
+- Les méthodes de traitement.
+- Les composants.
+- Les événements déclencheurs.
+- Les règles de permissions.
+- Les mécanismes de synchronisation.
+
+Toute duplication fonctionnelle doit être identifiée et évitée.
+
+## 19.3. Si un nouveau système est réellement nécessaire
+
+Une nouvelle implantation n'est autorisée que si l'architecture existante ne permet pas de répondre correctement au besoin.
+
+Dans ce cas :
+- Justifier la nécessité technique.
+- Vérifier qu'aucun système existant ne peut être étendu.
+- Définir clairement les responsabilités du nouveau système.
+- Définir ses connexions avec les systèmes existants.
+- Éviter tout chevauchement fonctionnel.
+- Documenter son intégration.
+
+Ne jamais créer une seconde implémentation par facilité.
+
+# 20. OBLIGATION DE CONNEXION ENTRE LES FONCTIONNALITÉS
+
+MERUT doit fonctionner comme une application unifiée et non comme une juxtaposition de fonctionnalités indépendantes.
+
+Chaque nouvelle fonctionnalité doit être intégrée aux mécanismes existants auxquels elle est liée.
+
+Exemples :
+
+**Profils et découverte**
+- Les modifications du profil doivent être visibles dans la découverte.
+- Les préférences doivent être prises en compte dans les filtres.
+- Les paramètres de confidentialité doivent être respectés partout.
+
+**Likes, matchs et messagerie**
+- Un match doit être relié aux interactions qui l'ont créé.
+- Les conversations doivent être correctement associées aux utilisateurs concernés.
+- Les blocages doivent avoir des conséquences cohérentes sur les interactions et les conversations.
+
+**Communauté et événements**
+- Les événements doivent être reliés à leurs organisateurs.
+- Les inscriptions doivent être reliées aux événements concernés.
+- Les publications, commentaires, réactions et signalements doivent utiliser les mécanismes communs appropriés.
+- Les notifications doivent être déclenchées selon les règles définies.
+
+**Abonnements et fonctionnalités payantes**
+- Les droits d'accès doivent être vérifiés côté serveur.
+- Les fonctionnalités réservées doivent utiliser le même système central de gestion des droits.
+- Les changements d'abonnement doivent être répercutés correctement dans l'application.
+
+Ces exemples ne sont pas limitatifs.
+
+Chaque fonctionnalité doit être étudiée en fonction de ses relations avec l'ensemble de l'application.
+
+# 21. CARTOGRAPHIE DES DÉPENDANCES ET DES INTÉGRATIONS
+
+Maintenir une cartographie technique des fonctionnalités de MERUT (tenue dans `docs/architecture-technique.md`, section « Cartographie des fonctionnalités », pour ne pas créer un second document d'architecture).
+
+Cette cartographie doit identifier :
+
+- Les modules existants.
+- Les services communs.
+- Les composants partagés.
+- Les modèles de données.
+- Les relations entre les fonctionnalités.
+- Les dépendances backend.
+- Les règles de sécurité.
+- Les événements et notifications.
+- Les mécanismes réutilisables.
+
+Avant chaque nouvelle implantation, consulter cette cartographie et la mettre à jour après le développement.
+
+Aucune fonctionnalité ne doit être développée sans examiner ses conséquences sur les autres modules.
+
+# 22. CONTRÔLE OBLIGATOIRE APRÈS CHAQUE IMPLÉMENTATION
+
+Après avoir développé une fonctionnalité issue d'un prototype :
+
+1. Comparer le résultat avec le prototype original.
+2. Vérifier tous les éléments visuels.
+3. Vérifier toutes les interactions.
+4. Vérifier les règles métier.
+5. Vérifier les connexions avec les autres fonctionnalités.
+6. Vérifier les données réellement utilisées.
+7. Vérifier les permissions et la sécurité.
+8. Effectuer les tests nécessaires.
+9. Vérifier les régressions éventuelles.
+10. Corriger tous les écarts identifiés.
+
+Une simple capture d'écran ressemblant au prototype ne constitue jamais une preuve d'achèvement.
+
+# 23. APPLICATION RÉTROACTIVE AUX PROTOTYPES DÉJÀ FOURNIS
+
+Ces règles s'appliquent à tous les prototypes transmis depuis le début du projet MERUT.
+
+Tu dois reprendre les prototypes et les comparer aux fonctionnalités réellement présentes dans le code.
+
+Identifier :
+- Les prototypes jamais implantés.
+- Les prototypes implantés partiellement.
+- Les fonctionnalités visuelles sans logique opérationnelle.
+- Les interactions manquantes.
+- Les intégrations absentes.
+- Les fonctionnalités développées séparément alors qu'elles auraient dû réutiliser un système existant.
+- Les systèmes dupliqués.
+- Les incohérences entre les différents écrans.
+
+Tous les écarts doivent être corrigés et toutes les fonctionnalités prévues doivent être implantées.
+
+Il ne s'agit pas de créer un nouveau rapport pour reporter ces travaux. Il s'agit de réaliser les implantations et les corrections nécessaires.
+
+# 24. PRINCIPE FINAL
+
+MERUT doit posséder une architecture unifiée.
+
+Chaque fonctionnalité doit être réellement développée, intégrée et connectée aux autres fonctionnalités concernées.
+
+Chaque prototype doit être traité comme une référence de réalisation et non comme une simple illustration.
+
+Chaque système existant doit être réutilisé lorsqu'il répond déjà au besoin.
+
+Aucune duplication inutile, aucune fonctionnalité oubliée, aucune interface sans fonctionnement réel et aucune intégration laissée inachevée ne sont acceptables.
+
+**UN PROTOTYPE FOURNI = UNE IMPLÉMENTATION COMPLÈTE ET CONFORME.**
+
+**UN SYSTÈME EXISTANT = UNE SOURCE DE VÉRITÉ À RÉUTILISER, PAS À DUPLIQUER.**
+
+**UNE FONCTIONNALITÉ IMPLANTÉE = UNE FONCTIONNALITÉ INTÉGRÉE À L'APPLICATION, PAS UN MODULE ISOLÉ.**
+
+Ces règles sont permanentes et s'appliquent à tout le développement passé, présent et futur de MERUT.
+
+---
+
 *Ces règles sont permanentes, obligatoires et applicables à l'ensemble du code existant et futur
 de MERUT.*

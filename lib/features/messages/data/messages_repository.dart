@@ -60,6 +60,19 @@ class MessagesRepository {
         .map((snap) => snap.docs.map(ChatMessage.fromDoc).toList());
   }
 
+  /// Dernier message d'une conversation seulement (pas tout l'historique) —
+  /// sert à la liste Messages pour savoir s'il reste du non lu.
+  Stream<ChatMessage?> watchLastMessage(String matchId) {
+    return _firestore
+        .collection('matches')
+        .doc(matchId)
+        .collection('messages')
+        .orderBy('createdAt', descending: true)
+        .limit(1)
+        .snapshots()
+        .map((snap) => snap.docs.isEmpty ? null : ChatMessage.fromDoc(snap.docs.first));
+  }
+
   Future<void> sendMessage(String matchId, String fromUid, String text) {
     return _firestore.collection('matches').doc(matchId).collection('messages').add({
       'fromUid': fromUid,

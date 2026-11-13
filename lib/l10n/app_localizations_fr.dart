@@ -790,6 +790,9 @@ class AppLocalizationsFr extends AppLocalizations {
       'Complète ton profil et explore Découvrir pour obtenir tes premiers matchs.';
 
   @override
+  String get messageTimeYesterday => 'hier';
+
+  @override
   String get sayHelloPreview => 'Dites bonjour 👋';
 
   @override

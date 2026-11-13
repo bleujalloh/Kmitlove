@@ -57,3 +57,29 @@ Le point le plus sensible d'une app de rencontre, techniquement, c'est l'écran 
 ## 6. Prochaine étape après la discussion
 
 Une fois cette architecture validée, étape suivante : structurer le dépôt Flutter (dossiers `lib/features/...`), créer le projet Firebase (environnements dev/staging/prod), et commencer par l'authentification + le questionnaire de filtrage — c'est la fondation sur laquelle tout le reste s'appuie.
+
+## 7. Cartographie des fonctionnalités (règlement permanent, section 21)
+
+Tenue à jour à chaque implantation. Chaque ligne : où vit la fonctionnalité, quelle donnée elle utilise, ce qu'elle réutilise. **Avant de créer quoi que ce soit, chercher ici s'il existe déjà.**
+
+| Fonctionnalité | App (`lib/features/…`) | Serveur (`functions/src/…`) | Données Firestore / Storage | Réutilise / est réutilisé par |
+|---|---|---|---|---|
+| Authentification, session | `auth`, `onboarding` | `account/*` | Auth, `users`, `user_status` | `authStateProvider` (`core/providers/firebase_providers.dart`) partout |
+| Filtrage à l'inscription | `filtrage` | `filtrage/*`, `admin/resolveFiltrageReview` | `filtrage_attempts`, `filtrage_question_bank` | — |
+| Profil | `profil` | `profil/saveProfil`, `getProfileCompletion`, `shared/profileCompletion` | `users/{uid}`, `users/{uid}/photos`, Storage `profile_photos` | `candidateFirstPhotoUrlProvider` (photo d'un autre membre) : Découvrir, Likes, Messages |
+| Modération photos | `profil` (statuts) | `photos/*`, `shared/photoModeration` | `users/{uid}/photos` (`status`, `hasFace`) | condition de visibilité dans Découvrir (≥ 2 photos visage approuvées) |
+| Vérification d'identité | `identite` | `identite/*` | Storage `identity_verifications`, `users.isVerified` | requis pour créer un événement |
+| Compatibilité | `compatibilite` | `compatibilite/*` | `compat_answers`, `compat_question_bank` | score affiché dans Découvrir |
+| Découvrir (filtres, cartes, swipes) | `decouvrir` | `decouvrir/getCandidates`, `recordSwipe` | `swipes`, `matches`, `user_status` (position) | filtres 100 % côté serveur ; géocodage inverse local (`detected_place_provider`) |
+| Likes | `likes` | `likes/*` | `swipes` | `TabPill`, `candidateFirstPhotoUrlProvider` |
+| Matchs et messagerie | `messages` | `messagerie/onMessageCreated`, `reportUser`, `scheduled/expireMatches` | `matches/{id}`, `matches/{id}/messages`, Storage `chat_photos` | `lastMessageProvider` (non lu), `formatMessageTime`, photo membre ci-dessus |
+| Blocage | `messages` (`blocks`) | exclu dans `getCandidates`, `getLikes`, `recordSwipe` | `blocks/{uidA_uidB}` | un seul système de blocage pour Découvrir, Likes, Messages |
+| Signalement | `core/widgets/report_reasons.dart` | `messagerie/reportUser`, `communaute/reportCommunityPost`, `shared/reportReasons` | `moderation_requests` | admin : `admin/moderationRequests` |
+| Notifications push | `notifications` (`pushRegistrationProvider`, tap → onglet dans `main_shell.dart`) | `shared/push.ts` (un seul émetteur : `sendPushToUser`), `registerFcmToken` | `user_status.fcmTokens` | déclenché par `recordSwipe`, `onMessageCreated`, `cancelParticipation`, `scheduled/sendEventReminders` |
+| Communauté (publications, événements) | `communaute` | `communaute/*`, `admin/reviewCommunityPost`, `admin/organizerRequests` | `community_posts`, `event_invite_codes`, `community_tips` | organisateur approuvé (`shared/requireApprovedOrganizer`) |
+| Premium, jetons, boost | `premium` | `premium/*`, `paiements/*` (en pause) | `user_status.jetons`, `isPremium` | droits vérifiés côté serveur (`recordSwipe`, `activateBoost`) |
+| Sécurité du membre | `parametres`, `core/widgets/emergency_sheet.dart` | `securite/triggerEmergencyAlert`, `shared/sanctions` | `users`, `user_status` | — |
+| RGPD | `parametres` | `rgpd/exportMyData`, `account/deleteAccount` | toutes les collections ci-dessus | — |
+| Administration | `admin` | `admin/*`, `shared/requireAdmin`, `shared/adminLog` | `admin_action_logs`, `app_config` | — |
+
+Composants partagés : `core/widgets/` (`tab_pill`, `empty_state_cards`, `block_action`, `report_reasons`, `profile_fact_sheet`, `country_field`…), `core/theme/app_theme.dart` (charte MERUT), `core/utils/` (`age`, `retry`, `message_time`).
