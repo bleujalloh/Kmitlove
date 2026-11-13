@@ -116,7 +116,7 @@ class _EventFiltersSheetState extends ConsumerState<_EventFiltersSheet> {
                           ),
                       ],
                     ),
-                    label(context.l10n.eventsFilterCountry),
+                    const SizedBox(height: 18),
                     Row(
                       children: [
                         Expanded(
@@ -133,7 +133,7 @@ class _EventFiltersSheetState extends ConsumerState<_EventFiltersSheet> {
                           ),
                       ],
                     ),
-                    label(context.l10n.eventsFilterCity),
+                    const SizedBox(height: 12),
                     TextField(
                       controller: _cityController,
                       decoration: InputDecoration(hintText: context.l10n.eventsFilterCity),
@@ -232,6 +232,7 @@ class _EventFiltersSheetState extends ConsumerState<_EventFiltersSheet> {
                 child: Row(
                   children: [
                     OutlinedButton(
+                      style: OutlinedButton.styleFrom(padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14)),
                       onPressed: () {
                         ref.read(eventFiltersProvider.notifier).state = const EventFilters();
                         Navigator.of(context).pop();
