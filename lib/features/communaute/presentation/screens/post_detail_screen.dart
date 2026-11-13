@@ -6,6 +6,7 @@ import 'package:share_plus/share_plus.dart';
 import '../../../../core/providers/firebase_providers.dart';
 import '../../../../core/theme/app_theme.dart';
 import '../../../../core/widgets/emergency_sheet.dart';
+import '../../../../core/widgets/image_viewer.dart';
 import '../../../../core/widgets/report_reasons.dart';
 import '../../../../l10n/l10n_extensions.dart';
 import '../../domain/community_post.dart';
@@ -65,9 +66,12 @@ class _PostDetailScreenState extends ConsumerState<PostDetailScreen> {
           padding: const EdgeInsets.all(20),
           children: [
             if (posterUrl != null) ...[
-              ClipRRect(
-                borderRadius: BorderRadius.circular(16),
-                child: Image.network(posterUrl, height: 180, width: double.infinity, fit: BoxFit.cover),
+              GestureDetector(
+                onTap: () => openImageViewer(context, [posterUrl]),
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(16),
+                  child: Image.network(posterUrl, height: 180, width: double.infinity, fit: BoxFit.cover),
+                ),
               ),
               const SizedBox(height: 14),
             ],

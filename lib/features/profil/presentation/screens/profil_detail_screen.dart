@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../../core/theme/app_theme.dart';
+import '../../../../core/widgets/image_viewer.dart';
 import '../../../../core/widgets/profile_fact_sheet.dart';
 import '../../../../l10n/l10n_extensions.dart';
 import '../../../compatibilite/presentation/compat_controller.dart';
@@ -209,8 +210,10 @@ class _PhotoCarouselState extends State<_PhotoCarousel> {
         PageView.builder(
           itemCount: widget.photoUrls.length,
           onPageChanged: (i) => setState(() => _index = i),
-          itemBuilder: (context, i) =>
-              Image.network(widget.photoUrls[i], fit: BoxFit.cover),
+          itemBuilder: (context, i) => GestureDetector(
+            onTap: () => openImageViewer(context, widget.photoUrls, index: i),
+            child: Image.network(widget.photoUrls[i], fit: BoxFit.cover),
+          ),
         ),
         if (widget.photoUrls.length > 1)
           Positioned(

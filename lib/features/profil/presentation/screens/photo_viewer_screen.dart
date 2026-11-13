@@ -152,6 +152,7 @@ class _PhotoViewerScreenState extends ConsumerState<PhotoViewerScreen> {
                     style: OutlinedButton.styleFrom(
                       foregroundColor: Colors.white,
                       side: const BorderSide(color: Colors.white38),
+                      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
                     ),
                   ),
                 ],

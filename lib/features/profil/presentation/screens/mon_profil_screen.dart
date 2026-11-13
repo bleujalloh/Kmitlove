@@ -18,6 +18,7 @@ import '../../../identite/presentation/screens/identite_screen.dart';
 import '../../../premium/presentation/screens/premium_screen.dart';
 import '../photo_controller.dart';
 import '../profil_controller.dart';
+import 'photo_viewer_screen.dart';
 import 'photos_section.dart';
 import 'profil_detail_screen.dart';
 import 'profil_edit_screen.dart';
@@ -50,7 +51,12 @@ class MonProfilScreen extends ConsumerWidget {
     // l'IndexedStack de MainShell.
     final myPhotos = ref.watch(myPhotosProvider).value ?? const [];
     final approvedPhotos = myPhotos.where((p) => p.status == 'approved');
-    final firstApprovedPhoto = approvedPhotos.isEmpty ? null : approvedPhotos.first;
+    // Photo affichée dans l'avatar : la première photo validée, à défaut ma
+    // première photo même en attente ou refusée (je suis le seul à voir
+    // cet avatar ; les autres, eux, ne voient que les photos validées).
+    final firstApprovedPhoto = approvedPhotos.isNotEmpty
+        ? approvedPhotos.first
+        : (myPhotos.isNotEmpty ? myPhotos.first : null);
     final photoUrl = firstApprovedPhoto == null
         ? null
         : ref.watch(photoDownloadUrlProvider(firstApprovedPhoto.storagePath)).value;
@@ -106,17 +112,29 @@ class MonProfilScreen extends ConsumerWidget {
                                 color: AppColors.accent,
                               ),
                             ),
-                            Container(
-                              width: 112,
-                              height: 112,
-                              clipBehavior: Clip.antiAlias,
-                              decoration: const BoxDecoration(
-                                shape: BoxShape.circle,
-                                color: AppColors.placeholder,
+                            GestureDetector(
+                              onTap: firstApprovedPhoto == null
+                                  ? null
+                                  : () => Navigator.of(context).push(
+                                        MaterialPageRoute(
+                                          builder: (_) => PhotoViewerScreen(
+                                            photos: myPhotos,
+                                            initialIndex: myPhotos.indexOf(firstApprovedPhoto),
+                                          ),
+                                        ),
+                                      ),
+                              child: Container(
+                                width: 112,
+                                height: 112,
+                                clipBehavior: Clip.antiAlias,
+                                decoration: const BoxDecoration(
+                                  shape: BoxShape.circle,
+                                  color: AppColors.placeholder,
+                                ),
+                                child: photoUrl != null
+                                    ? Image.network(photoUrl, fit: BoxFit.cover)
+                                    : const Icon(Icons.person, size: 48, color: AppColors.placeholderIcon),
                               ),
-                              child: photoUrl != null
-                                  ? Image.network(photoUrl, fit: BoxFit.cover)
-                                  : const Icon(Icons.person, size: 48, color: AppColors.placeholderIcon),
                             ),
                             Positioned(
                               bottom: 2,

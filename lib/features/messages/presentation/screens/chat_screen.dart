@@ -7,6 +7,7 @@ import 'package:image_picker/image_picker.dart';
 
 import '../../../../core/providers/firebase_providers.dart';
 import '../../../../core/theme/app_theme.dart';
+import '../../../../core/widgets/image_viewer.dart';
 import '../../../../core/widgets/emergency_sheet.dart';
 import '../../../../core/widgets/report_reasons.dart';
 import '../../../../l10n/l10n_extensions.dart';
@@ -341,7 +342,10 @@ class _MessageImage extends ConsumerWidget {
                 child: Image.network(url, fit: BoxFit.cover),
               )
             else
-              Image.network(url, fit: BoxFit.cover),
+              GestureDetector(
+                onTap: () => openImageViewer(context, [url]),
+                child: Image.network(url, fit: BoxFit.cover),
+              ),
             if (blurred)
               Material(
                 color: Colors.black26,
