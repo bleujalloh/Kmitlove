@@ -223,7 +223,12 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
                       Expanded(
                         child: TextField(
                           controller: _controller,
-                          decoration: InputDecoration(hintText: context.l10n.messageHint),
+                          // Même plafond que firestore.rules (2000 caractères).
+                          maxLength: 2000,
+                          decoration: InputDecoration(
+                            hintText: context.l10n.messageHint,
+                            counterText: '',
+                          ),
                         ),
                       ),
                       IconButton(

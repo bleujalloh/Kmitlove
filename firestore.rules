@@ -139,6 +139,13 @@ service cloud.firestore {
         allow read: if isSignedIn() && isMatchMember() && !isBlocked();
         allow create: if isSignedIn() && isMatchMember() && !isBlocked()
           && request.resource.data.fromUid == request.auth.uid
+          // Forme et taille bornées : sans cela un membre pouvait écrire un
+          // message de plusieurs Mo ou y glisser des champs arbitraires
+          // (audit du 13/11/2026). Les champs viennent de
+          // messages_repository.dart (texte ou photo de conversation).
+          && request.resource.data.keys().hasOnly(['fromUid', 'text', 'imageStoragePath', 'createdAt', 'readBy'])
+          && request.resource.data.text is string
+          && request.resource.data.text.size() <= 2000
           // La date doit venir du serveur, jamais d'une valeur choisie par
           // le client, sinon l'ordre des messages pourrait être faussé.
           && request.resource.data.createdAt == request.time;

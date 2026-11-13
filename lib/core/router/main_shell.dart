@@ -28,6 +28,20 @@ class MainShell extends ConsumerStatefulWidget {
   ConsumerState<MainShell> createState() => _MainShellState();
 }
 
+/// Onglet à ouvrir pour un type de notification, ou null si inconnu
+/// (rappel d'événement, etc. : l'app reste où elle s'ouvre).
+int? tabForNotificationType(String? type) {
+  switch (type) {
+    case 'match':
+    case 'message':
+      return 2;
+    case 'like':
+      return 1;
+    default:
+      return null;
+  }
+}
+
 class _MainShellState extends ConsumerState<MainShell> {
   int _index = 0;
 
@@ -56,6 +70,21 @@ class _MainShellState extends ConsumerState<MainShell> {
       if (text.isEmpty) return;
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(text)));
     });
+    // Toucher une notification reçue app en arrière-plan ou fermée : on
+    // amène le membre sur l'onglet concerné (match/message → Messages,
+    // like → Likes) au lieu de le laisser sur l'onglet quelconque où
+    // l'app s'ouvre. Le type vient du champ `data.type` posé par le
+    // serveur (shared/push.ts).
+    FirebaseMessaging.onMessageOpenedApp.listen(_openFromNotification);
+    FirebaseMessaging.instance.getInitialMessage().then((message) {
+      if (message != null) _openFromNotification(message);
+    });
+  }
+
+  void _openFromNotification(RemoteMessage message) {
+    final tab = tabForNotificationType(message.data['type'] as String?);
+    if (!mounted || tab == null) return;
+    setState(() => _index = tab);
   }
 
   @override
