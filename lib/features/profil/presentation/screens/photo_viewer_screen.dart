@@ -41,15 +41,47 @@ class _PhotoViewerScreenState extends ConsumerState<PhotoViewerScreen> {
     }
   }
 
-  String _visibilityLabel(BuildContext context, String status) {
-    switch (status) {
+  String _visibilityLabel(BuildContext context, ProfilPhoto photo) {
+    switch (photo.status) {
       case 'approved':
         return context.l10n.photoVisibleToOthers;
       case 'rejected':
-        return context.l10n.photoRejectedHint;
+        final why = photo.rejectedBy == 'auto_moderation'
+            ? context.l10n.photoRejectedAutoReason
+            : context.l10n.photoRejectedManualReason;
+        return '$why\n${context.l10n.photoRejectedHint}';
       default:
         return context.l10n.photoPendingHint;
     }
+  }
+
+  /// Suppression avec confirmation (même contrôleur que l'appui long de la
+  /// galerie : PhotoController.delete). La visionneuse se ferme ensuite :
+  /// la liste de photos qu'elle affiche n'est plus à jour.
+  void _confirmDelete(ProfilPhoto photo) {
+    showDialog(
+      context: context,
+      builder: (dialogContext) => AlertDialog(
+        title: Text(context.l10n.deletePhotoConfirmTitle),
+        actions: [
+          TextButton(onPressed: () => Navigator.of(dialogContext).pop(), child: Text(context.l10n.cancelButton)),
+          TextButton(
+            onPressed: () async {
+              Navigator.of(dialogContext).pop();
+              final messenger = ScaffoldMessenger.of(context);
+              final failedText = context.l10n.photoDeleteFailed;
+              try {
+                await ref.read(photoControllerProvider).delete(photo);
+                if (mounted) Navigator.of(context).pop();
+              } catch (_) {
+                messenger.showSnackBar(SnackBar(content: Text(failedText)));
+              }
+            },
+            child: Text(context.l10n.deleteButton),
+          ),
+        ],
+      ),
+    );
   }
 
   @override
@@ -108,9 +140,19 @@ class _PhotoViewerScreenState extends ConsumerState<PhotoViewerScreen> {
                   ),
                   const SizedBox(height: 8),
                   Text(
-                    _visibilityLabel(context, current.status),
+                    _visibilityLabel(context, current),
                     textAlign: TextAlign.center,
                     style: const TextStyle(color: Colors.white70, fontSize: 12.5, height: 1.4),
+                  ),
+                  const SizedBox(height: 12),
+                  OutlinedButton.icon(
+                    onPressed: () => _confirmDelete(current),
+                    icon: const Icon(Icons.delete_outline, size: 18),
+                    label: Text(context.l10n.deletePhotoButton),
+                    style: OutlinedButton.styleFrom(
+                      foregroundColor: Colors.white,
+                      side: const BorderSide(color: Colors.white38),
+                    ),
                   ),
                 ],
               ),

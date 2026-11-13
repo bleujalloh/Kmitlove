@@ -71,7 +71,9 @@ export const togglePostLike = onCall({ region: REGION }, async (request) => {
       tx.delete(likeRef);
       return false;
     }
-    tx.set(likeRef, { createdAt: FieldValue.serverTimestamp() });
+    // `likerUid` : permet à deleteAccount de retrouver tous les j'aime du membre
+    // (droit à l'effacement) sans parcourir toutes les publications.
+    tx.set(likeRef, { likerUid: uid, createdAt: FieldValue.serverTimestamp() });
     return true;
   });
   return { liked };

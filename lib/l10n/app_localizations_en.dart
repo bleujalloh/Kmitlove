@@ -832,15 +832,25 @@ class AppLocalizationsEn extends AppLocalizations {
       'Pending review: other members can\'t see it yet.';
 
   @override
-  String get photoRejectedHint =>
-      'Photo rejected: other members can\'t see it. Delete it (long press) and add another one.';
-
-  @override
   String get viewMyProfileAsOthers => 'See my profile as others see it';
 
   @override
   String get profilePreviewBanner =>
       'Preview: this is what other members see. Only your approved photos are visible.';
+
+  @override
+  String get deletePhotoButton => 'Delete this photo';
+
+  @override
+  String get photoRejectedAutoReason =>
+      'Automatically rejected: moderation detected sensitive content (nudity, suggestive outfit or violence).';
+
+  @override
+  String get photoRejectedManualReason => 'Rejected by a moderator.';
+
+  @override
+  String get photoRejectedHint =>
+      'Other members can\'t see it. Pick a photo of yourself with your face visible and appropriate clothing, then delete this one.';
 
   @override
   String get messageTimeYesterday => 'yesterday';

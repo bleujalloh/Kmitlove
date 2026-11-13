@@ -841,15 +841,25 @@ class AppLocalizationsFr extends AppLocalizations {
       'En attente de validation : les autres membres ne la voient pas encore.';
 
   @override
-  String get photoRejectedHint =>
-      'Photo refusée : elle n\'est pas visible par les autres membres. Supprime-la (appui long) et ajoutes-en une autre.';
-
-  @override
   String get viewMyProfileAsOthers => 'Voir mon profil comme les autres';
 
   @override
   String get profilePreviewBanner =>
       'Aperçu : voici ce que les autres membres voient. Seules tes photos validées sont visibles.';
+
+  @override
+  String get deletePhotoButton => 'Supprimer cette photo';
+
+  @override
+  String get photoRejectedAutoReason =>
+      'Refusée automatiquement : la modération a détecté un contenu sensible (nudité, tenue suggestive ou violence).';
+
+  @override
+  String get photoRejectedManualReason => 'Refusée par un modérateur.';
+
+  @override
+  String get photoRejectedHint =>
+      'Les autres membres ne la voient pas. Choisis une photo de toi, visage visible et tenue correcte, puis supprime celle-ci.';
 
   @override
   String get messageTimeYesterday => 'hier';

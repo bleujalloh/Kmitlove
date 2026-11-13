@@ -30,6 +30,9 @@ export const deleteAccount = onCall({ region: REGION }, async (request) => {
   await Promise.all([
     bucket.deleteFiles({ prefix: `profile_photos/${uid}/` }).catch(() => undefined),
     bucket.deleteFiles({ prefix: `identity_verifications/${uid}/` }).catch(() => undefined),
+    // Affiches d'événements déposées par ce membre (storage.rules :
+    // event_posters/{uid}/...).
+    bucket.deleteFiles({ prefix: `event_posters/${uid}/` }).catch(() => undefined),
   ]);
 
   // 2. Sous-collection photos.
@@ -48,6 +51,10 @@ export const deleteAccount = onCall({ region: REGION }, async (request) => {
   for (const matchDoc of matchesSnap.docs) {
     const messagesSnap = await matchDoc.ref.collection("messages").get();
     await deleteRefsInChunks(db, messagesSnap.docs.map((d) => d.ref));
+    // Photos envoyées dans la conversation (storage.rules : chat_photos/
+    // {matchId}/...) : sans cette ligne, les fichiers restaient dans
+    // Storage après la suppression des messages qui les référençaient.
+    await bucket.deleteFiles({ prefix: `chat_photos/${matchDoc.id}/` }).catch(() => undefined);
     await matchDoc.ref.delete();
   }
 
@@ -72,6 +79,27 @@ export const deleteAccount = onCall({ region: REGION }, async (request) => {
     .where("uid", "==", uid)
     .get();
   await deleteRefsInChunks(db, myParticipationsSnap.docs.map((d) => d.ref));
+
+  // 6 bis. Réponses et j'aime que ce membre a laissés sur les publications
+  // des autres (togglePostLike/replyToPost) : requêtes sur groupe de
+  // collections (index COLLECTION_GROUP, firestore.indexes.json).
+  const [myRepliesSnap, myLikesSnap] = await Promise.all([
+    db.collectionGroup("replies").where("authorUid", "==", uid).get(),
+    db.collectionGroup("likes").where("likerUid", "==", uid).get(),
+  ]);
+  await deleteRefsInChunks(db, [...myRepliesSnap.docs, ...myLikesSnap.docs].map((d) => d.ref));
+
+  // 6 ter. Signal anti-abus « comptes par appareil » (registerDeviceSignal) :
+  // l'identifiant d'appareil ne doit plus être relié à un compte supprimé.
+  const deviceSnap = await db.collection("device_signals").where("uids", "array-contains", uid).get();
+  for (const deviceDoc of deviceSnap.docs) {
+    const remaining = ((deviceDoc.data().uids as string[] | undefined) ?? []).filter((u) => u !== uid);
+    if (remaining.length === 0) {
+      await deviceDoc.ref.delete();
+    } else {
+      await deviceDoc.ref.update({ uids: remaining });
+    }
+  }
 
   // 7. Réponses au test de compatibilité et tentatives de filtrage.
   const filtrageAttemptsSnap = await db.collection("filtrage_attempts").where("uid", "==", uid).get();

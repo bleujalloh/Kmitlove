@@ -1574,12 +1574,6 @@ abstract class AppLocalizations {
   /// **'En attente de validation : les autres membres ne la voient pas encore.'**
   String get photoPendingHint;
 
-  /// No description provided for @photoRejectedHint.
-  ///
-  /// In fr, this message translates to:
-  /// **'Photo refusée : elle n\'est pas visible par les autres membres. Supprime-la (appui long) et ajoutes-en une autre.'**
-  String get photoRejectedHint;
-
   /// No description provided for @viewMyProfileAsOthers.
   ///
   /// In fr, this message translates to:
@@ -1591,6 +1585,30 @@ abstract class AppLocalizations {
   /// In fr, this message translates to:
   /// **'Aperçu : voici ce que les autres membres voient. Seules tes photos validées sont visibles.'**
   String get profilePreviewBanner;
+
+  /// No description provided for @deletePhotoButton.
+  ///
+  /// In fr, this message translates to:
+  /// **'Supprimer cette photo'**
+  String get deletePhotoButton;
+
+  /// No description provided for @photoRejectedAutoReason.
+  ///
+  /// In fr, this message translates to:
+  /// **'Refusée automatiquement : la modération a détecté un contenu sensible (nudité, tenue suggestive ou violence).'**
+  String get photoRejectedAutoReason;
+
+  /// No description provided for @photoRejectedManualReason.
+  ///
+  /// In fr, this message translates to:
+  /// **'Refusée par un modérateur.'**
+  String get photoRejectedManualReason;
+
+  /// No description provided for @photoRejectedHint.
+  ///
+  /// In fr, this message translates to:
+  /// **'Les autres membres ne la voient pas. Choisis une photo de toi, visage visible et tenue correcte, puis supprime celle-ci.'**
+  String get photoRejectedHint;
 
   /// Heure d'une conversation dont le dernier message date de la veille (liste Messages)
   ///
