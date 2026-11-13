@@ -33,4 +33,10 @@ class LocationService {
     });
     return true;
   }
+
+  /// Retrait du consentement : la position enregistrée est supprimée côté
+  /// serveur (updateMyLocation.ts, `clear: true`), pas seulement ignorée.
+  Future<void> clearMyLocation() async {
+    await _functions.httpsCallable('updateMyLocation').call({'clear': true});
+  }
 }

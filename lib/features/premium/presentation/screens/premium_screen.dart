@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../../core/theme/app_theme.dart';
 import '../../../../core/widgets/boost_action.dart';
+import '../../../../core/providers/firebase_providers.dart';
 import '../../../../l10n/l10n_extensions.dart';
 import '../premium_controller.dart';
 
@@ -18,11 +19,28 @@ class PremiumScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     ref.watch(purchaseListenerProvider); // démarre l'écoute des achats
     final productsAsync = ref.watch(productsProvider);
+    final isPremium = ref.watch(userStatusProvider).value?['isPremium'] == true;
 
     return Scaffold(
       appBar: AppBar(title: Text(context.l10n.navPremium)),
       body: Column(
         children: [
+          if (isPremium)
+            Padding(
+              padding: const EdgeInsets.fromLTRB(20, 16, 20, 0),
+              child: Row(
+                children: [
+                  const Icon(Icons.workspace_premium, color: AppColors.accent),
+                  const SizedBox(width: 10),
+                  Expanded(
+                    child: Text(
+                      context.l10n.youArePremium,
+                      style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 15),
+                    ),
+                  ),
+                ],
+              ),
+            ),
           Padding(
             padding: const EdgeInsets.fromLTRB(20, 16, 20, 4),
             child: Container(
@@ -45,14 +63,18 @@ class PremiumScreen extends ConsumerWidget {
                       ],
                     ),
                   ),
-                  ElevatedButton(
-                    onPressed: () => activateProfileBoost(context, ref),
-                    child: Text(context.l10n.activateButton),
-                  ),
+                  if (isPremium)
+                    ElevatedButton(
+                      onPressed: () => activateProfileBoost(context, ref),
+                      child: Text(context.l10n.activateButton),
+                    ),
                 ],
               ),
             ),
           ),
+          if (isPremium)
+            const Spacer()
+          else
           Expanded(
             child: productsAsync.when(
               loading: () => const Center(child: CircularProgressIndicator()),

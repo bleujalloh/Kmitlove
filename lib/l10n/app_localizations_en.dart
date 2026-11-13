@@ -932,6 +932,39 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
+  String get settingsLocationTitle => 'Use my location';
+
+  @override
+  String get settingsLocationHint =>
+      'Used to compute distance in Discover. Turning it off deletes your saved location.';
+
+  @override
+  String get settingsLocationDenied =>
+      'Location permission denied: allow it in your phone settings.';
+
+  @override
+  String get settingsNotificationsTitle => 'Notifications';
+
+  @override
+  String get notificationsOn => 'On';
+
+  @override
+  String get notificationsOff => 'Off — change it in your phone settings';
+
+  @override
+  String get identityFieldLocked =>
+      'Set at sign-up. To correct it, contact support.';
+
+  @override
+  String get youArePremium => 'You are a Premium member';
+
+  @override
+  String get compatTestDoneBadge => 'Done · edit';
+
+  @override
+  String get compatTestTodoBadge => 'To do';
+
+  @override
   String get messageTimeYesterday => 'yesterday';
 
   @override
@@ -1609,7 +1642,7 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String get genderFilterAll => 'Everyone';
+  String get genderFilterAll => 'Women and men';
 
   @override
   String get genderFilterMenPlural => 'Men';

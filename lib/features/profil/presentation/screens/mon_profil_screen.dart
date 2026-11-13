@@ -13,6 +13,7 @@ import '../../../communaute/presentation/communaute_controller.dart';
 import '../../../communaute/presentation/screens/my_participations_screen.dart';
 import '../../../communaute/presentation/screens/organizer_dashboard_screen.dart';
 import '../../../communaute/presentation/screens/organizer_request_screen.dart';
+import '../../../compatibilite/presentation/compat_controller.dart';
 import '../../../compatibilite/presentation/screens/compat_screen.dart';
 import '../../../identite/presentation/screens/identite_screen.dart';
 import '../../../premium/presentation/screens/premium_screen.dart';
@@ -284,6 +285,12 @@ class MonProfilScreen extends ConsumerWidget {
                 _ProfilActionTile(
                   icon: Icons.favorite_border,
                   title: context.l10n.navCompatTest,
+                  trailing: Text(
+                    (ref.watch(myCompatAnswersProvider).value?.isNotEmpty ?? false)
+                        ? context.l10n.compatTestDoneBadge
+                        : context.l10n.compatTestTodoBadge,
+                    style: const TextStyle(fontSize: 12, color: AppColors.muted),
+                  ),
                   onTap: () => Navigator.of(context).push(
                     MaterialPageRoute(builder: (_) => const CompatScreen()),
                   ),

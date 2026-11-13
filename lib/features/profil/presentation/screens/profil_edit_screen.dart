@@ -216,10 +216,13 @@ class _ProfilEditScreenState extends ConsumerState<ProfilEditScreen> {
               ),
               const SizedBox(height: 14),
               InkWell(
-                onTap: _pickBirthDate,
+                // Fixés à l'inscription (saveProfil.ts refuse tout
+                // changement ensuite) : champ en lecture seule.
+                onTap: widget.existing != null ? null : _pickBirthDate,
                 child: InputDecorator(
                   decoration: InputDecoration(
                     labelText: context.l10n.birthDateLabel,
+                    helperText: widget.existing != null ? context.l10n.identityFieldLocked : null,
                   ),
                   child: Text(
                     _birthDate == null
@@ -233,6 +236,7 @@ class _ProfilEditScreenState extends ConsumerState<ProfilEditScreen> {
                 initialValue: _gender,
                 decoration: InputDecoration(
                   labelText: context.l10n.genderLabel,
+                  helperText: widget.existing != null ? context.l10n.identityFieldLocked : null,
                 ),
                 items: Gender.all
                     .map(
@@ -242,7 +246,9 @@ class _ProfilEditScreenState extends ConsumerState<ProfilEditScreen> {
                       ),
                     )
                     .toList(),
-                onChanged: (v) => setState(() => _gender = v ?? _gender),
+                onChanged: widget.existing != null
+                    ? null
+                    : (v) => setState(() => _gender = v ?? _gender),
               ),
               const SizedBox(height: 14),
               Text(

@@ -164,6 +164,25 @@ export const saveProfil = onCall({ region: REGION }, async (request) => {
   }
 
   const gender = closedValue(data.gender, "gender", GENDERS);
+
+  // Genre et date de naissance sont fixés à l'inscription (audit du
+  // 13/11/2026, accepté par le propriétaire) : une fois enregistrés, ils ne
+  // changent plus depuis l'appli — sinon un membre pourrait se rajeunir ou
+  // changer de genre sans aucun contrôle, ce qui fausse la confiance entre
+  // membres, la vérification d'identité et la découverte. Une erreur
+  // légitime se corrige via le support (administrateur).
+  const [existingProfileSnap, existingStatusSnap] = await Promise.all([
+    db.collection("users").doc(uid).get(),
+    db.collection("user_status").doc(uid).get(),
+  ]);
+  const existingGender = existingProfileSnap.data()?.gender as string | undefined;
+  if (existingGender && existingGender !== gender) {
+    throw new HttpsError("failed-precondition", "gender-locked : le genre ne peut plus être modifié.");
+  }
+  const existingBirthDate = existingStatusSnap.data()?.birthDate as string | undefined;
+  if (existingBirthDate && existingBirthDate.slice(0, 10) !== birthDate.slice(0, 10)) {
+    throw new HttpsError("failed-precondition", "birthdate-locked : la date de naissance ne peut plus être modifiée.");
+  }
   const seekingGenders = closedList(data.seekingGenders, "seekingGenders", GENDERS);
   if (seekingGenders.length === 0) invalid("seekingGenders");
 

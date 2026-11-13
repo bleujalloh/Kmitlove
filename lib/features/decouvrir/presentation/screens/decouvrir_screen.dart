@@ -65,6 +65,18 @@ class DecouvrirScreen extends ConsumerWidget {
     final detected = filters.useMyLocation && hasSavedLocation
         ? ref.watch(detectedPlaceProvider).value
         : null;
+    // Le filtre de genre n'a de sens que pour un membre qui cherche LES DEUX
+    // genres : sinon le choix a déjà été fait à l'inscription (audit du
+    // 13/11/2026, accepté par le propriétaire) et la pilule serait inutile.
+    final seeking = ref.watch(profilProvider).value?.seekingGenders;
+    final showGenderPill = seeking != null && seeking.length > 1;
+    // Distance : montrée seulement quand elle s'applique réellement (position
+    // enregistrée et utilisée, pas de pays choisi) — plus estompée.
+    final showDistancePill =
+        filters.country == null && filters.useMyLocation && hasSavedLocation;
+    // « Activer ma position » : seulement tant que la position n'est pas
+    // accordée (ou si le membre l'a coupée pour cette recherche).
+    final showLocationSwitch = !hasSavedLocation || !filters.useMyLocation;
     final detectedCountry = filters.country == null ? detected?.country : null;
     final detectedCity = filters.country == null ? detected?.city : null;
 
@@ -110,13 +122,15 @@ class DecouvrirScreen extends ConsumerWidget {
                           onTap: () => _openFiltersSheet(context),
                         ),
                         const SizedBox(width: 8),
-                        _FilterPill(
-                          icon: Icons.wc_outlined,
-                          label: _genderPillLabel(context, filters.gender),
-                          chevron: true,
-                          onTap: () => _openGenderSheet(context, ref),
-                        ),
-                        const SizedBox(width: 8),
+                        if (showGenderPill) ...[
+                          _FilterPill(
+                            icon: Icons.wc_outlined,
+                            label: _genderPillLabel(context, filters.gender),
+                            chevron: true,
+                            onTap: () => _openGenderSheet(context, ref),
+                          ),
+                          const SizedBox(width: 8),
+                        ],
                         _FilterPill(
                           icon: Icons.calendar_today_outlined,
                           label:
@@ -129,25 +143,17 @@ class DecouvrirScreen extends ConsumerWidget {
                           chevron: true,
                           onTap: () => _openFiltersSheet(context),
                         ),
-                        const SizedBox(width: 8),
-                        // Estompée quand la distance n'a aucun effet réel
-                        // côté serveur (getCandidates.ts) : un filtre pays
-                        // est actif, l'interrupteur "Ma position" est
-                        // coupé, ou aucune position n'a jamais été
-                        // enregistrée — plutôt qu'afficher "≤ 100 km"
-                        // comme si ce rayon s'appliquait.
-                        _FilterPill(
-                          icon: Icons.place_outlined,
-                          label: context.l10n.maxDistancePill(
-                            filters.maxDistanceKm,
+                        if (showDistancePill) ...[
+                          const SizedBox(width: 8),
+                          _FilterPill(
+                            icon: Icons.place_outlined,
+                            label: context.l10n.maxDistancePill(
+                              filters.maxDistanceKm,
+                            ),
+                            chevron: true,
+                            onTap: () => _openFiltersSheet(context),
                           ),
-                          chevron: true,
-                          dimmed:
-                              filters.country != null ||
-                              !filters.useMyLocation ||
-                              !hasSavedLocation,
-                          onTap: () => _openFiltersSheet(context),
-                        ),
+                        ],
                       ],
                     ),
                   ),
@@ -156,8 +162,10 @@ class DecouvrirScreen extends ConsumerWidget {
                     scrollDirection: Axis.horizontal,
                     child: Row(
                       children: [
-                        _LocationSwitchPill(hasSavedLocation: hasSavedLocation),
-                        const SizedBox(width: 8),
+                        if (showLocationSwitch) ...[
+                          _LocationSwitchPill(hasSavedLocation: hasSavedLocation),
+                          const SizedBox(width: 8),
+                        ],
                         _FilterPill(
                           icon: detectedCountry != null
                               ? Icons.my_location

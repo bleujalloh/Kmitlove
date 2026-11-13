@@ -5,6 +5,7 @@ import 'package:flutter_riverpod/legacy.dart';
 
 import '../../../core/providers/locale_provider.dart';
 import '../../auth/presentation/auth_controller.dart';
+import '../../profil/presentation/profil_controller.dart';
 import '../../profil/presentation/photo_controller.dart';
 import '../data/decouvrir_repository.dart';
 import '../data/location_service.dart';
@@ -115,9 +116,20 @@ class DecouvrirController extends AsyncNotifier<DecouvrirState> {
 
   @override
   Future<DecouvrirState> build() async {
-    final filters = ref.watch(discoverFiltersProvider);
+    final filters = _effectiveFilters(ref.watch(discoverFiltersProvider));
     final candidates = await ref.read(decouvrirRepositoryProvider).getCandidates(filters);
     return DecouvrirState(candidates: candidates);
+  }
+
+  /// Un membre qui ne cherche qu'un genre n'a pas de filtre de genre
+  /// (pilule masquée) : un éventuel choix ancien, fait quand il en cherchait
+  /// deux, ne doit plus s'appliquer en silence.
+  DiscoverFilters _effectiveFilters(DiscoverFilters filters) {
+    final seeking = ref.read(profilProvider).value?.seekingGenders;
+    if (filters.gender != null && seeking != null && seeking.length <= 1) {
+      return filters.copyWith(clearGender: true);
+    }
+    return filters;
   }
 
   Future<void> swipe(String action) async {
@@ -213,7 +225,7 @@ class DecouvrirController extends AsyncNotifier<DecouvrirState> {
   Future<void> refresh() async {
     state = const AsyncLoading();
     try {
-      final filters = ref.read(discoverFiltersProvider);
+      final filters = _effectiveFilters(ref.read(discoverFiltersProvider));
       final candidates = await ref.read(decouvrirRepositoryProvider).getCandidates(filters);
       state = AsyncData(DecouvrirState(candidates: candidates));
     } catch (e, st) {

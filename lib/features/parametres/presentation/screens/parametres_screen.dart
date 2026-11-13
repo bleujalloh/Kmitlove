@@ -13,7 +13,9 @@ import '../../../../core/widgets/sanction_appeal_button.dart';
 import '../../../../l10n/l10n_extensions.dart';
 import '../../../auth/presentation/auth_controller.dart';
 import '../../../compatibilite/presentation/compat_controller.dart';
+import '../../../decouvrir/presentation/decouvrir_controller.dart';
 import '../../../messages/presentation/messages_controller.dart';
+import '../../../notifications/push_controller.dart';
 import '../../../messages/presentation/screens/blocked_profiles_screen.dart';
 
 /// Espace Paramètres : réglages purs (langue, confidentialité, export
@@ -144,6 +146,31 @@ class _ParametresScreenState extends ConsumerState<ParametresScreen> {
         .setLocale(choice == 'system' ? null : Locale(choice));
   }
 
+  bool _togglingLocation = false;
+
+  /// Active (permission + enregistrement) ou retire (suppression de la
+  /// position enregistrée) le consentement à la géolocalisation — même
+  /// source de vérité que Découvrir : la position réellement enregistrée.
+  Future<void> _toggleLocation(bool on) async {
+    setState(() => _togglingLocation = true);
+    final messenger = ScaffoldMessenger.of(context);
+    final deniedText = context.l10n.settingsLocationDenied;
+    final errorText = context.l10n.genericError;
+    try {
+      final service = ref.read(locationServiceProvider);
+      if (on) {
+        final ok = await service.updateMyLocation();
+        if (!ok) messenger.showSnackBar(SnackBar(content: Text(deniedText)));
+      } else {
+        await service.clearMyLocation();
+      }
+    } catch (_) {
+      messenger.showSnackBar(SnackBar(content: Text(errorText)));
+    } finally {
+      if (mounted) setState(() => _togglingLocation = false);
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     // Un compte suspendu/banni n'atteint jamais cet écran (voir
@@ -202,6 +229,20 @@ class _ParametresScreenState extends ConsumerState<ParametresScreen> {
               child: Text(
                 context.l10n.privacySectionTitle,
                 style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: AppColors.muted, letterSpacing: 0.5),
+              ),
+            ),
+            SwitchListTile(
+              title: Text(context.l10n.settingsLocationTitle),
+              subtitle: Text(context.l10n.settingsLocationHint),
+              value: status?['locationLat'] is num,
+              onChanged: _togglingLocation ? null : _toggleLocation,
+            ),
+            ListTile(
+              title: Text(context.l10n.settingsNotificationsTitle),
+              subtitle: Text(
+                (ref.watch(notificationsEnabledProvider).value ?? true)
+                    ? context.l10n.notificationsOn
+                    : context.l10n.notificationsOff,
               ),
             ),
             SwitchListTile(

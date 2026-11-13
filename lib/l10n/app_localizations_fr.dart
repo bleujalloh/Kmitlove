@@ -941,6 +941,40 @@ class AppLocalizationsFr extends AppLocalizations {
   }
 
   @override
+  String get settingsLocationTitle => 'Utiliser ma position';
+
+  @override
+  String get settingsLocationHint =>
+      'Sert à calculer la distance dans Découvrir. En la coupant, ta position enregistrée est supprimée.';
+
+  @override
+  String get settingsLocationDenied =>
+      'Permission de position refusée : autorise-la dans les réglages du téléphone.';
+
+  @override
+  String get settingsNotificationsTitle => 'Notifications';
+
+  @override
+  String get notificationsOn => 'Activées';
+
+  @override
+  String get notificationsOff =>
+      'Désactivées — modifie-les dans les réglages du téléphone';
+
+  @override
+  String get identityFieldLocked =>
+      'Fixé à l\'inscription. Pour une correction, contacte le support.';
+
+  @override
+  String get youArePremium => 'Tu es membre Premium';
+
+  @override
+  String get compatTestDoneBadge => 'Terminé · modifier';
+
+  @override
+  String get compatTestTodoBadge => 'À faire';
+
+  @override
   String get messageTimeYesterday => 'hier';
 
   @override
@@ -1623,7 +1657,7 @@ class AppLocalizationsFr extends AppLocalizations {
   }
 
   @override
-  String get genderFilterAll => 'Tous';
+  String get genderFilterAll => 'Femmes et hommes';
 
   @override
   String get genderFilterMenPlural => 'Hommes';

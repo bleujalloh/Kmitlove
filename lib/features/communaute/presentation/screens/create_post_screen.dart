@@ -7,8 +7,10 @@ import 'package:flutter_timezone/flutter_timezone.dart';
 import 'package:image_picker/image_picker.dart';
 
 import '../../../../core/theme/app_theme.dart';
+import '../../../../core/widgets/country_field.dart';
 import '../../../../l10n/l10n_extensions.dart';
 import '../../domain/community_post.dart';
+import '../../../profil/presentation/profil_controller.dart';
 import '../communaute_controller.dart';
 
 const _postTypes = [
@@ -56,6 +58,18 @@ class _CreatePostScreenState extends ConsumerState<CreatePostScreen> {
   final _locationController = TextEditingController();
   final _cityController = TextEditingController();
   final _countryController = TextEditingController();
+
+  @override
+  void initState() {
+    super.initState();
+    // Ville et pays de l'événement préremplis depuis le profil (le membre les
+    // a déjà donnés à l'inscription) ; modifiables.
+    final profil = ref.read(profilProvider).value;
+    if (profil != null) {
+      _cityController.text = profil.city;
+      _countryController.text = profil.country;
+    }
+  }
   final _ageMinimumController = TextEditingController();
   final _conditionsController = TextEditingController();
   final _contactController = TextEditingController();
@@ -340,16 +354,20 @@ class _CreatePostScreenState extends ConsumerState<CreatePostScreen> {
               Row(
                 children: [
                   Expanded(
-                    child: TextFormField(
+                    child: CityField(
                       controller: _cityController,
-                      decoration: InputDecoration(labelText: context.l10n.eventCityLabel),
+                      country: _countryController.text.isEmpty ? null : _countryController.text,
+                      label: context.l10n.eventCityLabel,
                     ),
                   ),
                   const SizedBox(width: 10),
                   Expanded(
-                    child: TextFormField(
-                      controller: _countryController,
-                      decoration: InputDecoration(labelText: context.l10n.countryLabel),
+                    // Même sélecteur fermé que le profil (le serveur refuse
+                    // tout pays hors liste, createCommunityPost.ts).
+                    child: CountryField(
+                      value: _countryController.text,
+                      label: context.l10n.countryLabel,
+                      onChanged: (v) => setState(() => _countryController.text = v),
                     ),
                   ),
                 ],

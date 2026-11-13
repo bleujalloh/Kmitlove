@@ -100,6 +100,7 @@ class _ReceivedTab extends ConsumerWidget {
               profiles: ref.watch(suggestedProfilesProvider),
             ),
             const SizedBox(height: 32),
+            if (likes.isPremium)
             SizedBox(
               width: double.infinity,
               child: ElevatedButton.icon(
@@ -119,7 +120,12 @@ class _ReceivedTab extends ConsumerWidget {
                 ),
               ),
             ),
-            const SizedBox(height: 12),
+            if (likes.isPremium) const SizedBox(height: 12),
+            // Boost réservé aux membres Premium (activateBoost.ts) : un
+            // non-Premium voit seulement l'accès à Premium, jamais un bouton
+            // qui répondrait par une erreur ; un Premium n'a pas besoin de
+            // s'abonner (audit du 13/11/2026).
+            if (!likes.isPremium)
             SizedBox(
               width: double.infinity,
               child: OutlinedButton(

@@ -13,6 +13,7 @@ import {
   EVENT_RECURRENCE_MAX_OCCURRENCES,
 } from "../config";
 import { isValidTimeZone } from "../shared/timezone";
+import { VALID_COUNTRY_NAMES } from "../shared/validCountries";
 
 type PostType =
   | "publication"
@@ -115,6 +116,7 @@ export const createCommunityPost = onCall({ region: REGION }, async (request) =>
   let accessMode: string | null = null;
   let invitedUids: string[] = [];
   let category: string | null = null;
+  let eventCountry: string | null = null;
   let format: string | null = null;
 
   if (isEvent) {
@@ -146,6 +148,16 @@ export const createCommunityPost = onCall({ region: REGION }, async (request) =>
     if (!data.city?.trim() || !data.country?.trim()) {
       throw new HttpsError("invalid-argument", "Ville et pays requis (affichés publiquement, jamais l'adresse exacte).");
     }
+    // Même liste fermée que le profil (shared/validCountries.ts) : sans elle,
+    // un événement pouvait être enregistré avec « france », « FR » ou un pays
+    // inventé, et les filtres par pays de l'onglet Événements le ratent.
+    const canonicalCountry = VALID_COUNTRY_NAMES.find(
+      (n) => n.toLowerCase() === data.country!.trim().toLowerCase(),
+    );
+    if (!canonicalCountry) {
+      throw new HttpsError("invalid-argument", "Pays invalide.");
+    }
+    eventCountry = canonicalCountry;
     if (!data.timezone || !isValidTimeZone(data.timezone)) {
       throw new HttpsError("invalid-argument", "Fuseau horaire invalide.");
     }
@@ -283,7 +295,7 @@ export const createCommunityPost = onCall({ region: REGION }, async (request) =>
       category,
       format,
       city: isEvent ? data.city!.trim() : null,
-      country: isEvent ? data.country!.trim() : null,
+      country: isEvent ? eventCountry : null,
       timezone: isEvent ? data.timezone : null,
       ageMinimum: data.ageMinimum ?? null,
       conditions: data.conditions?.trim() || null,

@@ -15,7 +15,23 @@ export const updateMyLocation = onCall({ region: REGION }, async (request) => {
   if (!request.auth) {
     throw new HttpsError("unauthenticated", "Connexion requise.");
   }
-  const { lat, lng } = request.data as { lat: number; lng: number };
+  const { lat, lng, clear } = request.data as { lat?: number; lng?: number; clear?: boolean };
+
+  // Retrait du consentement à la géolocalisation (RGPD art. 7-3, Paramètres →
+  // Confidentialité) : la position enregistrée est réellement supprimée, pas
+  // seulement ignorée.
+  if (clear === true) {
+    await getFirestore().collection("user_status").doc(request.auth.uid).set(
+      {
+        locationLat: FieldValue.delete(),
+        locationLng: FieldValue.delete(),
+        locationUpdatedAt: FieldValue.delete(),
+      },
+      { merge: true },
+    );
+    return { ok: true, cleared: true };
+  }
+
   if (
     typeof lat !== "number" ||
     typeof lng !== "number" ||

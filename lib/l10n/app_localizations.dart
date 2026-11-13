@@ -1742,6 +1742,66 @@ abstract class AppLocalizations {
   /// **'{count, plural, =0{Aucun événement} =1{1 événement} other{{count} événements}}'**
   String eventsResultsCount(int count);
 
+  /// No description provided for @settingsLocationTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Utiliser ma position'**
+  String get settingsLocationTitle;
+
+  /// No description provided for @settingsLocationHint.
+  ///
+  /// In fr, this message translates to:
+  /// **'Sert à calculer la distance dans Découvrir. En la coupant, ta position enregistrée est supprimée.'**
+  String get settingsLocationHint;
+
+  /// No description provided for @settingsLocationDenied.
+  ///
+  /// In fr, this message translates to:
+  /// **'Permission de position refusée : autorise-la dans les réglages du téléphone.'**
+  String get settingsLocationDenied;
+
+  /// No description provided for @settingsNotificationsTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Notifications'**
+  String get settingsNotificationsTitle;
+
+  /// No description provided for @notificationsOn.
+  ///
+  /// In fr, this message translates to:
+  /// **'Activées'**
+  String get notificationsOn;
+
+  /// No description provided for @notificationsOff.
+  ///
+  /// In fr, this message translates to:
+  /// **'Désactivées — modifie-les dans les réglages du téléphone'**
+  String get notificationsOff;
+
+  /// No description provided for @identityFieldLocked.
+  ///
+  /// In fr, this message translates to:
+  /// **'Fixé à l\'inscription. Pour une correction, contacte le support.'**
+  String get identityFieldLocked;
+
+  /// No description provided for @youArePremium.
+  ///
+  /// In fr, this message translates to:
+  /// **'Tu es membre Premium'**
+  String get youArePremium;
+
+  /// No description provided for @compatTestDoneBadge.
+  ///
+  /// In fr, this message translates to:
+  /// **'Terminé · modifier'**
+  String get compatTestDoneBadge;
+
+  /// No description provided for @compatTestTodoBadge.
+  ///
+  /// In fr, this message translates to:
+  /// **'À faire'**
+  String get compatTestTodoBadge;
+
   /// Heure d'une conversation dont le dernier message date de la veille (liste Messages)
   ///
   /// In fr, this message translates to:
@@ -3011,7 +3071,7 @@ abstract class AppLocalizations {
   /// No description provided for @genderFilterAll.
   ///
   /// In fr, this message translates to:
-  /// **'Tous'**
+  /// **'Femmes et hommes'**
   String get genderFilterAll;
 
   /// No description provided for @genderFilterMenPlural.

@@ -45,3 +45,11 @@ Future<void> unregisterCurrentPushToken(Ref ref) async {
     // Best-effort : jamais bloquant pour la déconnexion elle-même.
   }
 }
+
+/// Autorisation de notifications du système (lecture seule : la modifier se
+/// fait dans les réglages du téléphone) — affichée dans Paramètres.
+final notificationsEnabledProvider = FutureProvider.autoDispose<bool>((ref) async {
+  final settings = await ref.watch(firebaseMessagingProvider).getNotificationSettings();
+  return settings.authorizationStatus == AuthorizationStatus.authorized ||
+      settings.authorizationStatus == AuthorizationStatus.provisional;
+});
