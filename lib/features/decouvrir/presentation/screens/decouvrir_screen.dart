@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:country_picker/country_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -974,6 +976,29 @@ class _LocationSwitchPill extends ConsumerStatefulWidget {
 class _LocationSwitchPillState extends ConsumerState<_LocationSwitchPill> {
   bool _requesting = false;
 
+  bool _statusHasLocation() =>
+      ref.read(userStatusProvider).value?['locationLat'] is num;
+
+  /// Attend (6 s au plus) que le flux de statut reflète la position tout
+  /// juste enregistrée. Jamais bloquant : au pire, le flux finit par
+  /// arriver et l'écran se met à jour comme avant.
+  Future<void> _waitForSavedLocation() async {
+    if (_statusHasLocation()) return;
+    final completer = Completer<void>();
+    final subscription = ref.listenManual(userStatusProvider, (_, next) {
+      if (next.value?['locationLat'] is num && !completer.isCompleted) {
+        completer.complete();
+      }
+    });
+    try {
+      await completer.future.timeout(const Duration(seconds: 6));
+    } on TimeoutException {
+      // Pas de blocage : le flux mettra l'affichage à jour dès qu'il arrive.
+    } finally {
+      subscription.close();
+    }
+  }
+
   Future<void> _toggle(bool enabled) async {
     if (enabled && !widget.hasSavedLocation) {
       setState(() => _requesting = true);
@@ -984,8 +1009,8 @@ class _LocationSwitchPillState extends ConsumerState<_LocationSwitchPill> {
         ok = false;
       }
       if (!mounted) return;
-      setState(() => _requesting = false);
       if (!ok) {
+        setState(() => _requesting = false);
         // Position refusée/indisponible : l'interrupteur reste coupé,
         // jamais affiché "activé" sans position réellement obtenue.
         ScaffoldMessenger.of(context).showSnackBar(
@@ -993,6 +1018,16 @@ class _LocationSwitchPillState extends ConsumerState<_LocationSwitchPill> {
         );
         return;
       }
+      // Signalé sur appareil réel le 13/11 : "en activant sa position, les
+      // filtres position ne se mettent pas à jour". Le serveur a bien
+      // enregistré la position, mais l'interrupteur et la pilule de
+      // distance ne lisent QUE le statut synchronisé (hasSavedLocation) :
+      // ils restaient sur "sans position" plusieurs secondes après la fin
+      // du chargement. On garde donc le chargement affiché jusqu'à ce que
+      // le statut confirme réellement la position, au lieu de la supposer.
+      await _waitForSavedLocation();
+      if (!mounted) return;
+      setState(() => _requesting = false);
     }
     // Toujours une nouvelle instance : relance la recherche avec le
     // nouvel état (decouvrirControllerProvider observe ce provider).
