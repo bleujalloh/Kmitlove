@@ -308,7 +308,7 @@
   "settingsNotificationsTitle": "Notifications",
   "notificationsOn": "On",
   "notificationsOff": "Off — change it in your phone settings",
-  "identityFieldLocked": "Set at sign-up. To correct it, contact support.",
+  "identityFieldLocked": "Set at sign-up · contact support",
   "youArePremium": "You are a Premium member",
   "compatTestDoneBadge": "Done · edit",
   "compatTestTodoBadge": "To do",

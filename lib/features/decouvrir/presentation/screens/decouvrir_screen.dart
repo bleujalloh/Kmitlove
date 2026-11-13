@@ -154,14 +154,7 @@ class DecouvrirScreen extends ConsumerWidget {
                             onTap: () => _openFiltersSheet(context),
                           ),
                         ],
-                      ],
-                    ),
-                  ),
-                  const SizedBox(height: 8),
-                  SingleChildScrollView(
-                    scrollDirection: Axis.horizontal,
-                    child: Row(
-                      children: [
+                        const SizedBox(width: 8),
                         if (showLocationSwitch) ...[
                           _LocationSwitchPill(hasSavedLocation: hasSavedLocation),
                           const SizedBox(width: 8),
@@ -191,13 +184,6 @@ class DecouvrirScreen extends ConsumerWidget {
                           detected: filters.city == null && detectedCity != null,
                           dimmed: filters.country == null,
                           onTap: () => _openCitySheet(context, ref),
-                        ),
-                        const SizedBox(width: 8),
-                        _FilterPill(
-                          icon: Icons.tune,
-                          label: context.l10n.morePillLabel,
-                          chevron: true,
-                          onTap: () => _openFiltersSheet(context),
                         ),
                       ],
                     ),

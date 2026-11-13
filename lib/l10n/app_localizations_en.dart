@@ -952,8 +952,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get notificationsOff => 'Off — change it in your phone settings';
 
   @override
-  String get identityFieldLocked =>
-      'Set at sign-up. To correct it, contact support.';
+  String get identityFieldLocked => 'Set at sign-up · contact support';
 
   @override
   String get youArePremium => 'You are a Premium member';

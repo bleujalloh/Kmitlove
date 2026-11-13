@@ -137,24 +137,6 @@ class MonProfilScreen extends ConsumerWidget {
                                     : const Icon(Icons.person, size: 48, color: AppColors.placeholderIcon),
                               ),
                             ),
-                            Positioned(
-                              bottom: 2,
-                              right: 8,
-                              child: GestureDetector(
-                                onTap: () => Navigator.of(context).push(
-                                  MaterialPageRoute(builder: (_) => ProfilEditScreen(existing: profil)),
-                                ),
-                                child: Container(
-                                  padding: const EdgeInsets.all(7),
-                                  decoration: BoxDecoration(
-                                    color: AppColors.accent,
-                                    shape: BoxShape.circle,
-                                    border: Border.all(color: AppColors.ivoire, width: 2),
-                                  ),
-                                  child: const Icon(Icons.edit, size: 15, color: AppColors.noirProfond),
-                                ),
-                              ),
-                            ),
                           ],
                         ),
                       ),
@@ -172,8 +154,6 @@ class MonProfilScreen extends ConsumerWidget {
                           child: Row(
                             mainAxisSize: MainAxisSize.min,
                             children: [
-                              const Icon(Icons.edit, size: 13, color: AppColors.accent),
-                              const SizedBox(width: 6),
                               Text(
                                 context.l10n.profileCompletionPercent(completionPercent),
                                 style: const TextStyle(fontWeight: FontWeight.bold, color: AppColors.accent, fontSize: 13),

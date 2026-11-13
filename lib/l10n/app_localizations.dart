@@ -1781,7 +1781,7 @@ abstract class AppLocalizations {
   /// No description provided for @identityFieldLocked.
   ///
   /// In fr, this message translates to:
-  /// **'Fixé à l\'inscription. Pour une correction, contacte le support.'**
+  /// **'Fixé à l\'inscription · contacte le support'**
   String get identityFieldLocked;
 
   /// No description provided for @youArePremium.

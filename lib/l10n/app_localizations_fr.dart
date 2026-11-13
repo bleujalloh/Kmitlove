@@ -963,7 +963,7 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get identityFieldLocked =>
-      'Fixé à l\'inscription. Pour une correction, contacte le support.';
+      'Fixé à l\'inscription · contacte le support';
 
   @override
   String get youArePremium => 'Tu es membre Premium';
