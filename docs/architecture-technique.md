@@ -79,7 +79,7 @@ Tenue à jour à chaque implantation. Chaque ligne : où vit la fonctionnalité,
 | Communauté (publications, événements) | `communaute` (j'aime et réponses : `post_interactions.dart`) | `communaute/*` dont `postInteractions` (`togglePostLike`, `replyToPost`), `admin/reviewCommunityPost`, `admin/organizerRequests` | `community_posts` (+ `likes`, `replies`, `participations`, `reviews`), `event_invite_codes`, `community_tips` | organisateur approuvé (`shared/requireApprovedOrganizer`) |
 | Premium, jetons, boost | `premium` | `premium/*`, `paiements/*` (en pause) | `user_status.jetons`, `isPremium` | droits vérifiés côté serveur (`recordSwipe`, `activateBoost`) |
 | Sécurité du membre | `parametres`, `core/widgets/emergency_sheet.dart` | `securite/triggerEmergencyAlert`, `shared/sanctions` | `users`, `user_status` | — |
-| RGPD | `parametres` | `rgpd/exportMyData`, `account/deleteAccount` | toutes les collections ci-dessus | — |
+| RGPD | `parametres` | `rgpd/exportMyData`, `account/deleteAccount` | toutes les collections ci-dessus | registre, durées et écarts : `docs/rgpd-registre-des-traitements.md` |
 | Administration | `admin` | `admin/*`, `shared/requireAdmin`, `shared/adminLog` | `admin_action_logs`, `app_config` | — |
 
 Composants partagés : `core/widgets/` (`tab_pill`, `empty_state_cards`, `block_action`, `report_reasons`, `profile_fact_sheet`, `country_field`…), `core/theme/app_theme.dart` (charte MERUT), `core/utils/` (`age`, `retry`, `message_time`).
