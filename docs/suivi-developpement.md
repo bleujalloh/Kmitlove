@@ -821,3 +821,11 @@ une maquette visuelle précise fournie. `ProfilDetailScreen` reste utilisé tel 
 - [ ] **Non vérifié sur appareil réel** (accès indisponible) : ergonomie réelle des pilules, de
   l'interrupteur et du sélecteur de pays non testée physiquement ; le client n'est pas encore
   empaqueté en APK.
+
+## Suivi 2026-11-13 (suite) — Audit exhaustif et corrections
+
+- [x] **Écart production/dépôt corrigé** : 8 fonctions en ligne différaient du code commité (`recordSwipe` sans gating Super Like, `onMessageCreated` sans push, `getDiscoverCandidates`/`saveProfil`/`getLikes`/`adminReviewPhoto`/participation). Les 10 fonctions des fichiers concernés ont été redéployées ; `scripts/verify_deployed.py` confirme 64 fonctions + règles Firestore/Storage identiques au dépôt (seule `verifyPurchase` reste en ligne mais désactivée, paiements en pause).
+- [x] Messages bornés à 2000 caractères et à des champs connus (`firestore.rules`, déployées) ; plafond identique dans le champ de saisie.
+- [x] Toucher une notification (app en arrière-plan/fermée) ouvre l'onglet concerné (match/message → Messages, like → Likes). N'ouvre pas encore la conversation précise.
+- [ ] **Non vérifié sur appareil réel** : téléphone non branché au moment du build, APK `10958ce` construit mais non installé.
+- [ ] **Non corrigé, décision ou risque** : App Check non activé (l'imposer sans l'avoir câblé côté app couperait l'app) ; limite de fréquence des messages/signalements/uploads ; identifiant `com.kamalove.kamalove` à trancher avant Play ; 28 index Firestore d'une autre application ; données de test en production à supprimer avant ouverture ; pas de CI ni de tests de fonctions.
