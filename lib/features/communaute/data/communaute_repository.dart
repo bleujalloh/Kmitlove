@@ -149,10 +149,53 @@ class CommunauteRepository {
     return data['preciseLocation'] as String?;
   }
 
-  Future<void> report(String postId, String reason, {String? details}) {
+  Future<void> report(String postId, String reason, {String? details, String? replyId}) {
     return _functions
         .httpsCallable('reportCommunityPost')
-        .call({'postId': postId, 'reason': reason, 'details': details});
+        .call({'postId': postId, 'reason': reason, 'details': details, 'replyId': replyId});
+  }
+
+  // --- J'aime et réponses des publications du fil (écriture : fonctions
+  // togglePostLike/replyToPost ; lecture directe, règles dans firestore.rules).
+
+  Future<int> likeCount(String postId) async {
+    final agg = await _firestore.collection('community_posts').doc(postId).collection('likes').count().get();
+    return agg.count ?? 0;
+  }
+
+  Future<int> replyCount(String postId) async {
+    final agg = await _firestore.collection('community_posts').doc(postId).collection('replies').count().get();
+    return agg.count ?? 0;
+  }
+
+  Stream<bool> watchMyLike(String postId, String uid) {
+    return _firestore
+        .collection('community_posts')
+        .doc(postId)
+        .collection('likes')
+        .doc(uid)
+        .snapshots()
+        .map((snap) => snap.exists);
+  }
+
+  Future<bool> toggleLike(String postId) async {
+    final result = await _functions.httpsCallable('togglePostLike').call({'postId': postId});
+    return (result.data as Map<Object?, Object?>)['liked'] as bool;
+  }
+
+  Stream<List<PostReply>> watchReplies(String postId) {
+    return _firestore
+        .collection('community_posts')
+        .doc(postId)
+        .collection('replies')
+        .orderBy('createdAt')
+        .limit(200)
+        .snapshots()
+        .map((snap) => snap.docs.map(PostReply.fromDoc).toList());
+  }
+
+  Future<void> reply(String postId, String text) {
+    return _functions.httpsCallable('replyToPost').call({'postId': postId, 'text': text});
   }
 
   Stream<List<Map<String, dynamic>>> watchParticipations(String postId) {

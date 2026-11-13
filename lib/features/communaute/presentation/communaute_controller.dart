@@ -38,6 +38,33 @@ final communauteRepositoryProvider = Provider<CommunauteRepository>((ref) {
   );
 });
 
+/// Compteurs affichés sur les cartes du fil (relancés après un j'aime ou
+/// une réponse, voir CommunauteController).
+final postLikeCountProvider = FutureProvider.autoDispose.family<int, String>((ref, postId) {
+  return ref.watch(communauteRepositoryProvider).likeCount(postId);
+});
+
+final postReplyCountProvider = FutureProvider.autoDispose.family<int, String>((ref, postId) {
+  return ref.watch(communauteRepositoryProvider).replyCount(postId);
+});
+
+final postMyLikeProvider = StreamProvider.autoDispose.family<bool, String>((ref, postId) {
+  final uid = ref.watch(authStateProvider).value?.uid;
+  if (uid == null) return const Stream.empty();
+  return ref.watch(communauteRepositoryProvider).watchMyLike(postId, uid);
+});
+
+final postRepliesProvider = StreamProvider.autoDispose.family<List<PostReply>, String>((ref, postId) {
+  return ref.watch(communauteRepositoryProvider).watchReplies(postId);
+});
+
+/// Nom d'affichage de l'auteur d'une publication (profil lisible par tout
+/// membre connecté, firestore.rules).
+final memberDisplayNameProvider = FutureProvider.autoDispose.family<String?, String>((ref, uid) async {
+  final doc = await ref.watch(firestoreProvider).collection('users').doc(uid).get();
+  return doc.data()?['displayName'] as String?;
+});
+
 final communityFeedProvider = StreamProvider<List<CommunityPost>>((ref) {
   return ref.watch(communauteRepositoryProvider).watchFeed();
 });
@@ -203,8 +230,20 @@ class CommunauteController {
     return ref.read(communauteRepositoryProvider).getPreciseLocation(postId);
   }
 
-  Future<void> report(String postId, String reason) {
-    return ref.read(communauteRepositoryProvider).report(postId, reason);
+  Future<void> report(String postId, String reason, {String? replyId}) {
+    return ref.read(communauteRepositoryProvider).report(postId, reason, replyId: replyId);
+  }
+
+  Future<void> toggleLike(String postId) async {
+    await ref.read(communauteRepositoryProvider).toggleLike(postId);
+    ref.invalidate(postLikeCountProvider(postId));
+  }
+
+  Future<void> reply(String postId, String text) async {
+    final trimmed = text.trim();
+    if (trimmed.isEmpty) return;
+    await ref.read(communauteRepositoryProvider).reply(postId, trimmed);
+    ref.invalidate(postReplyCountProvider(postId));
   }
 
   Future<void> requestOrganizerStatus(String name, String description) {

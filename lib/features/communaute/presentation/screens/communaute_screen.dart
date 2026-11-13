@@ -9,6 +9,7 @@ import '../communaute_controller.dart';
 import 'create_post_screen.dart';
 import 'events_tab.dart';
 import 'post_detail_screen.dart';
+import 'post_interactions.dart';
 
 const _annonceTypes = ['annonce_publique', 'annonce_privee', 'annonce_libre'];
 
@@ -233,6 +234,38 @@ class _PostCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    void open() => Navigator.of(context).push(
+          MaterialPageRoute(builder: (_) => PostDetailScreen(post: post)),
+        );
+    // Publication du fil : carte du prototype (auteur, texte, j'aime et
+    // réponses) ; les annonces et événements gardent leur carte actuelle.
+    if (post.type == 'publication') {
+      return Card(
+        margin: const EdgeInsets.only(bottom: 14),
+        elevation: 0,
+        shape: RoundedRectangleBorder(
+          side: const BorderSide(color: AppColors.border),
+          borderRadius: BorderRadius.circular(16),
+        ),
+        child: InkWell(
+          borderRadius: BorderRadius.circular(16),
+          onTap: open,
+          child: Padding(
+            padding: const EdgeInsets.all(16),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                PostAuthorLine(post: post),
+                const SizedBox(height: 12),
+                Text(post.text, style: const TextStyle(fontSize: 14, height: 1.4)),
+                const SizedBox(height: 10),
+                PostInteractionsRow(post: post, onRepliesTap: open),
+              ],
+            ),
+          ),
+        ),
+      );
+    }
     return Card(
       margin: const EdgeInsets.only(bottom: 14),
       elevation: 0,

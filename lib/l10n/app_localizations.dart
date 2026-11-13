@@ -1508,6 +1508,42 @@ abstract class AppLocalizations {
   /// **'Je ne sais pas'**
   String get dontKnowOption;
 
+  /// No description provided for @replyHint.
+  ///
+  /// In fr, this message translates to:
+  /// **'Écrire une réponse…'**
+  String get replyHint;
+
+  /// No description provided for @replySendFailed.
+  ///
+  /// In fr, this message translates to:
+  /// **'Impossible d\'envoyer la réponse.'**
+  String get replySendFailed;
+
+  /// No description provided for @likeFailed.
+  ///
+  /// In fr, this message translates to:
+  /// **'Impossible d\'enregistrer ton j\'aime.'**
+  String get likeFailed;
+
+  /// No description provided for @repliesTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Réponses'**
+  String get repliesTitle;
+
+  /// No description provided for @publicationByMember.
+  ///
+  /// In fr, this message translates to:
+  /// **'Publication communautaire'**
+  String get publicationByMember;
+
+  /// No description provided for @postRepliesCount.
+  ///
+  /// In fr, this message translates to:
+  /// **'{count, plural, =0{Aucune réponse} =1{1 réponse} other{{count} réponses}}'**
+  String postRepliesCount(int count);
+
   /// Heure d'une conversation dont le dernier message date de la veille (liste Messages)
   ///
   /// In fr, this message translates to:

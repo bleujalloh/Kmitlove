@@ -10,10 +10,11 @@ export const reportCommunityPost = onCall({ region: REGION }, async (request) =>
     throw new HttpsError("unauthenticated", "Connexion requise.");
   }
   const uid = request.auth.uid;
-  const { postId, reason, details } = request.data as {
+  const { postId, reason, details, replyId } = request.data as {
     postId: string;
     reason: string;
     details?: string;
+    replyId?: string;
   };
   if (!postId || !REPORT_REASONS.includes(reason as (typeof REPORT_REASONS)[number])) {
     throw new HttpsError("invalid-argument", "Motif de signalement invalide.");
@@ -25,7 +26,16 @@ export const reportCommunityPost = onCall({ region: REGION }, async (request) =>
   // "Visé : X" sans devoir rouvrir la publication (docs/regles-messagerie-
   // securite.md section 3 : compteur tous domaines confondus).
   const postSnap = await db.collection("community_posts").doc(postId).get();
-  const targetUid = postSnap.data()?.authorUid as string | undefined;
+  let targetUid = postSnap.data()?.authorUid as string | undefined;
+  // Signalement d'une réponse : le membre visé est l'auteur de la réponse,
+  // pas celui de la publication.
+  if (replyId) {
+    const replySnap = await postSnap.ref.collection("replies").doc(replyId).get();
+    if (!replySnap.exists) {
+      throw new HttpsError("not-found", "Réponse introuvable.");
+    }
+    targetUid = replySnap.data()?.authorUid as string | undefined;
+  }
 
   const targetStatusSnap = targetUid ? await db.collection("user_status").doc(targetUid).get() : null;
   const alreadyPriority = targetStatusSnap?.data()?.priorityReview === true;
@@ -35,6 +45,7 @@ export const reportCommunityPost = onCall({ region: REGION }, async (request) =>
     type: "post_report",
     reporterUid: uid,
     postId,
+    replyId: replyId ?? null,
     targetUid: targetUid ?? null,
     reason,
     details: details ?? null,

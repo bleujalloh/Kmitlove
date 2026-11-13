@@ -21,6 +21,7 @@ export { requestParticipation, respondToParticipation, checkInParticipant } from
 export { cancelParticipation } from "./communaute/cancelParticipation";
 export { getEventLocation } from "./communaute/getEventLocation";
 export { reportCommunityPost } from "./communaute/reportCommunityPost";
+export { togglePostLike, replyToPost } from "./communaute/postInteractions";
 export { requestOrganizerStatus } from "./communaute/requestOrganizerStatus";
 export { inviteToEvent } from "./communaute/inviteToEvent";
 export { updateEventState } from "./communaute/updateEventState";

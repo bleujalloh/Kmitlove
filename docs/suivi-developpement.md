@@ -842,3 +842,11 @@ Règles ajoutées au règlement permanent (sections 18 à 24 : prototype = impla
   - Questionnaire de filtrage : le prototype a le bouton « Passer », la catégorie de la question (« Histoire et civilisation ») et une option « Je ne sais pas » ; l'appli n'a aucun des trois (règle de score à décider pour « Je ne sais pas » et « Passer »).
   - Écran vide de Messages/Likes : trois cartes en éventail sans profils ; à clarifier avec la référence BPM du propriétaire.
 - [ ] Défaut noté : `onMessageCreated` écrit `lastMessagePreview` selon l'ordre de traitement des déclencheurs, pas selon la date des messages ; deux messages rapprochés peuvent laisser l'aperçu du plus ancien.
+
+## Suivi 2026-11-13 (suite) — écarts de prototype implantés
+
+- [x] **Questionnaire** : bouton « Passer » et option « Je ne sais pas » (prototype `Questionnaire.dc.html`), conformes à la règle déjà posée (une question non répondue = mauvaise réponse, `regles-du-projet.md` section 1, `submitAttempt.ts` inchangé) ; jamais envoyés au serveur. Tests `filtrage_skip_test.dart`. La catégorie et le compteur existaient déjà.
+- [x] **Communauté, publications du fil** : j'aime (♥ + compteur), réponses (liste, saisie, compteur), auteur et ancienneté sur la carte, signalement d'une réponse (réutilise `reportCommunityPost`, champ `replyId`). Serveur : `togglePostLike`, `replyToPost` (suspension, blocage entre membres, 500 caractères, 20 réponses/heure, push à l'auteur via `sendPushToUser`) ; règles `likes`/`replies` en lecture seule.
+- [ ] **NON DÉPLOYÉ** : `togglePostLike`, `replyToPost`, `reportCommunityPost` (modifiée) et les règles Firestore `likes`/`replies` sont dans le dépôt mais pas en production (déploiement en attente d'accord explicite du propriétaire) ; tant qu'ils ne le sont pas, un j'aime ou une réponse échoue dans l'appli. `scripts/verify_deployed.py` signalera l'écart.
+- [ ] Non vérifié sur appareil réel. Limites : aucune suppression ni modération admin d'une réponse (le signalement crée une demande `post_report` avec `replyId`, l'écran admin affiche la publication) ; j'aime et réponses limités au type `publication`.
+- [ ] Reste des écarts du prototype Découvrir (bouton « retour » et éclair).

@@ -10,6 +10,7 @@ import '../../../../core/widgets/report_reasons.dart';
 import '../../../../l10n/l10n_extensions.dart';
 import '../../domain/community_post.dart';
 import '../communaute_controller.dart';
+import 'post_interactions.dart';
 
 class PostDetailScreen extends ConsumerStatefulWidget {
   const PostDetailScreen({super.key, required this.post});
@@ -226,6 +227,12 @@ class _PostDetailScreenState extends ConsumerState<PostDetailScreen> {
             if (widget.post.isEvent && !isOrganizer) ...[
               const SizedBox(height: 20),
               _ReviewsList(postId: widget.post.id),
+            ],
+            if (widget.post.type == 'publication') ...[
+              const SizedBox(height: 20),
+              PostInteractionsRow(post: widget.post),
+              const SizedBox(height: 16),
+              PostRepliesSection(post: widget.post),
             ],
           ],
         ),

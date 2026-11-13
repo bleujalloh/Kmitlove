@@ -198,3 +198,32 @@ String eventRecurrenceLabel(String frequency, AppLocalizations l10n) {
       return frequency;
   }
 }
+
+/// Réponse à une publication du fil (prototype Communaute.dc.html :
+/// « 9 réponses »). Écrite uniquement par la fonction replyToPost.
+class PostReply {
+  const PostReply({
+    required this.id,
+    required this.authorUid,
+    required this.authorName,
+    required this.text,
+    this.createdAt,
+  });
+
+  final String id;
+  final String authorUid;
+  final String authorName;
+  final String text;
+  final DateTime? createdAt;
+
+  factory PostReply.fromDoc(DocumentSnapshot<Map<String, dynamic>> doc) {
+    final data = doc.data()!;
+    return PostReply(
+      id: doc.id,
+      authorUid: data['authorUid'] as String,
+      authorName: data['authorName'] as String? ?? '',
+      text: data['text'] as String? ?? '',
+      createdAt: (data['createdAt'] as Timestamp?)?.toDate(),
+    );
+  }
+}

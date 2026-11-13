@@ -789,6 +789,33 @@ class AppLocalizationsEn extends AppLocalizations {
   String get dontKnowOption => 'I don\'t know';
 
   @override
+  String get replyHint => 'Write a reply…';
+
+  @override
+  String get replySendFailed => 'Couldn\'t send the reply.';
+
+  @override
+  String get likeFailed => 'Couldn\'t save your like.';
+
+  @override
+  String get repliesTitle => 'Replies';
+
+  @override
+  String get publicationByMember => 'Community post';
+
+  @override
+  String postRepliesCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count replies',
+      one: '1 reply',
+      zero: 'No replies',
+    );
+    return '$_temp0';
+  }
+
+  @override
   String get messageTimeYesterday => 'yesterday';
 
   @override

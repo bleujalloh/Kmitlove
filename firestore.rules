@@ -222,6 +222,24 @@ service cloud.firestore {
         allow read: if isSignedIn();
         allow write: if false;
       }
+
+      // J'aime et réponses des publications du fil (prototype Communauté,
+      // cahier des charges 4.7) : lisibles par tout membre connecté tant
+      // que la publication est publiée (ou pour son auteur), jamais
+      // écrits directement — togglePostLike/replyToPost vérifient
+      // suspension, blocage, longueur et fréquence côté serveur.
+      match /likes/{likerUid} {
+        allow read: if isSignedIn() && (
+          get(/databases/$(database)/documents/community_posts/$(postId)).data.status == 'published' ||
+          get(/databases/$(database)/documents/community_posts/$(postId)).data.authorUid == request.auth.uid);
+        allow write: if false;
+      }
+      match /replies/{replyId} {
+        allow read: if isSignedIn() && (
+          get(/databases/$(database)/documents/community_posts/$(postId)).data.status == 'published' ||
+          get(/databases/$(database)/documents/community_posts/$(postId)).data.authorUid == request.auth.uid);
+        allow write: if false;
+      }
     }
 
     // Table de correspondance code → postId pour le partage privé d'une
