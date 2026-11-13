@@ -265,9 +265,9 @@ class _CreatePostScreenState extends ConsumerState<CreatePostScreen> {
                           child: Column(
                             mainAxisSize: MainAxisSize.min,
                             children: [
-                              const Icon(Icons.image_outlined, color: AppColors.muted),
+                              Icon(Icons.image_outlined, color: AppColors.muted),
                               const SizedBox(height: 6),
-                              Text(context.l10n.addPosterButton, style: const TextStyle(color: AppColors.muted)),
+                              Text(context.l10n.addPosterButton, style: TextStyle(color: AppColors.muted)),
                             ],
                           ),
                         )
@@ -465,7 +465,7 @@ class _CreatePostScreenState extends ConsumerState<CreatePostScreen> {
                 ),
                 child: Text(
                   context.l10n.eventVerifiedOnlyHint,
-                  style: const TextStyle(fontSize: 12, color: AppColors.muted),
+                  style: TextStyle(fontSize: 12, color: AppColors.muted),
                 ),
               ),
             ],

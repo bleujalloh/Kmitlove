@@ -31,7 +31,7 @@ class FiltrageResultScreen extends ConsumerWidget {
                 const SizedBox(height: 18),
                 Text(
                   passed ? context.l10n.filtragePassedTitle : context.l10n.filtrageFailedTitle,
-                  style: const TextStyle(fontSize: 20, fontWeight: FontWeight.w600, color: AppColors.ink),
+                  style: TextStyle(fontSize: 20, fontWeight: FontWeight.w600, color: AppColors.ink),
                   textAlign: TextAlign.center,
                 ),
                 const SizedBox(height: 12),
@@ -40,7 +40,7 @@ class FiltrageResultScreen extends ConsumerWidget {
                       ? context.l10n.filtragePassedBody
                       : context.l10n.filtrageFailedBody((score * 100).round()),
                   textAlign: TextAlign.center,
-                  style: const TextStyle(color: AppColors.muted, height: 1.5),
+                  style: TextStyle(color: AppColors.muted, height: 1.5),
                 ),
                 const SizedBox(height: 28),
                 if (passed)

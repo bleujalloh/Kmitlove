@@ -85,13 +85,13 @@ class _CompatScreenState extends ConsumerState<CompatScreen> {
                     children: [
                       Text(
                         context.l10n.compatTestInstructions,
-                        style: const TextStyle(fontSize: 13, color: AppColors.muted, height: 1.5),
+                        style: TextStyle(fontSize: 13, color: AppColors.muted, height: 1.5),
                       ),
                       const SizedBox(height: 16),
                       for (final entry in byTheme.entries) ...[
                         Text(
                           compatThemeLabel(entry.key, context.l10n).toUpperCase(),
-                          style: const TextStyle(
+                          style: TextStyle(
                             fontSize: 12,
                             fontWeight: FontWeight.bold,
                             color: AppColors.accent,
@@ -148,7 +148,7 @@ class _QuestionTile extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(question.question, style: const TextStyle(fontSize: 14.5, color: AppColors.ink)),
+          Text(question.question, style: TextStyle(fontSize: 14.5, color: AppColors.ink)),
           const SizedBox(height: 8),
           Row(
             children: List.generate(5, (i) {

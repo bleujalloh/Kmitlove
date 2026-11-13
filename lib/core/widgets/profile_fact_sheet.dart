@@ -159,7 +159,7 @@ class ProfileFactSheet extends StatelessWidget {
                         const SizedBox(width: 6),
                         Text(
                           i,
-                          style: const TextStyle(
+                          style: TextStyle(
                             fontSize: 12,
                             color: AppColors.accent,
                             fontWeight: FontWeight.w600,
@@ -176,7 +176,7 @@ class ProfileFactSheet extends StatelessWidget {
         if (bio.trim().isNotEmpty) ...[
           Row(
             children: [
-              const Icon(
+              Icon(
                 Icons.person_outline,
                 size: 18,
                 color: AppColors.accent,
@@ -194,7 +194,7 @@ class ProfileFactSheet extends StatelessWidget {
           const SizedBox(height: 8),
           Text(
             bio,
-            style: const TextStyle(
+            style: TextStyle(
               fontSize: 13.5,
               height: 1.5,
               color: AppColors.ink,
@@ -240,13 +240,13 @@ class _FactCell extends StatelessWidget {
             children: [
               Text(
                 label,
-                style: const TextStyle(fontSize: 11, color: AppColors.muted),
+                style: TextStyle(fontSize: 11, color: AppColors.muted),
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
               ),
               Text(
                 value,
-                style: const TextStyle(
+                style: TextStyle(
                   fontSize: 13,
                   fontWeight: FontWeight.w600,
                   color: AppColors.ink,

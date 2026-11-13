@@ -975,6 +975,18 @@ class AppLocalizationsFr extends AppLocalizations {
   String get compatTestTodoBadge => 'À faire';
 
   @override
+  String get appearance => 'Apparence';
+
+  @override
+  String get themeSystem => 'Thème du système';
+
+  @override
+  String get themeLight => 'Clair';
+
+  @override
+  String get themeDark => 'Sombre';
+
+  @override
   String get messageTimeYesterday => 'hier';
 
   @override

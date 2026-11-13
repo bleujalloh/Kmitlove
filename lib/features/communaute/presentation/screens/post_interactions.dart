@@ -49,7 +49,7 @@ class PostInteractionsRow extends ConsumerWidget {
                   color: liked ? AppColors.accent : AppColors.muted,
                 ),
                 const SizedBox(width: 6),
-                Text('$likeCount', style: const TextStyle(fontSize: 13, color: AppColors.muted)),
+                Text('$likeCount', style: TextStyle(fontSize: 13, color: AppColors.muted)),
               ],
             ),
           ),
@@ -62,11 +62,11 @@ class PostInteractionsRow extends ConsumerWidget {
             padding: const EdgeInsets.symmetric(vertical: 4, horizontal: 2),
             child: Row(
               children: [
-                const Icon(Icons.chat_bubble_outline, size: 17, color: AppColors.muted),
+                Icon(Icons.chat_bubble_outline, size: 17, color: AppColors.muted),
                 const SizedBox(width: 6),
                 Text(
                   context.l10n.postRepliesCount(replyCount),
-                  style: const TextStyle(fontSize: 13, color: AppColors.muted),
+                  style: TextStyle(fontSize: 13, color: AppColors.muted),
                 ),
               ],
             ),
@@ -101,8 +101,8 @@ class PostAuthorLine extends ConsumerWidget {
         Container(
           width: 32,
           height: 32,
-          decoration: const BoxDecoration(color: AppColors.placeholder, shape: BoxShape.circle),
-          child: const Icon(Icons.person_outline, size: 16, color: AppColors.placeholderIcon),
+          decoration: BoxDecoration(color: AppColors.placeholder, shape: BoxShape.circle),
+          child: Icon(Icons.person_outline, size: 16, color: AppColors.placeholderIcon),
         ),
         const SizedBox(width: 10),
         Expanded(
@@ -112,7 +112,7 @@ class PostAuthorLine extends ConsumerWidget {
               Text(name ?? '…', style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13.5)),
               Text(
                 [context.l10n.publicationByMember, ?when].join(' · '),
-                style: const TextStyle(fontSize: 11, color: AppColors.muted),
+                style: TextStyle(fontSize: 11, color: AppColors.muted),
               ),
             ],
           ),
@@ -183,7 +183,7 @@ class _PostRepliesSectionState extends ConsumerState<PostRepliesSection> {
                   trailing: r.authorUid == myUid
                       ? null
                       : PopupMenuButton<String>(
-                          icon: const Icon(Icons.flag_outlined, size: 18, color: AppColors.muted),
+                          icon: Icon(Icons.flag_outlined, size: 18, color: AppColors.muted),
                           onSelected: (reason) async {
                             await ref
                                 .read(communauteControllerProvider)
@@ -220,7 +220,7 @@ class _PostRepliesSectionState extends ConsumerState<PostRepliesSection> {
             IconButton(
               icon: _sending
                   ? const SizedBox(width: 18, height: 18, child: CircularProgressIndicator(strokeWidth: 2))
-                  : const Icon(Icons.send, color: AppColors.accent),
+                  : Icon(Icons.send, color: AppColors.accent),
               onPressed: _sending ? null : _send,
             ),
           ],

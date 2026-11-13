@@ -13,6 +13,66 @@ import 'package:google_fonts/google_fonts.dart';
 /// de cette famille noir/ivoire/or/brun. Tout le reste de l'app doit
 /// passer par ces constantes, jamais une couleur en dur recopiée
 /// ailleurs (règlement permanent section 8).
+/// Ensemble complet des couleurs sémantiques d'un thème.
+class AppPalette {
+  const AppPalette({
+    required this.background,
+    required this.backgroundSoft,
+    required this.ink,
+    required this.muted,
+    required this.border,
+    required this.accent,
+    required this.accentSoft,
+    required this.placeholder,
+    required this.placeholderIcon,
+    required this.navBackground,
+    required this.navUnselected,
+  });
+
+  final Color background;
+  final Color backgroundSoft;
+  final Color ink;
+  final Color muted;
+  final Color border;
+  final Color accent;
+  final Color accentSoft;
+  final Color placeholder;
+  final Color placeholderIcon;
+  final Color navBackground;
+  final Color navUnselected;
+
+  static const dark = AppPalette(
+    background: AppColors.noirProfond,
+    backgroundSoft: AppColors.brunProfond,
+    ink: AppColors.ivoire,
+    muted: Color(0xFFB3A581),
+    border: AppColors.brunTerre,
+    accent: AppColors.orAntique,
+    accentSoft: Color(0xFF3A301A),
+    placeholder: Color(0xFF362F22),
+    placeholderIcon: Color(0xFF8A7C5E),
+    navBackground: AppColors.noirProfond,
+    navUnselected: Color(0xB3F6F0E5),
+  );
+
+  /// Thème clair : fond ivoire, texte noir chaud, or plus profond pour que
+  /// l'or reste lisible comme texte sur fond clair (contrastes vérifiés par
+  /// test/theme_contrast_test.dart).
+  static const light = AppPalette(
+    background: AppColors.ivoire,
+    backgroundSoft: Color(0xFFFFFBF2),
+    ink: Color(0xFF1C1A17),
+    muted: Color(0xFF6E6247),
+    border: Color(0xFFDCCFB3),
+    accent: Color(0xFF9E7416),
+    accentSoft: Color(0xFFEFE2BF),
+    placeholder: Color(0xFFE9DFC9),
+    placeholderIcon: Color(0xFF8A7C5E),
+    navBackground: Color(0xFFFFFBF2),
+    navUnselected: Color(0xFF6E6247),
+  );
+}
+
 class AppColors {
   // Palette imposée.
   static const noirProfond = Color(0xFF11110F);
@@ -22,29 +82,43 @@ class AppColors {
   static const brunProfond = Color(0xFF29251D);
   static const brunTerre = Color(0xFF49351E);
 
-  // Rôles sémantiques — utilisés partout dans l'app. Thème sombre par
-  // défaut (pas clair avec quelques bandeaux sombres) : corrigé le
-  // 11/11/2026 d'après la référence visuelle validée par le propriétaire
-  // (capture d'écran Communauté — fond noir profond, texte ivoire,
-  // accents or, exactement l'inverse de la première version de ce
-  // fichier qui gardait un fond clair par défaut).
-  static const background = noirProfond;
-  static const backgroundSoft = brunProfond;
-  static const ink = ivoire;
-  static const muted = Color(0xFFB3A581);
-  static const border = brunTerre;
-  static const accent = orAntique;
+  // Rôles sémantiques — utilisés partout dans l'app. Deux palettes
+  // complètes, sombre (celle de la référence visuelle validée le
+  // 11/11/2026 : fond noir profond, texte ivoire, accents or) et claire
+  // (demande du propriétaire, 13/11/2026 : « pas que le noir, c'est très
+  // sombre »). Le choix (Système / Clair / Sombre) vit dans
+  // `themeModeProvider` ; `AppColors.use` fixe la palette active avant
+  // chaque construction de l'interface (voir `ThemeSync`, main.dart). Les
+  // rôles ci-dessous sont donc des accesseurs, plus des constantes.
+  static AppPalette _palette = AppPalette.dark;
+
+  static bool get isDark => identical(_palette, AppPalette.dark);
+
+  static void use(Brightness brightness) {
+    _palette = brightness == Brightness.dark ? AppPalette.dark : AppPalette.light;
+  }
+
+  static Color get background => _palette.background;
+  static Color get backgroundSoft => _palette.backgroundSoft;
+  static Color get ink => _palette.ink;
+  static Color get muted => _palette.muted;
+  static Color get border => _palette.border;
+  static Color get accent => _palette.accent;
   // Fond de puce/badge sélectionné quand il ne doit PAS être plein or
   // (ex. case cochée dans un formulaire) — plein or + texte sombre est
   // réservé à la sélection "principale" (onglets, voir chaque écran de
   // pilules de filtre).
-  static const accentSoft = Color(0xFF3A301A);
-  static const placeholder = Color(0xFF362F22);
-  static const placeholderIcon = Color(0xFF8A7C5E);
+  static Color get accentSoft => _palette.accentSoft;
+  static Color get placeholder => _palette.placeholder;
+  static Color get placeholderIcon => _palette.placeholderIcon;
+  // Barre de navigation du bas : sombre en thème sombre, claire en thème
+  // clair.
+  static Color get navBackground => _palette.navBackground;
+  static Color get navUnselected => _palette.navUnselected;
 
-  // Surfaces "plein noir" encore plus sombres que le fond standard —
-  // bandeaux de marque, tuile Premium — pour une hiérarchie à trois
-  // paliers (fond > carte > bandeau de marque) plutôt que deux.
+  // Surfaces "plein noir" restant sombres dans les deux thèmes — bandeaux
+  // de marque, tuile Premium — pour une hiérarchie à trois paliers
+  // (fond > carte > bandeau de marque).
   static const surfaceDark = noirProfond;
   static const surfaceDarkSoft = brunProfond;
   static const onSurfaceDark = ivoire;
@@ -86,20 +160,23 @@ class AppRadii {
 class AppTypography {
   /// Le nom "MERUT" lui-même — toujours doré sur la référence visuelle
   /// validée (capture d'écran Communauté, 2026-11-11), jamais ivoire.
-  static TextStyle brand({double fontSize = 28, Color color = AppColors.accent, FontWeight weight = FontWeight.bold}) =>
-      GoogleFonts.tinos(fontSize: fontSize, color: color, fontWeight: weight);
+  static TextStyle brand({double fontSize = 28, Color? color, FontWeight weight = FontWeight.bold}) =>
+      GoogleFonts.tinos(fontSize: fontSize, color: color ?? AppColors.accent, fontWeight: weight);
 
   /// Baseline officielle de marque, toujours accolée au nom "MERUT" là où
   /// il apparaît en vitrine (onboarding, à propos...) — demandée par le
   /// propriétaire le 11/11/2026 en même temps que la référence visuelle.
-  static TextStyle tagline({double fontSize = 14, Color color = AppColors.ink}) =>
-      GoogleFonts.tinos(fontSize: fontSize, color: color, fontStyle: FontStyle.italic);
+  static TextStyle tagline({double fontSize = 14, Color? color}) =>
+      GoogleFonts.tinos(fontSize: fontSize, color: color ?? AppColors.ink, fontStyle: FontStyle.italic);
 
-  static TextStyle editorialTitle({double fontSize = 22, Color color = AppColors.ink}) =>
-      GoogleFonts.tinos(fontSize: fontSize, color: color, fontWeight: FontWeight.w600);
+  static TextStyle editorialTitle({double fontSize = 22, Color? color}) =>
+      GoogleFonts.tinos(fontSize: fontSize, color: color ?? AppColors.ink, fontWeight: FontWeight.w600);
 }
 
-ThemeData buildAppTheme() {
+ThemeData buildAppTheme(Brightness brightness) {
+  // Les rôles sémantiques ci-dessous lisent la palette active : on la fixe
+  // d'abord sur celle du thème construit.
+  AppColors.use(brightness);
   return ThemeData(
     useMaterial3: true,
     scaffoldBackgroundColor: AppColors.background,
@@ -113,12 +190,12 @@ ThemeData buildAppTheme() {
       secondary: AppColors.brunTerre,
       surface: AppColors.background,
       onSurface: AppColors.ink,
-      brightness: Brightness.dark,
+      brightness: brightness,
     ),
-    textTheme: const TextTheme(
+    textTheme: TextTheme(
       bodyMedium: TextStyle(color: AppColors.ink),
     ),
-    dividerTheme: const DividerThemeData(color: AppColors.border, thickness: 1),
+    dividerTheme: DividerThemeData(color: AppColors.border, thickness: 1),
     elevatedButtonTheme: ElevatedButtonThemeData(
       style: ElevatedButton.styleFrom(
         backgroundColor: AppColors.accent,
@@ -133,7 +210,7 @@ ThemeData buildAppTheme() {
     outlinedButtonTheme: OutlinedButtonThemeData(
       style: OutlinedButton.styleFrom(
         foregroundColor: AppColors.ink,
-        side: const BorderSide(color: AppColors.border, width: 1.4),
+        side: BorderSide(color: AppColors.border, width: 1.4),
         padding: const EdgeInsets.symmetric(vertical: 15),
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(AppRadii.md)),
       ),
@@ -149,22 +226,22 @@ ThemeData buildAppTheme() {
       filled: true,
       fillColor: AppColors.backgroundSoft,
       contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-      labelStyle: const TextStyle(color: AppColors.muted),
+      labelStyle: TextStyle(color: AppColors.muted),
       border: OutlineInputBorder(
         borderRadius: BorderRadius.circular(AppRadii.md),
-        borderSide: const BorderSide(color: AppColors.border),
+        borderSide: BorderSide(color: AppColors.border),
       ),
       enabledBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(AppRadii.md),
-        borderSide: const BorderSide(color: AppColors.border),
+        borderSide: BorderSide(color: AppColors.border),
       ),
       focusedBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(AppRadii.md),
-        borderSide: const BorderSide(color: AppColors.accent, width: 1.6),
+        borderSide: BorderSide(color: AppColors.accent, width: 1.6),
       ),
       errorBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(AppRadii.md),
-        borderSide: const BorderSide(color: AppColors.accent),
+        borderSide: BorderSide(color: AppColors.accent),
       ),
     ),
     appBarTheme: AppBarTheme(
@@ -178,27 +255,27 @@ ThemeData buildAppTheme() {
     // maîtrisé demandé, appliqué à l'élément le plus visible et le plus
     // constant de l'app (présent sur les 5 onglets principaux).
     navigationBarTheme: NavigationBarThemeData(
-      backgroundColor: AppColors.surfaceDark,
+      backgroundColor: AppColors.navBackground,
       indicatorColor: AppColors.accent.withValues(alpha: 0.22),
       surfaceTintColor: Colors.transparent,
       labelTextStyle: WidgetStateProperty.resolveWith(
         (states) => TextStyle(
           fontSize: 11.5,
           fontWeight: FontWeight.w600,
-          color: states.contains(WidgetState.selected) ? AppColors.accent : AppColors.onSurfaceDark.withValues(alpha: 0.7),
+          color: states.contains(WidgetState.selected) ? AppColors.accent : AppColors.navUnselected,
         ),
       ),
       iconTheme: WidgetStateProperty.resolveWith(
         (states) => IconThemeData(
-          color: states.contains(WidgetState.selected) ? AppColors.accent : AppColors.onSurfaceDark.withValues(alpha: 0.7),
+          color: states.contains(WidgetState.selected) ? AppColors.accent : AppColors.navUnselected,
         ),
       ),
     ),
     chipTheme: ChipThemeData(
       backgroundColor: AppColors.backgroundSoft,
       selectedColor: AppColors.accentSoft,
-      labelStyle: const TextStyle(color: AppColors.ink),
-      side: const BorderSide(color: AppColors.border),
+      labelStyle: TextStyle(color: AppColors.ink),
+      side: BorderSide(color: AppColors.border),
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(AppRadii.pill)),
     ),
     switchTheme: SwitchThemeData(
@@ -216,9 +293,9 @@ ThemeData buildAppTheme() {
       backgroundColor: AppColors.background,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(AppRadii.lg)),
       titleTextStyle: GoogleFonts.tinos(color: AppColors.ink, fontSize: 19, fontWeight: FontWeight.w600),
-      contentTextStyle: const TextStyle(color: AppColors.ink, fontSize: 14.5),
+      contentTextStyle: TextStyle(color: AppColors.ink, fontSize: 14.5),
     ),
-    bottomSheetTheme: const BottomSheetThemeData(
+    bottomSheetTheme: BottomSheetThemeData(
       backgroundColor: AppColors.background,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(AppRadii.lg)),
@@ -226,10 +303,10 @@ ThemeData buildAppTheme() {
     ),
     snackBarTheme: SnackBarThemeData(
       backgroundColor: AppColors.backgroundSoft,
-      contentTextStyle: const TextStyle(color: AppColors.ink),
+      contentTextStyle: TextStyle(color: AppColors.ink),
       behavior: SnackBarBehavior.floating,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(AppRadii.sm)),
     ),
-    progressIndicatorTheme: const ProgressIndicatorThemeData(color: AppColors.accent),
+    progressIndicatorTheme: ProgressIndicatorThemeData(color: AppColors.accent),
   );
 }

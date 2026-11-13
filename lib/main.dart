@@ -9,7 +9,9 @@ import 'package:google_sign_in/google_sign_in.dart';
 
 import 'core/providers/locale_provider.dart';
 import 'core/router/auth_gate.dart';
+import 'core/providers/theme_provider.dart';
 import 'core/theme/app_theme.dart';
+import 'core/theme/theme_sync.dart';
 import 'firebase_options.dart';
 import 'l10n/app_localizations.dart';
 
@@ -48,7 +50,10 @@ class MerutApp extends ConsumerWidget {
     return MaterialApp(
       title: 'MERUT',
       debugShowCheckedModeBanner: false,
-      theme: buildAppTheme(),
+      theme: buildAppTheme(Brightness.light),
+      darkTheme: buildAppTheme(Brightness.dark),
+      themeMode: ref.watch(themeModeProvider),
+      builder: (context, child) => ThemeSync(child: child ?? const SizedBox.shrink()),
       locale: ref.watch(localeControllerProvider),
       supportedLocales: supportedLocales,
       localizationsDelegates: const [

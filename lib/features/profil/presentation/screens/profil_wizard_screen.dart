@@ -228,7 +228,7 @@ class _ProfilWizardScreenState extends ConsumerState<ProfilWizardScreen> {
                       padding: const EdgeInsets.only(bottom: 10),
                       child: Text(
                         context.l10n.profileSaveFailed,
-                        style: const TextStyle(
+                        style: TextStyle(
                           color: AppColors.accent,
                           fontSize: 13,
                         ),
@@ -357,7 +357,7 @@ class _ProfilWizardScreenState extends ConsumerState<ProfilWizardScreen> {
   }
 }
 
-const _titleStyle = TextStyle(
+final _titleStyle = TextStyle(
   fontSize: 26,
   fontWeight: FontWeight.bold,
   color: AppColors.ink,
@@ -462,7 +462,7 @@ class _StepBio extends StatelessWidget {
         const SizedBox(height: 8),
         Text(
           context.l10n.wizardBioSubtitle,
-          style: const TextStyle(color: AppColors.muted),
+          style: TextStyle(color: AppColors.muted),
         ),
         const SizedBox(height: 18),
         TextField(
@@ -689,7 +689,7 @@ class _StepChoiceList extends StatelessWidget {
                       ),
                     ),
                     if (isSelected)
-                      const Icon(Icons.check_circle, color: AppColors.accent),
+                      Icon(Icons.check_circle, color: AppColors.accent),
                   ],
                 ),
               ),
@@ -757,7 +757,7 @@ class _StepMultiChoiceList extends StatelessWidget {
                       ),
                     ),
                     if (isSelected)
-                      const Icon(Icons.check_circle, color: AppColors.accent),
+                      Icon(Icons.check_circle, color: AppColors.accent),
                   ],
                 ),
               ),
@@ -793,7 +793,7 @@ class _StepMultiChoiceWrap extends StatelessWidget {
       children: [
         Text(title, style: _titleStyle),
         const SizedBox(height: 8),
-        Text(subtitle, style: const TextStyle(color: AppColors.muted)),
+        Text(subtitle, style: TextStyle(color: AppColors.muted)),
         const SizedBox(height: 18),
         Wrap(
           spacing: 8,

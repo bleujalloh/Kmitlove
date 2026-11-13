@@ -33,7 +33,7 @@ class MyParticipationsScreen extends ConsumerWidget {
                 child: Text(
                   context.l10n.noParticipationsYet,
                   textAlign: TextAlign.center,
-                  style: const TextStyle(color: AppColors.muted),
+                  style: TextStyle(color: AppColors.muted),
                 ),
               ),
             );
@@ -41,7 +41,7 @@ class MyParticipationsScreen extends ConsumerWidget {
           return ListView.separated(
             padding: const EdgeInsets.all(20),
             itemCount: participations.length,
-            separatorBuilder: (_, _) => const Divider(height: 1, color: AppColors.border),
+            separatorBuilder: (_, _) => Divider(height: 1, color: AppColors.border),
             itemBuilder: (context, i) => _ParticipationTile(participation: participations[i]),
           );
         },
@@ -68,7 +68,7 @@ class _ParticipationTile extends ConsumerWidget {
         return ListTile(
           title: Text(post.title ?? post.text, maxLines: 1, overflow: TextOverflow.ellipsis),
           subtitle: Text(context.l10n.statusLabel(status)),
-          trailing: const Icon(Icons.chevron_right, color: AppColors.muted),
+          trailing: Icon(Icons.chevron_right, color: AppColors.muted),
           onTap: () => Navigator.of(context).push(
             MaterialPageRoute(builder: (_) => PostDetailScreen(post: post)),
           ),

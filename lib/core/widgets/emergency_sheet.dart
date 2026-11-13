@@ -104,7 +104,7 @@ class _EmergencySheetContentState
           children: [
             Row(
               children: [
-                const Icon(
+                Icon(
                   Icons.warning_amber_rounded,
                   color: AppColors.accent,
                 ),
@@ -126,7 +126,7 @@ class _EmergencySheetContentState
             const SizedBox(height: 6),
             Text(
               numbers,
-              style: const TextStyle(
+              style: TextStyle(
                 color: AppColors.muted,
                 fontSize: 13.5,
                 height: 1.4,

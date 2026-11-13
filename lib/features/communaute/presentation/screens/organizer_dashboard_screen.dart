@@ -47,7 +47,7 @@ class OrganizerDashboardScreen extends ConsumerWidget {
                     Text(
                       context.l10n.myEventsEmpty,
                       textAlign: TextAlign.center,
-                      style: const TextStyle(color: AppColors.muted),
+                      style: TextStyle(color: AppColors.muted),
                     ),
                     const SizedBox(height: 16),
                     ElevatedButton(
@@ -115,7 +115,7 @@ class _OrganizerEventCard extends StatelessWidget {
                   ),
                   child: Text(
                     post.status == 'pending_review' ? '…' : eventStateLabel(post.eventState ?? 'prevu', context.l10n),
-                    style: const TextStyle(fontSize: 11, color: AppColors.accent, fontWeight: FontWeight.w600),
+                    style: TextStyle(fontSize: 11, color: AppColors.accent, fontWeight: FontWeight.w600),
                   ),
                 ),
               ],
@@ -123,7 +123,7 @@ class _OrganizerEventCard extends StatelessWidget {
             const SizedBox(height: 6),
             Text(
               '${post.participantsCount}${post.capacity != null ? '/${post.capacity}' : ''} participants',
-              style: const TextStyle(color: AppColors.muted, fontSize: 12.5),
+              style: TextStyle(color: AppColors.muted, fontSize: 12.5),
             ),
           ],
         ),

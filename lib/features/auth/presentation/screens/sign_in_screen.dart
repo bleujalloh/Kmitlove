@@ -54,12 +54,12 @@ class _SignInScreenState extends ConsumerState<SignInScreen> {
             const SizedBox(height: 8),
             Text(
               context.l10n.signInTitle,
-              style: const TextStyle(fontSize: 22, fontWeight: FontWeight.bold, color: AppColors.ink),
+              style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold, color: AppColors.ink),
             ),
             const SizedBox(height: 4),
             Text(
               context.l10n.signInSubtitle,
-              style: const TextStyle(fontSize: 13, color: AppColors.muted),
+              style: TextStyle(fontSize: 13, color: AppColors.muted),
             ),
             const SizedBox(height: 24),
             Form(
@@ -92,7 +92,7 @@ class _SignInScreenState extends ConsumerState<SignInScreen> {
                     const SizedBox(height: 4),
                     Text(
                       readableAuthError(authState.error!, context.l10n),
-                      style: const TextStyle(color: AppColors.accent, fontSize: 13),
+                      style: TextStyle(color: AppColors.accent, fontSize: 13),
                     ),
                   ],
                   const SizedBox(height: 10),
@@ -109,13 +109,13 @@ class _SignInScreenState extends ConsumerState<SignInScreen> {
                   const SizedBox(height: 18),
                   Row(
                     children: [
-                      const Expanded(child: Divider(color: AppColors.border)),
+                      Expanded(child: Divider(color: AppColors.border)),
                       Padding(
                         padding: const EdgeInsets.symmetric(horizontal: 10),
                         child: Text(context.l10n.orSeparator,
-                            style: const TextStyle(color: AppColors.muted, fontSize: 12)),
+                            style: TextStyle(color: AppColors.muted, fontSize: 12)),
                       ),
-                      const Expanded(child: Divider(color: AppColors.border)),
+                      Expanded(child: Divider(color: AppColors.border)),
                     ],
                   ),
                   const SizedBox(height: 18),

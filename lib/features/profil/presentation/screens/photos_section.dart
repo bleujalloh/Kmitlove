@@ -20,7 +20,7 @@ class PhotosSection extends ConsumerWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(context.l10n.photosSectionTitle, style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: AppColors.accent, letterSpacing: 0.5)),
+        Text(context.l10n.photosSectionTitle, style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: AppColors.accent, letterSpacing: 0.5)),
         const SizedBox(height: 10),
         photosAsync.when(
           loading: () => const SizedBox(height: 90, child: Center(child: CircularProgressIndicator())),
@@ -77,7 +77,7 @@ class _PhotoTile extends ConsumerWidget {
                         : null,
                   ),
                   child: url == null
-                      ? const Icon(Icons.person_outline, color: AppColors.placeholderIcon)
+                      ? Icon(Icons.person_outline, color: AppColors.placeholderIcon)
                       : null,
                 );
               },
@@ -155,7 +155,7 @@ class _AddPhotoTile extends ConsumerWidget {
           border: Border.all(color: AppColors.border, style: BorderStyle.solid),
           borderRadius: BorderRadius.circular(14),
         ),
-        child: const Icon(Icons.add, color: AppColors.muted),
+        child: Icon(Icons.add, color: AppColors.muted),
       ),
     );
   }

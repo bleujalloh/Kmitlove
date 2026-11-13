@@ -52,7 +52,7 @@ class _ResetPasswordScreenState extends ConsumerState<ResetPasswordScreen> {
                     children: [
                       Text(
                         context.l10n.resetPasswordInstructions,
-                        style: const TextStyle(fontSize: 14, color: AppColors.muted),
+                        style: TextStyle(fontSize: 14, color: AppColors.muted),
                       ),
                       const SizedBox(height: 18),
                       TextFormField(
@@ -66,7 +66,7 @@ class _ResetPasswordScreenState extends ConsumerState<ResetPasswordScreen> {
                         const SizedBox(height: 8),
                         Text(
                           readableAuthError(authState.error!, context.l10n),
-                          style: const TextStyle(color: AppColors.accent, fontSize: 13),
+                          style: TextStyle(color: AppColors.accent, fontSize: 13),
                         ),
                       ],
                       const SizedBox(height: 18),

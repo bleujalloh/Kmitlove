@@ -255,7 +255,7 @@ class _ProfilEditScreenState extends ConsumerState<ProfilEditScreen> {
               const SizedBox(height: 14),
               Text(
                 context.l10n.iAmSeeking,
-                style: const TextStyle(fontSize: 13, color: AppColors.muted),
+                style: TextStyle(fontSize: 13, color: AppColors.muted),
               ),
               Wrap(
                 spacing: 8,
@@ -354,7 +354,7 @@ class _ProfilEditScreenState extends ConsumerState<ProfilEditScreen> {
               const SizedBox(height: 24),
               Text(
                 context.l10n.yourFicheSectionTitle,
-                style: const TextStyle(
+                style: TextStyle(
                   fontSize: 12,
                   fontWeight: FontWeight.bold,
                   color: AppColors.accent,
@@ -435,7 +435,7 @@ class _ProfilEditScreenState extends ConsumerState<ProfilEditScreen> {
               const SizedBox(height: 14),
               Text(
                 context.l10n.qualitiesSectionHint,
-                style: const TextStyle(fontSize: 13, color: AppColors.muted),
+                style: TextStyle(fontSize: 13, color: AppColors.muted),
               ),
               const SizedBox(height: 8),
               Wrap(
@@ -457,7 +457,7 @@ class _ProfilEditScreenState extends ConsumerState<ProfilEditScreen> {
                 const SizedBox(height: 8),
                 Text(
                   context.l10n.profileSaveFailed,
-                  style: const TextStyle(color: AppColors.accent, fontSize: 13),
+                  style: TextStyle(color: AppColors.accent, fontSize: 13),
                 ),
               ],
               const SizedBox(height: 24),

@@ -113,7 +113,7 @@ class EventsTab extends ConsumerWidget {
                     child: Text(
                       context.l10n.eventsNoResults,
                       textAlign: TextAlign.center,
-                      style: const TextStyle(color: AppColors.muted),
+                      style: TextStyle(color: AppColors.muted),
                     ),
                   )
                 else ...[
@@ -251,7 +251,7 @@ class _EventCard extends ConsumerWidget {
               color: AppColors.placeholder,
               child: posterUrl != null
                   ? Image.network(posterUrl, fit: BoxFit.cover)
-                  : const Icon(Icons.event_outlined, color: AppColors.placeholderIcon),
+                  : Icon(Icons.event_outlined, color: AppColors.placeholderIcon),
             ),
             Padding(
               padding: const EdgeInsets.all(8),
@@ -265,7 +265,7 @@ class _EventCard extends ConsumerWidget {
                     style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 12.5),
                   ),
                   if (event.city != null)
-                    Text(event.city!, style: const TextStyle(fontSize: 11, color: AppColors.muted)),
+                    Text(event.city!, style: TextStyle(fontSize: 11, color: AppColors.muted)),
                 ],
               ),
             ),
@@ -286,7 +286,7 @@ class _EventListTile extends StatelessWidget {
       margin: const EdgeInsets.only(bottom: 10),
       elevation: 0,
       shape: RoundedRectangleBorder(
-        side: const BorderSide(color: AppColors.border),
+        side: BorderSide(color: AppColors.border),
         borderRadius: BorderRadius.circular(16),
       ),
       child: ListTile(

@@ -51,18 +51,18 @@ class _AdultConfirmationScreenState extends ConsumerState<AdultConfirmationScree
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                const Icon(Icons.how_to_reg_outlined, size: 56, color: AppColors.accent),
+                Icon(Icons.how_to_reg_outlined, size: 56, color: AppColors.accent),
                 const SizedBox(height: 18),
                 Text(
                   context.l10n.confirmAdultDialogTitle,
-                  style: const TextStyle(fontSize: 20, fontWeight: FontWeight.w600, color: AppColors.ink),
+                  style: TextStyle(fontSize: 20, fontWeight: FontWeight.w600, color: AppColors.ink),
                   textAlign: TextAlign.center,
                 ),
                 const SizedBox(height: 12),
                 Text(
                   context.l10n.confirmAdultDialogBody,
                   textAlign: TextAlign.center,
-                  style: const TextStyle(color: AppColors.muted, height: 1.5),
+                  style: TextStyle(color: AppColors.muted, height: 1.5),
                 ),
                 const SizedBox(height: 28),
                 SizedBox(

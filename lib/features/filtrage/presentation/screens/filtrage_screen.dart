@@ -92,7 +92,7 @@ class _QuestionView extends ConsumerWidget {
                     children: [
                       Text(
                         context.l10n.filtrageHeaderTitle,
-                        style: const TextStyle(
+                        style: TextStyle(
                           fontSize: 12,
                           fontWeight: FontWeight.w600,
                           color: AppColors.muted,
@@ -101,7 +101,7 @@ class _QuestionView extends ConsumerWidget {
                       ),
                       Text(
                         context.l10n.questionCounter(attempt.currentIndex + 1, attempt.questions.length),
-                        style: const TextStyle(
+                        style: TextStyle(
                           fontSize: 12,
                           fontWeight: FontWeight.w600,
                           color: AppColors.muted,
@@ -128,7 +128,7 @@ class _QuestionView extends ConsumerWidget {
                 children: [
                   Text(
                     question.theme.toUpperCase(),
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontSize: 11,
                       fontWeight: FontWeight.bold,
                       color: AppColors.accent,
@@ -138,7 +138,7 @@ class _QuestionView extends ConsumerWidget {
                   const SizedBox(height: 10),
                   Text(
                     question.question,
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontSize: 21,
                       fontWeight: FontWeight.w600,
                       height: 1.35,
@@ -169,7 +169,7 @@ class _QuestionView extends ConsumerWidget {
                     ),
                     child: Text(
                       context.l10n.filtrageDisclaimer,
-                      style: const TextStyle(fontSize: 12, height: 1.5, color: AppColors.muted),
+                      style: TextStyle(fontSize: 12, height: 1.5, color: AppColors.muted),
                     ),
                   ),
                 ],
@@ -246,7 +246,7 @@ class _AnswerOption extends StatelessWidget {
                   ),
                 ),
               ),
-              if (isSelected) const Icon(Icons.check, size: 18, color: AppColors.accent),
+              if (isSelected) Icon(Icons.check, size: 18, color: AppColors.accent),
             ],
           ),
         ),

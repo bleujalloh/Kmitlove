@@ -67,7 +67,7 @@ class _VerifyEmailScreenState extends ConsumerState<VerifyEmailScreen> {
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                const Icon(Icons.mark_email_unread_outlined, size: 56, color: AppColors.accent),
+                Icon(Icons.mark_email_unread_outlined, size: 56, color: AppColors.accent),
                 const SizedBox(height: 18),
                 Text(
                   context.l10n.checkYourInbox,
@@ -78,7 +78,7 @@ class _VerifyEmailScreenState extends ConsumerState<VerifyEmailScreen> {
                 Text(
                   context.l10n.verificationEmailSentTo(email),
                   textAlign: TextAlign.center,
-                  style: const TextStyle(color: AppColors.muted),
+                  style: TextStyle(color: AppColors.muted),
                 ),
                 const SizedBox(height: 22),
                 TextButton(

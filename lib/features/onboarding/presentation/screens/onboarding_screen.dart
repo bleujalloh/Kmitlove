@@ -31,7 +31,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
             Container(
               width: double.infinity,
               padding: const EdgeInsets.fromLTRB(28, 8, 28, 18),
-              decoration: const BoxDecoration(
+              decoration: BoxDecoration(
                 border: Border(bottom: BorderSide(color: AppColors.border)),
               ),
               child: Column(
@@ -51,7 +51,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                 children: [
                   Text(
                     context.l10n.onboardingBeforeStart,
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontSize: 19,
                       fontWeight: FontWeight.w600,
                       color: AppColors.ink,
@@ -60,7 +60,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                   const SizedBox(height: 10),
                   Text(
                     context.l10n.onboardingIntro,
-                    style: const TextStyle(fontSize: 14, height: 1.5, color: AppColors.ink),
+                    style: TextStyle(fontSize: 14, height: 1.5, color: AppColors.ink),
                   ),
                   const SizedBox(height: 22),
                   Container(
@@ -74,7 +74,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                       children: [
                         Text(
                           context.l10n.onboardingCharterTitle,
-                          style: const TextStyle(
+                          style: TextStyle(
                             fontSize: 12,
                             fontWeight: FontWeight.bold,
                             color: AppColors.ink,
@@ -99,7 +99,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                     activeColor: AppColors.accent,
                     title: Text(
                       context.l10n.onboardingAcceptCharter,
-                      style: const TextStyle(fontSize: 13, color: AppColors.ink),
+                      style: TextStyle(fontSize: 13, color: AppColors.ink),
                     ),
                   ),
                   const SizedBox(height: 12),
@@ -137,14 +137,14 @@ class _CharteItem extends StatelessWidget {
           width: 20,
           height: 20,
           margin: const EdgeInsets.only(top: 1),
-          decoration: const BoxDecoration(color: AppColors.accent, shape: BoxShape.circle),
+          decoration: BoxDecoration(color: AppColors.accent, shape: BoxShape.circle),
           child: const Icon(Icons.check, size: 12, color: AppColors.noirProfond),
         ),
         const SizedBox(width: 10),
         Expanded(
           child: Text(
             text,
-            style: const TextStyle(fontSize: 13.5, height: 1.5, color: AppColors.ink),
+            style: TextStyle(fontSize: 13.5, height: 1.5, color: AppColors.ink),
           ),
         ),
       ],

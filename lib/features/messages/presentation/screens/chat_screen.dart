@@ -215,7 +215,7 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
                   child: Row(
                     children: [
                       IconButton(
-                        icon: const Icon(Icons.image_outlined, color: AppColors.muted),
+                        icon: Icon(Icons.image_outlined, color: AppColors.muted),
                         onPressed: () => _sendImage(
                           messagesAsync.value ?? const [],
                           myUid,
@@ -233,7 +233,7 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
                         ),
                       ),
                       IconButton(
-                        icon: const Icon(Icons.send, color: AppColors.accent),
+                        icon: Icon(Icons.send, color: AppColors.accent),
                         onPressed: () {
                           ref.read(messagesControllerProvider).send(widget.matchId, _controller.text);
                           _controller.clear();

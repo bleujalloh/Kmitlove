@@ -83,7 +83,7 @@ class _PostDetailScreenState extends ConsumerState<PostDetailScreen> {
                   decoration: BoxDecoration(color: AppColors.accentSoft, borderRadius: BorderRadius.circular(999)),
                   child: Text(
                     eventStateLabel(widget.post.eventState!, context.l10n),
-                    style: const TextStyle(color: AppColors.accent, fontWeight: FontWeight.w600, fontSize: 12),
+                    style: TextStyle(color: AppColors.accent, fontWeight: FontWeight.w600, fontSize: 12),
                   ),
                 ),
               ),
@@ -98,7 +98,7 @@ class _PostDetailScreenState extends ConsumerState<PostDetailScreen> {
                   widget.post.participantsCount,
                   widget.post.capacity?.toString() ?? '-',
                 ),
-                style: const TextStyle(color: AppColors.muted, fontSize: 13),
+                style: TextStyle(color: AppColors.muted, fontSize: 13),
               ),
               const SizedBox(height: 6),
               Wrap(
@@ -117,12 +117,12 @@ class _PostDetailScreenState extends ConsumerState<PostDetailScreen> {
               ),
               if (widget.post.conditions?.isNotEmpty == true) ...[
                 const SizedBox(height: 10),
-                Text(widget.post.conditions!, style: const TextStyle(fontSize: 13, color: AppColors.muted)),
+                Text(widget.post.conditions!, style: TextStyle(fontSize: 13, color: AppColors.muted)),
               ],
               if (widget.post.contactChannel?.isNotEmpty == true) ...[
                 const SizedBox(height: 6),
                 Text('${context.l10n.eventContactLabel} : ${widget.post.contactChannel}',
-                    style: const TextStyle(fontSize: 13, color: AppColors.muted)),
+                    style: TextStyle(fontSize: 13, color: AppColors.muted)),
               ],
             ],
             const SizedBox(height: 18),
@@ -134,13 +134,13 @@ class _PostDetailScreenState extends ConsumerState<PostDetailScreen> {
                   final status = participation?['status'] as String?;
                   if (status == null) {
                     if (widget.post.eventState == 'annule') {
-                      return Text(context.l10n.eventCancelledNotice, style: const TextStyle(color: AppColors.muted));
+                      return Text(context.l10n.eventCancelledNotice, style: TextStyle(color: AppColors.muted));
                     }
                     if (widget.post.eventState == 'termine') {
-                      return Text(context.l10n.eventStateFinished, style: const TextStyle(color: AppColors.muted));
+                      return Text(context.l10n.eventStateFinished, style: TextStyle(color: AppColors.muted));
                     }
                     if (widget.post.isFull) {
-                      return Text(context.l10n.eventFullNotice, style: const TextStyle(color: AppColors.muted));
+                      return Text(context.l10n.eventFullNotice, style: TextStyle(color: AppColors.muted));
                     }
                     return ElevatedButton(
                       onPressed: () =>
@@ -181,9 +181,9 @@ class _PostDetailScreenState extends ConsumerState<PostDetailScreen> {
                         // section 1), jamais caché derrière une autre action.
                         TextButton.icon(
                           onPressed: () => showEmergencySheet(context, ref, eventPostId: widget.post.id),
-                          icon: const Icon(Icons.warning_amber_rounded, color: AppColors.accent),
+                          icon: Icon(Icons.warning_amber_rounded, color: AppColors.accent),
                           label: Text(context.l10n.reportImmediateDanger,
-                              style: const TextStyle(color: AppColors.accent)),
+                              style: TextStyle(color: AppColors.accent)),
                         ),
                         const SizedBox(height: 8),
                         _CancelParticipationButton(postId: widget.post.id),
@@ -196,7 +196,7 @@ class _PostDetailScreenState extends ConsumerState<PostDetailScreen> {
                     return Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text(context.l10n.pendingRequestNotice, style: const TextStyle(color: AppColors.muted)),
+                        Text(context.l10n.pendingRequestNotice, style: TextStyle(color: AppColors.muted)),
                         const SizedBox(height: 8),
                         _CancelParticipationButton(postId: widget.post.id),
                       ],
@@ -206,13 +206,13 @@ class _PostDetailScreenState extends ConsumerState<PostDetailScreen> {
                     return Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text(context.l10n.waitlistedNotice, style: const TextStyle(color: AppColors.muted)),
+                        Text(context.l10n.waitlistedNotice, style: TextStyle(color: AppColors.muted)),
                         const SizedBox(height: 8),
                         _CancelParticipationButton(postId: widget.post.id),
                       ],
                     );
                   }
-                  return Text(context.l10n.statusLabel(status), style: const TextStyle(color: AppColors.muted));
+                  return Text(context.l10n.statusLabel(status), style: TextStyle(color: AppColors.muted));
                 },
               ),
             if (isOrganizer && widget.post.isEvent) _OrganizerEventControls(post: widget.post),
@@ -475,7 +475,7 @@ class _ReviewsList extends ConsumerWidget {
         Text(context.l10n.reviewsTitle, style: const TextStyle(fontWeight: FontWeight.bold)),
         const SizedBox(height: 8),
         if (reviews.isEmpty)
-          Text(context.l10n.noReviewsYet, style: const TextStyle(color: AppColors.muted))
+          Text(context.l10n.noReviewsYet, style: TextStyle(color: AppColors.muted))
         else
           for (final r in reviews)
             Padding(
@@ -532,7 +532,7 @@ class _OrganizerEventControls extends ConsumerWidget {
           ),
           TextButton(
             onPressed: () => ref.read(communauteControllerProvider).updateEventState(post.id, 'annule'),
-            child: Text(context.l10n.cancelEventButton, style: const TextStyle(color: AppColors.accent)),
+            child: Text(context.l10n.cancelEventButton, style: TextStyle(color: AppColors.accent)),
           ),
         ],
       ),

@@ -32,11 +32,11 @@ class SanctionScreen extends ConsumerWidget {
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                const Icon(Icons.block, size: 56, color: AppColors.accent),
+                Icon(Icons.block, size: 56, color: AppColors.accent),
                 const SizedBox(height: 18),
                 Text(
                   banned ? context.l10n.bannedTitle : context.l10n.suspendedTitle,
-                  style: const TextStyle(fontSize: 20, fontWeight: FontWeight.w600, color: AppColors.ink),
+                  style: TextStyle(fontSize: 20, fontWeight: FontWeight.w600, color: AppColors.ink),
                   textAlign: TextAlign.center,
                 ),
                 const SizedBox(height: 12),
@@ -45,13 +45,13 @@ class SanctionScreen extends ConsumerWidget {
                       ? context.l10n.suspendedUntilDate(_formatDate(suspendedUntil.toDate()))
                       : context.l10n.sanctionFollowsReports,
                   textAlign: TextAlign.center,
-                  style: const TextStyle(color: AppColors.muted, height: 1.5),
+                  style: TextStyle(color: AppColors.muted, height: 1.5),
                 ),
                 const SizedBox(height: 8),
                 Text(
                   context.l10n.sanctionAppealHint,
                   textAlign: TextAlign.center,
-                  style: const TextStyle(color: AppColors.muted, height: 1.5),
+                  style: TextStyle(color: AppColors.muted, height: 1.5),
                 ),
                 const SizedBox(height: 24),
                 SanctionAppealButton(appealPending: appealPending),

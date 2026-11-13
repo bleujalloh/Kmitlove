@@ -37,7 +37,7 @@ class FiltragePendingScreen extends ConsumerWidget {
                 const SizedBox(height: 18),
                 Text(
                   reviewRequested ? context.l10n.reviewInProgressTitle : context.l10n.nextAttemptSoonTitle,
-                  style: const TextStyle(fontSize: 20, fontWeight: FontWeight.w600, color: AppColors.ink),
+                  style: TextStyle(fontSize: 20, fontWeight: FontWeight.w600, color: AppColors.ink),
                   textAlign: TextAlign.center,
                 ),
                 const SizedBox(height: 12),
@@ -48,7 +48,7 @@ class FiltragePendingScreen extends ConsumerWidget {
                           ? context.l10n.canRetryNow
                           : context.l10n.canRetryFrom(_formatDate(nextRetryAt.toDate())),
                   textAlign: TextAlign.center,
-                  style: const TextStyle(color: AppColors.muted, height: 1.5),
+                  style: TextStyle(color: AppColors.muted, height: 1.5),
                 ),
                 const SizedBox(height: 28),
                 if (!reviewRequested && canRetryNow)

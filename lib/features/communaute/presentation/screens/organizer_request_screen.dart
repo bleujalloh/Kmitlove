@@ -92,7 +92,7 @@ class _OrganizerRequestScreenState extends ConsumerState<OrganizerRequestScreen>
             if (status != 'pending' && status != 'approved') ...[
               Text(
                 context.l10n.becomeOrganizerIntro,
-                style: const TextStyle(color: AppColors.muted, fontSize: 13.5, height: 1.4),
+                style: TextStyle(color: AppColors.muted, fontSize: 13.5, height: 1.4),
               ),
               const SizedBox(height: 20),
               TextField(

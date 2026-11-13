@@ -76,11 +76,11 @@ class MatchesListScreen extends ConsumerWidget {
                   itemBuilder: (context, i) => _MatchBubble(match: matches[i], myUid: myUid),
                 ),
               ),
-              const Divider(height: 1, color: AppColors.border),
+              Divider(height: 1, color: AppColors.border),
               Expanded(
                 child: ListView.separated(
                   itemCount: matches.length,
-                  separatorBuilder: (_, _) => const Divider(height: 1, color: AppColors.border),
+                  separatorBuilder: (_, _) => Divider(height: 1, color: AppColors.border),
                   itemBuilder: (context, i) => _ConversationRow(match: matches[i], myUid: myUid),
                 ),
               ),
@@ -125,7 +125,7 @@ class _MemberAvatar extends ConsumerWidget {
       width: size,
       height: size,
       clipBehavior: Clip.antiAlias,
-      decoration: const BoxDecoration(color: AppColors.placeholder, shape: BoxShape.circle),
+      decoration: BoxDecoration(color: AppColors.placeholder, shape: BoxShape.circle),
       child: url != null
           ? Image.network(url, fit: BoxFit.cover)
           : Icon(Icons.person_outline, size: size * 0.42, color: AppColors.placeholderIcon),
@@ -206,7 +206,7 @@ class _ConversationRow extends ConsumerWidget {
             ),
           ),
           if (time != null)
-            Text(time, style: const TextStyle(fontSize: 11, color: AppColors.muted)),
+            Text(time, style: TextStyle(fontSize: 11, color: AppColors.muted)),
         ],
       ),
       subtitle: Text(
@@ -224,7 +224,7 @@ class _ConversationRow extends ConsumerWidget {
           ? Container(
               width: 9,
               height: 9,
-              decoration: const BoxDecoration(color: AppColors.accent, shape: BoxShape.circle),
+              decoration: BoxDecoration(color: AppColors.accent, shape: BoxShape.circle),
             )
           : null,
       onTap: () => _openChat(context, match),

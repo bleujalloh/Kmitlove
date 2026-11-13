@@ -63,7 +63,7 @@ class ProfilDetailScreen extends ConsumerWidget {
                   background: photoUrls.isEmpty
                       ? Container(
                           color: AppColors.placeholder,
-                          child: const Icon(
+                          child: Icon(
                             Icons.person_outline,
                             size: 64,
                             color: AppColors.placeholderIcon,
@@ -88,12 +88,12 @@ class ProfilDetailScreen extends ConsumerWidget {
                           ),
                           child: Row(
                             children: [
-                              const Icon(Icons.visibility_outlined, size: 18, color: AppColors.accent),
+                              Icon(Icons.visibility_outlined, size: 18, color: AppColors.accent),
                               const SizedBox(width: 10),
                               Expanded(
                                 child: Text(
                                   context.l10n.profilePreviewBanner,
-                                  style: const TextStyle(fontSize: 12.5, height: 1.4, color: AppColors.muted),
+                                  style: TextStyle(fontSize: 12.5, height: 1.4, color: AppColors.muted),
                                 ),
                               ),
                             ],
@@ -106,7 +106,7 @@ class ProfilDetailScreen extends ConsumerWidget {
                           Flexible(
                             child: Text(
                               '${profile.displayName}, ${profile.age}',
-                              style: const TextStyle(
+                              style: TextStyle(
                                 fontSize: 22,
                                 fontWeight: FontWeight.bold,
                                 color: AppColors.ink,
@@ -116,7 +116,7 @@ class ProfilDetailScreen extends ConsumerWidget {
                           ),
                           if (isVerified) ...[
                             const SizedBox(width: 6),
-                            const Icon(
+                            Icon(
                               Icons.verified,
                               color: AppColors.accent,
                               size: 20,
@@ -148,7 +148,7 @@ class ProfilDetailScreen extends ConsumerWidget {
                       const SizedBox(height: 4),
                       Row(
                         children: [
-                          const Icon(
+                          Icon(
                             Icons.place_outlined,
                             size: 15,
                             color: AppColors.muted,
@@ -159,7 +159,7 @@ class ProfilDetailScreen extends ConsumerWidget {
                               profile.city,
                               profile.country,
                             ),
-                            style: const TextStyle(
+                            style: TextStyle(
                               color: AppColors.muted,
                               fontSize: 13,
                             ),

@@ -30,18 +30,18 @@ class BlockedProfilesScreen extends ConsumerWidget {
                 child: Text(
                   context.l10n.noBlockedProfiles,
                   textAlign: TextAlign.center,
-                  style: const TextStyle(color: AppColors.muted),
+                  style: TextStyle(color: AppColors.muted),
                 ),
               ),
             );
           }
           return ListView.separated(
             itemCount: blocks.length,
-            separatorBuilder: (_, _) => const Divider(height: 1, color: AppColors.border),
+            separatorBuilder: (_, _) => Divider(height: 1, color: AppColors.border),
             itemBuilder: (context, i) {
               final b = blocks[i];
               return ListTile(
-                leading: const CircleAvatar(
+                leading: CircleAvatar(
                   backgroundColor: AppColors.placeholder,
                   child: Icon(Icons.person_outline, color: AppColors.placeholderIcon),
                 ),

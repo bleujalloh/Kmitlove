@@ -30,7 +30,7 @@ class PremiumScreen extends ConsumerWidget {
               padding: const EdgeInsets.fromLTRB(20, 16, 20, 0),
               child: Row(
                 children: [
-                  const Icon(Icons.workspace_premium, color: AppColors.accent),
+                  Icon(Icons.workspace_premium, color: AppColors.accent),
                   const SizedBox(width: 10),
                   Expanded(
                     child: Text(
@@ -58,7 +58,7 @@ class PremiumScreen extends ConsumerWidget {
                         Text(context.l10n.boostTitle, style: const TextStyle(fontWeight: FontWeight.bold)),
                         Text(
                           context.l10n.boostDescription,
-                          style: const TextStyle(fontSize: 12, color: AppColors.muted),
+                          style: TextStyle(fontSize: 12, color: AppColors.muted),
                         ),
                       ],
                     ),
@@ -87,7 +87,7 @@ class PremiumScreen extends ConsumerWidget {
                       child: Text(
                         context.l10n.noSubscriptionOffersYet,
                         textAlign: TextAlign.center,
-                        style: const TextStyle(color: AppColors.muted),
+                        style: TextStyle(color: AppColors.muted),
                       ),
                     ),
                   );
@@ -112,7 +112,7 @@ class PremiumScreen extends ConsumerWidget {
                               children: [
                                 Text(product.title, style: const TextStyle(fontWeight: FontWeight.bold)),
                                 Text(product.description,
-                                    style: const TextStyle(fontSize: 12, color: AppColors.muted)),
+                                    style: TextStyle(fontSize: 12, color: AppColors.muted)),
                               ],
                             ),
                           ),

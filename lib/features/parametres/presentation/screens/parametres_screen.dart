@@ -8,6 +8,7 @@ import 'package:share_plus/share_plus.dart';
 
 import '../../../../core/providers/firebase_providers.dart';
 import '../../../../core/providers/locale_provider.dart';
+import '../../../../core/providers/theme_provider.dart';
 import '../../../../core/theme/app_theme.dart';
 import '../../../../core/widgets/sanction_appeal_button.dart';
 import '../../../../l10n/l10n_extensions.dart';
@@ -115,7 +116,7 @@ class _ParametresScreenState extends ConsumerState<ParametresScreen> {
             child: Row(
               children: [
                 Expanded(child: Text(context.l10n.systemLanguage)),
-                if (current == null) const Icon(Icons.check, color: AppColors.accent),
+                if (current == null) Icon(Icons.check, color: AppColors.accent),
               ],
             ),
           ),
@@ -124,7 +125,7 @@ class _ParametresScreenState extends ConsumerState<ParametresScreen> {
             child: Row(
               children: [
                 Expanded(child: Text(_languageDisplayName('fr'))),
-                if (current?.languageCode == 'fr') const Icon(Icons.check, color: AppColors.accent),
+                if (current?.languageCode == 'fr') Icon(Icons.check, color: AppColors.accent),
               ],
             ),
           ),
@@ -133,7 +134,7 @@ class _ParametresScreenState extends ConsumerState<ParametresScreen> {
             child: Row(
               children: [
                 Expanded(child: Text(_languageDisplayName('en'))),
-                if (current?.languageCode == 'en') const Icon(Icons.check, color: AppColors.accent),
+                if (current?.languageCode == 'en') Icon(Icons.check, color: AppColors.accent),
               ],
             ),
           ),
@@ -144,6 +145,40 @@ class _ParametresScreenState extends ConsumerState<ParametresScreen> {
     await ref
         .read(localeControllerProvider.notifier)
         .setLocale(choice == 'system' ? null : Locale(choice));
+  }
+
+  String _themeLabel(ThemeMode mode) {
+    switch (mode) {
+      case ThemeMode.light:
+        return context.l10n.themeLight;
+      case ThemeMode.dark:
+        return context.l10n.themeDark;
+      case ThemeMode.system:
+        return context.l10n.themeSystem;
+    }
+  }
+
+  Future<void> _pickTheme() async {
+    final current = ref.read(themeModeProvider);
+    final choice = await showDialog<ThemeMode>(
+      context: context,
+      builder: (dialogContext) => SimpleDialog(
+        title: Text(context.l10n.appearance),
+        children: [
+          for (final mode in ThemeMode.values)
+            SimpleDialogOption(
+              onPressed: () => Navigator.of(dialogContext).pop(mode),
+              child: Row(
+                children: [
+                  Expanded(child: Text(_themeLabel(mode))),
+                  if (current == mode) Icon(Icons.check, color: AppColors.accent),
+                ],
+              ),
+            ),
+        ],
+      ),
+    );
+    if (choice != null) await ref.read(themeModeProvider.notifier).setMode(choice);
   }
 
   bool _togglingLocation = false;
@@ -202,7 +237,7 @@ class _ParametresScreenState extends ConsumerState<ParametresScreen> {
                   children: [
                     Text(
                       context.l10n.warningBannerTitle,
-                      style: const TextStyle(fontWeight: FontWeight.bold, color: AppColors.accent),
+                      style: TextStyle(fontWeight: FontWeight.bold, color: AppColors.accent),
                     ),
                     const SizedBox(height: 6),
                     Text(
@@ -214,6 +249,14 @@ class _ParametresScreenState extends ConsumerState<ParametresScreen> {
                   ],
                 ),
               ),
+            ListTile(
+              leading: const Icon(Icons.brightness_6_outlined),
+              title: Text(context.l10n.appearance),
+              subtitle: Text(_themeLabel(ref.watch(themeModeProvider))),
+              trailing: const Icon(Icons.chevron_right),
+              onTap: _pickTheme,
+            ),
+            const Divider(height: 1),
             ListTile(
               leading: const Icon(Icons.language_outlined),
               title: Text(context.l10n.language),
@@ -228,7 +271,7 @@ class _ParametresScreenState extends ConsumerState<ParametresScreen> {
               padding: const EdgeInsets.fromLTRB(16, 16, 16, 4),
               child: Text(
                 context.l10n.privacySectionTitle,
-                style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: AppColors.muted, letterSpacing: 0.5),
+                style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: AppColors.muted, letterSpacing: 0.5),
               ),
             ),
             SwitchListTile(
@@ -294,8 +337,8 @@ class _ParametresScreenState extends ConsumerState<ParametresScreen> {
               leading: _deleting
                   ? const SizedBox(
                       width: 20, height: 20, child: CircularProgressIndicator(strokeWidth: 2))
-                  : const Icon(Icons.delete_outline, color: AppColors.accent),
-              title: Text(context.l10n.deleteMyAccount, style: const TextStyle(color: AppColors.accent)),
+                  : Icon(Icons.delete_outline, color: AppColors.accent),
+              title: Text(context.l10n.deleteMyAccount, style: TextStyle(color: AppColors.accent)),
               onTap: _deleting ? null : _confirmDeleteAccount,
             ),
           ],

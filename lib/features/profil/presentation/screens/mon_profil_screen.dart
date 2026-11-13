@@ -128,13 +128,13 @@ class MonProfilScreen extends ConsumerWidget {
                                 width: 112,
                                 height: 112,
                                 clipBehavior: Clip.antiAlias,
-                                decoration: const BoxDecoration(
+                                decoration: BoxDecoration(
                                   shape: BoxShape.circle,
                                   color: AppColors.placeholder,
                                 ),
                                 child: photoUrl != null
                                     ? Image.network(photoUrl, fit: BoxFit.cover)
-                                    : const Icon(Icons.person, size: 48, color: AppColors.placeholderIcon),
+                                    : Icon(Icons.person, size: 48, color: AppColors.placeholderIcon),
                               ),
                             ),
                           ],
@@ -156,10 +156,10 @@ class MonProfilScreen extends ConsumerWidget {
                             children: [
                               Text(
                                 context.l10n.profileCompletionPercent(completionPercent),
-                                style: const TextStyle(fontWeight: FontWeight.bold, color: AppColors.accent, fontSize: 13),
+                                style: TextStyle(fontWeight: FontWeight.bold, color: AppColors.accent, fontSize: 13),
                               ),
                               const SizedBox(width: 2),
-                              const Icon(Icons.chevron_right, size: 16, color: AppColors.accent),
+                              Icon(Icons.chevron_right, size: 16, color: AppColors.accent),
                             ],
                           ),
                         ),
@@ -171,20 +171,20 @@ class MonProfilScreen extends ConsumerWidget {
                           Flexible(
                             child: Text(
                               '${profil.displayName}, ${ageFromBirthDate(profil.birthDate)}',
-                              style: const TextStyle(fontSize: 22, fontWeight: FontWeight.bold, color: AppColors.ink),
+                              style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold, color: AppColors.ink),
                               overflow: TextOverflow.ellipsis,
                             ),
                           ),
                           if (isVerified) ...[
                             const SizedBox(width: 6),
-                            const Icon(Icons.verified, color: AppColors.accent, size: 19),
+                            Icon(Icons.verified, color: AppColors.accent, size: 19),
                           ],
                         ],
                       ),
                       const SizedBox(height: 2),
                       Text(
                         '${profil.city}, ${profil.country}',
-                        style: const TextStyle(color: AppColors.muted, fontSize: 13),
+                        style: TextStyle(color: AppColors.muted, fontSize: 13),
                       ),
                       if (completion < 1) ...[
                         const SizedBox(height: 8),
@@ -193,7 +193,7 @@ class MonProfilScreen extends ConsumerWidget {
                           child: Text(
                             context.l10n.profileCompletionHint,
                             textAlign: TextAlign.center,
-                            style: const TextStyle(fontSize: 12, color: AppColors.muted),
+                            style: TextStyle(fontSize: 12, color: AppColors.muted),
                           ),
                         ),
                       ],
@@ -254,7 +254,7 @@ class MonProfilScreen extends ConsumerWidget {
                 _ProfilActionTile(
                   icon: Icons.verified_outlined,
                   title: isVerified ? context.l10n.identityVerifiedTitle : context.l10n.navIdentityVerification,
-                  trailing: isVerified ? const Icon(Icons.check_circle, color: AppColors.accent) : null,
+                  trailing: isVerified ? Icon(Icons.check_circle, color: AppColors.accent) : null,
                   onTap: isVerified
                       ? null
                       : () => Navigator.of(context).push(
@@ -269,7 +269,7 @@ class MonProfilScreen extends ConsumerWidget {
                     (ref.watch(myCompatAnswersProvider).value?.isNotEmpty ?? false)
                         ? context.l10n.compatTestDoneBadge
                         : context.l10n.compatTestTodoBadge,
-                    style: const TextStyle(fontSize: 12, color: AppColors.muted),
+                    style: TextStyle(fontSize: 12, color: AppColors.muted),
                   ),
                   onTap: () => Navigator.of(context).push(
                     MaterialPageRoute(builder: (_) => const CompatScreen()),
@@ -290,7 +290,7 @@ class MonProfilScreen extends ConsumerWidget {
                       ? context.l10n.organizerDashboardTitle
                       : context.l10n.becomeOrganizerTitle,
                   trailing: organizerStatus == 'pending'
-                      ? const Icon(Icons.hourglass_top, color: AppColors.muted)
+                      ? Icon(Icons.hourglass_top, color: AppColors.muted)
                       : null,
                   onTap: () => Navigator.of(context).push(
                     MaterialPageRoute(
@@ -425,7 +425,7 @@ class _CounterTile extends StatelessWidget {
               Container(
                 width: 36,
                 height: 36,
-                decoration: const BoxDecoration(color: AppColors.accentSoft, shape: BoxShape.circle),
+                decoration: BoxDecoration(color: AppColors.accentSoft, shape: BoxShape.circle),
                 child: Icon(icon, color: AppColors.accent, size: 18),
               ),
               const SizedBox(width: 10),
@@ -434,7 +434,7 @@ class _CounterTile extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(count, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 15)),
-                    Text(label, style: const TextStyle(fontSize: 11.5, color: AppColors.muted)),
+                    Text(label, style: TextStyle(fontSize: 11.5, color: AppColors.muted)),
                   ],
                 ),
               ),

@@ -138,7 +138,7 @@ class _ModerationRequestTile extends ConsumerWidget {
         children: [
           Row(
             children: [
-              if (isEmergency) const Icon(Icons.warning_amber_rounded, color: AppColors.accent, size: 18),
+              if (isEmergency) Icon(Icons.warning_amber_rounded, color: AppColors.accent, size: 18),
               if (isEmergency) const SizedBox(width: 6),
               Text(
                 isEmergency ? 'DANGER IMMÉDIAT' : type,
@@ -157,7 +157,7 @@ class _ModerationRequestTile extends ConsumerWidget {
             Text(
               'Signalements confirmés déjà sur ce compte : $confirmedCount'
               '${r['targetSanctionLevel'] != null && r['targetSanctionLevel'] != 'none' ? ' (actuellement : ${r['targetSanctionLevel']})' : ''}',
-              style: const TextStyle(fontSize: 12, color: AppColors.muted),
+              style: TextStyle(fontSize: 12, color: AppColors.muted),
             ),
           if (r['lastScore'] != null) Text('Score filtrage : ${r['lastScore']}'),
           if (isAppeal) Text('Sanction contestée : ${r['sanctionLevel'] ?? 'suspension (ancienne donnée)'}'),
@@ -348,7 +348,7 @@ class _OrganizerRequestsTab extends ConsumerWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(r['organizerName'] as String? ?? '', style: const TextStyle(fontWeight: FontWeight.bold)),
-                  Text('uid : ${r['uid']}', style: const TextStyle(fontSize: 12, color: AppColors.muted)),
+                  Text('uid : ${r['uid']}', style: TextStyle(fontSize: 12, color: AppColors.muted)),
                   const SizedBox(height: 4),
                   Text(r['organizerDescription'] as String? ?? ''),
                   const SizedBox(height: 8),
@@ -710,9 +710,9 @@ class _ActionLogTab extends ConsumerWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(l['action'] as String? ?? '', style: const TextStyle(fontWeight: FontWeight.bold)),
-                  Text('Par : ${l['adminUid']}', style: const TextStyle(fontSize: 12, color: AppColors.muted)),
+                  Text('Par : ${l['adminUid']}', style: TextStyle(fontSize: 12, color: AppColors.muted)),
                   if (l['targetUid'] != null)
-                    Text('Sur : ${l['targetUid']}', style: const TextStyle(fontSize: 12, color: AppColors.muted)),
+                    Text('Sur : ${l['targetUid']}', style: TextStyle(fontSize: 12, color: AppColors.muted)),
                 ],
               ),
             );

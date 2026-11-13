@@ -52,13 +52,13 @@ class EmptyStateCards extends StatelessWidget {
           Text(
             title,
             textAlign: TextAlign.center,
-            style: const TextStyle(fontSize: 17, fontWeight: FontWeight.bold, color: AppColors.ink),
+            style: TextStyle(fontSize: 17, fontWeight: FontWeight.bold, color: AppColors.ink),
           ),
           const SizedBox(height: 8),
           Text(
             subtitle,
             textAlign: TextAlign.center,
-            style: const TextStyle(fontSize: 13.5, color: AppColors.muted, height: 1.4),
+            style: TextStyle(fontSize: 13.5, color: AppColors.muted, height: 1.4),
           ),
         ],
       ),
@@ -89,7 +89,7 @@ class EmptyStateCards extends StatelessWidget {
                     if (profile.photoUrl != null)
                       Image.network(profile.photoUrl!, fit: BoxFit.cover)
                     else
-                      const Center(
+                      Center(
                         child: Icon(Icons.person_outline, color: AppColors.placeholderIcon, size: 44),
                       ),
                     Positioned(
@@ -110,7 +110,7 @@ class EmptyStateCards extends StatelessWidget {
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
                           textAlign: TextAlign.center,
-                          style: const TextStyle(color: AppColors.ink, fontWeight: FontWeight.w600, fontSize: 12.5),
+                          style: TextStyle(color: AppColors.ink, fontWeight: FontWeight.w600, fontSize: 12.5),
                         ),
                       ),
                     ),

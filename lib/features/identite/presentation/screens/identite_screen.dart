@@ -63,18 +63,18 @@ class _IdentiteScreenState extends ConsumerState<IdentiteScreen> {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              const Icon(Icons.verified_outlined, size: 56, color: AppColors.accent),
+              Icon(Icons.verified_outlined, size: 56, color: AppColors.accent),
               const SizedBox(height: 18),
               Text(
                 context.l10n.identityIntro,
                 textAlign: TextAlign.center,
-                style: const TextStyle(color: AppColors.muted, height: 1.5),
+                style: TextStyle(color: AppColors.muted, height: 1.5),
               ),
               const SizedBox(height: 10),
               Text(
                 context.l10n.identityPrivacyHint,
                 textAlign: TextAlign.center,
-                style: const TextStyle(color: AppColors.muted, fontSize: 12, height: 1.5),
+                style: TextStyle(color: AppColors.muted, fontSize: 12, height: 1.5),
               ),
               const SizedBox(height: 28),
               ElevatedButton(

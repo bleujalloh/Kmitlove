@@ -136,7 +136,7 @@ class _TipsTab extends ConsumerWidget {
                 child: Text(
                   context.l10n.noTipsYet,
                   textAlign: TextAlign.center,
-                  style: const TextStyle(color: AppColors.muted),
+                  style: TextStyle(color: AppColors.muted),
                 ),
               ),
             );
@@ -163,7 +163,7 @@ class _TipCard extends StatelessWidget {
       margin: const EdgeInsets.only(bottom: 14),
       elevation: 0,
       shape: RoundedRectangleBorder(
-        side: const BorderSide(color: AppColors.border),
+        side: BorderSide(color: AppColors.border),
         borderRadius: BorderRadius.circular(16),
       ),
       child: Padding(
@@ -177,7 +177,7 @@ class _TipCard extends StatelessWidget {
                 decoration: BoxDecoration(color: AppColors.accentSoft, borderRadius: BorderRadius.circular(999)),
                 child: Text(
                   tipCategoryLabel(category, context.l10n),
-                  style: const TextStyle(color: AppColors.accent, fontWeight: FontWeight.w600, fontSize: 11),
+                  style: TextStyle(color: AppColors.accent, fontWeight: FontWeight.w600, fontSize: 11),
                 ),
               ),
               const SizedBox(height: 8),
@@ -208,7 +208,7 @@ class _PostCard extends StatelessWidget {
         margin: const EdgeInsets.only(bottom: 14),
         elevation: 0,
         shape: RoundedRectangleBorder(
-          side: const BorderSide(color: AppColors.border),
+          side: BorderSide(color: AppColors.border),
           borderRadius: BorderRadius.circular(16),
         ),
         child: InkWell(
@@ -234,7 +234,7 @@ class _PostCard extends StatelessWidget {
       margin: const EdgeInsets.only(bottom: 14),
       elevation: 0,
       shape: RoundedRectangleBorder(
-        side: const BorderSide(color: AppColors.border),
+        side: BorderSide(color: AppColors.border),
         borderRadius: BorderRadius.circular(16),
       ),
       child: ListTile(

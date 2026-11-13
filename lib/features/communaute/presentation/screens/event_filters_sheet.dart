@@ -78,7 +78,7 @@ class _EventFiltersSheetState extends ConsumerState<_EventFiltersSheet> {
 
     Widget label(String text) => Padding(
           padding: const EdgeInsets.only(top: 18, bottom: 8),
-          child: Text(text, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13, color: AppColors.accent)),
+          child: Text(text, style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13, color: AppColors.accent)),
         );
 
     return SafeArea(
@@ -142,7 +142,7 @@ class _EventFiltersSheetState extends ConsumerState<_EventFiltersSheet> {
                     label(context.l10n.eventsFilterDistance),
                     if (!hasPosition)
                       Text(context.l10n.eventsDistanceNeedsPosition,
-                          style: const TextStyle(color: AppColors.muted, fontSize: 12.5, height: 1.4))
+                          style: TextStyle(color: AppColors.muted, fontSize: 12.5, height: 1.4))
                     else ...[
                       Row(
                         children: [
@@ -172,7 +172,7 @@ class _EventFiltersSheetState extends ConsumerState<_EventFiltersSheet> {
                         ],
                       ),
                       Text(context.l10n.eventsDistanceApproximate,
-                          style: const TextStyle(color: AppColors.muted, fontSize: 11.5)),
+                          style: TextStyle(color: AppColors.muted, fontSize: 11.5)),
                     ],
                     label(context.l10n.eventsFilterCategory),
                     Wrap(

@@ -138,7 +138,7 @@ class _ReceivedTab extends ConsumerWidget {
                 ),
                 style: OutlinedButton.styleFrom(
                   foregroundColor: AppColors.ink,
-                  side: const BorderSide(color: AppColors.border),
+                  side: BorderSide(color: AppColors.border),
                   padding: const EdgeInsets.symmetric(vertical: 14),
                   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(999)),
                 ),
@@ -188,7 +188,7 @@ class _ReceivedTab extends ConsumerWidget {
               color: AppColors.placeholder,
               borderRadius: BorderRadius.circular(16),
             ),
-            child: const Center(
+            child: Center(
               child: Icon(Icons.lock_outline, color: AppColors.placeholderIcon),
             ),
           ),
@@ -206,7 +206,7 @@ class _ReceivedTab extends ConsumerWidget {
                     Text(context.l10n.seeWhoLikedYou, style: const TextStyle(fontWeight: FontWeight.bold)),
                     Text(
                       context.l10n.unlockProfilesWithPremium(likes.likesReceivedCount),
-                      style: const TextStyle(fontSize: 12, color: AppColors.muted),
+                      style: TextStyle(fontSize: 12, color: AppColors.muted),
                     ),
                   ],
                 ),
@@ -216,7 +216,7 @@ class _ReceivedTab extends ConsumerWidget {
                 decoration: BoxDecoration(color: AppColors.surfaceDark, borderRadius: BorderRadius.circular(999)),
                 child: Text(
                   context.l10n.premiumTeaserPrice,
-                  style: const TextStyle(color: AppColors.accent, fontWeight: FontWeight.bold),
+                  style: TextStyle(color: AppColors.accent, fontWeight: FontWeight.bold),
                 ),
               ),
             ],
@@ -324,7 +324,7 @@ class _ProfileGrid extends ConsumerWidget {
                     color: AppColors.placeholder,
                     child: photoUrl != null
                         ? Image.network(photoUrl, fit: BoxFit.cover, width: double.infinity)
-                        : const Icon(Icons.person_outline, color: AppColors.placeholderIcon),
+                        : Icon(Icons.person_outline, color: AppColors.placeholderIcon),
                   ),
                 ),
                 Padding(
@@ -343,11 +343,11 @@ class _ProfileGrid extends ConsumerWidget {
                           ),
                           if (p.isVerified) ...[
                             const SizedBox(width: 3),
-                            const Icon(Icons.verified, color: AppColors.accent, size: 13),
+                            Icon(Icons.verified, color: AppColors.accent, size: 13),
                           ],
                         ],
                       ),
-                      Text(p.city, style: const TextStyle(fontSize: 11, color: AppColors.muted)),
+                      Text(p.city, style: TextStyle(fontSize: 11, color: AppColors.muted)),
                     ],
                   ),
                 ),

@@ -1802,6 +1802,30 @@ abstract class AppLocalizations {
   /// **'À faire'**
   String get compatTestTodoBadge;
 
+  /// No description provided for @appearance.
+  ///
+  /// In fr, this message translates to:
+  /// **'Apparence'**
+  String get appearance;
+
+  /// No description provided for @themeSystem.
+  ///
+  /// In fr, this message translates to:
+  /// **'Thème du système'**
+  String get themeSystem;
+
+  /// No description provided for @themeLight.
+  ///
+  /// In fr, this message translates to:
+  /// **'Clair'**
+  String get themeLight;
+
+  /// No description provided for @themeDark.
+  ///
+  /// In fr, this message translates to:
+  /// **'Sombre'**
+  String get themeDark;
+
   /// Heure d'une conversation dont le dernier message date de la veille (liste Messages)
   ///
   /// In fr, this message translates to:

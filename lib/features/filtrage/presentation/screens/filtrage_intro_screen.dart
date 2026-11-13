@@ -18,18 +18,18 @@ class FiltrageIntroScreen extends ConsumerWidget {
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                const Icon(Icons.fact_check_outlined, size: 56, color: AppColors.accent),
+                Icon(Icons.fact_check_outlined, size: 56, color: AppColors.accent),
                 const SizedBox(height: 18),
                 Text(
                   context.l10n.filtrageIntroTitle,
-                  style: const TextStyle(fontSize: 20, fontWeight: FontWeight.w600, color: AppColors.ink),
+                  style: TextStyle(fontSize: 20, fontWeight: FontWeight.w600, color: AppColors.ink),
                   textAlign: TextAlign.center,
                 ),
                 const SizedBox(height: 12),
                 Text(
                   context.l10n.filtrageIntroBody,
                   textAlign: TextAlign.center,
-                  style: const TextStyle(color: AppColors.muted, height: 1.5),
+                  style: TextStyle(color: AppColors.muted, height: 1.5),
                 ),
                 const SizedBox(height: 28),
                 SizedBox(

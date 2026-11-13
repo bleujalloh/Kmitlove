@@ -95,7 +95,7 @@ class DecouvrirScreen extends ConsumerWidget {
                 children: [
                   Text(
                     context.l10n.discoverSubtitle,
-                    style: const TextStyle(
+                    style: TextStyle(
                       color: AppColors.muted,
                       fontSize: 13,
                     ),
@@ -334,7 +334,7 @@ class DecouvrirScreen extends ConsumerWidget {
                                       ),
                                       child: Text(
                                         '$jetons',
-                                        style: const TextStyle(
+                                        style: TextStyle(
                                           color: AppColors.accent,
                                           fontSize: 11,
                                           fontWeight: FontWeight.bold,
@@ -576,7 +576,7 @@ class _CandidateCardContent extends ConsumerWidget {
                         width: double.infinity,
                         height: 340,
                       )
-                    : const Icon(
+                    : Icon(
                         Icons.person_outline,
                         size: 46,
                         color: AppColors.placeholderIcon,
@@ -671,7 +671,7 @@ class _CandidateCardContent extends ConsumerWidget {
                     Flexible(
                       child: Text(
                         '${candidate.displayName}, ${candidate.age}',
-                        style: const TextStyle(
+                        style: TextStyle(
                           fontSize: 22,
                           fontWeight: FontWeight.bold,
                           color: AppColors.ink,
@@ -681,7 +681,7 @@ class _CandidateCardContent extends ConsumerWidget {
                     ),
                     if (candidate.isVerified) ...[
                       const SizedBox(width: 6),
-                      const Icon(
+                      Icon(
                         Icons.verified,
                         color: AppColors.accent,
                         size: 19,
@@ -712,7 +712,7 @@ class _CandidateCardContent extends ConsumerWidget {
                 const SizedBox(height: 4),
                 Row(
                   children: [
-                    const Icon(
+                    Icon(
                       Icons.place_outlined,
                       size: 15,
                       color: AppColors.muted,
@@ -729,7 +729,7 @@ class _CandidateCardContent extends ConsumerWidget {
                               candidate.city,
                               candidate.country,
                             ),
-                      style: const TextStyle(
+                      style: TextStyle(
                         color: AppColors.muted,
                         fontSize: 13,
                       ),
@@ -1100,11 +1100,11 @@ class _LocationSwitchPillState extends ConsumerState<_LocationSwitchPill> {
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          const Icon(Icons.my_location, size: 15, color: AppColors.accent),
+          Icon(Icons.my_location, size: 15, color: AppColors.accent),
           const SizedBox(width: 6),
           Text(
             context.l10n.myLocationPillLabel,
-            style: const TextStyle(
+            style: TextStyle(
               fontSize: 12.5,
               fontWeight: FontWeight.w600,
               color: AppColors.ink,
@@ -1375,7 +1375,7 @@ class _FiltersSheetState extends ConsumerState<_FiltersSheet> {
           const SizedBox(height: 4),
           Text(
             context.l10n.locationFilterHint,
-            style: const TextStyle(fontSize: 12.5, color: AppColors.muted),
+            style: TextStyle(fontSize: 12.5, color: AppColors.muted),
           ),
           const SizedBox(height: 10),
           // Sélecteurs réels (liste ISO 3166-1 / suggestions de villes déjà
@@ -1455,13 +1455,13 @@ class _RoundButton extends StatelessWidget {
     required this.icon,
     required this.color,
     required this.onTap,
-    this.background = AppColors.background,
+    this.background,
     this.size = 48,
   });
 
   final IconData icon;
   final Color color;
-  final Color background;
+  final Color? background;
   final double size;
   final VoidCallback onTap;
 
@@ -1474,9 +1474,9 @@ class _RoundButton extends StatelessWidget {
         width: size,
         height: size,
         decoration: BoxDecoration(
-          color: background,
+          color: background ?? AppColors.background,
           shape: BoxShape.circle,
-          border: background == AppColors.background
+          border: background == null
               ? Border.all(color: AppColors.border)
               : null,
         ),
