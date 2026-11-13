@@ -837,10 +837,10 @@ Règles ajoutées au règlement permanent (sections 18 à 24 : prototype = impla
 - [x] **Messages (prototype `Messages.dc.html`)** : ajouté la rangée de ronds des matchs (photo + prénom, contour accent s'il y a du nouveau), l'heure du dernier message (aujourd'hui `HH:mm`, « hier », jour abrégé, puis jour/mois), la pastille « non lu » et le vrai portrait du membre à la place de la silhouette grise. Réutilise `candidateFirstPhotoUrlProvider` (même source que Découvrir et Likes), `MessagesRepository` (+ `watchLastMessage`), aucune nouvelle collection. Test : `message_time_test.dart` (4 cas). `flutter analyze` propre. Données de test créées en production pour le contrôle (3 matchs avec Bleuro, marqués `testData: true`, à supprimer avant ouverture : `make_test_matches.py … delete`).
 - [ ] **Non vérifié sur appareil réel** : APK installé mais le téléphone était verrouillé, aucune capture de la nouvelle liste Messages.
 - [ ] **Écarts constatés, pas encore implantés** (comparaison avec les 5 prototypes d'origine du 09/11 ; les captures annotées ultérieures du propriétaire ne sont pas sur disque et peuvent en avoir remplacé certains éléments — à confirmer avant de les ajouter) :
-  - Découvrir : le prototype a 4 boutons (passer, **retour/annuler le dernier passage**, like, **éclair**) ; l'appli a passer, like, Super Like (étoile). Le bouton retour n'existe pas (nécessite une fonction serveur d'annulation + droit Premium).
+  - Découvrir : le prototype a 4 boutons (passer, **retour/annuler le dernier passage**, like, **éclair**) — **repris plus bas** (retour et éclair ajoutés, retour non déployé).
   - Communauté : une publication du fil affiche un compteur de j'aime et « N réponses » ; l'appli n'a ni j'aime ni réponses sur les publications (ni collection, ni règle).
   - Questionnaire de filtrage : le prototype a le bouton « Passer », la catégorie de la question (« Histoire et civilisation ») et une option « Je ne sais pas » ; l'appli n'a aucun des trois (règle de score à décider pour « Je ne sais pas » et « Passer »).
-  - Écran vide de Messages/Likes : trois cartes en éventail sans profils ; à clarifier avec la référence BPM du propriétaire.
+  - Écran vide de Messages/Likes : trois cartes en éventail sans profils — **repris plus bas** (vrais profils existants).
 - [ ] Défaut noté : `onMessageCreated` écrit `lastMessagePreview` selon l'ordre de traitement des déclencheurs, pas selon la date des messages ; deux messages rapprochés peuvent laisser l'aperçu du plus ancien.
 
 ## Suivi 2026-11-13 (suite) — écarts de prototype implantés
