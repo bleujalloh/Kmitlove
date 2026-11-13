@@ -853,3 +853,11 @@ Règles ajoutées au règlement permanent (sections 18 à 24 : prototype = impla
 - [x] **Découvrir, rangée d'actions du prototype** : flèche « retour » (annule le dernier passage) et éclair (Boost, `activateProfileBoost` déjà existant) ajoutés ; le Super Like (étoile, coût en jeton) est conservé.
 - [ ] **NON DÉPLOYÉ — retour** : `undoLastSwipe` (nouvelle) et `recordSwipe` (mémorise `lastPassTargetUid`) sont dans le dépôt (commit `83a2ecc`) mais pas en production : le déploiement a été refusé par le garde-fou de l'environnement, il faut un accord explicite du propriétaire. Tant que ce n'est pas fait, le bouton retour répond par une erreur. Règle posée (la plus stricte, aucune règle antérieure) : Premium uniquement, passage uniquement (jamais un like), dernier swipe uniquement.
 - [ ] Non vérifié sur appareil réel : Messages (rangée de matchs, heure, non lu), Questionnaire (Passer / Je ne sais pas), Communauté (j'aime, réponses), écrans vides, rangée d'actions de Découvrir. APK `83a2ecc` construit, non installé (téléphone en appel au moment de la tentative).
+
+## Suivi 2026-11-13 (suite) — Profil : voir mes photos et mon profil vu de l'extérieur (commit après `6206cb5`)
+
+Demande du propriétaire : dans l'onglet Profil, les photos téléchargées ou en attente ne pouvaient pas être affichées, et il manquait une vue extérieure du profil.
+
+- [x] **Visionneuse de mes photos** (`photo_viewer_screen.dart`) : toucher une photo de la galerie l'ouvre en plein écran (balayage entre les photos, zoom, statut Validée / En attente / Refusée et explication de la visibilité). Fonctionne pour les photos en attente ou refusées, invisibles pour les autres membres. L'appui long pour supprimer est conservé.
+- [x] **Aperçu « Voir mon profil comme les autres »** : nouvelle entrée de l'onglet Profil qui ouvre la fiche existante `ProfilDetailScreen` (réutilisée, pas de seconde fiche) en mode `isPreview` : mêmes données publiques et photos approuvées seulement, sans score de compatibilité avec soi-même, avec un bandeau explicatif.
+- [ ] Non vérifié sur appareil réel (téléphone verrouillé au moment de l'installation). Analyse propre, 17 tests verts.
