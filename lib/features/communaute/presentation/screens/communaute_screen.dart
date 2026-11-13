@@ -65,6 +65,8 @@ class _FeedTab extends ConsumerWidget {
         loading: () => const Center(child: CircularProgressIndicator()),
         error: (e, st) => Center(child: Text(context.l10n.feedLoadFailed)),
         data: (posts) {
+          // Seules les publications : annonces et événements ont leurs onglets.
+          posts = posts.where((p) => p.type == 'publication').toList();
           if (posts.isEmpty) {
             return Center(child: Text(context.l10n.nothingToShowYet));
           }

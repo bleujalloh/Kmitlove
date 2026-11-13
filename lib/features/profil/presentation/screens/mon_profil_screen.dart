@@ -208,9 +208,7 @@ class MonProfilScreen extends ConsumerWidget {
                         icon: Icons.bolt,
                         count: '$jetons',
                         label: context.l10n.jetonsCounterLabel,
-                        onTap: () => Navigator.of(context).push(
-                          MaterialPageRoute(builder: (_) => const PremiumScreen()),
-                        ),
+                        onTap: null,
                       ),
                     ),
                     const SizedBox(width: 12),
@@ -219,9 +217,7 @@ class MonProfilScreen extends ConsumerWidget {
                         icon: Icons.rocket_launch_outlined,
                         count: isBoostedNow ? '1' : (isPremium ? context.l10n.boostCounterIncluded : '0'),
                         label: context.l10n.boostCounterLabel,
-                        onTap: () => Navigator.of(context).push(
-                          MaterialPageRoute(builder: (_) => const PremiumScreen()),
-                        ),
+                        onTap: null,
                       ),
                     ),
                   ],
@@ -405,7 +401,7 @@ class _CounterTile extends StatelessWidget {
   final IconData icon;
   final String count;
   final String label;
-  final VoidCallback onTap;
+  final VoidCallback? onTap;
 
   @override
   Widget build(BuildContext context) {
