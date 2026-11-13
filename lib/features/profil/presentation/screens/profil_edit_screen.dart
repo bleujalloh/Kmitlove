@@ -223,6 +223,7 @@ class _ProfilEditScreenState extends ConsumerState<ProfilEditScreen> {
                   decoration: InputDecoration(
                     labelText: context.l10n.birthDateLabel,
                     helperText: widget.existing != null ? context.l10n.identityFieldLocked : null,
+                    helperMaxLines: 2,
                   ),
                   child: Text(
                     _birthDate == null
@@ -237,6 +238,7 @@ class _ProfilEditScreenState extends ConsumerState<ProfilEditScreen> {
                 decoration: InputDecoration(
                   labelText: context.l10n.genderLabel,
                   helperText: widget.existing != null ? context.l10n.identityFieldLocked : null,
+                    helperMaxLines: 2,
                 ),
                 items: Gender.all
                     .map(
