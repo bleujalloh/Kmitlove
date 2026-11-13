@@ -146,43 +146,19 @@ class _QuestionView extends ConsumerWidget {
                     ),
                   ),
                   const SizedBox(height: 22),
-                  ...List.generate(question.options.length, (i) {
-                    final isSelected = selected == i;
-                    return Padding(
-                      padding: const EdgeInsets.only(bottom: 10),
-                      child: InkWell(
-                        onTap: () => controller.selectAnswer(i),
-                        borderRadius: BorderRadius.circular(14),
-                        child: Container(
-                          padding: const EdgeInsets.all(16),
-                          decoration: BoxDecoration(
-                            color: isSelected ? AppColors.accentSoft : AppColors.background,
-                            border: Border.all(
-                              color: isSelected ? AppColors.accent : AppColors.border,
-                              width: 1.5,
-                            ),
-                            borderRadius: BorderRadius.circular(14),
-                          ),
-                          child: Row(
-                            children: [
-                              Expanded(
-                                child: Text(
-                                  question.options[i],
-                                  style: TextStyle(
-                                    fontSize: 14.5,
-                                    color: AppColors.ink,
-                                    fontWeight: isSelected ? FontWeight.w700 : FontWeight.normal,
-                                  ),
-                                ),
-                              ),
-                              if (isSelected)
-                                const Icon(Icons.check, size: 18, color: AppColors.accent),
-                            ],
-                          ),
-                        ),
-                      ),
-                    );
-                  }),
+                  ...List.generate(
+                    question.options.length,
+                    (i) => _AnswerOption(
+                      label: question.options[i],
+                      isSelected: selected == i,
+                      onTap: () => controller.selectAnswer(i),
+                    ),
+                  ),
+                  _AnswerOption(
+                    label: context.l10n.dontKnowOption,
+                    isSelected: selected == FiltrageController.unknownAnswer,
+                    onTap: () => controller.selectAnswer(FiltrageController.unknownAnswer),
+                  ),
                   const SizedBox(height: 10),
                   Container(
                     padding: const EdgeInsets.all(14),
@@ -201,23 +177,78 @@ class _QuestionView extends ConsumerWidget {
             ),
             Padding(
               padding: const EdgeInsets.fromLTRB(28, 16, 28, 28),
-              child: SizedBox(
-                width: double.infinity,
-                child: ElevatedButton(
-                  onPressed: selected == null
-                      ? null
-                      : () {
-                          if (attempt.isLastQuestion) {
-                            controller.submit();
-                          } else {
-                            controller.goToNextQuestion();
-                          }
-                        },
-                  child: Text(attempt.isLastQuestion ? context.l10n.finishButton : context.l10n.nextQuestion),
-                ),
+              child: Row(
+                children: [
+                  OutlinedButton(
+                    onPressed: controller.skipQuestion,
+                    child: Text(context.l10n.skipQuestion),
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: ElevatedButton(
+                      onPressed: selected == null
+                          ? null
+                          : () {
+                              if (attempt.isLastQuestion) {
+                                controller.submit();
+                              } else {
+                                controller.goToNextQuestion();
+                              }
+                            },
+                      child: Text(attempt.isLastQuestion ? context.l10n.finishButton : context.l10n.nextQuestion),
+                    ),
+                  ),
+                ],
               ),
             ),
           ],
+        ),
+      ),
+    );
+  }
+}
+
+/// Une réponse proposée (même rendu pour les vraies options et pour
+/// « Je ne sais pas »).
+class _AnswerOption extends StatelessWidget {
+  const _AnswerOption({required this.label, required this.isSelected, required this.onTap});
+
+  final String label;
+  final bool isSelected;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 10),
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(14),
+        child: Container(
+          padding: const EdgeInsets.all(16),
+          decoration: BoxDecoration(
+            color: isSelected ? AppColors.accentSoft : AppColors.background,
+            border: Border.all(
+              color: isSelected ? AppColors.accent : AppColors.border,
+              width: 1.5,
+            ),
+            borderRadius: BorderRadius.circular(14),
+          ),
+          child: Row(
+            children: [
+              Expanded(
+                child: Text(
+                  label,
+                  style: TextStyle(
+                    fontSize: 14.5,
+                    color: AppColors.ink,
+                    fontWeight: isSelected ? FontWeight.w700 : FontWeight.normal,
+                  ),
+                ),
+              ),
+              if (isSelected) const Icon(Icons.check, size: 18, color: AppColors.accent),
+            ],
+          ),
         ),
       ),
     );

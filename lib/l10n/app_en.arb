@@ -261,6 +261,8 @@
   "conversationsLoadFailed": "Couldn't load conversations.",
   "noMatchesYet": "Your next matches start here",
   "noMatchesYetHint": "Complete your profile and explore Discover to get your first matches.",
+  "skipQuestion": "Skip",
+  "dontKnowOption": "I don't know",
   "messageTimeYesterday": "yesterday",
   "sayHelloPreview": "Say hello 👋",
   "beforeSendingPhotoTitle": "Before sending a photo",

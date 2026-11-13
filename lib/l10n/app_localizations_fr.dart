@@ -790,6 +790,12 @@ class AppLocalizationsFr extends AppLocalizations {
       'Complète ton profil et explore Découvrir pour obtenir tes premiers matchs.';
 
   @override
+  String get skipQuestion => 'Passer';
+
+  @override
+  String get dontKnowOption => 'Je ne sais pas';
+
+  @override
   String get messageTimeYesterday => 'hier';
 
   @override

@@ -71,6 +71,28 @@ class FiltrageController extends AsyncNotifier<FiltrageAttemptState?> {
     state = AsyncData(current.copyWith(answers: updatedAnswers));
   }
 
+  /// Valeur de `answers` pour « Je ne sais pas » (option du prototype
+  /// Questionnaire.dc.html) : jamais envoyée au serveur, une question non
+  /// répondue compte comme une mauvaise réponse
+  /// (docs/regles-du-projet.md, section 1) — submitAttempt.ts le gère déjà.
+  static const unknownAnswer = -1;
+
+  /// « Passer » : on avance sans répondre (une éventuelle réponse déjà
+  /// choisie sur cette question est retirée). À la dernière question,
+  /// on termine le questionnaire.
+  Future<void> skipQuestion() async {
+    final current = state.value;
+    if (current == null) return;
+    final updated = Map<String, int>.from(current.answers)
+      ..remove(current.currentQuestion.id);
+    state = AsyncData(current.copyWith(answers: updated));
+    if (current.isLastQuestion) {
+      await submit();
+    } else {
+      goToNextQuestion();
+    }
+  }
+
   void goToNextQuestion() {
     final current = state.value;
     if (current == null || current.isLastQuestion) return;
@@ -84,7 +106,10 @@ class FiltrageController extends AsyncNotifier<FiltrageAttemptState?> {
     try {
       final result = await ref.read(filtrageRepositoryProvider).submitAttempt(
             attemptId: current.attemptId,
-            answers: current.answers,
+            answers: {
+              for (final e in current.answers.entries)
+                if (e.value != unknownAnswer) e.key: e.value,
+            },
           );
       state = AsyncData(current.copyWith(result: result));
     } catch (e, st) {

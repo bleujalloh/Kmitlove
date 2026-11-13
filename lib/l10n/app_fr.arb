@@ -280,6 +280,8 @@
   "conversationsLoadFailed": "Impossible de charger les conversations.",
   "noMatchesYet": "Tes prochains matchs commencent ici",
   "noMatchesYetHint": "Complète ton profil et explore Découvrir pour obtenir tes premiers matchs.",
+  "skipQuestion": "Passer",
+  "dontKnowOption": "Je ne sais pas",
   "messageTimeYesterday": "hier",
   "@messageTimeYesterday": {"description": "Heure d'une conversation dont le dernier message date de la veille (liste Messages)"},
   "sayHelloPreview": "Dites bonjour 👋",

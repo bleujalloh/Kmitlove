@@ -1496,6 +1496,18 @@ abstract class AppLocalizations {
   /// **'Complète ton profil et explore Découvrir pour obtenir tes premiers matchs.'**
   String get noMatchesYetHint;
 
+  /// No description provided for @skipQuestion.
+  ///
+  /// In fr, this message translates to:
+  /// **'Passer'**
+  String get skipQuestion;
+
+  /// No description provided for @dontKnowOption.
+  ///
+  /// In fr, this message translates to:
+  /// **'Je ne sais pas'**
+  String get dontKnowOption;
+
   /// Heure d'une conversation dont le dernier message date de la veille (liste Messages)
   ///
   /// In fr, this message translates to:

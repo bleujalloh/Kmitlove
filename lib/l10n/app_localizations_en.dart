@@ -783,6 +783,12 @@ class AppLocalizationsEn extends AppLocalizations {
       'Complete your profile and explore Discover to get your first matches.';
 
   @override
+  String get skipQuestion => 'Skip';
+
+  @override
+  String get dontKnowOption => 'I don\'t know';
+
+  @override
   String get messageTimeYesterday => 'yesterday';
 
   @override
