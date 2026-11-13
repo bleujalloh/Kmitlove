@@ -5,6 +5,7 @@ import '../../../../core/theme/app_theme.dart';
 import '../../../../l10n/l10n_extensions.dart';
 import '../../domain/profil_photo.dart';
 import '../photo_controller.dart';
+import 'photo_viewer_screen.dart';
 
 /// Galerie de photos avec statut visible (en attente/validée), ajout et
 /// suppression — docs/regles-messagerie-securite.md section 1 : la
@@ -29,7 +30,8 @@ class PhotosSection extends ConsumerWidget {
             child: ListView(
               scrollDirection: Axis.horizontal,
               children: [
-                for (final photo in photos) _PhotoTile(photo: photo),
+                for (var i = 0; i < photos.length; i++)
+                  _PhotoTile(photo: photos[i], allPhotos: photos, index: i),
                 _AddPhotoTile(count: photos.length),
               ],
             ),
@@ -41,15 +43,22 @@ class PhotosSection extends ConsumerWidget {
 }
 
 class _PhotoTile extends ConsumerWidget {
-  const _PhotoTile({required this.photo});
+  const _PhotoTile({required this.photo, required this.allPhotos, required this.index});
 
   final ProfilPhoto photo;
+  final List<ProfilPhoto> allPhotos;
+  final int index;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     return Padding(
       padding: const EdgeInsets.only(right: 10),
       child: GestureDetector(
+        onTap: () => Navigator.of(context).push(
+          MaterialPageRoute(
+            builder: (_) => PhotoViewerScreen(photos: allPhotos, initialIndex: index),
+          ),
+        ),
         onLongPress: () => _confirmDelete(context, ref),
         child: Stack(
           children: [

@@ -830,6 +830,28 @@ class AppLocalizationsFr extends AppLocalizations {
   String get undoLastPassButton => 'Revenir au dernier profil';
 
   @override
+  String get photoApproved => 'Validée';
+
+  @override
+  String get photoVisibleToOthers =>
+      'Cette photo est visible par les autres membres.';
+
+  @override
+  String get photoPendingHint =>
+      'En attente de validation : les autres membres ne la voient pas encore.';
+
+  @override
+  String get photoRejectedHint =>
+      'Photo refusée : elle n\'est pas visible par les autres membres. Supprime-la (appui long) et ajoutes-en une autre.';
+
+  @override
+  String get viewMyProfileAsOthers => 'Voir mon profil comme les autres';
+
+  @override
+  String get profilePreviewBanner =>
+      'Aperçu : voici ce que les autres membres voient. Seules tes photos validées sont visibles.';
+
+  @override
   String get messageTimeYesterday => 'hier';
 
   @override

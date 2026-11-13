@@ -1556,6 +1556,42 @@ abstract class AppLocalizations {
   /// **'Revenir au dernier profil'**
   String get undoLastPassButton;
 
+  /// No description provided for @photoApproved.
+  ///
+  /// In fr, this message translates to:
+  /// **'Validée'**
+  String get photoApproved;
+
+  /// No description provided for @photoVisibleToOthers.
+  ///
+  /// In fr, this message translates to:
+  /// **'Cette photo est visible par les autres membres.'**
+  String get photoVisibleToOthers;
+
+  /// No description provided for @photoPendingHint.
+  ///
+  /// In fr, this message translates to:
+  /// **'En attente de validation : les autres membres ne la voient pas encore.'**
+  String get photoPendingHint;
+
+  /// No description provided for @photoRejectedHint.
+  ///
+  /// In fr, this message translates to:
+  /// **'Photo refusée : elle n\'est pas visible par les autres membres. Supprime-la (appui long) et ajoutes-en une autre.'**
+  String get photoRejectedHint;
+
+  /// No description provided for @viewMyProfileAsOthers.
+  ///
+  /// In fr, this message translates to:
+  /// **'Voir mon profil comme les autres'**
+  String get viewMyProfileAsOthers;
+
+  /// No description provided for @profilePreviewBanner.
+  ///
+  /// In fr, this message translates to:
+  /// **'Aperçu : voici ce que les autres membres voient. Seules tes photos validées sont visibles.'**
+  String get profilePreviewBanner;
+
   /// Heure d'une conversation dont le dernier message date de la veille (liste Messages)
   ///
   /// In fr, this message translates to:

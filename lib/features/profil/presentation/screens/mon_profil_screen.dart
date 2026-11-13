@@ -19,6 +19,7 @@ import '../../../premium/presentation/screens/premium_screen.dart';
 import '../photo_controller.dart';
 import '../profil_controller.dart';
 import 'photos_section.dart';
+import 'profil_detail_screen.dart';
 import 'profil_edit_screen.dart';
 
 /// Onglet "Profil" — ta propre fiche telle que tu peux la revoir et la
@@ -235,6 +236,20 @@ class MonProfilScreen extends ConsumerWidget {
                   onTap: () => Navigator.of(context).push(
                     MaterialPageRoute(builder: (_) => ProfilEditScreen(existing: profil)),
                   ),
+                ),
+                const SizedBox(height: 10),
+                _ProfilActionTile(
+                  icon: Icons.visibility_outlined,
+                  title: context.l10n.viewMyProfileAsOthers,
+                  onTap: () {
+                    final uid = ref.read(firebaseAuthProvider).currentUser?.uid;
+                    if (uid == null) return;
+                    Navigator.of(context).push(
+                      MaterialPageRoute(
+                        builder: (_) => ProfilDetailScreen(uid: uid, isVerified: isVerified, isPreview: true),
+                      ),
+                    );
+                  },
                 ),
                 const SizedBox(height: 10),
                 _ProfilActionTile(

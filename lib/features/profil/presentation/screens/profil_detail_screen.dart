@@ -18,9 +18,16 @@ class ProfilDetailScreen extends ConsumerWidget {
     super.key,
     required this.uid,
     this.isVerified = false,
+    this.isPreview = false,
   });
 
   final String uid;
+
+  /// Aperçu de MON profil tel que les autres le voient (onglet Profil) :
+  /// même fiche, mêmes données publiques (photos approuvées seulement),
+  /// sans score de compatibilité avec soi-même, avec un bandeau
+  /// explicatif.
+  final bool isPreview;
 
   /// Fourni par l'appelant quand il le connaît déjà (ex.
   /// MiniProfile.isVerified, déjà renvoyé par getLikes.ts) : `user_status`
@@ -34,7 +41,7 @@ class ProfilDetailScreen extends ConsumerWidget {
     final photoUrls =
         ref.watch(targetProfilePhotoUrlsProvider(uid)).value ??
         const <String>[];
-    final compatScore = ref.watch(compatScoreWithProvider(uid)).value;
+    final compatScore = isPreview ? null : ref.watch(compatScoreWithProvider(uid)).value;
 
     return Scaffold(
       body: profileAsync.when(
@@ -70,6 +77,29 @@ class ProfilDetailScreen extends ConsumerWidget {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
+                      if (isPreview) ...[
+                        Container(
+                          padding: const EdgeInsets.all(12),
+                          decoration: BoxDecoration(
+                            color: AppColors.backgroundSoft,
+                            border: Border.all(color: AppColors.border),
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          child: Row(
+                            children: [
+                              const Icon(Icons.visibility_outlined, size: 18, color: AppColors.accent),
+                              const SizedBox(width: 10),
+                              Expanded(
+                                child: Text(
+                                  context.l10n.profilePreviewBanner,
+                                  style: const TextStyle(fontSize: 12.5, height: 1.4, color: AppColors.muted),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                        const SizedBox(height: 16),
+                      ],
                       Row(
                         children: [
                           Flexible(
