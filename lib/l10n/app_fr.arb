@@ -289,6 +289,8 @@
   "publicationByMember": "Publication communautaire",
   "postRepliesCount": "{count, plural, =0{Aucune réponse} =1{1 réponse} other{{count} réponses}}",
   "@postRepliesCount": {"placeholders": {"count": {"type": "int"}}},
+  "rewindPremiumOnly": "Revenir en arrière est réservé aux membres Premium.",
+  "undoLastPassButton": "Revenir au dernier profil",
   "messageTimeYesterday": "hier",
   "@messageTimeYesterday": {"description": "Heure d'une conversation dont le dernier message date de la veille (liste Messages)"},
   "sayHelloPreview": "Dites bonjour 👋",

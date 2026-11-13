@@ -109,6 +109,10 @@ export const recordSwipe = onCall({ region: REGION }, async (request) => {
       action,
       createdAt: FieldValue.serverTimestamp(),
     });
+    // Seul le TOUT DERNIER swipe peut être annulé (undoLastSwipe), et
+    // seulement s'il s'agit d'un passage : tout autre swipe efface la
+    // mémoire du précédent.
+    tx.set(statusRef, { lastPassTargetUid: action === "pass" ? targetUid : null }, { merge: true });
 
     if (!isLikeAction) return false;
 

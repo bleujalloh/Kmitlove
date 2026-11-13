@@ -823,6 +823,13 @@ class AppLocalizationsFr extends AppLocalizations {
   }
 
   @override
+  String get rewindPremiumOnly =>
+      'Revenir en arrière est réservé aux membres Premium.';
+
+  @override
+  String get undoLastPassButton => 'Revenir au dernier profil';
+
+  @override
   String get messageTimeYesterday => 'hier';
 
   @override

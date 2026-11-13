@@ -269,6 +269,8 @@
   "repliesTitle": "Replies",
   "publicationByMember": "Community post",
   "postRepliesCount": "{count, plural, =0{No replies} =1{1 reply} other{{count} replies}}",
+  "rewindPremiumOnly": "Going back is reserved for Premium members.",
+  "undoLastPassButton": "Back to the last profile",
   "messageTimeYesterday": "yesterday",
   "sayHelloPreview": "Say hello 👋",
   "beforeSendingPhotoTitle": "Before sending a photo",

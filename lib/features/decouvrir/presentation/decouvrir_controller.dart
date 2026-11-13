@@ -36,6 +36,18 @@ final candidateFirstPhotoUrlProvider = FutureProvider.autoDispose.family<String?
   return ref.watch(photoRepositoryProvider).getDownloadUrl(paths.first);
 });
 
+/// Photos (au plus 3) des prochains profils que Découvrir propose déjà au
+/// membre — illustre les écrans vides Likes/Messages avec de vrais profils
+/// existants (EmptyStateCards). Réutilise la file de candidats et le
+/// fournisseur de photos de Découvrir : aucune requête ni donnée en plus,
+/// et aucun profil que le membre ne verrait pas déjà dans Découvrir.
+final suggestedProfilePhotosProvider = Provider.autoDispose<List<String>>((ref) {
+  final candidates = ref.watch(decouvrirControllerProvider).value?.candidates ?? const <Candidate>[];
+  return [
+    for (final c in candidates.take(3)) ref.watch(candidateFirstPhotoUrlProvider(c.uid)).value,
+  ].whereType<String>().toList();
+});
+
 /// Filtres manuels de Découvrir (docs/regles-complementaires-concurrents.md
 /// section 3) — tranche d'âge et distance. Réinitialisés à chaque
 /// lancement de l'app ; la persistance (les garder d'une session à
@@ -45,11 +57,21 @@ final discoverFiltersProvider = StateProvider<DiscoverFilters>((ref) {
 });
 
 class DecouvrirState {
-  const DecouvrirState({required this.candidates, this.justMatchedWith, this.errorMessage});
+  const DecouvrirState({
+    required this.candidates,
+    this.justMatchedWith,
+    this.errorMessage,
+    this.lastPassed,
+  });
 
   final List<Candidate> candidates;
   final Candidate? justMatchedWith;
   final String? errorMessage;
+
+  /// Dernier profil passé dans cette session, s'il est encore annulable
+  /// (bouton « retour », undoLastSwipe côté serveur). Effacé par tout
+  /// autre swipe.
+  final Candidate? lastPassed;
 }
 
 String _readableSwipeError(Object error, Locale? locale) {
@@ -64,6 +86,13 @@ String _readableSwipeError(Object error, Locale? locale) {
   if (text.contains('already-exists')) {
     return l10n.profileAlreadySwiped;
   }
+  return l10n.genericError;
+}
+
+String _readableUndoError(Object error, Locale? locale) {
+  final l10n = l10nFor(locale);
+  final text = error.toString();
+  if (text.contains('permission-denied')) return l10n.rewindPremiumOnly;
   return l10n.genericError;
 }
 
@@ -112,6 +141,7 @@ class DecouvrirController extends AsyncNotifier<DecouvrirState> {
         DecouvrirState(
           candidates: liveCandidates.where((c) => c.uid != target.uid).toList(),
           justMatchedWith: (matched && !_inFlightTargetBlocked) ? target : null,
+          lastPassed: (action == 'pass' && !_inFlightTargetBlocked) ? target : null,
         ),
       );
     } catch (e) {
@@ -145,8 +175,36 @@ class DecouvrirController extends AsyncNotifier<DecouvrirState> {
       DecouvrirState(
         candidates: current.candidates.where((c) => c.uid != uid).toList(),
         justMatchedWith: current.justMatchedWith,
+        lastPassed: current.lastPassed?.uid == uid ? null : current.lastPassed,
       ),
     );
+  }
+
+  /// « Retour » : annule le dernier passage côté serveur (Premium) puis
+  /// remet le profil en tête de pile.
+  Future<void> undoLastPass() async {
+    final current = state.value;
+    final target = current?.lastPassed;
+    if (current == null || target == null || _swipeInFlight) return;
+    _swipeInFlight = true;
+    try {
+      await ref.read(decouvrirRepositoryProvider).undoLastSwipe(target.uid);
+      final live = state.value ?? current;
+      state = AsyncData(
+        DecouvrirState(candidates: [target, ...live.candidates.where((c) => c.uid != target.uid)]),
+      );
+    } catch (e) {
+      final live = state.value ?? current;
+      state = AsyncData(
+        DecouvrirState(
+          candidates: live.candidates,
+          lastPassed: live.lastPassed,
+          errorMessage: _readableUndoError(e, ref.read(localeControllerProvider)),
+        ),
+      );
+    } finally {
+      _swipeInFlight = false;
+    }
   }
 
   Future<void> refresh() async {

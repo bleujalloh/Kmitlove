@@ -1544,6 +1544,18 @@ abstract class AppLocalizations {
   /// **'{count, plural, =0{Aucune réponse} =1{1 réponse} other{{count} réponses}}'**
   String postRepliesCount(int count);
 
+  /// No description provided for @rewindPremiumOnly.
+  ///
+  /// In fr, this message translates to:
+  /// **'Revenir en arrière est réservé aux membres Premium.'**
+  String get rewindPremiumOnly;
+
+  /// No description provided for @undoLastPassButton.
+  ///
+  /// In fr, this message translates to:
+  /// **'Revenir au dernier profil'**
+  String get undoLastPassButton;
+
   /// Heure d'une conversation dont le dernier message date de la veille (liste Messages)
   ///
   /// In fr, this message translates to:

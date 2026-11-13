@@ -7,6 +7,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../../core/providers/firebase_providers.dart';
 import '../../../../core/theme/app_theme.dart';
 import '../../../../core/widgets/block_action.dart';
+import '../../../../core/widgets/boost_action.dart';
 import '../../../../core/widgets/country_field.dart';
 import '../../../../core/widgets/profile_fact_sheet.dart';
 import '../../../../l10n/l10n_extensions.dart';
@@ -236,6 +237,14 @@ class DecouvrirScreen extends ConsumerWidget {
                                   .refresh(),
                               child: Text(context.l10n.refreshButton),
                             ),
+                            if (data.lastPassed != null)
+                              TextButton.icon(
+                                onPressed: () => ref
+                                    .read(decouvrirControllerProvider.notifier)
+                                    .undoLastPass(),
+                                icon: const Icon(Icons.arrow_back, size: 18),
+                                label: Text(context.l10n.undoLastPassButton),
+                              ),
                           ],
                         ),
                       ),
@@ -267,7 +276,22 @@ class DecouvrirScreen extends ConsumerWidget {
                                   .read(decouvrirControllerProvider.notifier)
                                   .swipe('pass'),
                             ),
-                            const SizedBox(width: 18),
+                            const SizedBox(width: 12),
+                            // « Retour » (prototype) : annule le dernier
+                            // passage, Premium (undoLastSwipe.ts) ; grisé
+                            // tant qu'il n'y a rien à annuler.
+                            Opacity(
+                              opacity: data.lastPassed != null ? 1 : 0.35,
+                              child: _RoundButton(
+                                icon: Icons.arrow_back,
+                                color: AppColors.muted,
+                                size: 40,
+                                onTap: () => ref
+                                    .read(decouvrirControllerProvider.notifier)
+                                    .undoLastPass(),
+                              ),
+                            ),
+                            const SizedBox(width: 12),
                             _RoundButton(
                               icon: Icons.favorite,
                               color: AppColors.noirProfond,
@@ -277,7 +301,7 @@ class DecouvrirScreen extends ConsumerWidget {
                                   .read(decouvrirControllerProvider.notifier)
                                   .swipe('like'),
                             ),
-                            const SizedBox(width: 18),
+                            const SizedBox(width: 12),
                             Stack(
                               clipBehavior: Clip.none,
                               children: [
@@ -325,6 +349,17 @@ class DecouvrirScreen extends ConsumerWidget {
                                     ),
                                   ),
                               ],
+                            ),
+                            const SizedBox(width: 12),
+                            // Éclair du prototype : Boost du profil (même
+                            // mécanisme que l'onglet Profil et Likes,
+                            // activateBoost.ts : Premium, une fois par
+                            // semaine).
+                            _RoundButton(
+                              icon: Icons.bolt,
+                              color: AppColors.accent,
+                              size: 40,
+                              onTap: () => activateProfileBoost(context, ref),
                             ),
                           ],
                         ),

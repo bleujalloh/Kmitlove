@@ -816,6 +816,12 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
+  String get rewindPremiumOnly => 'Going back is reserved for Premium members.';
+
+  @override
+  String get undoLastPassButton => 'Back to the last profile';
+
+  @override
   String get messageTimeYesterday => 'yesterday';
 
   @override

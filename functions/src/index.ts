@@ -12,6 +12,7 @@ export { requestFiltrageReview } from "./filtrage/requestReview";
 export { computeCompatibility } from "./compatibilite/computeCompatibility";
 export { getDiscoverCandidates } from "./decouvrir/getCandidates";
 export { recordSwipe } from "./decouvrir/recordSwipe";
+export { undoLastSwipe } from "./decouvrir/undoLastSwipe";
 export { getLikes } from "./likes/getLikes";
 export { retractLike } from "./likes/retractLike";
 export { onMessageCreated } from "./messagerie/onMessageCreated";

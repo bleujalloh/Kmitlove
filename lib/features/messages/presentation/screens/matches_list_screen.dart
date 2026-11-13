@@ -56,6 +56,7 @@ class MatchesListScreen extends ConsumerWidget {
                 icon: Icons.chat_bubble_outline,
                 title: context.l10n.noMatchesYet,
                 subtitle: context.l10n.noMatchesYetHint,
+                photoUrls: ref.watch(suggestedProfilePhotosProvider),
               ),
             );
           }

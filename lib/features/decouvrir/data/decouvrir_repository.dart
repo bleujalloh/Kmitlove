@@ -29,4 +29,9 @@ class DecouvrirRepository {
     final data = result.data as Map<Object?, Object?>;
     return data['matchCreated'] as bool;
   }
+
+  /// Annule le dernier passage (Premium, voir undoLastSwipe.ts).
+  Future<void> undoLastSwipe(String targetUid) async {
+    await _functions.httpsCallable('undoLastSwipe').call({'targetUid': targetUid});
+  }
 }
