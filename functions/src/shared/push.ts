@@ -2,6 +2,19 @@ import { getMessaging } from "firebase-admin/messaging";
 import { getFirestore, FieldValue } from "firebase-admin/firestore";
 
 /**
+ * Préférence (Paramètres → Notifications) qui gouverne chaque type de
+ * notification. Un type absent de cette table est toujours envoyé.
+ */
+const PREFERENCE_BY_TYPE: Record<string, string> = {
+  like: "likes",
+  message: "messages",
+  match: "matches",
+  community_reply: "community",
+  event_reminder: "events",
+  event_promoted: "events",
+};
+
+/**
  * Envoie une notification push à tous les appareils enregistrés d'un
  * membre (`user_status/{uid}.fcmTokens`, alimenté uniquement par
  * registerFcmToken.ts — jamais écrit directement par le client). Best-
@@ -20,6 +33,10 @@ export async function sendPushToUser(
     const statusSnap = await db.collection("user_status").doc(uid).get();
     const tokens: string[] = statusSnap.data()?.fcmTokens ?? [];
     if (tokens.length === 0) return;
+    // Préférences par type : `notificationPrefs.<clé> === false` coupe ce
+    // type de notification (par défaut tout est envoyé).
+    const preferenceKey = data?.type ? PREFERENCE_BY_TYPE[data.type] : undefined;
+    if (preferenceKey && statusSnap.data()?.notificationPrefs?.[preferenceKey] === false) return;
 
     const response = await getMessaging().sendEachForMulticast({
       tokens,

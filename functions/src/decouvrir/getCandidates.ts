@@ -181,6 +181,9 @@ export const getDiscoverCandidates = onCall({ region: REGION }, async (request) 
     const doc = preFiltered[i];
     const status = statusSnaps[i].data();
     if (status?.filtrageStatus !== "active") continue;
+    // Profil masqué par son propriétaire (Paramètres → Visibilité de mon
+    // profil) : n'apparaît dans la découverte de personne.
+    if (status?.profileHidden === true) continue;
 
     // Masquage des comptes inactifs depuis 30 jours
     // (docs/regles-complementaires-concurrents.md section 3).

@@ -3,11 +3,13 @@ import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_riverpod/legacy.dart';
 
+import '../../../core/providers/firebase_providers.dart';
 import '../../../core/providers/locale_provider.dart';
 import '../../auth/presentation/auth_controller.dart';
 import '../../profil/presentation/profil_controller.dart';
 import '../../profil/presentation/photo_controller.dart';
 import '../data/decouvrir_repository.dart';
+import '../data/discover_prefs_store.dart';
 import '../data/location_service.dart';
 import '../domain/candidate.dart';
 
@@ -50,6 +52,15 @@ final suggestedProfilesProvider = Provider.autoDispose<List<EmptyStateProfile>>(
     for (final c in candidates.take(3))
       (name: c.displayName, photoUrl: ref.watch(candidateFirstPhotoUrlProvider(c.uid)).value),
   ];
+});
+
+/// Préférences de rencontre enregistrées pour le compte connecté
+/// (Paramètres) : appliquées une fois comme valeurs de départ des filtres
+/// de Découvrir (voir MainShell).
+final savedDiscoverPrefsProvider = FutureProvider.autoDispose<DiscoverFilters?>((ref) async {
+  final uid = ref.watch(authStateProvider).value?.uid;
+  if (uid == null) return null;
+  return DiscoverPrefsStore.load(uid);
 });
 
 /// Filtres manuels de Découvrir (docs/regles-complementaires-concurrents.md

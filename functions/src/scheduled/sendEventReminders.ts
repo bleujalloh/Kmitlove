@@ -70,7 +70,7 @@ export const sendEventReminders = onSchedule(
           await sendPushToUser(participationDoc.id, {
             title: "Rappel d'événement",
             body: `« ${post.title ?? "Ton événement"} » a lieu bientôt.`,
-          });
+          }, { type: "event_reminder" });
           await participationDoc.ref.update({ reminderSentAt: FieldValue.serverTimestamp() });
         }
       } catch (err) {

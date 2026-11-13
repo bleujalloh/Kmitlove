@@ -1826,6 +1826,228 @@ abstract class AppLocalizations {
   /// **'Sombre'**
   String get themeDark;
 
+  /// No description provided for @settingsNotificationsRowSubtitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Likes, messages, matchs, communauté, événements'**
+  String get settingsNotificationsRowSubtitle;
+
+  /// No description provided for @notifTypeLikes.
+  ///
+  /// In fr, this message translates to:
+  /// **'Likes'**
+  String get notifTypeLikes;
+
+  /// No description provided for @notifTypeMessages.
+  ///
+  /// In fr, this message translates to:
+  /// **'Messages'**
+  String get notifTypeMessages;
+
+  /// No description provided for @notifTypeMatches.
+  ///
+  /// In fr, this message translates to:
+  /// **'Matchs'**
+  String get notifTypeMatches;
+
+  /// No description provided for @notifTypeCommunity.
+  ///
+  /// In fr, this message translates to:
+  /// **'Réponses de la communauté'**
+  String get notifTypeCommunity;
+
+  /// No description provided for @notifTypeEvents.
+  ///
+  /// In fr, this message translates to:
+  /// **'Événements'**
+  String get notifTypeEvents;
+
+  /// No description provided for @datingPrefsTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Préférences de rencontre'**
+  String get datingPrefsTitle;
+
+  /// No description provided for @datingPrefsRowSubtitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Âge, distance, pays'**
+  String get datingPrefsRowSubtitle;
+
+  /// No description provided for @datingPrefsSeekingLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Je recherche'**
+  String get datingPrefsSeekingLabel;
+
+  /// No description provided for @datingPrefsSeekingHint.
+  ///
+  /// In fr, this message translates to:
+  /// **'à modifier dans Modifier mon profil.'**
+  String get datingPrefsSeekingHint;
+
+  /// No description provided for @datingPrefsAge.
+  ///
+  /// In fr, this message translates to:
+  /// **'Tranche d\'âge'**
+  String get datingPrefsAge;
+
+  /// No description provided for @datingPrefsDistance.
+  ///
+  /// In fr, this message translates to:
+  /// **'Distance maximale'**
+  String get datingPrefsDistance;
+
+  /// No description provided for @datingPrefsDistanceNeedsPosition.
+  ///
+  /// In fr, this message translates to:
+  /// **'Active « Utiliser ma position » dans Paramètres pour limiter par distance.'**
+  String get datingPrefsDistanceNeedsPosition;
+
+  /// No description provided for @datingPrefsPlace.
+  ///
+  /// In fr, this message translates to:
+  /// **'Pays'**
+  String get datingPrefsPlace;
+
+  /// No description provided for @datingPrefsClearPlace.
+  ///
+  /// In fr, this message translates to:
+  /// **'Retirer le pays'**
+  String get datingPrefsClearPlace;
+
+  /// No description provided for @profileVisibilityTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Visibilité de mon profil'**
+  String get profileVisibilityTitle;
+
+  /// No description provided for @profileVisibilityRowSubtitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Qui peut voir mon profil'**
+  String get profileVisibilityRowSubtitle;
+
+  /// No description provided for @visibilityVisible.
+  ///
+  /// In fr, this message translates to:
+  /// **'Visible dans Découvrir'**
+  String get visibilityVisible;
+
+  /// No description provided for @visibilityVisibleHint.
+  ///
+  /// In fr, this message translates to:
+  /// **'Les autres membres peuvent te découvrir.'**
+  String get visibilityVisibleHint;
+
+  /// No description provided for @visibilityHidden.
+  ///
+  /// In fr, this message translates to:
+  /// **'Masqué'**
+  String get visibilityHidden;
+
+  /// No description provided for @visibilityHiddenHint.
+  ///
+  /// In fr, this message translates to:
+  /// **'Tu n\'apparais plus dans Découvrir. Tes conversations et tes matchs restent actifs.'**
+  String get visibilityHiddenHint;
+
+  /// No description provided for @myReportsTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Signalements'**
+  String get myReportsTitle;
+
+  /// No description provided for @myReportsRowSubtitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Mes signalements'**
+  String get myReportsRowSubtitle;
+
+  /// No description provided for @myReportsEmpty.
+  ///
+  /// In fr, this message translates to:
+  /// **'Tu n\'as fait aucun signalement.'**
+  String get myReportsEmpty;
+
+  /// No description provided for @reportStatusOpen.
+  ///
+  /// In fr, this message translates to:
+  /// **'En cours d\'examen'**
+  String get reportStatusOpen;
+
+  /// No description provided for @reportStatusDone.
+  ///
+  /// In fr, this message translates to:
+  /// **'Traité'**
+  String get reportStatusDone;
+
+  /// No description provided for @reportKindUser.
+  ///
+  /// In fr, this message translates to:
+  /// **'Membre'**
+  String get reportKindUser;
+
+  /// No description provided for @reportKindPost.
+  ///
+  /// In fr, this message translates to:
+  /// **'Publication'**
+  String get reportKindPost;
+
+  /// No description provided for @reportKindOther.
+  ///
+  /// In fr, this message translates to:
+  /// **'Autre'**
+  String get reportKindOther;
+
+  /// No description provided for @settingsDataSection.
+  ///
+  /// In fr, this message translates to:
+  /// **'Données et compte'**
+  String get settingsDataSection;
+
+  /// No description provided for @settingsInfoSection.
+  ///
+  /// In fr, this message translates to:
+  /// **'Informations'**
+  String get settingsInfoSection;
+
+  /// No description provided for @legalTerms.
+  ///
+  /// In fr, this message translates to:
+  /// **'Conditions d\'utilisation'**
+  String get legalTerms;
+
+  /// No description provided for @legalPrivacy.
+  ///
+  /// In fr, this message translates to:
+  /// **'Politique de confidentialité'**
+  String get legalPrivacy;
+
+  /// No description provided for @legalNotice.
+  ///
+  /// In fr, this message translates to:
+  /// **'Mentions légales'**
+  String get legalNotice;
+
+  /// No description provided for @aboutTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'À propos'**
+  String get aboutTitle;
+
+  /// No description provided for @legalDraftBanner.
+  ///
+  /// In fr, this message translates to:
+  /// **'Version provisoire, en cours de validation juridique.'**
+  String get legalDraftBanner;
+
+  /// No description provided for @aboutVersion.
+  ///
+  /// In fr, this message translates to:
+  /// **'Version {version}'**
+  String aboutVersion(String version);
+
   /// Heure d'une conversation dont le dernier message date de la veille (liste Messages)
   ///
   /// In fr, this message translates to:

@@ -976,6 +976,122 @@ class AppLocalizationsEn extends AppLocalizations {
   String get themeDark => 'Dark';
 
   @override
+  String get settingsNotificationsRowSubtitle =>
+      'Likes, messages, matches, community, events';
+
+  @override
+  String get notifTypeLikes => 'Likes';
+
+  @override
+  String get notifTypeMessages => 'Messages';
+
+  @override
+  String get notifTypeMatches => 'Matches';
+
+  @override
+  String get notifTypeCommunity => 'Community replies';
+
+  @override
+  String get notifTypeEvents => 'Events';
+
+  @override
+  String get datingPrefsTitle => 'Dating preferences';
+
+  @override
+  String get datingPrefsRowSubtitle => 'Age, distance, country';
+
+  @override
+  String get datingPrefsSeekingLabel => 'I\'m looking for';
+
+  @override
+  String get datingPrefsSeekingHint => 'change it in Edit my profile.';
+
+  @override
+  String get datingPrefsAge => 'Age range';
+
+  @override
+  String get datingPrefsDistance => 'Maximum distance';
+
+  @override
+  String get datingPrefsDistanceNeedsPosition =>
+      'Turn on Use my location in Settings to limit by distance.';
+
+  @override
+  String get datingPrefsPlace => 'Country';
+
+  @override
+  String get datingPrefsClearPlace => 'Remove country';
+
+  @override
+  String get profileVisibilityTitle => 'Profile visibility';
+
+  @override
+  String get profileVisibilityRowSubtitle => 'Who can see my profile';
+
+  @override
+  String get visibilityVisible => 'Visible in Discover';
+
+  @override
+  String get visibilityVisibleHint => 'Other members can discover you.';
+
+  @override
+  String get visibilityHidden => 'Hidden';
+
+  @override
+  String get visibilityHiddenHint =>
+      'You no longer appear in Discover. Your conversations and matches stay active.';
+
+  @override
+  String get myReportsTitle => 'Reports';
+
+  @override
+  String get myReportsRowSubtitle => 'My reports';
+
+  @override
+  String get myReportsEmpty => 'You haven\'t made any report.';
+
+  @override
+  String get reportStatusOpen => 'Under review';
+
+  @override
+  String get reportStatusDone => 'Handled';
+
+  @override
+  String get reportKindUser => 'Member';
+
+  @override
+  String get reportKindPost => 'Post';
+
+  @override
+  String get reportKindOther => 'Other';
+
+  @override
+  String get settingsDataSection => 'Data and account';
+
+  @override
+  String get settingsInfoSection => 'Information';
+
+  @override
+  String get legalTerms => 'Terms of use';
+
+  @override
+  String get legalPrivacy => 'Privacy policy';
+
+  @override
+  String get legalNotice => 'Legal notice';
+
+  @override
+  String get aboutTitle => 'About';
+
+  @override
+  String get legalDraftBanner => 'Draft version, pending legal review.';
+
+  @override
+  String aboutVersion(String version) {
+    return 'Version $version';
+  }
+
+  @override
   String get messageTimeYesterday => 'yesterday';
 
   @override

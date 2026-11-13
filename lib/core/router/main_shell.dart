@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 
 import '../../features/auth/presentation/auth_controller.dart';
+import '../../features/decouvrir/presentation/decouvrir_controller.dart';
 import '../../features/decouvrir/presentation/screens/decouvrir_screen.dart';
 import '../../features/likes/presentation/screens/likes_screen.dart';
 import '../../features/messages/presentation/screens/matches_list_screen.dart';
@@ -45,6 +46,7 @@ int? tabForNotificationType(String? type) {
 
 class _MainShellState extends ConsumerState<MainShell> {
   int _index = 0;
+  bool _prefsApplied = false;
 
   // IndexedStack (pas un simple swap de widget) pour garder l'état de
   // chaque onglet en mémoire en changeant d'onglet — sinon Découvrir
@@ -98,6 +100,15 @@ class _MainShellState extends ConsumerState<MainShell> {
     // l'enregistrement du jeton de notifications push.
     ref.watch(activityHeartbeatProvider);
     ref.watch(pushRegistrationProvider);
+    // Préférences de rencontre enregistrées (Paramètres) : valeurs de
+    // départ des filtres de Découvrir, appliquées une seule fois.
+    ref.listen(savedDiscoverPrefsProvider, (previous, next) {
+      final saved = next.value;
+      if (saved != null && !_prefsApplied) {
+        _prefsApplied = true;
+        ref.read(discoverFiltersProvider.notifier).state = saved;
+      }
+    });
 
     return Scaffold(
       body: IndexedStack(index: _index, children: _screens),

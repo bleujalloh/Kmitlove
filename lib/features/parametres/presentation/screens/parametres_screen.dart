@@ -16,7 +16,9 @@ import '../../../auth/presentation/auth_controller.dart';
 import '../../../compatibilite/presentation/compat_controller.dart';
 import '../../../decouvrir/presentation/decouvrir_controller.dart';
 import '../../../messages/presentation/messages_controller.dart';
-import '../../../notifications/push_controller.dart';
+import '../../legal_texts.dart';
+import '../../settings_controller.dart';
+import 'settings_subscreens.dart';
 import '../../../messages/presentation/screens/blocked_profiles_screen.dart';
 
 /// Espace Paramètres : réglages purs (langue, confidentialité, export
@@ -181,6 +183,10 @@ class _ParametresScreenState extends ConsumerState<ParametresScreen> {
     if (choice != null) await ref.read(themeModeProvider.notifier).setMode(choice);
   }
 
+  void _open(Widget screen) {
+    Navigator.of(context).push(MaterialPageRoute(builder: (_) => screen));
+  }
+
   bool _togglingLocation = false;
 
   /// Active (permission + enregistrement) ou retire (suppression de la
@@ -256,7 +262,6 @@ class _ParametresScreenState extends ConsumerState<ParametresScreen> {
               trailing: const Icon(Icons.chevron_right),
               onTap: _pickTheme,
             ),
-            const Divider(height: 1),
             ListTile(
               leading: const Icon(Icons.language_outlined),
               title: Text(context.l10n.language),
@@ -266,84 +271,129 @@ class _ParametresScreenState extends ConsumerState<ParametresScreen> {
               trailing: const Icon(Icons.chevron_right),
               onTap: _pickLanguage,
             ),
-            const Divider(height: 1),
-            Padding(
-              padding: const EdgeInsets.fromLTRB(16, 16, 16, 4),
-              child: Text(
-                context.l10n.privacySectionTitle,
-                style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: AppColors.muted, letterSpacing: 0.5),
+            ListTile(
+              leading: const Icon(Icons.notifications_none),
+              title: Text(context.l10n.settingsNotificationsTitle),
+              subtitle: Text(context.l10n.settingsNotificationsRowSubtitle),
+              trailing: const Icon(Icons.chevron_right),
+              onTap: () => _open(const NotificationsSettingsScreen()),
+            ),
+            ListTile(
+              leading: const Icon(Icons.tune),
+              title: Text(context.l10n.datingPrefsTitle),
+              subtitle: Text(context.l10n.datingPrefsRowSubtitle),
+              trailing: const Icon(Icons.chevron_right),
+              onTap: () => _open(const DatingPreferencesScreen()),
+            ),
+            _SectionLabel(context.l10n.privacySectionTitle),
+            ListTile(
+              leading: const Icon(Icons.visibility_outlined),
+              title: Text(context.l10n.profileVisibilityTitle),
+              subtitle: Text(
+                ref.watch(profileHiddenProvider)
+                    ? context.l10n.visibilityHidden
+                    : context.l10n.profileVisibilityRowSubtitle,
               ),
+              trailing: const Icon(Icons.chevron_right),
+              onTap: () => _open(const ProfileVisibilityScreen()),
             ),
             SwitchListTile(
+              secondary: const Icon(Icons.my_location_outlined),
               title: Text(context.l10n.settingsLocationTitle),
               subtitle: Text(context.l10n.settingsLocationHint),
               value: status?['locationLat'] is num,
               onChanged: _togglingLocation ? null : _toggleLocation,
             ),
-            ListTile(
-              title: Text(context.l10n.settingsNotificationsTitle),
-              subtitle: Text(
-                (ref.watch(notificationsEnabledProvider).value ?? true)
-                    ? context.l10n.notificationsOn
-                    : context.l10n.notificationsOff,
-              ),
-            ),
             SwitchListTile(
+              secondary: const Icon(Icons.done_all),
               title: Text(context.l10n.showReadReceiptsTitle),
               subtitle: Text(context.l10n.showReadReceiptsHint),
               value: ref.watch(showReadReceiptsProvider(myUid)).value ?? true,
               onChanged: (v) => ref.read(messagesControllerProvider).toggleReadReceipts(v),
             ),
             SwitchListTile(
+              secondary: const Icon(Icons.people_outline),
               title: Text(context.l10n.compatVisibilityTitle),
               subtitle: Text(context.l10n.compatVisibilityHint),
               value: ref.watch(compatAnswersVisibleProvider).value ?? true,
               onChanged: (v) => ref.read(compatControllerProvider.notifier).setAnswersVisible(v),
             ),
-            const Divider(height: 1),
             ListTile(
               leading: const Icon(Icons.block_outlined),
               title: Text(context.l10n.blockedProfilesTitle),
               trailing: const Icon(Icons.chevron_right),
-              onTap: () => Navigator.of(context).push(
-                MaterialPageRoute(builder: (_) => const BlockedProfilesScreen()),
-              ),
+              onTap: () => _open(const BlockedProfilesScreen()),
             ),
-            const Divider(height: 1),
+            ListTile(
+              leading: const Icon(Icons.flag_outlined),
+              title: Text(context.l10n.myReportsTitle),
+              subtitle: Text(context.l10n.myReportsRowSubtitle),
+              trailing: const Icon(Icons.chevron_right),
+              onTap: () => _open(const MyReportsScreen()),
+            ),
+            _SectionLabel(context.l10n.settingsDataSection),
             ListTile(
               leading: _exporting
-                  ? const SizedBox(
-                      width: 20, height: 20, child: CircularProgressIndicator(strokeWidth: 2))
+                  ? const SizedBox(width: 20, height: 20, child: CircularProgressIndicator(strokeWidth: 2))
                   : const Icon(Icons.download_outlined),
               title: Text(context.l10n.exportMyData),
               subtitle: Text(context.l10n.gdprPortabilityRight),
+              trailing: const Icon(Icons.chevron_right),
               onTap: _exporting ? null : _exportData,
             ),
-            const Divider(height: 1),
             ListTile(
               leading: const Icon(Icons.logout),
               title: Text(context.l10n.signOut),
+              trailing: const Icon(Icons.chevron_right),
               // Désinscription du jeton push + réinitialisation de l'état de
-              // session (filtres, sous-onglets) déplacées dans
-              // AuthController.signOut() lui-même (12/11/2026) — ce bouton
-              // n'était qu'un des quatre points d'entrée réels de la
-              // déconnexion, les trois autres (SanctionScreen,
-              // FiltrageScreen, FiltragePendingScreen) ne faisaient ni l'un
-              // ni l'autre.
+              // session déplacées dans AuthController.signOut() (12/11/2026).
               onTap: () => ref.read(authControllerProvider.notifier).signOut(),
             ),
-            const Divider(height: 1),
             ListTile(
               leading: _deleting
-                  ? const SizedBox(
-                      width: 20, height: 20, child: CircularProgressIndicator(strokeWidth: 2))
+                  ? const SizedBox(width: 20, height: 20, child: CircularProgressIndicator(strokeWidth: 2))
                   : Icon(Icons.delete_outline, color: AppColors.accent),
               title: Text(context.l10n.deleteMyAccount, style: TextStyle(color: AppColors.accent)),
               onTap: _deleting ? null : _confirmDeleteAccount,
             ),
+            _SectionLabel(context.l10n.settingsInfoSection),
+            ListTile(
+              title: Text(context.l10n.legalTerms),
+              trailing: const Icon(Icons.chevron_right),
+              onTap: () => _open(LegalScreen(title: context.l10n.legalTerms, kind: LegalKind.terms)),
+            ),
+            ListTile(
+              title: Text(context.l10n.legalPrivacy),
+              trailing: const Icon(Icons.chevron_right),
+              onTap: () => _open(LegalScreen(title: context.l10n.legalPrivacy, kind: LegalKind.privacy)),
+            ),
+            ListTile(
+              title: Text(context.l10n.legalNotice),
+              trailing: const Icon(Icons.chevron_right),
+              onTap: () => _open(LegalScreen(title: context.l10n.legalNotice, kind: LegalKind.notice)),
+            ),
+            ListTile(
+              title: Text(context.l10n.aboutTitle),
+              trailing: const Icon(Icons.chevron_right),
+              onTap: () => _open(const AboutScreen()),
+            ),
+            const SizedBox(height: 24),
           ],
         ),
       ),
+    );
+  }
+}
+
+class _SectionLabel extends StatelessWidget {
+  const _SectionLabel(this.text);
+  final String text;
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(16, 22, 16, 6),
+      child: Text(text, style: TextStyle(fontSize: 13, fontWeight: FontWeight.w700, color: AppColors.muted)),
     );
   }
 }

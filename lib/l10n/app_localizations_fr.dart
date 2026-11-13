@@ -987,6 +987,124 @@ class AppLocalizationsFr extends AppLocalizations {
   String get themeDark => 'Sombre';
 
   @override
+  String get settingsNotificationsRowSubtitle =>
+      'Likes, messages, matchs, communauté, événements';
+
+  @override
+  String get notifTypeLikes => 'Likes';
+
+  @override
+  String get notifTypeMessages => 'Messages';
+
+  @override
+  String get notifTypeMatches => 'Matchs';
+
+  @override
+  String get notifTypeCommunity => 'Réponses de la communauté';
+
+  @override
+  String get notifTypeEvents => 'Événements';
+
+  @override
+  String get datingPrefsTitle => 'Préférences de rencontre';
+
+  @override
+  String get datingPrefsRowSubtitle => 'Âge, distance, pays';
+
+  @override
+  String get datingPrefsSeekingLabel => 'Je recherche';
+
+  @override
+  String get datingPrefsSeekingHint => 'à modifier dans Modifier mon profil.';
+
+  @override
+  String get datingPrefsAge => 'Tranche d\'âge';
+
+  @override
+  String get datingPrefsDistance => 'Distance maximale';
+
+  @override
+  String get datingPrefsDistanceNeedsPosition =>
+      'Active « Utiliser ma position » dans Paramètres pour limiter par distance.';
+
+  @override
+  String get datingPrefsPlace => 'Pays';
+
+  @override
+  String get datingPrefsClearPlace => 'Retirer le pays';
+
+  @override
+  String get profileVisibilityTitle => 'Visibilité de mon profil';
+
+  @override
+  String get profileVisibilityRowSubtitle => 'Qui peut voir mon profil';
+
+  @override
+  String get visibilityVisible => 'Visible dans Découvrir';
+
+  @override
+  String get visibilityVisibleHint =>
+      'Les autres membres peuvent te découvrir.';
+
+  @override
+  String get visibilityHidden => 'Masqué';
+
+  @override
+  String get visibilityHiddenHint =>
+      'Tu n\'apparais plus dans Découvrir. Tes conversations et tes matchs restent actifs.';
+
+  @override
+  String get myReportsTitle => 'Signalements';
+
+  @override
+  String get myReportsRowSubtitle => 'Mes signalements';
+
+  @override
+  String get myReportsEmpty => 'Tu n\'as fait aucun signalement.';
+
+  @override
+  String get reportStatusOpen => 'En cours d\'examen';
+
+  @override
+  String get reportStatusDone => 'Traité';
+
+  @override
+  String get reportKindUser => 'Membre';
+
+  @override
+  String get reportKindPost => 'Publication';
+
+  @override
+  String get reportKindOther => 'Autre';
+
+  @override
+  String get settingsDataSection => 'Données et compte';
+
+  @override
+  String get settingsInfoSection => 'Informations';
+
+  @override
+  String get legalTerms => 'Conditions d\'utilisation';
+
+  @override
+  String get legalPrivacy => 'Politique de confidentialité';
+
+  @override
+  String get legalNotice => 'Mentions légales';
+
+  @override
+  String get aboutTitle => 'À propos';
+
+  @override
+  String get legalDraftBanner =>
+      'Version provisoire, en cours de validation juridique.';
+
+  @override
+  String aboutVersion(String version) {
+    return 'Version $version';
+  }
+
+  @override
   String get messageTimeYesterday => 'hier';
 
   @override

@@ -56,6 +56,7 @@ export { registerFcmToken, unregisterFcmToken } from "./account/registerFcmToken
 export { expireMatches } from "./scheduled/expireMatches";
 export { exportMyData } from "./rgpd/exportMyData";
 export { updateMyLocation } from "./account/updateMyLocation";
+export { setNotificationPreferences, setProfileVisibility, listMyReports } from "./account/settings";
 export { adminListUsers, adminSetSuspension } from "./admin/listUsers";
 export { adminSeedQuestionBanks } from "./admin/seedQuestionBanks";
 export { adminListActionLogs } from "./admin/listActionLogs";

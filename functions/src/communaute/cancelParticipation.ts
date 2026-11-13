@@ -79,7 +79,7 @@ export const cancelParticipation = onCall({ region: REGION }, async (request) =>
     await sendPushToUser(promotedUid, {
       title: "Une place s'est libérée",
       body: `Tu es confirmé·e pour « ${postSnap.data()?.title ?? "l'événement"} » — une place vient de se libérer.`,
-    });
+    }, { type: "event_promoted" });
   }
 
   return { ok: true, promotedUid };
