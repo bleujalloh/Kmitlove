@@ -2,7 +2,6 @@ import { onCall, HttpsError } from "firebase-functions/v2/https";
 import { getFirestore, FieldValue, Timestamp } from "firebase-admin/firestore";
 
 import { REGION } from "../config";
-import { requireNotSuspended } from "../shared/requireNotSuspended";
 import { sendPushToUser } from "../shared/push";
 
 /**
@@ -17,6 +16,18 @@ import { sendPushToUser } from "../shared/push";
 const MAX_REPLY_LENGTH = 500;
 const MAX_REPLIES_PER_HOUR = 20;
 const WINDOW_MS = 60 * 60 * 1000;
+
+/**
+ * Seuls les membres dont le compte est activé (questionnaire de filtrage
+ * réussi) peuvent liker ou répondre : un compte en attente, refusé ou
+ * suspendu ne le peut pas (la suspension fait passer `filtrageStatus` à
+ * "suspended", shared/sanctions.ts).
+ */
+function requireActiveMember(status: Record<string, unknown> | undefined): void {
+  if (status?.filtrageStatus !== "active") {
+    throw new HttpsError("permission-denied", "Ton compte n'est pas actif.");
+  }
+}
 
 function pairId(a: string, b: string): string {
   return [a, b].sort().join("_");
@@ -49,7 +60,7 @@ export const togglePostLike = onCall({ region: REGION }, async (request) => {
   const uid = request.auth.uid;
   const db = getFirestore();
 
-  requireNotSuspended((await db.collection("user_status").doc(uid).get()).data());
+  requireActiveMember((await db.collection("user_status").doc(uid).get()).data());
   const { postRef, post } = await loadReplyablePost(request.data?.postId);
   await assertNotBlocked(uid, post.authorUid as string);
 
@@ -78,7 +89,7 @@ export const replyToPost = onCall({ region: REGION }, async (request) => {
   }
 
   const statusRef = db.collection("user_status").doc(uid);
-  requireNotSuspended((await statusRef.get()).data());
+  requireActiveMember((await statusRef.get()).data());
   const { postRef, post } = await loadReplyablePost(request.data?.postId);
   await assertNotBlocked(uid, post.authorUid as string);
 
