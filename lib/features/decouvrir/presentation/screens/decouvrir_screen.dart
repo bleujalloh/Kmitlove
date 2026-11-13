@@ -15,6 +15,7 @@ import '../../../profil/domain/profil.dart';
 import '../../../profil/presentation/profil_controller.dart';
 import '../../domain/candidate.dart';
 import '../decouvrir_controller.dart';
+import '../detected_place_provider.dart';
 
 /// Écran Découvrir (swipe) — fidèle au prototype visuel validé (artifact
 /// MERUT, Decouvrir.dc.html).
@@ -57,6 +58,14 @@ class DecouvrirScreen extends ConsumerWidget {
     // distance peut s'appliquer.
     final hasSavedLocation =
         ref.watch(userStatusProvider).value?['locationLat'] is num;
+    // Lieu correspondant à la position active, affiché dans les pilules
+    // Pays/Ville tant qu'aucun filtre explicite ne les remplace — jamais
+    // appliqué comme filtre (voir detected_place_provider.dart).
+    final detected = filters.useMyLocation && hasSavedLocation
+        ? ref.watch(detectedPlaceProvider).value
+        : null;
+    final detectedCountry = filters.country == null ? detected?.country : null;
+    final detectedCity = filters.country == null ? detected?.city : null;
 
     return Scaffold(
       // Sans AppBar, ni bouton retour automatique ni titre cohérent avec
@@ -149,16 +158,28 @@ class DecouvrirScreen extends ConsumerWidget {
                         _LocationSwitchPill(hasSavedLocation: hasSavedLocation),
                         const SizedBox(width: 8),
                         _FilterPill(
-                          icon: Icons.public_outlined,
-                          label: filters.country ?? context.l10n.countryLabel,
+                          icon: detectedCountry != null
+                              ? Icons.my_location
+                              : Icons.public_outlined,
+                          label:
+                              filters.country ??
+                              detectedCountry ??
+                              context.l10n.countryLabel,
                           chevron: true,
+                          detected: detectedCountry != null,
                           onTap: () => _openCountryPill(context, ref),
                         ),
                         const SizedBox(width: 8),
                         _FilterPill(
-                          icon: Icons.location_city_outlined,
-                          label: filters.city ?? context.l10n.cityLabel,
+                          icon: filters.city == null && detectedCity != null
+                              ? Icons.my_location
+                              : Icons.location_city_outlined,
+                          label:
+                              filters.city ??
+                              detectedCity ??
+                              context.l10n.cityLabel,
                           chevron: true,
+                          detected: filters.city == null && detectedCity != null,
                           dimmed: filters.country == null,
                           onTap: () => _openCitySheet(context, ref),
                         ),
@@ -1094,6 +1115,7 @@ class _FilterPill extends StatelessWidget {
     this.filled = false,
     this.chevron = false,
     this.dimmed = false,
+    this.detected = false,
   });
 
   final IconData icon;
@@ -1101,6 +1123,10 @@ class _FilterPill extends StatelessWidget {
   final VoidCallback? onTap;
   final bool filled;
   final bool chevron;
+  // Valeur déduite de la position GPS, affichée mais pas appliquée comme
+  // filtre : en italique, avec l'icône de position, pour ne jamais se
+  // confondre avec un filtre réellement choisi.
+  final bool detected;
   // Réglage affiché mais sans effet réel dans l'état courant — reste
   // cliquable pour pouvoir le modifier.
   final bool dimmed;
@@ -1135,6 +1161,7 @@ class _FilterPill extends StatelessWidget {
                 style: TextStyle(
                   fontSize: 12.5,
                   fontWeight: FontWeight.w600,
+                  fontStyle: detected ? FontStyle.italic : FontStyle.normal,
                   color: filled ? AppColors.noirProfond : AppColors.ink,
                 ),
               ),

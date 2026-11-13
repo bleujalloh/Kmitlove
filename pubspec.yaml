@@ -60,6 +60,7 @@ dependencies:
   qr_flutter: ^4.1.0
   flutter_timezone: ^5.1.1
   country_picker: ^2.0.28
+  geocoding: ^5.0.1
 
 dev_dependencies:
   flutter_test:
