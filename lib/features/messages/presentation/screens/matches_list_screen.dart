@@ -4,7 +4,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../../core/theme/app_theme.dart';
 import '../../../../core/utils/message_time.dart';
 import '../../../../core/widgets/empty_state_cards.dart';
-import '../../../../core/widgets/tab_pill.dart';
 import '../../../../l10n/l10n_extensions.dart';
 import '../../../communaute/presentation/screens/communaute_screen.dart';
 import '../../../../core/providers/firebase_providers.dart';
@@ -26,21 +25,16 @@ class MatchesListScreen extends ConsumerWidget {
       appBar: AppBar(
         title: Text(context.l10n.navMessages, overflow: TextOverflow.ellipsis),
         actions: [
+          // Communauté n'est plus un onglet de la barre du bas (demande
+          // confirmée du propriétaire, 12/11/2026) : accessible depuis ce
+          // lien texte, sans pastille.
           Padding(
-            padding: const EdgeInsets.only(right: 12),
-            child: Center(
-              // Communauté n'est plus un onglet de la barre du bas (demande
-              // confirmée du propriétaire, capture d'écran annotée,
-              // 12/11/2026) — accessible depuis cette pilule, même style
-              // que les pilules déjà en place ailleurs (filtres Découvrir,
-              // onglets Likes), réutilisée telle quelle (TabPill).
-              child: TabPill(
-                icon: Icons.groups_outlined,
-                label: context.l10n.navCommunity,
-                selected: false,
-                onTap: () => Navigator.of(context).push(
-                  MaterialPageRoute(builder: (_) => const CommunauteScreen()),
-                ),
+            padding: const EdgeInsets.only(right: 8),
+            child: TextButton.icon(
+              icon: const Icon(Icons.groups_outlined, size: 20),
+              label: Text(context.l10n.navCommunity),
+              onPressed: () => Navigator.of(context).push(
+                MaterialPageRoute(builder: (_) => const CommunauteScreen()),
               ),
             ),
           ),
@@ -125,7 +119,7 @@ class _MemberAvatar extends ConsumerWidget {
       width: size,
       height: size,
       clipBehavior: Clip.antiAlias,
-      decoration: BoxDecoration(color: AppColors.placeholder, shape: BoxShape.circle),
+      decoration: BoxDecoration(color: AppColors.placeholder, borderRadius: BorderRadius.circular(size * 0.26)),
       child: url != null
           ? Image.network(url, fit: BoxFit.cover)
           : Icon(Icons.person_outline, size: size * 0.42, color: AppColors.placeholderIcon),
@@ -146,7 +140,7 @@ class _MatchBubble extends ConsumerWidget {
     final fresh = lastLoaded && (last == null || _hasUnread(last, myUid));
     return InkWell(
       onTap: () => _openChat(context, match),
-      borderRadius: BorderRadius.circular(12),
+      borderRadius: BorderRadius.circular(AppRadii.md),
       child: SizedBox(
         width: 62,
         child: Column(
@@ -154,7 +148,7 @@ class _MatchBubble extends ConsumerWidget {
             Container(
               padding: const EdgeInsets.all(2),
               decoration: BoxDecoration(
-                shape: BoxShape.circle,
+                borderRadius: BorderRadius.circular(18),
                 border: Border.all(color: fresh ? AppColors.accent : AppColors.border, width: 2),
               ),
               child: _MemberAvatar(uid: match.otherUid, size: 50),

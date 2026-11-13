@@ -5,7 +5,7 @@ import '../../../../core/theme/app_theme.dart';
 import '../../../../core/widgets/block_action.dart';
 import '../../../../core/widgets/boost_action.dart';
 import '../../../../core/widgets/empty_state_cards.dart';
-import '../../../../core/widgets/tab_pill.dart';
+import '../../../../core/widgets/app_tab.dart';
 import '../../../../l10n/l10n_extensions.dart';
 import '../../../premium/presentation/screens/premium_screen.dart';
 import '../../../decouvrir/presentation/decouvrir_controller.dart';
@@ -50,17 +50,19 @@ class _LikesScreenState extends ConsumerState<LikesScreen> {
           return SafeArea(
             child: Column(
               children: [
-                Padding(
-                  padding: const EdgeInsets.fromLTRB(20, 12, 20, 12),
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 12),
+                  decoration: BoxDecoration(
+                    border: Border(bottom: BorderSide(color: AppColors.border)),
+                  ),
                   child: Row(
                     children: [
-                      TabPill(
+                      AppTab(
                         label: context.l10n.likedYouTab(likes.likesReceivedCount),
                         selected: _tab == 0,
                         onTap: () => setState(() => _tab = 0),
                       ),
-                      const SizedBox(width: 8),
-                      TabPill(
+                      AppTab(
                         label: context.l10n.myLikesTab,
                         selected: _tab == 1,
                         onTap: () => setState(() => _tab = 1),
@@ -116,7 +118,7 @@ class _ReceivedTab extends ConsumerWidget {
                   backgroundColor: AppColors.accent,
                   foregroundColor: AppColors.noirProfond,
                   padding: const EdgeInsets.symmetric(vertical: 14),
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(999)),
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(AppRadii.sm)),
                 ),
               ),
             ),
@@ -140,7 +142,7 @@ class _ReceivedTab extends ConsumerWidget {
                   foregroundColor: AppColors.ink,
                   side: BorderSide(color: AppColors.border),
                   padding: const EdgeInsets.symmetric(vertical: 14),
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(999)),
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(AppRadii.sm)),
                 ),
                 child: Text(context.l10n.upgradeToPremiumButton),
               ),
@@ -186,7 +188,7 @@ class _ReceivedTab extends ConsumerWidget {
           itemBuilder: (context, i) => Container(
             decoration: BoxDecoration(
               color: AppColors.placeholder,
-              borderRadius: BorderRadius.circular(16),
+              borderRadius: BorderRadius.circular(AppRadii.lg),
             ),
             child: Center(
               child: Icon(Icons.lock_outline, color: AppColors.placeholderIcon),
@@ -196,7 +198,7 @@ class _ReceivedTab extends ConsumerWidget {
         const SizedBox(height: 16),
         Container(
           padding: const EdgeInsets.all(16),
-          decoration: BoxDecoration(color: AppColors.accentSoft, borderRadius: BorderRadius.circular(16)),
+          decoration: BoxDecoration(color: AppColors.accentSoft, borderRadius: BorderRadius.circular(AppRadii.lg)),
           child: Row(
             children: [
               Expanded(
@@ -213,7 +215,7 @@ class _ReceivedTab extends ConsumerWidget {
               ),
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 9),
-                decoration: BoxDecoration(color: AppColors.surfaceDark, borderRadius: BorderRadius.circular(999)),
+                decoration: BoxDecoration(color: AppColors.surfaceDark, borderRadius: BorderRadius.circular(AppRadii.sm)),
                 child: Text(
                   context.l10n.premiumTeaserPrice,
                   style: TextStyle(color: AppColors.accent, fontWeight: FontWeight.bold),
@@ -309,11 +311,11 @@ class _ProfileGrid extends ConsumerWidget {
             ),
           ),
           onLongPress: onLongPress == null ? null : () => onLongPress!(p),
-          borderRadius: BorderRadius.circular(16),
+          borderRadius: BorderRadius.circular(AppRadii.lg),
           child: Container(
             decoration: BoxDecoration(
               border: Border.all(color: AppColors.border),
-              borderRadius: BorderRadius.circular(16),
+              borderRadius: BorderRadius.circular(AppRadii.lg),
             ),
             clipBehavior: Clip.antiAlias,
             child: Column(

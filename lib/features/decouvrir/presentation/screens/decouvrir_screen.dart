@@ -504,7 +504,7 @@ class _DraggableCardState extends State<_DraggableCard>
             child: Container(
               decoration: BoxDecoration(
                 border: Border.all(color: AppColors.border, width: 1.5),
-                borderRadius: BorderRadius.circular(20),
+                borderRadius: BorderRadius.circular(AppRadii.lg),
               ),
               clipBehavior: Clip.antiAlias,
               child: Stack(
@@ -609,7 +609,7 @@ class _CandidateCardContent extends ConsumerWidget {
                         ),
                         decoration: BoxDecoration(
                           color: Colors.black.withValues(alpha: 0.55),
-                          borderRadius: BorderRadius.circular(999),
+                          borderRadius: BorderRadius.circular(AppRadii.sm),
                         ),
                         child: Row(
                           mainAxisSize: MainAxisSize.min,
@@ -696,7 +696,7 @@ class _CandidateCardContent extends ConsumerWidget {
                         ),
                         decoration: BoxDecoration(
                           color: AppColors.accent,
-                          borderRadius: BorderRadius.circular(999),
+                          borderRadius: BorderRadius.circular(AppRadii.sm),
                         ),
                         child: Text(
                           context.l10n.compatScoreBadge(compatScore!),
@@ -1094,7 +1094,7 @@ class _LocationSwitchPillState extends ConsumerState<_LocationSwitchPill> {
       padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
       decoration: BoxDecoration(
         color: AppColors.backgroundSoft,
-        borderRadius: BorderRadius.circular(999),
+        borderRadius: BorderRadius.circular(AppRadii.sm),
         border: Border.all(color: AppColors.border),
       ),
       child: Row(
@@ -1166,12 +1166,12 @@ class _FilterPill extends StatelessWidget {
       opacity: dimmed ? 0.45 : 1,
       child: InkWell(
         onTap: onTap,
-        borderRadius: BorderRadius.circular(999),
+        borderRadius: BorderRadius.circular(AppRadii.sm),
         child: Container(
           padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 9),
           decoration: BoxDecoration(
             color: filled ? AppColors.accent : AppColors.backgroundSoft,
-            borderRadius: BorderRadius.circular(999),
+            borderRadius: BorderRadius.circular(AppRadii.sm),
             border: Border.all(
               color: filled ? AppColors.accent : AppColors.border,
             ),
@@ -1224,7 +1224,7 @@ class _SwipeStamp extends StatelessWidget {
         padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
         decoration: BoxDecoration(
           border: Border.all(color: color, width: 3),
-          borderRadius: BorderRadius.circular(8),
+          borderRadius: BorderRadius.circular(AppRadii.sm),
           color: AppColors.noirProfond.withValues(alpha: 0.25),
         ),
         child: Text(
@@ -1469,7 +1469,7 @@ class _RoundButton extends StatelessWidget {
   Widget build(BuildContext context) {
     return InkWell(
       onTap: onTap,
-      borderRadius: BorderRadius.circular(999),
+      borderRadius: BorderRadius.circular(AppRadii.sm),
       child: Container(
         width: size,
         height: size,

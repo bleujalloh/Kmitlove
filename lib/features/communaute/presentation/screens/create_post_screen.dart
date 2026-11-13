@@ -254,7 +254,7 @@ class _CreatePostScreenState extends ConsumerState<CreatePostScreen> {
                   height: 140,
                   decoration: BoxDecoration(
                     color: AppColors.backgroundSoft,
-                    borderRadius: BorderRadius.circular(14),
+                    borderRadius: BorderRadius.circular(AppRadii.md),
                     border: Border.all(color: AppColors.border),
                     image: _posterFile != null
                         ? DecorationImage(image: FileImage(_posterFile!), fit: BoxFit.cover)
@@ -461,7 +461,7 @@ class _CreatePostScreenState extends ConsumerState<CreatePostScreen> {
                 padding: const EdgeInsets.all(12),
                 decoration: BoxDecoration(
                   color: AppColors.backgroundSoft,
-                  borderRadius: BorderRadius.circular(12),
+                  borderRadius: BorderRadius.circular(AppRadii.md),
                 ),
                 child: Text(
                   context.l10n.eventVerifiedOnlyHint,

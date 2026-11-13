@@ -149,7 +149,7 @@ class MonProfilScreen extends ConsumerWidget {
                           padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 7),
                           decoration: BoxDecoration(
                             color: AppColors.accentSoft,
-                            borderRadius: BorderRadius.circular(999),
+                            borderRadius: BorderRadius.circular(AppRadii.sm),
                           ),
                           child: Row(
                             mainAxisSize: MainAxisSize.min,
@@ -304,7 +304,7 @@ class MonProfilScreen extends ConsumerWidget {
                 Container(
                   decoration: BoxDecoration(
                     color: AppColors.surfaceDark,
-                    borderRadius: BorderRadius.circular(16),
+                    borderRadius: BorderRadius.circular(AppRadii.lg),
                     border: Border.all(color: AppColors.accent, width: 1),
                   ),
                   child: _ProfilActionTile(
@@ -362,13 +362,13 @@ class _ProfilActionTile extends StatelessWidget {
       color: Colors.transparent,
       child: InkWell(
         onTap: onTap,
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: BorderRadius.circular(AppRadii.lg),
         child: Container(
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
           decoration: iconColor == null
               ? BoxDecoration(
                   border: Border.all(color: AppColors.border),
-                  borderRadius: BorderRadius.circular(16),
+                  borderRadius: BorderRadius.circular(AppRadii.lg),
                 )
               : null,
           child: Row(
@@ -413,12 +413,12 @@ class _CounterTile extends StatelessWidget {
       color: Colors.transparent,
       child: InkWell(
         onTap: onTap,
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: BorderRadius.circular(AppRadii.lg),
         child: Container(
           padding: const EdgeInsets.all(14),
           decoration: BoxDecoration(
             color: AppColors.backgroundSoft,
-            borderRadius: BorderRadius.circular(16),
+            borderRadius: BorderRadius.circular(AppRadii.lg),
           ),
           child: Row(
             children: [

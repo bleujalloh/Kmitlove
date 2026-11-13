@@ -41,35 +41,37 @@ class AppPalette {
   final Color navBackground;
   final Color navUnselected;
 
+  /// Thème sombre : gris anthracite neutre (plus de noir presque pur ni de
+  /// brun), l'or reste l'unique couleur d'accent.
   static const dark = AppPalette(
-    background: AppColors.noirProfond,
-    backgroundSoft: AppColors.brunProfond,
-    ink: AppColors.ivoire,
-    muted: Color(0xFFB3A581),
-    border: AppColors.brunTerre,
+    background: Color(0xFF161618),
+    backgroundSoft: Color(0xFF202024),
+    ink: Color(0xFFF4F4F5),
+    muted: Color(0xFFA1A1AA),
+    border: Color(0xFF2E2E33),
     accent: AppColors.orAntique,
-    accentSoft: Color(0xFF3A301A),
-    placeholder: Color(0xFF362F22),
-    placeholderIcon: Color(0xFF8A7C5E),
-    navBackground: AppColors.noirProfond,
-    navUnselected: Color(0xB3F6F0E5),
+    accentSoft: Color(0xFF2E2819),
+    placeholder: Color(0xFF2A2A2E),
+    placeholderIcon: Color(0xFF71717A),
+    navBackground: Color(0xFF161618),
+    navUnselected: Color(0xFFA1A1AA),
   );
 
-  /// Thème clair : fond ivoire, texte noir chaud, or plus profond pour que
-  /// l'or reste lisible comme texte sur fond clair (contrastes vérifiés par
-  /// test/theme_contrast_test.dart).
+  /// Thème clair : fond blanc (pas de crème), surfaces gris très clair,
+  /// texte presque noir ; l'or est plus profond pour rester lisible comme
+  /// texte sur blanc (contrastes vérifiés par test/theme_contrast_test.dart).
   static const light = AppPalette(
-    background: AppColors.ivoire,
-    backgroundSoft: Color(0xFFFFFBF2),
-    ink: Color(0xFF1C1A17),
-    muted: Color(0xFF6E6247),
-    border: Color(0xFFDCCFB3),
+    background: Color(0xFFFFFFFF),
+    backgroundSoft: Color(0xFFF5F5F6),
+    ink: Color(0xFF18181B),
+    muted: Color(0xFF62626B),
+    border: Color(0xFFE6E6E9),
     accent: Color(0xFF9E7416),
-    accentSoft: Color(0xFFEFE2BF),
-    placeholder: Color(0xFFE9DFC9),
-    placeholderIcon: Color(0xFF8A7C5E),
-    navBackground: Color(0xFFFFFBF2),
-    navUnselected: Color(0xFF6E6247),
+    accentSoft: Color(0xFFF3ECD9),
+    placeholder: Color(0xFFE7E7EA),
+    placeholderIcon: Color(0xFF9A9AA3),
+    navBackground: Color(0xFFFFFFFF),
+    navUnselected: Color(0xFF71717A),
   );
 }
 
@@ -144,9 +146,12 @@ class AppSpacing {
 }
 
 class AppRadii {
-  static const sm = 10.0;
-  static const md = 14.0;
-  static const lg = 20.0;
+  static const xs = 4.0;
+  static const sm = 6.0;
+  static const md = 8.0;
+  static const lg = 12.0;
+  // Réservé aux éléments réellement ronds (point, avatar) : plus aucun
+  // onglet, bouton ni puce en forme de pilule.
   static const pill = 999.0;
 }
 
@@ -192,16 +197,17 @@ ThemeData buildAppTheme(Brightness brightness) {
       onSurface: AppColors.ink,
       brightness: brightness,
     ),
-    textTheme: TextTheme(
-      bodyMedium: TextStyle(color: AppColors.ink),
-    ),
+    textTheme: GoogleFonts.manropeTextTheme(
+      ThemeData(brightness: brightness).textTheme,
+    ).apply(bodyColor: AppColors.ink, displayColor: AppColors.ink),
     dividerTheme: DividerThemeData(color: AppColors.border, thickness: 1),
     elevatedButtonTheme: ElevatedButtonThemeData(
       style: ElevatedButton.styleFrom(
         backgroundColor: AppColors.accent,
         foregroundColor: AppColors.noirProfond,
-        padding: const EdgeInsets.symmetric(vertical: 16),
-        textStyle: const TextStyle(fontWeight: FontWeight.w700),
+        elevation: 0,
+        padding: const EdgeInsets.symmetric(vertical: 15),
+        textStyle: const TextStyle(fontWeight: FontWeight.w600, letterSpacing: 0.1),
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(AppRadii.md),
         ),
@@ -211,7 +217,8 @@ ThemeData buildAppTheme(Brightness brightness) {
       style: OutlinedButton.styleFrom(
         foregroundColor: AppColors.ink,
         side: BorderSide(color: AppColors.border, width: 1.4),
-        padding: const EdgeInsets.symmetric(vertical: 15),
+        padding: const EdgeInsets.symmetric(vertical: 14),
+        textStyle: const TextStyle(fontWeight: FontWeight.w600),
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(AppRadii.md)),
       ),
     ),
@@ -229,7 +236,7 @@ ThemeData buildAppTheme(Brightness brightness) {
       labelStyle: TextStyle(color: AppColors.muted),
       border: OutlineInputBorder(
         borderRadius: BorderRadius.circular(AppRadii.md),
-        borderSide: BorderSide(color: AppColors.border),
+        borderSide: BorderSide.none,
       ),
       enabledBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(AppRadii.md),
@@ -248,7 +255,10 @@ ThemeData buildAppTheme(Brightness brightness) {
       backgroundColor: AppColors.background,
       foregroundColor: AppColors.ink,
       elevation: 0,
-      titleTextStyle: GoogleFonts.tinos(color: AppColors.ink, fontSize: 20, fontWeight: FontWeight.w600),
+      titleTextStyle: GoogleFonts.manrope(color: AppColors.ink, fontSize: 20, fontWeight: FontWeight.w700, letterSpacing: -0.3),
+      centerTitle: false,
+      scrolledUnderElevation: 0,
+      surfaceTintColor: Colors.transparent,
     ),
     // Navigation inférieure volontairement sombre (surface dédiée, pas
     // juste un fond clair de plus) : c'est le contraste noir/ivoire
@@ -256,7 +266,9 @@ ThemeData buildAppTheme(Brightness brightness) {
     // constant de l'app (présent sur les 5 onglets principaux).
     navigationBarTheme: NavigationBarThemeData(
       backgroundColor: AppColors.navBackground,
-      indicatorColor: AppColors.accent.withValues(alpha: 0.22),
+      indicatorColor: Colors.transparent,
+      elevation: 0,
+      height: 64,
       surfaceTintColor: Colors.transparent,
       labelTextStyle: WidgetStateProperty.resolveWith(
         (states) => TextStyle(
@@ -276,7 +288,7 @@ ThemeData buildAppTheme(Brightness brightness) {
       selectedColor: AppColors.accentSoft,
       labelStyle: TextStyle(color: AppColors.ink),
       side: BorderSide(color: AppColors.border),
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(AppRadii.pill)),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(AppRadii.sm)),
     ),
     switchTheme: SwitchThemeData(
       trackColor: WidgetStateProperty.resolveWith(

@@ -145,7 +145,7 @@ class ProfileFactSheet extends StatelessWidget {
                     ),
                     decoration: BoxDecoration(
                       color: AppColors.accentSoft,
-                      borderRadius: BorderRadius.circular(999),
+                      borderRadius: BorderRadius.circular(AppRadii.sm),
                       border: Border.all(color: AppColors.border),
                     ),
                     child: Row(

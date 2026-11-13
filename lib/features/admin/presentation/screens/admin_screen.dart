@@ -129,7 +129,7 @@ class _ModerationRequestTile extends ConsumerWidget {
       decoration: isEmergency
           ? BoxDecoration(
               color: AppColors.accent.withValues(alpha: 0.08),
-              borderRadius: BorderRadius.circular(10),
+              borderRadius: BorderRadius.circular(AppRadii.md),
               border: Border.all(color: AppColors.accent.withValues(alpha: 0.4)),
             )
           : null,

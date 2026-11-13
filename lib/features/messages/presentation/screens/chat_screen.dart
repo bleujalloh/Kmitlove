@@ -169,7 +169,7 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
                             constraints: BoxConstraints(maxWidth: MediaQuery.of(context).size.width * 0.7),
                             decoration: BoxDecoration(
                               color: isMine ? AppColors.accent : AppColors.backgroundSoft,
-                              borderRadius: BorderRadius.circular(16),
+                              borderRadius: BorderRadius.circular(AppRadii.lg),
                             ),
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.end,
@@ -327,7 +327,7 @@ class _MessageImage extends ConsumerWidget {
     final url = urlAsync.value;
 
     return ClipRRect(
-      borderRadius: BorderRadius.circular(12),
+      borderRadius: BorderRadius.circular(AppRadii.md),
       child: SizedBox(
         width: 200,
         height: 200,

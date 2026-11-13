@@ -69,7 +69,7 @@ class _PostDetailScreenState extends ConsumerState<PostDetailScreen> {
               GestureDetector(
                 onTap: () => openImageViewer(context, [posterUrl]),
                 child: ClipRRect(
-                  borderRadius: BorderRadius.circular(16),
+                  borderRadius: BorderRadius.circular(AppRadii.lg),
                   child: Image.network(posterUrl, height: 180, width: double.infinity, fit: BoxFit.cover),
                 ),
               ),
@@ -80,7 +80,7 @@ class _PostDetailScreenState extends ConsumerState<PostDetailScreen> {
                 padding: const EdgeInsets.only(bottom: 10),
                 child: Container(
                   padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-                  decoration: BoxDecoration(color: AppColors.accentSoft, borderRadius: BorderRadius.circular(999)),
+                  decoration: BoxDecoration(color: AppColors.accentSoft, borderRadius: BorderRadius.circular(AppRadii.sm)),
                   child: Text(
                     eventStateLabel(widget.post.eventState!, context.l10n),
                     style: TextStyle(color: AppColors.accent, fontWeight: FontWeight.w600, fontSize: 12),
@@ -255,7 +255,7 @@ class _InfoChip extends StatelessWidget {
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
       decoration: BoxDecoration(
         color: AppColors.backgroundSoft,
-        borderRadius: BorderRadius.circular(999),
+        borderRadius: BorderRadius.circular(AppRadii.sm),
         border: Border.all(color: AppColors.border),
       ),
       child: Text(label, style: const TextStyle(fontSize: 11.5)),
@@ -274,7 +274,7 @@ class _TicketCard extends StatelessWidget {
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: AppColors.backgroundSoft,
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: BorderRadius.circular(AppRadii.lg),
         border: Border.all(color: AppColors.accent),
       ),
       child: Column(

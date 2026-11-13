@@ -67,7 +67,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                     padding: const EdgeInsets.all(18),
                     decoration: BoxDecoration(
                       border: Border.all(color: AppColors.border),
-                      borderRadius: BorderRadius.circular(14),
+                      borderRadius: BorderRadius.circular(AppRadii.md),
                     ),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,

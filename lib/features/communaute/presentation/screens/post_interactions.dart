@@ -28,7 +28,7 @@ class PostInteractionsRow extends ConsumerWidget {
     return Row(
       children: [
         InkWell(
-          borderRadius: BorderRadius.circular(8),
+          borderRadius: BorderRadius.circular(AppRadii.sm),
           onTap: () async {
             try {
               await ref.read(communauteControllerProvider).toggleLike(post.id);
@@ -56,7 +56,7 @@ class PostInteractionsRow extends ConsumerWidget {
         ),
         const SizedBox(width: 18),
         InkWell(
-          borderRadius: BorderRadius.circular(8),
+          borderRadius: BorderRadius.circular(AppRadii.sm),
           onTap: onRepliesTap,
           child: Padding(
             padding: const EdgeInsets.symmetric(vertical: 4, horizontal: 2),
@@ -101,7 +101,7 @@ class PostAuthorLine extends ConsumerWidget {
         Container(
           width: 32,
           height: 32,
-          decoration: BoxDecoration(color: AppColors.placeholder, shape: BoxShape.circle),
+          decoration: BoxDecoration(color: AppColors.placeholder, borderRadius: BorderRadius.circular(10)),
           child: Icon(Icons.person_outline, size: 16, color: AppColors.placeholderIcon),
         ),
         const SizedBox(width: 10),

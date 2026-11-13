@@ -50,7 +50,7 @@ class AppLocalizationsFr extends AppLocalizations {
       'Cette application rassemble des personnes qui se reconnaissent dans l\'identité et les valeurs kamites, pour des rencontres amoureuses sérieuses. L\'adhésion repose sur ta connaissance et ton engagement envers cette culture — jamais sur ton origine ou ton apparence.';
 
   @override
-  String get onboardingCharterTitle => 'CHARTE COMMUNAUTAIRE';
+  String get onboardingCharterTitle => 'Charte communautaire';
 
   @override
   String get onboardingCharter1 =>
@@ -517,7 +517,7 @@ class AppLocalizationsFr extends AppLocalizations {
   String get relationshipIntentLabel => 'Intention relationnelle';
 
   @override
-  String get yourFicheSectionTitle => 'TA FICHE';
+  String get yourFicheSectionTitle => 'Ta fiche';
 
   @override
   String get heightLabel => 'Taille en cm (facultatif)';
@@ -553,7 +553,7 @@ class AppLocalizationsFr extends AppLocalizations {
   String get saveMyProfile => 'Enregistrer mon profil';
 
   @override
-  String get photosSectionTitle => 'PHOTOS';
+  String get photosSectionTitle => 'Photos';
 
   @override
   String get photosLoadFailed => 'Impossible de charger les photos.';
@@ -990,7 +990,7 @@ class AppLocalizationsFr extends AppLocalizations {
   String get messageTimeYesterday => 'hier';
 
   @override
-  String get sayHelloPreview => 'Dites bonjour 👋';
+  String get sayHelloPreview => 'Dites bonjour';
 
   @override
   String get beforeSendingPhotoTitle => 'Avant d\'envoyer une photo';
@@ -1553,7 +1553,7 @@ class AppLocalizationsFr extends AppLocalizations {
   String get deleteMyAccount => 'Supprimer mon compte';
 
   @override
-  String get privacySectionTitle => 'CONFIDENTIALITÉ';
+  String get privacySectionTitle => 'Confidentialité';
 
   @override
   String get showReadReceiptsTitle => 'Indicateur de lecture';

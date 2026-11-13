@@ -159,7 +159,7 @@ class _QuestionTile extends StatelessWidget {
                   padding: const EdgeInsets.only(right: 6),
                   child: InkWell(
                     onTap: () => onChanged(v),
-                    borderRadius: BorderRadius.circular(10),
+                    borderRadius: BorderRadius.circular(AppRadii.md),
                     child: Container(
                       padding: const EdgeInsets.symmetric(vertical: 10),
                       alignment: Alignment.center,
@@ -168,7 +168,7 @@ class _QuestionTile extends StatelessWidget {
                         border: Border.all(
                           color: selected ? AppColors.accent : AppColors.border,
                         ),
-                        borderRadius: BorderRadius.circular(10),
+                        borderRadius: BorderRadius.circular(AppRadii.md),
                       ),
                       child: Text(
                         '$v',

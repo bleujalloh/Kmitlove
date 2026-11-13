@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../../core/theme/app_theme.dart';
-import '../../../../core/widgets/tab_pill.dart';
 import '../../../../l10n/l10n_extensions.dart';
 import '../../../profil/presentation/profil_controller.dart';
 import '../../domain/community_post.dart';
@@ -230,7 +229,7 @@ class _EventCard extends ConsumerWidget {
     final posterUrl =
         event.posterStoragePath != null ? ref.watch(eventPosterUrlProvider(event.posterStoragePath!)).value : null;
     return InkWell(
-      borderRadius: BorderRadius.circular(16),
+      borderRadius: BorderRadius.circular(AppRadii.lg),
       onTap: () => Navigator.of(context).push(
         MaterialPageRoute(builder: (_) => PostDetailScreen(post: event)),
       ),
@@ -238,7 +237,7 @@ class _EventCard extends ConsumerWidget {
         width: 160,
         decoration: BoxDecoration(
           color: AppColors.backgroundSoft,
-          borderRadius: BorderRadius.circular(16),
+          borderRadius: BorderRadius.circular(AppRadii.lg),
           border: Border.all(color: AppColors.border),
         ),
         clipBehavior: Clip.antiAlias,
@@ -287,7 +286,7 @@ class _EventListTile extends StatelessWidget {
       elevation: 0,
       shape: RoundedRectangleBorder(
         side: BorderSide(color: AppColors.border),
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: BorderRadius.circular(AppRadii.lg),
       ),
       child: ListTile(
         title: Text(event.title ?? event.text, style: const TextStyle(fontWeight: FontWeight.bold)),
@@ -354,13 +353,18 @@ class _FiltersBar extends ConsumerWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        TabPill(
-          icon: Icons.tune,
-          label: filters.isActive
-              ? '${context.l10n.eventsFiltersButton} · ${filters.activeCount}'
-              : context.l10n.eventsFiltersButton,
-          selected: filters.isActive,
-          onTap: () => showEventFiltersSheet(context),
+        OutlinedButton.icon(
+          onPressed: () => showEventFiltersSheet(context),
+          icon: const Icon(Icons.tune, size: 18),
+          label: Text(
+            filters.isActive
+                ? '${context.l10n.eventsFiltersButton} · ${filters.activeCount}'
+                : context.l10n.eventsFiltersButton,
+          ),
+          style: OutlinedButton.styleFrom(
+            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+            side: BorderSide(color: filters.isActive ? AppColors.accent : AppColors.border),
+          ),
         ),
         if (chips.isNotEmpty) ...[
           const SizedBox(height: 10),

@@ -84,7 +84,7 @@ class ProfilDetailScreen extends ConsumerWidget {
                           decoration: BoxDecoration(
                             color: AppColors.backgroundSoft,
                             border: Border.all(color: AppColors.border),
-                            borderRadius: BorderRadius.circular(12),
+                            borderRadius: BorderRadius.circular(AppRadii.md),
                           ),
                           child: Row(
                             children: [
@@ -131,7 +131,7 @@ class ProfilDetailScreen extends ConsumerWidget {
                               ),
                               decoration: BoxDecoration(
                                 color: AppColors.accent,
-                                borderRadius: BorderRadius.circular(999),
+                                borderRadius: BorderRadius.circular(AppRadii.sm),
                               ),
                               child: Text(
                                 context.l10n.compatScoreBadge(compatScore),

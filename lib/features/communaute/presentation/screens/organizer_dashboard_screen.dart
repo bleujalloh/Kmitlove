@@ -84,7 +84,7 @@ class _OrganizerEventCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return InkWell(
-      borderRadius: BorderRadius.circular(16),
+      borderRadius: BorderRadius.circular(AppRadii.lg),
       onTap: () => Navigator.of(context).push(
         MaterialPageRoute(builder: (_) => PostDetailScreen(post: post)),
       ),
@@ -92,7 +92,7 @@ class _OrganizerEventCard extends StatelessWidget {
         padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
           border: Border.all(color: AppColors.border),
-          borderRadius: BorderRadius.circular(16),
+          borderRadius: BorderRadius.circular(AppRadii.lg),
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -111,7 +111,7 @@ class _OrganizerEventCard extends StatelessWidget {
                   padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
                   decoration: BoxDecoration(
                     color: AppColors.accentSoft,
-                    borderRadius: BorderRadius.circular(999),
+                    borderRadius: BorderRadius.circular(AppRadii.sm),
                   ),
                   child: Text(
                     post.status == 'pending_review' ? '…' : eventStateLabel(post.eventState ?? 'prevu', context.l10n),

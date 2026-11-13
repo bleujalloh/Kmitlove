@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../../core/theme/app_theme.dart';
-import '../../../../core/widgets/tab_pill.dart';
+import '../../../../core/widgets/app_tab.dart';
 import '../../../../l10n/l10n_extensions.dart';
 import '../../domain/community_post.dart';
 import '../communaute_controller.dart';
@@ -164,7 +164,7 @@ class _TipCard extends StatelessWidget {
       elevation: 0,
       shape: RoundedRectangleBorder(
         side: BorderSide(color: AppColors.border),
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: BorderRadius.circular(AppRadii.lg),
       ),
       child: Padding(
         padding: const EdgeInsets.all(16),
@@ -174,7 +174,7 @@ class _TipCard extends StatelessWidget {
             if (category != null) ...[
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-                decoration: BoxDecoration(color: AppColors.accentSoft, borderRadius: BorderRadius.circular(999)),
+                decoration: BoxDecoration(color: AppColors.accentSoft, borderRadius: BorderRadius.circular(AppRadii.sm)),
                 child: Text(
                   tipCategoryLabel(category, context.l10n),
                   style: TextStyle(color: AppColors.accent, fontWeight: FontWeight.w600, fontSize: 11),
@@ -209,10 +209,10 @@ class _PostCard extends StatelessWidget {
         elevation: 0,
         shape: RoundedRectangleBorder(
           side: BorderSide(color: AppColors.border),
-          borderRadius: BorderRadius.circular(16),
+          borderRadius: BorderRadius.circular(AppRadii.lg),
         ),
         child: InkWell(
-          borderRadius: BorderRadius.circular(16),
+          borderRadius: BorderRadius.circular(AppRadii.lg),
           onTap: open,
           child: Padding(
             padding: const EdgeInsets.all(16),
@@ -235,7 +235,7 @@ class _PostCard extends StatelessWidget {
       elevation: 0,
       shape: RoundedRectangleBorder(
         side: BorderSide(color: AppColors.border),
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: BorderRadius.circular(AppRadii.lg),
       ),
       child: ListTile(
         title: Text(post.title ?? postTypeLabel(post.type, context.l10n), style: const TextStyle(fontWeight: FontWeight.bold)),
@@ -300,18 +300,19 @@ class _CommunautePillBarState extends State<_CommunautePillBar> {
       (Icons.campaign_outlined, context.l10n.navNews),
       (Icons.star_outline, context.l10n.navTips),
     ];
-    return Padding(
-      padding: const EdgeInsets.fromLTRB(0, 12, 0, 8),
+    return Container(
+      decoration: BoxDecoration(
+        border: Border(bottom: BorderSide(color: AppColors.border)),
+      ),
       child: SingleChildScrollView(
         scrollDirection: Axis.horizontal,
         padding: const EdgeInsets.symmetric(horizontal: 16),
         child: Row(
           children: [
             for (var i = 0; i < items.length; i++) ...[
-              if (i > 0) const SizedBox(width: 8),
               KeyedSubtree(
                 key: _keys[i],
-                child: TabPill(
+                child: AppTab(
                   icon: items[i].$1,
                   label: items[i].$2,
                   selected: widget.tab == i,

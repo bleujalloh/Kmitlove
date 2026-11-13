@@ -173,7 +173,7 @@ abstract class AppLocalizations {
   /// No description provided for @onboardingCharterTitle.
   ///
   /// In fr, this message translates to:
-  /// **'CHARTE COMMUNAUTAIRE'**
+  /// **'Charte communautaire'**
   String get onboardingCharterTitle;
 
   /// No description provided for @onboardingCharter1.
@@ -1025,7 +1025,7 @@ abstract class AppLocalizations {
   /// No description provided for @yourFicheSectionTitle.
   ///
   /// In fr, this message translates to:
-  /// **'TA FICHE'**
+  /// **'Ta fiche'**
   String get yourFicheSectionTitle;
 
   /// No description provided for @heightLabel.
@@ -1091,7 +1091,7 @@ abstract class AppLocalizations {
   /// No description provided for @photosSectionTitle.
   ///
   /// In fr, this message translates to:
-  /// **'PHOTOS'**
+  /// **'Photos'**
   String get photosSectionTitle;
 
   /// No description provided for @photosLoadFailed.
@@ -1835,7 +1835,7 @@ abstract class AppLocalizations {
   /// No description provided for @sayHelloPreview.
   ///
   /// In fr, this message translates to:
-  /// **'Dites bonjour 👋'**
+  /// **'Dites bonjour'**
   String get sayHelloPreview;
 
   /// No description provided for @beforeSendingPhotoTitle.
@@ -2885,7 +2885,7 @@ abstract class AppLocalizations {
   /// No description provided for @privacySectionTitle.
   ///
   /// In fr, this message translates to:
-  /// **'CONFIDENTIALITÉ'**
+  /// **'Confidentialité'**
   String get privacySectionTitle;
 
   /// No description provided for @showReadReceiptsTitle.

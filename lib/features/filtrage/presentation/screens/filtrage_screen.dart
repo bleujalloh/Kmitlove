@@ -111,7 +111,7 @@ class _QuestionView extends ConsumerWidget {
                   ),
                   const SizedBox(height: 14),
                   ClipRRect(
-                    borderRadius: BorderRadius.circular(999),
+                    borderRadius: BorderRadius.circular(AppRadii.sm),
                     child: LinearProgressIndicator(
                       value: attempt.progress,
                       minHeight: 6,
@@ -127,7 +127,7 @@ class _QuestionView extends ConsumerWidget {
                 padding: const EdgeInsets.fromLTRB(28, 8, 28, 0),
                 children: [
                   Text(
-                    question.theme.toUpperCase(),
+                    question.theme,
                     style: TextStyle(
                       fontSize: 11,
                       fontWeight: FontWeight.bold,
@@ -165,7 +165,7 @@ class _QuestionView extends ConsumerWidget {
                     decoration: BoxDecoration(
                       color: AppColors.backgroundSoft,
                       border: Border.all(color: AppColors.border),
-                      borderRadius: BorderRadius.circular(12),
+                      borderRadius: BorderRadius.circular(AppRadii.md),
                     ),
                     child: Text(
                       context.l10n.filtrageDisclaimer,
@@ -223,7 +223,7 @@ class _AnswerOption extends StatelessWidget {
       padding: const EdgeInsets.only(bottom: 10),
       child: InkWell(
         onTap: onTap,
-        borderRadius: BorderRadius.circular(14),
+        borderRadius: BorderRadius.circular(AppRadii.md),
         child: Container(
           padding: const EdgeInsets.all(16),
           decoration: BoxDecoration(
@@ -232,7 +232,7 @@ class _AnswerOption extends StatelessWidget {
               color: isSelected ? AppColors.accent : AppColors.border,
               width: 1.5,
             ),
-            borderRadius: BorderRadius.circular(14),
+            borderRadius: BorderRadius.circular(AppRadii.md),
           ),
           child: Row(
             children: [

@@ -127,7 +127,7 @@ class _PhotoViewerScreenState extends ConsumerState<PhotoViewerScreen> {
                     padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 5),
                     decoration: BoxDecoration(
                       color: current.status == 'approved' ? AppColors.accent : Colors.white24,
-                      borderRadius: BorderRadius.circular(999),
+                      borderRadius: BorderRadius.circular(AppRadii.sm),
                     ),
                     child: Text(
                       _statusLabel(context, current.status),

@@ -229,7 +229,7 @@ class _ParametresScreenState extends ConsumerState<ParametresScreen> {
                 padding: const EdgeInsets.all(14),
                 decoration: BoxDecoration(
                   color: AppColors.backgroundSoft,
-                  borderRadius: BorderRadius.circular(12),
+                  borderRadius: BorderRadius.circular(AppRadii.md),
                   border: Border.all(color: AppColors.accent.withValues(alpha: 0.3)),
                 ),
                 child: Column(

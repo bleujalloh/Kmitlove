@@ -71,7 +71,7 @@ class _PhotoTile extends ConsumerWidget {
                   height: 90,
                   decoration: BoxDecoration(
                     color: AppColors.placeholder,
-                    borderRadius: BorderRadius.circular(14),
+                    borderRadius: BorderRadius.circular(AppRadii.md),
                     image: url != null
                         ? DecorationImage(image: NetworkImage(url), fit: BoxFit.cover)
                         : null,
@@ -147,13 +147,13 @@ class _AddPhotoTile extends ConsumerWidget {
     if (count >= 6) return const SizedBox.shrink();
     return InkWell(
       onTap: () => _showPickerSheet(context, ref),
-      borderRadius: BorderRadius.circular(14),
+      borderRadius: BorderRadius.circular(AppRadii.md),
       child: Container(
         width: 90,
         height: 90,
         decoration: BoxDecoration(
           border: Border.all(color: AppColors.border, style: BorderStyle.solid),
-          borderRadius: BorderRadius.circular(14),
+          borderRadius: BorderRadius.circular(AppRadii.md),
         ),
         child: Icon(Icons.add, color: AppColors.muted),
       ),

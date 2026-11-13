@@ -47,7 +47,7 @@ class PremiumScreen extends ConsumerWidget {
               padding: const EdgeInsets.all(16),
               decoration: BoxDecoration(
                 color: AppColors.accentSoft,
-                borderRadius: BorderRadius.circular(16),
+                borderRadius: BorderRadius.circular(AppRadii.lg),
               ),
               child: Row(
                 children: [
@@ -102,7 +102,7 @@ class PremiumScreen extends ConsumerWidget {
                       padding: const EdgeInsets.all(16),
                       decoration: BoxDecoration(
                         border: Border.all(color: AppColors.border),
-                        borderRadius: BorderRadius.circular(16),
+                        borderRadius: BorderRadius.circular(AppRadii.lg),
                       ),
                       child: Row(
                         children: [

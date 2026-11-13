@@ -979,7 +979,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get messageTimeYesterday => 'yesterday';
 
   @override
-  String get sayHelloPreview => 'Say hello 👋';
+  String get sayHelloPreview => 'Say hello';
 
   @override
   String get beforeSendingPhotoTitle => 'Before sending a photo';

@@ -76,7 +76,7 @@ class _OrganizerRequestScreenState extends ConsumerState<OrganizerRequestScreen>
                 padding: const EdgeInsets.all(16),
                 decoration: BoxDecoration(
                   color: AppColors.accentSoft,
-                  borderRadius: BorderRadius.circular(16),
+                  borderRadius: BorderRadius.circular(AppRadii.lg),
                 ),
                 child: Text(
                   status == 'pending'

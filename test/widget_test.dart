@@ -23,6 +23,6 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.text('MERUT'), findsOneWidget);
-    expect(find.text('CHARTE COMMUNAUTAIRE'), findsOneWidget);
+    expect(find.text('Charte communautaire'), findsOneWidget);
   });
 }

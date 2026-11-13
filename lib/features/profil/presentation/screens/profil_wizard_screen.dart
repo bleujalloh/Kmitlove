@@ -201,7 +201,7 @@ class _ProfilWizardScreenState extends ConsumerState<ProfilWizardScreen> {
                   ),
                   Expanded(
                     child: ClipRRect(
-                      borderRadius: BorderRadius.circular(999),
+                      borderRadius: BorderRadius.circular(AppRadii.sm),
                       child: LinearProgressIndicator(
                         value: (_stepIndex + 1) / _steps.length,
                         minHeight: 5,
@@ -661,7 +661,7 @@ class _StepChoiceList extends StatelessWidget {
             padding: const EdgeInsets.only(bottom: 12),
             child: InkWell(
               onTap: () => onSelect(o),
-              borderRadius: BorderRadius.circular(14),
+              borderRadius: BorderRadius.circular(AppRadii.md),
               child: Container(
                 padding: const EdgeInsets.all(18),
                 decoration: BoxDecoration(
@@ -672,7 +672,7 @@ class _StepChoiceList extends StatelessWidget {
                     color: isSelected ? AppColors.accent : AppColors.border,
                     width: 1.5,
                   ),
-                  borderRadius: BorderRadius.circular(14),
+                  borderRadius: BorderRadius.circular(AppRadii.md),
                 ),
                 child: Row(
                   children: [
@@ -729,7 +729,7 @@ class _StepMultiChoiceList extends StatelessWidget {
             padding: const EdgeInsets.only(bottom: 12),
             child: InkWell(
               onTap: () => onToggle(o, !isSelected),
-              borderRadius: BorderRadius.circular(14),
+              borderRadius: BorderRadius.circular(AppRadii.md),
               child: Container(
                 padding: const EdgeInsets.all(18),
                 decoration: BoxDecoration(
@@ -740,7 +740,7 @@ class _StepMultiChoiceList extends StatelessWidget {
                     color: isSelected ? AppColors.accent : AppColors.border,
                     width: 1.5,
                   ),
-                  borderRadius: BorderRadius.circular(14),
+                  borderRadius: BorderRadius.circular(AppRadii.md),
                 ),
                 child: Row(
                   children: [
