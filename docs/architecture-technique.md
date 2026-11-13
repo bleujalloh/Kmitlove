@@ -66,11 +66,11 @@ Tenue à jour à chaque implantation. Chaque ligne : où vit la fonctionnalité,
 |---|---|---|---|---|
 | Authentification, session | `auth`, `onboarding` | `account/*` | Auth, `users`, `user_status` | `authStateProvider` (`core/providers/firebase_providers.dart`) partout |
 | Filtrage à l'inscription | `filtrage` | `filtrage/*`, `admin/resolveFiltrageReview` | `filtrage_attempts`, `filtrage_question_bank` | — |
-| Profil | `profil` | `profil/saveProfil`, `getProfileCompletion`, `shared/profileCompletion` | `users/{uid}`, `users/{uid}/photos`, Storage `profile_photos` | `candidateFirstPhotoUrlProvider` (photo d'un autre membre) : Découvrir, Likes, Messages |
+| Profil | `profil` | `profil/saveProfil`, `getProfileCompletion`, `shared/profileCompletion` | `users/{uid}`, `users/{uid}/photos`, Storage `profile_photos` | `candidateFirstPhotoUrlProvider` (photo d'un autre membre) : Découvrir, Likes, Messages, écrans vides (`suggestedProfilePhotosProvider`) |
 | Modération photos | `profil` (statuts) | `photos/*`, `shared/photoModeration` | `users/{uid}/photos` (`status`, `hasFace`) | condition de visibilité dans Découvrir (≥ 2 photos visage approuvées) |
 | Vérification d'identité | `identite` | `identite/*` | Storage `identity_verifications`, `users.isVerified` | requis pour créer un événement |
 | Compatibilité | `compatibilite` | `compatibilite/*` | `compat_answers`, `compat_question_bank` | score affiché dans Découvrir |
-| Découvrir (filtres, cartes, swipes) | `decouvrir` | `decouvrir/getCandidates`, `recordSwipe` | `swipes`, `matches`, `user_status` (position) | filtres 100 % côté serveur ; géocodage inverse local (`detected_place_provider`) |
+| Découvrir (filtres, cartes, swipes, retour, éclair) | `decouvrir` (éclair = `activateProfileBoost` de `core/widgets/boost_action.dart`) | `decouvrir/getCandidates`, `recordSwipe`, `undoLastSwipe` (Premium, dernier passage) | `swipes`, `matches`, `user_status` (position, `lastPassTargetUid`) | filtres 100 % côté serveur ; géocodage inverse local (`detected_place_provider`) |
 | Likes | `likes` | `likes/*` | `swipes` | `TabPill`, `candidateFirstPhotoUrlProvider` |
 | Matchs et messagerie | `messages` | `messagerie/onMessageCreated`, `reportUser`, `scheduled/expireMatches` | `matches/{id}`, `matches/{id}/messages`, Storage `chat_photos` | `lastMessageProvider` (non lu), `formatMessageTime`, photo membre ci-dessus |
 | Blocage | `messages` (`blocks`) | exclu dans `getCandidates`, `getLikes`, `recordSwipe` | `blocks/{uidA_uidB}` | un seul système de blocage pour Découvrir, Likes, Messages |
