@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../../core/theme/app_theme.dart';
+import '../../../../core/widgets/action_feedback.dart';
 import '../../../../core/widgets/boost_action.dart';
 import '../../../../core/providers/firebase_providers.dart';
 import '../../../../l10n/l10n_extensions.dart';
@@ -125,7 +126,7 @@ class PremiumScreen extends ConsumerWidget {
                             ),
                           ),
                           ElevatedButton(
-                            onPressed: () => ref.read(premiumRepositoryProvider).buy(product),
+                            onPressed: () => runWithFeedback(context, () => ref.read(premiumRepositoryProvider).buy(product)),
                             child: Text(product.price),
                           ),
                         ],

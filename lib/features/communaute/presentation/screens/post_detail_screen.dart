@@ -5,10 +5,12 @@ import 'package:share_plus/share_plus.dart';
 
 import '../../../../core/providers/firebase_providers.dart';
 import '../../../../core/theme/app_theme.dart';
+import '../../../../core/widgets/action_feedback.dart';
 import '../../../../core/widgets/emergency_sheet.dart';
 import '../../../../core/widgets/image_viewer.dart';
 import '../../../../core/widgets/report_reasons.dart';
 import '../../../../l10n/l10n_extensions.dart';
+import '../../../profil/presentation/profil_detail_controller.dart';
 import '../../domain/community_post.dart';
 import '../communaute_controller.dart';
 import 'post_interactions.dart';
@@ -43,8 +45,10 @@ class _PostDetailScreenState extends ConsumerState<PostDetailScreen> {
           if (widget.post.isEvent && myUid != null)
             IconButton(
               icon: Icon(isFavorite ? Icons.bookmark : Icons.bookmark_border, color: AppColors.accent),
-              onPressed: () =>
-                  ref.read(communauteControllerProvider).toggleFavorite(widget.post.id, !isFavorite),
+              onPressed: () => runWithFeedback(
+                context,
+                () => ref.read(communauteControllerProvider).toggleFavorite(widget.post.id, !isFavorite),
+              ),
             ),
           PopupMenuButton<String>(
             onSelected: (reason) => sendReportWithFeedback(
@@ -140,8 +144,10 @@ class _PostDetailScreenState extends ConsumerState<PostDetailScreen> {
                       return Text(context.l10n.eventFullNotice, style: TextStyle(color: AppColors.muted));
                     }
                     return ElevatedButton(
-                      onPressed: () =>
-                          ref.read(communauteControllerProvider).requestParticipation(widget.post.id),
+                      onPressed: () => runWithFeedback(
+                        context,
+                        () => ref.read(communauteControllerProvider).requestParticipation(widget.post.id),
+                      ),
                       child: Text(context.l10n.requestToParticipate),
                     );
                   }
@@ -153,10 +159,14 @@ class _PostDetailScreenState extends ConsumerState<PostDetailScreen> {
                         const SizedBox(height: 8),
                         OutlinedButton(
                           onPressed: () async {
-                            final loc = await ref
-                                .read(communauteControllerProvider)
-                                .getPreciseLocation(widget.post.id);
-                            setState(() => _preciseLocation = loc);
+                            String? loc;
+                            final ok = await runWithFeedback(
+                              context,
+                              () async => loc = await ref
+                                  .read(communauteControllerProvider)
+                                  .getPreciseLocation(widget.post.id),
+                            );
+                            if (ok && mounted) setState(() => _preciseLocation = loc);
                           },
                           child: Text(context.l10n.seePreciseLocation),
                         ),
@@ -315,12 +325,12 @@ class _CancelParticipationButton extends ConsumerWidget {
             ],
           ),
         );
-        if (confirmed != true) return;
-        await ref.read(communauteControllerProvider).cancelParticipation(postId);
-        if (context.mounted) {
-          ScaffoldMessenger.of(context)
-              .showSnackBar(SnackBar(content: Text(context.l10n.participationCancelledSuccess)));
-        }
+        if (confirmed != true || !context.mounted) return;
+        await runWithFeedback(
+          context,
+          () => ref.read(communauteControllerProvider).cancelParticipation(postId),
+          success: context.l10n.participationCancelledSuccess,
+        );
       },
       style: TextButton.styleFrom(foregroundColor: AppColors.accent),
       child: Text(context.l10n.cancelParticipationButton),
@@ -410,19 +420,19 @@ class _ReviewSectionState extends ConsumerState<_ReviewSection> {
 
   Future<void> _submit() async {
     setState(() => _sending = true);
-    try {
-      await ref.read(communauteControllerProvider).submitReview(
+    // Le refus du serveur (événement pas encore passé, participation non
+    // confirmée...) est annoncé au membre au lieu de disparaître en silence.
+    final sent = await runWithFeedback(
+      context,
+      () => ref.read(communauteControllerProvider).submitReview(
             widget.postId,
             _rating,
             comment: _commentController.text.trim().isEmpty ? null : _commentController.text.trim(),
-          );
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(context.l10n.reviewSentSuccess)));
-        _commentController.clear();
-      }
-    } finally {
-      if (mounted) setState(() => _sending = false);
-    }
+          ),
+      success: context.l10n.reviewSentSuccess,
+    );
+    if (sent && mounted) _commentController.clear();
+    if (mounted) setState(() => _sending = false);
   }
 
   @override
@@ -565,10 +575,12 @@ class _OrganizerEventControls extends ConsumerWidget {
             onPressed: () async {
               Navigator.of(dialogContext).pop();
               if (uidController.text.trim().isEmpty) return;
-              await ref.read(communauteControllerProvider).inviteToEvent(postId, uidController.text.trim());
-              if (context.mounted) {
-                ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(context.l10n.inviteSentSuccess)));
-              }
+              if (!context.mounted) return;
+              await runWithFeedback(
+                context,
+                () => ref.read(communauteControllerProvider).inviteToEvent(postId, uidController.text.trim()),
+                success: context.l10n.inviteSentSuccess,
+              );
             },
             child: Text(context.l10n.validateButton),
           ),
@@ -608,17 +620,27 @@ class _OrganizerPanel extends ConsumerWidget {
                   padding: const EdgeInsets.only(bottom: 8),
                   child: Row(
                     children: [
-                      Expanded(child: Text(p['uid'] as String)),
+                      // Le prénom du membre, jamais son identifiant technique
+                      // (l'organisateur voyait une suite de caractères
+                      // illisible à la place du nom).
+                      Expanded(
+                        child: Text(
+                          ref.watch(targetProfileProvider(p['uid'] as String)).value?.displayName ?? '…',
+                          style: const TextStyle(fontWeight: FontWeight.w600),
+                        ),
+                      ),
                       TextButton(
-                        onPressed: () => ref
-                            .read(communauteControllerProvider)
-                            .respond(post.id, p['uid'] as String, true),
+                        onPressed: () => runWithFeedback(
+                          context,
+                          () => ref.read(communauteControllerProvider).respond(post.id, p['uid'] as String, true),
+                        ),
                         child: Text(context.l10n.acceptButton),
                       ),
                       TextButton(
-                        onPressed: () => ref
-                            .read(communauteControllerProvider)
-                            .respond(post.id, p['uid'] as String, false),
+                        onPressed: () => runWithFeedback(
+                          context,
+                          () => ref.read(communauteControllerProvider).respond(post.id, p['uid'] as String, false),
+                        ),
                         child: Text(context.l10n.declineButton),
                       ),
                     ],

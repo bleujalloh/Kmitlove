@@ -1,4 +1,5 @@
-import { onCall, HttpsError } from "firebase-functions/v2/https";
+import { HttpsError } from "firebase-functions/v2/https";
+import { onCall } from "../shared/callable";
 import { getFirestore } from "firebase-admin/firestore";
 
 import { REGION, COMPAT_QUESTIONS_PER_SESSION } from "../config";

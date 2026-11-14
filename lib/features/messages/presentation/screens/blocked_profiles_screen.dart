@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../../core/theme/app_theme.dart';
+import '../../../../core/widgets/action_feedback.dart';
 import '../../../../l10n/l10n_extensions.dart';
 import '../messages_controller.dart';
 
@@ -65,8 +66,8 @@ class BlockedProfilesScreen extends ConsumerWidget {
                         ],
                       ),
                     );
-                    if (confirmed == true) {
-                      await ref.read(messagesControllerProvider).unblock(b.uid);
+                    if (confirmed == true && context.mounted) {
+                      await runWithFeedback(context, () => ref.read(messagesControllerProvider).unblock(b.uid));
                     }
                   },
                   child: Text(context.l10n.unblockButton),

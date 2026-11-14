@@ -1,4 +1,5 @@
-import { onCall, HttpsError } from "firebase-functions/v2/https";
+import { HttpsError } from "firebase-functions/v2/https";
+import { onCall } from "../shared/callable";
 import { getFirestore, Timestamp } from "firebase-admin/firestore";
 
 import { REGION, BOOST_DURATION_MINUTES, BOOST_FREE_WEEKLY_FOR_PREMIUM } from "../config";

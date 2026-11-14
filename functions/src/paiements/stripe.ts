@@ -1,4 +1,5 @@
-import { onCall, onRequest, HttpsError } from "firebase-functions/v2/https";
+import { onRequest, HttpsError } from "firebase-functions/v2/https";
+import { onCall } from "../shared/callable";
 import { defineSecret } from "firebase-functions/params";
 import { getFirestore, FieldValue } from "firebase-admin/firestore";
 import Stripe from "stripe";

@@ -1,4 +1,5 @@
-import { onCall, HttpsError } from "firebase-functions/v2/https";
+import { HttpsError } from "firebase-functions/v2/https";
+import { onCall } from "../shared/callable";
 import { getFirestore, FieldValue } from "firebase-admin/firestore";
 import * as crypto from "crypto";
 
@@ -202,6 +203,12 @@ export const checkInParticipant = onCall({ region: REGION, enforceAppCheck: ENFO
   }
   const uid = request.auth.uid;
   const { postId, targetUid, code } = request.data as CheckInData;
+  // Aucune de ces trois valeurs n'était vérifiée : sans elles la fonction
+  // plantait (document sans identifiant) au lieu de répondre « invalide »
+  // — trouvé par le test de robustesse du 14/11/2026.
+  if (!postId || !targetUid || typeof code !== "string" || code.length === 0) {
+    throw new HttpsError("invalid-argument", "Paramètres invalides.");
+  }
 
   const db = getFirestore();
   const postRef = db.collection("community_posts").doc(postId);

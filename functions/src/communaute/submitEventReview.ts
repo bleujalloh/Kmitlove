@@ -1,8 +1,10 @@
-import { onCall, HttpsError } from "firebase-functions/v2/https";
+import { HttpsError } from "firebase-functions/v2/https";
+import { onCall } from "../shared/callable";
 import { getFirestore, FieldValue } from "firebase-admin/firestore";
 
 import { REGION } from "../config";
 import { ENFORCE_APP_CHECK } from "../shared/appCheck";
+import { zonedWallTimeToUtcMillis } from "../shared/timezone";
 
 const MAX_COMMENT_LENGTH = 500;
 
@@ -32,7 +34,26 @@ export const submitEventReview = onCall({ region: REGION, enforceAppCheck: ENFOR
 
   const db = getFirestore();
   const postRef = db.collection("community_posts").doc(postId);
-  const participationSnap = await postRef.collection("participations").doc(uid).get();
+  const [postSnap, participationSnap] = await Promise.all([
+    postRef.get(),
+    postRef.collection("participations").doc(uid).get(),
+  ]);
+  const post = postSnap.data();
+  if (!post) {
+    throw new HttpsError("not-found", "Événement introuvable.");
+  }
+  // « Avis après un événement » (spec Communauté section 9) : le code ne
+  // vérifiait rien, on pouvait noter un événement annoncé pour dans un mois,
+  // ou annulé. Le moment est celui de l'heure locale de l'événement.
+  if (post.eventState === "annule") {
+    throw new HttpsError("failed-precondition", "Cet événement a été annulé.");
+  }
+  const startMillis =
+    typeof post.eventDate === "string" ? zonedWallTimeToUtcMillis(post.eventDate, post.timezone ?? "UTC") : NaN;
+  const isOver = post.eventState === "termine" || (Number.isFinite(startMillis) && startMillis <= Date.now());
+  if (!isOver) {
+    throw new HttpsError("failed-precondition", "Tu pourras laisser un avis une fois l'événement passé.");
+  }
   if (participationSnap.data()?.status !== "accepted") {
     throw new HttpsError(
       "permission-denied",

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../../core/theme/app_theme.dart';
+import '../../../../core/widgets/action_feedback.dart';
 import '../../../../l10n/l10n_extensions.dart';
 import '../filtrage_controller.dart';
 
@@ -56,8 +57,14 @@ class FiltrageResultScreen extends ConsumerWidget {
                     width: double.infinity,
                     child: OutlinedButton(
                       onPressed: () async {
-                        await ref.read(filtrageRepositoryProvider).requestReview();
-                        ref.read(filtrageControllerProvider.notifier).reset();
+                        // La suite (retour à l'écran de départ) n'a lieu que si
+                        // la demande est bien partie ; sinon le membre voit
+                        // l'échec et peut réessayer.
+                        final sent = await runWithFeedback(
+                          context,
+                          () => ref.read(filtrageRepositoryProvider).requestReview(),
+                        );
+                        if (sent) ref.read(filtrageControllerProvider.notifier).reset();
                       },
                       child: Text(context.l10n.requestHumanReview),
                     ),

@@ -1,5 +1,6 @@
 import { hasValidConsent, requireConsent } from "../shared/consent";
-import { onCall, HttpsError } from "firebase-functions/v2/https";
+import { HttpsError } from "firebase-functions/v2/https";
+import { onCall } from "../shared/callable";
 import { getFirestore, FieldValue } from "firebase-admin/firestore";
 
 import { REGION, FREE_DAILY_LIKE_LIMIT, SUPER_LIKE_JETON_COST } from "../config";

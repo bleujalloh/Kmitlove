@@ -1,5 +1,6 @@
 import { hasValidConsent, requireConsent } from "../shared/consent";
-import { onCall, HttpsError } from "firebase-functions/v2/https";
+import { HttpsError } from "firebase-functions/v2/https";
+import { onCall } from "../shared/callable";
 import { getFirestore } from "firebase-admin/firestore";
 
 import { REGION } from "../config";

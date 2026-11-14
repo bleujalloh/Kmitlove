@@ -1,4 +1,5 @@
-import { onCall, HttpsError } from "firebase-functions/v2/https";
+import { HttpsError } from "firebase-functions/v2/https";
+import { onCall } from "../shared/callable";
 import { getFirestore, FieldValue } from "firebase-admin/firestore";
 
 import { REGION, ORGANIZER_MAX_NAME_LENGTH, ORGANIZER_MAX_DESCRIPTION_LENGTH } from "../config";

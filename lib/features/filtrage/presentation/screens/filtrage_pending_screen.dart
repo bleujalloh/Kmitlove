@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../../core/theme/app_theme.dart';
+import '../../../../core/widgets/action_feedback.dart';
 import '../../../../l10n/l10n_extensions.dart';
 import '../../../auth/presentation/auth_controller.dart';
 import '../filtrage_controller.dart';
@@ -68,7 +69,7 @@ class FiltragePendingScreen extends ConsumerWidget {
                   SizedBox(
                     width: double.infinity,
                     child: OutlinedButton(
-                      onPressed: () => ref.read(filtrageRepositoryProvider).requestReview(),
+                      onPressed: () => runWithFeedback(context, () => ref.read(filtrageRepositoryProvider).requestReview()),
                       child: Text(context.l10n.requestHumanReview),
                     ),
                   ),
