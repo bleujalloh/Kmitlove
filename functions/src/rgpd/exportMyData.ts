@@ -1,10 +1,10 @@
 import { onCall, HttpsError } from "firebase-functions/v2/https";
 import { getFirestore, Timestamp, DocumentData } from "firebase-admin/firestore";
-import { getStorage } from "firebase-admin/storage";
 
 import { REGION } from "../config";
 import { ENFORCE_APP_CHECK } from "../shared/appCheck";
 import { isProfilePhotoPath } from "../shared/storagePaths";
+import { downloadLinkFor } from "../shared/storageLinks";
 
 /**
  * Droit d'accès et à la portabilité des données (RGPD art. 15 et 20, docs/
@@ -14,12 +14,11 @@ import { isProfilePhotoPath } from "../shared/storagePaths";
  * blocages ne sont donc donnés qu'en nombre ou sans désigner la personne).
  *
  * Complété le 14/11/2026 (le registre RGPD §5 listait l'export comme
- * partiel) : messages envoyés, photos en fichier (liens valables 1 heure),
+ * partiel) : messages envoyés, photos en fichier (liens de téléchargement),
  * j'aime et réponses de la Communauté, participations, avis, signalements
  * faits, raison de refus des photos, consentement, préférences.
  */
 
-const PHOTO_LINK_VALIDITY_MS = 60 * 60 * 1000;
 
 /** Convertit récursivement les dates Firestore en texte ISO lisible. */
 function plain(value: unknown): unknown {
@@ -41,7 +40,6 @@ export const exportMyData = onCall({ region: REGION, enforceAppCheck: ENFORCE_AP
   }
   const uid = request.auth.uid;
   const db = getFirestore();
-  const bucket = getStorage().bucket();
 
   const [
     profileSnap,
@@ -101,20 +99,9 @@ export const exportMyData = onCall({ region: REGION, enforceAppCheck: ENFORCE_AP
   const photos = await Promise.all(
     photosSnap.docs.map(async (d) => {
       const data = d.data();
-      let downloadUrl: string | null = null;
-      // Le chemin vient d'un document écrit par le client : jamais signé tel
+      // Le chemin vient d'un document écrit par le client : jamais utilisé tel
       // quel (sinon on pouvait obtenir le fichier d'un autre membre).
-      if (isProfilePhotoPath(data.storagePath, uid)) {
-        try {
-          const [url] = await bucket.file(data.storagePath).getSignedUrl({
-            action: "read",
-            expires: Date.now() + PHOTO_LINK_VALIDITY_MS,
-          });
-          downloadUrl = url;
-        } catch {
-          downloadUrl = null;
-        }
-      }
+      const downloadUrl = isProfilePhotoPath(data.storagePath, uid) ? await downloadLinkFor(data.storagePath) : null;
       return {
         id: d.id,
         status: data.status ?? null,

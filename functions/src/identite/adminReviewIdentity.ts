@@ -5,6 +5,7 @@ import { getStorage } from "firebase-admin/storage";
 import { REGION } from "../config";
 import { ENFORCE_APP_CHECK } from "../shared/appCheck";
 import { requireAdmin } from "../shared/requireAdmin";
+import { downloadLinkFor } from "../shared/storageLinks";
 import { logAdminAction } from "../shared/adminLog";
 
 /**
@@ -22,19 +23,12 @@ export const adminListIdentityVerifications = onCall({ region: REGION, enforceAp
     .limit(50)
     .get();
 
-  const bucket = getStorage().bucket();
+  // Chemin écrit par le serveur seul (submitIdentityVerification : préfixe
+  // identity_verifications/{uid}/ vérifié). Lien : shared/storageLinks.ts.
   const results = await Promise.all(
     snap.docs.map(async (doc) => {
       const path = doc.data().identityVerificationStoragePath as string | undefined;
-      let url: string | null = null;
-      if (path) {
-        const [signedUrl] = await bucket.file(path).getSignedUrl({
-          action: "read",
-          expires: Date.now() + 10 * 60 * 1000,
-        });
-        url = signedUrl;
-      }
-      return { uid: doc.id, url };
+      return { uid: doc.id, url: path ? await downloadLinkFor(path) : null };
     }),
   );
 

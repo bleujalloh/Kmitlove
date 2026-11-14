@@ -22,6 +22,11 @@ export async function cancelParticipationAndPromote(
   const participationRef = postRef.collection("participations").doc(uid);
 
   const promotedUid = await db.runTransaction(async (tx) => {
+    // Firestore exige que TOUTES les lectures d'une transaction précèdent la
+    // première écriture : la personne de tête de la liste d'attente est donc
+    // lue avant de modifier quoi que ce soit (l'ancienne version, avec la
+    // lecture après les écritures, échouait toujours pour une place
+    // confirmée — trouvé par le test réel du 14/11/2026).
     const participationSnap = await tx.get(participationRef);
     const participation = participationSnap.data();
     if (!participation) {
@@ -32,35 +37,39 @@ export async function cancelParticipationAndPromote(
     }
 
     const wasAccepted = participation.status === "accepted";
+    let nextInLine: FirebaseFirestore.QueryDocumentSnapshot | null = null;
+    if (wasAccepted) {
+      const waitlistSnap = await tx.get(
+        postRef
+          .collection("participations")
+          .where("status", "==", "waitlisted")
+          .orderBy("requestedAt", "asc")
+          .limit(1),
+      );
+      nextInLine = waitlistSnap.empty ? null : waitlistSnap.docs[0];
+    }
+
+    // --- écritures ---
     tx.update(participationRef, {
       status: "cancelled",
       respondedAt: FieldValue.serverTimestamp(),
     });
-
     if (!wasAccepted) {
       return null;
     }
-    tx.update(postRef, { participantsCount: FieldValue.increment(-1) });
-
-    const waitlistSnap = await tx.get(
-      postRef
-        .collection("participations")
-        .where("status", "==", "waitlisted")
-        .orderBy("requestedAt", "asc")
-        .limit(1),
-    );
-    if (waitlistSnap.empty) {
+    if (!nextInLine) {
+      tx.update(postRef, { participantsCount: FieldValue.increment(-1) });
       return null;
     }
-    const promotedRef = waitlistSnap.docs[0].ref;
+    // Une place se libère et une personne l'occupe aussitôt : le nombre de
+    // participants ne change pas.
     const checkinCode = crypto.randomBytes(4).toString("hex").toUpperCase();
-    tx.update(promotedRef, {
+    tx.update(nextInLine.ref, {
       status: "accepted",
       respondedAt: FieldValue.serverTimestamp(),
       checkinCode,
     });
-    tx.update(postRef, { participantsCount: FieldValue.increment(1) });
-    return promotedRef.id;
+    return nextInLine.id;
   });
 
   if (promotedUid) {

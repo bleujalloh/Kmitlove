@@ -17,6 +17,9 @@ export interface ProfilCompletionFields {
   childrenStatus?: string | null;
   lookingFor?: string | null;
   qualities?: string[];
+  // « Présentation de tes valeurs » : facultative, oubliée du calcul jusqu'au
+  // 14/11/2026 (demande du propriétaire : TOUT ce qui est facultatif compte).
+  values?: string | null;
 }
 
 const MIN_PHOTOS_FOR_FULL_COMPLETION = 3;
@@ -38,6 +41,7 @@ export function computeProfileCompletionPercent(
     Boolean(profil.childrenStatus),
     Boolean(profil.lookingFor),
     (profil.qualities?.length ?? 0) > 0,
+    Boolean(profil.values),
     approvedPhotoCount >= MIN_PHOTOS_FOR_FULL_COMPLETION,
     isVerified,
   ];

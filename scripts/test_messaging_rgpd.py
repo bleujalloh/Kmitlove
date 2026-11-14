@@ -62,6 +62,9 @@ def delete_file(name):
 def set_uploader(name, uid):
     return http("PATCH", f"https://storage.googleapis.com/storage/v1/b/{BUCKET}/o/{urllib.parse.quote(name, safe='')}",
                 {"metadata": {"uploaderUid": uid}}, AH)
+def set_download_token(name, token="test-token-123"):
+    return http("PATCH", f"https://storage.googleapis.com/storage/v1/b/{BUCKET}/o/{urllib.parse.quote(name, safe='')}",
+                {"metadata": {"firebaseStorageDownloadTokens": token}}, AH)
 def auth_user_exists(uid):
     s, r = http("POST", f"https://identitytoolkit.googleapis.com/v1/projects/{PROJECT}/accounts:lookup", {"localId": [uid]}, AH)
     return bool(r.get("users"))
@@ -90,6 +93,8 @@ def new_account(label):
 
 created = []
 def cleanup_account(uid):
+    for name in query_docs("rate_limits", "uid", uid):
+        delete_by_name(name)
     for name in query_docs("moderation_requests", "reporterUid", uid):
         delete_by_name(name)
     for name in query_docs("admin_action_logs", "adminUid", uid):
@@ -165,6 +170,8 @@ try:
     s, r = call("sendMessage", {"matchId": MATCH, "imageStoragePath": f"chat_photos/{MATCH}/ok.jpg"}, J_TOKEN)
     check("photo de conversation acceptée (auteur du dépôt = expéditeur)", s == 200, (s, r))
 
+    admin("PATCH", f"user_status/{K}?updateMask.fieldPaths=sensitiveConsent",
+          {"fields": {"sensitiveConsent": {"mapValue": {"fields": {"granted": {"booleanValue": True}, "version": {"integerValue": "1"}}}}}})
     s, r = call("sendMessage", {"matchId": MATCH, "text": "intrus"}, K_TOKEN)
     check("un non-membre de la conversation est refusé", code(r) == "PERMISSION_DENIED", (s, r))
 
@@ -227,6 +234,7 @@ try:
     admin("PATCH", f"users/{J}/photos/p1", {"fields": {"storagePath": fv(f"profile_photos/{J}/p1.jpg"), "status": fv("rejected"),
                                                       "rejectedBy": fv("auto_moderation"), "uploadedAt": tsv(1)}})
     upload(f"profile_photos/{J}/p1.jpg")
+    set_download_token(f"profile_photos/{J}/p1.jpg")
     # photo « piégée » : chemin du selfie d'un AUTRE membre (les règles l'interdisent
     # à la création ; on la pose par l'administration pour vérifier le garde-fou serveur)
     admin("PATCH", f"users/{J}/photos/evil", {"fields": {"storagePath": fv(f"identity_verifications/{K}/selfie.jpg"), "status": fv("pending"),
@@ -261,8 +269,12 @@ try:
     K_ADMIN_TOKEN = r["idToken"]
     selfie = f"identity_verifications/{J}/selfie.jpg"
     upload(selfie)
+    set_download_token(selfie, "selfie-token-456")
     s, r = call("submitIdentityVerification", {"storagePath": selfie}, J_TOKEN)
     check("(préparation) vérification d'identité déposée", s == 200 and file_exists(selfie), (s, r))
+    s, r = call("adminListIdentityVerifications", {}, K_ADMIN_TOKEN)
+    mine = [v for v in r.get("result", {}).get("verifications", []) if v["uid"] == J]
+    check("revue des selfies : le modérateur obtient un lien de téléchargement", len(mine) == 1 and str(mine[0].get("url") or "").startswith("https://"), (s, mine))
     s, r = call("adminReviewIdentityVerification", {"uid": J, "approve": True}, K_ADMIN_TOKEN)
     check("décision du modérateur acceptée", s == 200, (s, r))
     s2, r2 = call("adminReviewIdentityVerification", {"uid": J, "approve": True}, K_ADMIN_TOKEN)
