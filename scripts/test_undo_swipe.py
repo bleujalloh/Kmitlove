@@ -6,13 +6,12 @@ Usage : SEED_PASSWORD=... python scripts/test_undo_swipe.py
 (gcloud connecté ; compte de test Awa, cibles Kofi et Idriss)."""
 import json, os, re, subprocess, sys, urllib.request, urllib.error
 
-PROJECT = "djama-1c7f8"
+from target import PROJECT, BUCKET, API_KEY  # projet visé : voir scripts/target.py
 REGION = "europe-west1"
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 AWA = "qbK7VyDO5OMrNe49Um8cU72bxTq2"
 KOFI = "0C644laYtXewUKunJW4P77Kqjh63"
 IDRISS = "JyYrfK9bI1XStqoFnwLktEGkZ5m2"
-API_KEY = re.search(r"apiKey: '([^']+)'", open(os.path.join(ROOT, "lib", "firebase_options.dart"), encoding="utf-8").read()).group(1)
 ADMIN = subprocess.run("gcloud auth print-access-token", shell=True, capture_output=True, text=True).stdout.strip()
 FS = f"https://firestore.googleapis.com/v1/projects/{PROJECT}/databases/(default)/documents"
 

@@ -8,7 +8,7 @@ scripts de test. Aucun compte réel n'est touché.
 Usage : python scripts/grant_test_consent.py   (gcloud connecté)"""
 import json, subprocess, sys, urllib.request, urllib.error
 
-PROJECT = "djama-1c7f8"
+from target import PROJECT, BUCKET, API_KEY  # projet visé : voir scripts/target.py
 ADMIN = subprocess.run("gcloud auth print-access-token", shell=True, capture_output=True, text=True).stdout.strip()
 H = {"Authorization": f"Bearer {ADMIN}", "x-goog-user-project": PROJECT, "Content-Type": "application/json"}
 FS = f"https://firestore.googleapis.com/v1/projects/{PROJECT}/databases/(default)/documents"

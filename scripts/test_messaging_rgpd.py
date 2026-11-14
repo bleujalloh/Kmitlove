@@ -10,11 +10,9 @@ Usage : SEED_PASSWORD=... PYTHONIOENCODING=utf-8 python scripts/test_messaging_r
 (gcloud connecté ; compte de test Amara)."""
 import datetime, json, os, re, subprocess, sys, time, urllib.parse, urllib.request, urllib.error
 
-PROJECT = "djama-1c7f8"
+from target import PROJECT, BUCKET, API_KEY  # projet visé : voir scripts/target.py
 REGION = "europe-west1"
-BUCKET = "djama-1c7f8.firebasestorage.app"
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-API_KEY = re.search(r"apiKey: '([^']+)'", open(os.path.join(ROOT, "lib", "firebase_options.dart"), encoding="utf-8").read()).group(1)
 ADMIN = subprocess.run("gcloud auth print-access-token", shell=True, capture_output=True, text=True).stdout.strip()
 FS_ROOT = f"https://firestore.googleapis.com/v1/projects/{PROJECT}/databases/(default)/documents"
 PASSWORD = os.environ["SEED_PASSWORD"]

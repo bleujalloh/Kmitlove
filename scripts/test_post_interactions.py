@@ -7,7 +7,7 @@ Usage : SEED_PASSWORD=... python scripts/test_post_interactions.py
 (gcloud connecté ; comptes de test Amara, Fatou, Awa)."""
 import json, os, re, subprocess, sys, time, urllib.request, urllib.error
 
-PROJECT = "djama-1c7f8"
+from target import PROJECT, BUCKET, API_KEY  # projet visé : voir scripts/target.py
 REGION = "europe-west1"
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 UIDS = {
@@ -18,7 +18,6 @@ UIDS = {
 EMAIL = {"amara": "amara.test1@example.com", "fatou": "fatou.test3@example.com", "awa": "awa.test5@example.com"}
 PASSWORD = os.environ["SEED_PASSWORD"]  # mot de passe des comptes de test (jamais dans le dépôt)
 
-API_KEY = re.search(r"apiKey: '([^']+)'", open(os.path.join(ROOT, "lib", "firebase_options.dart"), encoding="utf-8").read()).group(1)
 ADMIN = subprocess.run("gcloud auth print-access-token", shell=True, capture_output=True, text=True).stdout.strip()
 
 results = []

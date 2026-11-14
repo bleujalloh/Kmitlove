@@ -10,8 +10,7 @@ Nettoie ensuite ses propres données.
 Usage : python scripts/test_purge_rejected_photos.py   (gcloud connecté)"""
 import datetime, json, os, subprocess, sys, time, urllib.parse, urllib.request, urllib.error
 
-PROJECT = "djama-1c7f8"
-BUCKET = "djama-1c7f8.firebasestorage.app"
+from target import PROJECT, BUCKET, API_KEY  # projet visé : voir scripts/target.py
 AWA = "qbK7VyDO5OMrNe49Um8cU72bxTq2"
 ADMIN = subprocess.run("gcloud auth print-access-token", shell=True, capture_output=True, text=True).stdout.strip()
 FS = f"https://firestore.googleapis.com/v1/projects/{PROJECT}/databases/(default)/documents"

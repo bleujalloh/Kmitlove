@@ -1045,3 +1045,11 @@ Méthode : (1) recherche de la même famille de défauts dans tout le code ; (2)
 - [x] Projet `merut-prod` (nom « MERUT ») créé, facturation `01C917-088172-B4386F` rattachée, API activées, Firebase ajouté ; **Firestore `(default)` en `europe-west1`** et **bucket `merut-prod.firebasestorage.app` en `EUROPE-WEST1`**, vérifiés (`gcloud firestore databases describe`, `gcloud storage buckets describe`). Vides, règles fermées. Détail et suite : `docs/migration-region-europe.md` §4.
 - [x] Rien d'autre n'a changé : l'application, les scripts et la production restent sur `djama-1c7f8` jusqu'à l'étape 4 du plan.
 
+## Suivi 2026-11-14 (suite) — DÉPLOIEMENT sur `merut-prod` (demandé : « déploie sur merut-prod »)
+
+- [x] Règles Firestore et Storage, index et **74 fonctions** déployés sur le projet européen ; production européenne identique au dépôt (`verify_deployed.py merut-prod`). Authentication e-mail/mot de passe activée ; application Android enregistrée avec les deux SHA-1 connus. Politique de nettoyage des images de fonctions (7 jours).
+- [x] **Vérifié sur `merut-prod`** : consentement imposé 48/48, parcours d'événement 48/48, dépôts de fichiers acceptés, analyse de photo réelle (SafeSearch européen + visage) sur le bucket belge.
+- [x] `scripts/target.py` : les scripts visent le projet donné par `MERUT_PROJECT` ; refus de lancer un script avec la clé d'un autre projet.
+- [!] **Découverte** : la détection de visage de Cloud Vision n'existe pas sur le point d'accès européen. SafeSearch passe par l'UE, le visage reste sur le point d'accès mondial (limite écrite dans `photoModeration.ts` et dans `docs/migration-region-europe.md` étape 7) : décision du propriétaire attendue (garder / détecter dans nos fonctions en Belgique / ne plus exiger de visage). La détection par étiquettes a été essayée et écartée (manque les photos de plein pied).
+- [ ] Reste de la migration (étapes 3 à 12) : voir `docs/migration-region-europe.md` §4. L'ancien projet n'a pas été touché.
+

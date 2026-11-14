@@ -4,7 +4,17 @@ import { ImageAnnotatorClient } from "@google-cloud/vision";
 
 import { SAFE_SEARCH_CATEGORIES_TO_CHECK, SAFE_SEARCH_REJECT_LIKELIHOOD, FACE_DETECTION_MIN_CONFIDENCE } from "../config";
 
-const visionClient = new ImageAnnotatorClient();
+// Résidence des données (docs/migration-region-europe.md, étape 7) : SafeSearch
+// passe par le point d'accès EUROPÉEN de Vision, l'image est alors traitée dans
+// l'UE. LIMITE CONNUE : la détection de visage n'existe PAS sur les points
+// d'accès régionaux (« Feature FACE_DETECTION not supported in regional
+// endpoints », vérifié le 14/11/2026) ; elle reste donc sur le point d'accès
+// mondial, où l'image peut être traitée hors UE. Remplacer par une détection
+// faite dans nos propres fonctions (Belgique) est une décision du propriétaire
+// (la détection par étiquettes du point d'accès européen a été essayée : elle
+// manque les visages de plein pied, donc inutilisable seule).
+const visionEu = new ImageAnnotatorClient({ apiEndpoint: "eu-vision.googleapis.com" });
+const visionGlobalForFaces = new ImageAnnotatorClient();
 
 const LIKELIHOOD_ORDER = ["UNKNOWN", "VERY_UNLIKELY", "UNLIKELY", "POSSIBLE", "LIKELY", "VERY_LIKELY"];
 
@@ -53,17 +63,18 @@ export async function analyzePhotoContent(storagePath: string): Promise<PhotoMod
   const bucket = getStorage().bucket();
   const [buffer] = await bucket.file(storagePath).download();
 
-  const [result] = await visionClient.annotateImage({
-    image: { content: buffer },
-    features: [{ type: "SAFE_SEARCH_DETECTION" }, { type: "FACE_DETECTION" }],
-  });
+  const [[result], [faceResult]] = await Promise.all([
+    visionEu.annotateImage({ image: { content: buffer }, features: [{ type: "SAFE_SEARCH_DETECTION" }] }),
+    visionGlobalForFaces.annotateImage({ image: { content: buffer }, features: [{ type: "FACE_DETECTION" }] }),
+  ]);
 
   // Erreur propre à CETTE image renvoyée par Vision avec un succès HTTP
   // (ex. "Bad image data") — jamais traitée comme "rien détecté donc
   // sûr" (échec ouvert) : l'appelant doit la traiter comme un échec
   // d'analyse, pas comme une photo propre.
-  if (result.error?.message) {
-    throw new Error(`Vision n'a pas pu analyser l'image : ${result.error.message}`);
+  const analysisError = result.error?.message ?? faceResult.error?.message;
+  if (analysisError) {
+    throw new Error(`Vision n'a pas pu analyser l'image : ${analysisError}`);
   }
 
   const safeSearch = result.safeSearchAnnotation;
@@ -79,7 +90,7 @@ export async function analyzePhotoContent(storagePath: string): Promise<PhotoMod
       meetsOrExceeds(safeSearch[category], SAFE_SEARCH_REJECT_LIKELIHOOD),
     ) ?? null;
 
-  const hasFace = (result.faceAnnotations ?? []).some(
+  const hasFace = (faceResult.faceAnnotations ?? []).some(
     (face) => (face.detectionConfidence ?? 0) >= FACE_DETECTION_MIN_CONFIDENCE,
   );
 
