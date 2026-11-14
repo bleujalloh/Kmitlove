@@ -15,8 +15,9 @@ service cloud.firestore {
       return isSignedIn() && request.auth.uid == userId;
     }
 
-    // Consentement RGPD art. 9 valide — même règle que storage.rules et que
-    // functions/src/shared/consent.ts (version 1 à changer en même temps).
+    // Consentement RGPD art. 9 valide — même règle que
+    // functions/src/shared/consent.ts (version 1 à changer en même temps ;
+    // storage.rules ne contrôle pas le consentement, voir son en-tête).
     function hasConsent(userId) {
       let c = get(/databases/$(database)/documents/user_status/$(userId)).data.sensitiveConsent;
       return c.granted == true && c.version == 1;

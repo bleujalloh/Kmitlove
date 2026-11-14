@@ -2,7 +2,7 @@
 pas seulement par l'écran de l'appli (un client modifié contourne un écran).
 
 Un membre jetable SANS consentement tente chaque fonction de membre et un dépôt
-de photo dans Storage ; un second membre jetable, avec consentement, sert de
+de photo (Firestore) ; un second membre jetable, avec consentement, sert de
 cible. Résultat attendu : tout est refusé « consent-required », sauf une courte
 liste de fonctions volontairement ouvertes (supprimer son compte, exporter ses
 données, donner ou retirer son consentement, signaler, alerte d'urgence, recours,
@@ -98,18 +98,23 @@ try:
         s, r = call(fn, args, N_T)
         check(f"sans consentement : {fn} reste ouverte (compte, sécurité)", not is_consent_refusal(r), (s, msg(r)[:120]))
 
-    # Dépôt de photo (Storage) : le serveur lit ces fichiers pour les analyser
-    def upload_photo(uid, token, name):
-        path = f"profile_photos/{uid}/{name}.jpg"
-        url = f"https://firebasestorage.googleapis.com/v0/b/{BUCKET}/o?name={urllib.parse.quote(path, safe='')}"
-        s, r = http("POST", url, headers={"Authorization": f"Firebase {token}", "Content-Type": "image/jpeg"}, raw=b"\xff\xd8\xff test")
-        return s, path
-    s, path = upload_photo(N, N_T, "avant")
-    check("sans consentement : dépôt d'une photo de profil refusé par Storage", s in (401, 403), s)
-    s, path_m = upload_photo(M, M_T, "avec")
-    check("avec consentement : dépôt d'une photo de profil accepté (contrôle positif)", s == 200, s)
-    for p in (path, path_m):
-        http("DELETE", f"https://storage.googleapis.com/storage/v1/b/{BUCKET}/o/{urllib.parse.quote(p, safe='')}", headers=AH)
+    # Photo de profil : l'analyse Cloud Vision est déclenchée par la création du
+    # DOCUMENT de la photo (firestore.rules), pas par le dépôt du fichier. Storage
+    # ne contrôle pas le consentement (essayé le 14/11/2026 : refusé à tous en
+    # production, retiré) ; le fichier seul reste inerte. On vérifie donc ici le
+    # document de la photo, qui est le vrai verrou.
+    def create_photo_doc(uid, token, photo_id):
+        name = f"projects/{PROJECT}/databases/(default)/documents/users/{uid}/photos/{photo_id}"
+        body = {"writes": [{"update": {"name": name, "fields": {"status": fv("pending"), "storagePath": fv(f"profile_photos/{uid}/{photo_id}.jpg")}},
+                            "updateTransforms": [{"fieldPath": "uploadedAt", "setToServerValue": "REQUEST_TIME"}],
+                            "currentDocument": {"exists": False}}]}
+        return http("POST", f"{FS}:commit", body, {"Authorization": f"Bearer {token}"})
+    s, r = create_photo_doc(N, N_T, "avant")
+    check("sans consentement : création du document d'une photo refusée par Firestore", s in (401, 403), (s, str(r)[:120]))
+    s, r = create_photo_doc(M, M_T, "avec")
+    check("avec consentement : création du document d'une photo acceptée (contrôle positif)", s == 200, (s, str(r)[:120]))
+    for u, pid in ((N, "avant"), (M, "avec")):
+        admin("DELETE", f"users/{u}/photos/{pid}")
 
     # Version périmée du consentement : refus aussi
     admin("PATCH", f"user_status/{M}?updateMask.fieldPaths=sensitiveConsent",

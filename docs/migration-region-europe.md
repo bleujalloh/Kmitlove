@@ -1,6 +1,6 @@
 # Migration vers une région européenne — plan et état
 
-*Décision du propriétaire (14/11/2026) : « la région, c'est l'Europe, Bruxelles ou ailleurs ». Ce document traduit cette décision en actions. **Rien n'a été créé** à ce jour : la création d'un projet est une dépense et un acte définitif (la région d'une base Firestore et d'un bucket ne se change plus), elle attend la confirmation des deux points de la section 1.*
+*Décision du propriétaire (14/11/2026) : « la région, c'est l'Europe, Bruxelles ou ailleurs ». Ce document traduit cette décision en actions. **Projet créé le 14/11/2026 après confirmation du propriétaire** (identifiant et facturation de la section 1) : voir l'état en section 4. La région d'une base Firestore et d'un bucket ne se change plus.*
 
 ## Pourquoi
 
@@ -36,7 +36,9 @@ L'ouverture publique n'a **pas eu lieu** : la base ne contient que des **comptes
 
 ## 4. État
 
-- [ ] §1 confirmé par le propriétaire
-- [ ] Projet européen créé
-- [ ] Déploiement et tests sur le nouveau projet
-- [ ] Ancien projet nettoyé
+- [x] §1 confirmé par le propriétaire le 14/11/2026 : identifiant `merut-prod`, nom « MERUT », compte de facturation `billingAccounts/01C917-088172-B4386F`.
+- [x] **Étapes 1 et 2 faites et vérifiées** : projet `merut-prod` créé (Firebase ajouté, facturation active, API Firestore, Storage, Functions, Cloud Build, Cloud Run, Eventarc, Pub/Sub, Scheduler, Vision, Messaging, Identity Toolkit, règles, App Check, Secret Manager activées) ; base **Firestore `(default)` en `europe-west1`** (Native) ; bucket **`merut-prod.firebasestorage.app` en `EUROPE-WEST1`**. La base et le bucket sont **vides** et aux règles fermées.
+- [ ] Étape 3 (Authentication, modèles d'e-mails, écran Google) — avec le propriétaire
+- [ ] Étapes 4 à 10 : application Android, déploiement (sur « déploie »), jeu de données de test, Vision UE, App Check, tests, APK
+- [ ] Ancien projet nettoyé (étape 11, après accord explicite)
+- Tant que l'étape 4 n'est pas faite, **l'application et les scripts restent sur `djama-1c7f8`** : rien n'a changé pour l'APK de test.
