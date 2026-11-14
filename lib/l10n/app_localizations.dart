@@ -2048,6 +2048,42 @@ abstract class AppLocalizations {
   /// **'Version {version}'**
   String aboutVersion(String version);
 
+  /// No description provided for @shareProfileButton.
+  ///
+  /// In fr, this message translates to:
+  /// **'Partager le profil'**
+  String get shareProfileButton;
+
+  /// No description provided for @shareProfileMessage.
+  ///
+  /// In fr, this message translates to:
+  /// **'Retrouve-moi sur MERUT : {name}, {city}. L\'amour a ses racines.'**
+  String shareProfileMessage(String name, String city);
+
+  /// No description provided for @profileStatProfile.
+  ///
+  /// In fr, this message translates to:
+  /// **'Profil'**
+  String get profileStatProfile;
+
+  /// No description provided for @profileAddChip.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ajouter'**
+  String get profileAddChip;
+
+  /// No description provided for @photosNewTile.
+  ///
+  /// In fr, this message translates to:
+  /// **'Nouveau'**
+  String get photosNewTile;
+
+  /// No description provided for @createPostTooltip.
+  ///
+  /// In fr, this message translates to:
+  /// **'Nouvelle publication'**
+  String get createPostTooltip;
+
   /// Heure d'une conversation dont le dernier message date de la veille (liste Messages)
   ///
   /// In fr, this message translates to:

@@ -1092,6 +1092,26 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
+  String get shareProfileButton => 'Share profile';
+
+  @override
+  String shareProfileMessage(String name, String city) {
+    return 'Find me on MERUT: $name, $city. Love has its roots.';
+  }
+
+  @override
+  String get profileStatProfile => 'Profile';
+
+  @override
+  String get profileAddChip => 'Add';
+
+  @override
+  String get photosNewTile => 'New';
+
+  @override
+  String get createPostTooltip => 'New post';
+
+  @override
   String get messageTimeYesterday => 'yesterday';
 
   @override

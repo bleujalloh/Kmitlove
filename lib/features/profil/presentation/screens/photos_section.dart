@@ -146,7 +146,7 @@ class _AddPhotoTile extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     if (count >= 6) return const SizedBox.shrink();
     return InkWell(
-      onTap: () => _showPickerSheet(context, ref),
+      onTap: () => showAddPhotoSheet(context, ref),
       borderRadius: BorderRadius.circular(AppRadii.md),
       child: Container(
         width: 90,
@@ -158,35 +158,37 @@ class _AddPhotoTile extends ConsumerWidget {
       ),
     );
   }
+}
 
-  void _showPickerSheet(BuildContext context, WidgetRef ref) {
-    showModalBottomSheet(
-      context: context,
-      builder: (sheetContext) => SafeArea(
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            ListTile(
-              leading: const Icon(Icons.photo_library_outlined),
-              title: Text(context.l10n.chooseFromGallery),
-              onTap: () {
-                Navigator.of(sheetContext).pop();
-                _uploadWithFeedback(context, ref, fromCamera: false);
-              },
-            ),
-            ListTile(
-              leading: const Icon(Icons.camera_alt_outlined),
-              title: Text(context.l10n.takeAPhoto),
-              onTap: () {
-                Navigator.of(sheetContext).pop();
-                _uploadWithFeedback(context, ref, fromCamera: true);
-              },
-            ),
-          ],
-        ),
+/// Feuille « Galerie / Appareil photo » : ajoute une photo de profil
+/// (réutilisée par l'onglet Profil et par la galerie).
+void showAddPhotoSheet(BuildContext context, WidgetRef ref) {
+  showModalBottomSheet(
+    context: context,
+    builder: (sheetContext) => SafeArea(
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          ListTile(
+            leading: const Icon(Icons.photo_library_outlined),
+            title: Text(context.l10n.chooseFromGallery),
+            onTap: () {
+              Navigator.of(sheetContext).pop();
+              _uploadWithFeedback(context, ref, fromCamera: false);
+            },
+          ),
+          ListTile(
+            leading: const Icon(Icons.camera_alt_outlined),
+            title: Text(context.l10n.takeAPhoto),
+            onTap: () {
+              Navigator.of(sheetContext).pop();
+              _uploadWithFeedback(context, ref, fromCamera: true);
+            },
+          ),
+        ],
       ),
-    );
-  }
+    ),
+  );
 }
 
 Future<void> _uploadWithFeedback(BuildContext context, WidgetRef ref, {required bool fromCamera}) async {

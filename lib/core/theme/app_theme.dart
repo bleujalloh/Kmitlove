@@ -252,7 +252,7 @@ ThemeData buildAppTheme(Brightness brightness) {
       fillColor: AppColors.backgroundSoft,
       contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
       labelStyle: TextStyle(color: AppColors.ink),
-      hintStyle: TextStyle(color: AppColors.ink.withValues(alpha: 0.7)),
+      hintStyle: TextStyle(color: AppColors.ink),
       helperStyle: TextStyle(color: AppColors.ink),
       border: OutlineInputBorder(
         borderRadius: BorderRadius.circular(AppRadii.md),
@@ -312,14 +312,35 @@ ThemeData buildAppTheme(Brightness brightness) {
     ),
     switchTheme: SwitchThemeData(
       trackColor: WidgetStateProperty.resolveWith(
-        (states) => states.contains(WidgetState.selected) ? AppColors.accent : AppColors.border,
+        (states) => states.contains(WidgetState.selected) ? AppColors.accent : AppColors.accentSoft,
       ),
-      // Pouce foncé sur piste dorée (activé) plutôt qu'ivoire sur doré —
-      // trouvé par revue de code : les deux étant clairs, le pouce se
-      // distinguait mal de la piste une fois activé.
+      trackOutlineColor: WidgetStateProperty.all(Colors.transparent),
+      // Pouce foncé sur piste dorée (activé), pouce doré sur piste teintée
+      // (désactivé) : lisible dans les deux thèmes, sans gris.
       thumbColor: WidgetStateProperty.resolveWith(
-        (states) => states.contains(WidgetState.selected) ? AppColors.noirProfond : AppColors.ivoire,
+        (states) => states.contains(WidgetState.selected) ? AppColors.noirProfond : AppColors.accent,
       ),
+    ),
+    checkboxTheme: CheckboxThemeData(
+      fillColor: WidgetStateProperty.resolveWith(
+        (states) => states.contains(WidgetState.selected) ? AppColors.accent : AppColors.accentSoft,
+      ),
+      checkColor: WidgetStateProperty.all(AppColors.noirProfond),
+      side: BorderSide.none,
+    ),
+    radioTheme: RadioThemeData(
+      fillColor: WidgetStateProperty.all(AppColors.accent),
+    ),
+    sliderTheme: SliderThemeData(
+      activeTrackColor: AppColors.accent,
+      inactiveTrackColor: AppColors.accentSoft,
+      thumbColor: AppColors.accent,
+      overlayColor: AppColors.accent.withValues(alpha: 0.12),
+    ),
+    progressIndicatorTheme: ProgressIndicatorThemeData(
+      color: AppColors.accent,
+      linearTrackColor: AppColors.accentSoft,
+      circularTrackColor: AppColors.accentSoft,
     ),
     dialogTheme: DialogThemeData(
       backgroundColor: AppColors.background,
@@ -339,6 +360,5 @@ ThemeData buildAppTheme(Brightness brightness) {
       behavior: SnackBarBehavior.floating,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(AppRadii.sm)),
     ),
-    progressIndicatorTheme: ProgressIndicatorThemeData(color: AppColors.accent),
   );
 }
