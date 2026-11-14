@@ -238,7 +238,6 @@ class _EventCard extends ConsumerWidget {
         decoration: BoxDecoration(
           color: AppColors.backgroundSoft,
           borderRadius: BorderRadius.circular(AppRadii.lg),
-          border: Border.all(color: AppColors.border),
         ),
         clipBehavior: Clip.antiAlias,
         child: Column(
@@ -285,7 +284,6 @@ class _EventListTile extends StatelessWidget {
       margin: const EdgeInsets.only(bottom: 10),
       elevation: 0,
       shape: RoundedRectangleBorder(
-        side: BorderSide(color: AppColors.border),
         borderRadius: BorderRadius.circular(AppRadii.lg),
       ),
       child: ListTile(

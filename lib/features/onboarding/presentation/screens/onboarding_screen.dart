@@ -32,7 +32,6 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
               width: double.infinity,
               padding: const EdgeInsets.fromLTRB(28, 8, 28, 18),
               decoration: BoxDecoration(
-                border: Border(bottom: BorderSide(color: AppColors.border)),
               ),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -66,7 +65,6 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                   Container(
                     padding: const EdgeInsets.all(18),
                     decoration: BoxDecoration(
-                      border: Border.all(color: AppColors.border),
                       borderRadius: BorderRadius.circular(AppRadii.md),
                     ),
                     child: Column(

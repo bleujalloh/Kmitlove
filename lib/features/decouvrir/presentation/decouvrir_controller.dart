@@ -143,10 +143,14 @@ class DecouvrirController extends AsyncNotifier<DecouvrirState> {
     return filters;
   }
 
-  Future<void> swipe(String action) async {
-    if (_swipeInFlight) return; // ignore un double-tap pendant l'appel réseau en cours
+  /// Renvoie `true` quand le swipe a été pris en compte (le profil quitte la
+  /// pile, même si le serveur l'a refusé et qu'un message d'erreur s'affiche)
+  /// et `false` quand il est ignoré (appel déjà en cours, plus de profil) :
+  /// la carte glissée revient alors au centre.
+  Future<bool> swipe(String action) async {
+    if (_swipeInFlight) return false; // ignore un double-tap pendant l'appel réseau en cours
     final current = state.value;
-    if (current == null || current.candidates.isEmpty) return;
+    if (current == null || current.candidates.isEmpty) return false;
     final target = current.candidates.first;
     final remaining = current.candidates.sublist(1);
 
@@ -186,6 +190,7 @@ class DecouvrirController extends AsyncNotifier<DecouvrirState> {
       _swipeInFlight = false;
       _inFlightTargetUid = null;
     }
+    return true;
   }
 
   /// Retire immédiatement un candidat de la pile en mémoire sans

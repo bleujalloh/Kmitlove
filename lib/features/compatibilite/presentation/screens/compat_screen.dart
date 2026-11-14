@@ -165,9 +165,6 @@ class _QuestionTile extends StatelessWidget {
                       alignment: Alignment.center,
                       decoration: BoxDecoration(
                         color: selected ? AppColors.accentSoft : AppColors.backgroundSoft,
-                        border: Border.all(
-                          color: selected ? AppColors.accent : AppColors.border,
-                        ),
                         borderRadius: BorderRadius.circular(AppRadii.md),
                       ),
                       child: Text(

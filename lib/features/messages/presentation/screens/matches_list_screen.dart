@@ -148,7 +148,6 @@ class _MatchBubble extends ConsumerWidget {
               padding: const EdgeInsets.all(2),
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(18),
-                border: Border.all(color: fresh ? AppColors.accent : AppColors.border, width: 2),
               ),
               child: _MemberAvatar(uid: match.otherUid, size: 50),
             ),
@@ -157,7 +156,11 @@ class _MatchBubble extends ConsumerWidget {
               match.otherDisplayName,
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
-              style: const TextStyle(fontSize: 11),
+              style: TextStyle(
+                fontSize: 11,
+                fontWeight: fresh ? FontWeight.w700 : FontWeight.w500,
+                color: fresh ? AppColors.accent : AppColors.ink,
+              ),
             ),
           ],
         ),

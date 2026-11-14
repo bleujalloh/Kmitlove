@@ -130,7 +130,6 @@ class _ModerationRequestTile extends ConsumerWidget {
           ? BoxDecoration(
               color: AppColors.accent.withValues(alpha: 0.08),
               borderRadius: BorderRadius.circular(AppRadii.md),
-              border: Border.all(color: AppColors.accent.withValues(alpha: 0.4)),
             )
           : null,
       child: Column(

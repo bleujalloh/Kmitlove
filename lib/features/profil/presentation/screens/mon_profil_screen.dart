@@ -301,7 +301,6 @@ class MonProfilScreen extends ConsumerWidget {
                   decoration: BoxDecoration(
                     color: AppColors.surfaceDark,
                     borderRadius: BorderRadius.circular(AppRadii.lg),
-                    border: Border.all(color: AppColors.accent, width: 1),
                   ),
                   child: _ProfilActionTile(
                     icon: Icons.workspace_premium_outlined,
@@ -363,7 +362,6 @@ class _ProfilActionTile extends StatelessWidget {
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
           decoration: iconColor == null
               ? BoxDecoration(
-                  border: Border.all(color: AppColors.border),
                   borderRadius: BorderRadius.circular(AppRadii.lg),
                 )
               : null,

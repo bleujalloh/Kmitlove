@@ -165,7 +165,6 @@ class _TipCard extends StatelessWidget {
       margin: const EdgeInsets.only(bottom: 14),
       elevation: 0,
       shape: RoundedRectangleBorder(
-        side: BorderSide(color: AppColors.border),
         borderRadius: BorderRadius.circular(AppRadii.lg),
       ),
       child: Padding(
@@ -210,7 +209,6 @@ class _PostCard extends StatelessWidget {
         margin: const EdgeInsets.only(bottom: 14),
         elevation: 0,
         shape: RoundedRectangleBorder(
-          side: BorderSide(color: AppColors.border),
           borderRadius: BorderRadius.circular(AppRadii.lg),
         ),
         child: InkWell(
@@ -236,7 +234,6 @@ class _PostCard extends StatelessWidget {
       margin: const EdgeInsets.only(bottom: 14),
       elevation: 0,
       shape: RoundedRectangleBorder(
-        side: BorderSide(color: AppColors.border),
         borderRadius: BorderRadius.circular(AppRadii.lg),
       ),
       child: ListTile(

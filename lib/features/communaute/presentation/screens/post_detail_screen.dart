@@ -256,7 +256,6 @@ class _InfoChip extends StatelessWidget {
       decoration: BoxDecoration(
         color: AppColors.backgroundSoft,
         borderRadius: BorderRadius.circular(AppRadii.sm),
-        border: Border.all(color: AppColors.border),
       ),
       child: Text(label, style: const TextStyle(fontSize: 11.5)),
     );
@@ -275,7 +274,6 @@ class _TicketCard extends StatelessWidget {
       decoration: BoxDecoration(
         color: AppColors.backgroundSoft,
         borderRadius: BorderRadius.circular(AppRadii.lg),
-        border: Border.all(color: AppColors.accent),
       ),
       child: Column(
         children: [

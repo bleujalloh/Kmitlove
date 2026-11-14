@@ -164,7 +164,6 @@ class _QuestionView extends ConsumerWidget {
                     padding: const EdgeInsets.all(14),
                     decoration: BoxDecoration(
                       color: AppColors.backgroundSoft,
-                      border: Border.all(color: AppColors.border),
                       borderRadius: BorderRadius.circular(AppRadii.md),
                     ),
                     child: Text(
@@ -228,10 +227,6 @@ class _AnswerOption extends StatelessWidget {
           padding: const EdgeInsets.all(16),
           decoration: BoxDecoration(
             color: isSelected ? AppColors.accentSoft : AppColors.backgroundSoft,
-            border: Border.all(
-              color: isSelected ? AppColors.accent : AppColors.border,
-              width: 1.5,
-            ),
             borderRadius: BorderRadius.circular(AppRadii.md),
           ),
           child: Row(

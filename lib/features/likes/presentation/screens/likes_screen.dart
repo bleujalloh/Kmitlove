@@ -137,7 +137,6 @@ class _ReceivedTab extends ConsumerWidget {
                 ),
                 style: OutlinedButton.styleFrom(
                   foregroundColor: AppColors.ink,
-                  side: BorderSide(color: AppColors.border),
                   padding: const EdgeInsets.symmetric(vertical: 14),
                   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(AppRadii.sm)),
                 ),
@@ -311,7 +310,6 @@ class _ProfileGrid extends ConsumerWidget {
           borderRadius: BorderRadius.circular(AppRadii.lg),
           child: Container(
             decoration: BoxDecoration(
-              border: Border.all(color: AppColors.border),
               borderRadius: BorderRadius.circular(AppRadii.lg),
             ),
             clipBehavior: Clip.antiAlias,

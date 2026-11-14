@@ -106,7 +106,7 @@ class _PhotoViewerScreenState extends ConsumerState<PhotoViewerScreen> {
                 return url.when(
                   loading: () => const Center(child: CircularProgressIndicator()),
                   error: (e, st) => Center(
-                    child: Text(context.l10n.photosLoadFailed, style: const TextStyle(color: Colors.white70)),
+                    child: Text(context.l10n.photosLoadFailed, style: const TextStyle(color: Colors.white)),
                   ),
                   data: (u) => InteractiveViewer(
                     minScale: 1,
@@ -126,7 +126,7 @@ class _PhotoViewerScreenState extends ConsumerState<PhotoViewerScreen> {
                   Container(
                     padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 5),
                     decoration: BoxDecoration(
-                      color: current.status == 'approved' ? AppColors.accent : Colors.white24,
+                      color: current.status == 'approved' ? AppColors.accent : Colors.white,
                       borderRadius: BorderRadius.circular(AppRadii.sm),
                     ),
                     child: Text(
@@ -134,7 +134,7 @@ class _PhotoViewerScreenState extends ConsumerState<PhotoViewerScreen> {
                       style: TextStyle(
                         fontSize: 12,
                         fontWeight: FontWeight.w700,
-                        color: current.status == 'approved' ? AppColors.noirProfond : Colors.white,
+                        color: AppColors.noirProfond,
                       ),
                     ),
                   ),
@@ -142,7 +142,7 @@ class _PhotoViewerScreenState extends ConsumerState<PhotoViewerScreen> {
                   Text(
                     _visibilityLabel(context, current),
                     textAlign: TextAlign.center,
-                    style: const TextStyle(color: Colors.white70, fontSize: 12.5, height: 1.4),
+                    style: const TextStyle(color: Colors.white, fontSize: 12.5, height: 1.4),
                   ),
                   const SizedBox(height: 12),
                   OutlinedButton.icon(
@@ -151,7 +151,6 @@ class _PhotoViewerScreenState extends ConsumerState<PhotoViewerScreen> {
                     label: Text(context.l10n.deletePhotoButton),
                     style: OutlinedButton.styleFrom(
                       foregroundColor: Colors.white,
-                      side: const BorderSide(color: Colors.white38),
                       padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
                     ),
                   ),

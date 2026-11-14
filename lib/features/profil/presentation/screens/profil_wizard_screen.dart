@@ -668,10 +668,6 @@ class _StepChoiceList extends StatelessWidget {
                   color: isSelected
                       ? AppColors.accentSoft
                       : AppColors.backgroundSoft,
-                  border: Border.all(
-                    color: isSelected ? AppColors.accent : AppColors.border,
-                    width: 1.5,
-                  ),
                   borderRadius: BorderRadius.circular(AppRadii.md),
                 ),
                 child: Row(
@@ -736,10 +732,6 @@ class _StepMultiChoiceList extends StatelessWidget {
                   color: isSelected
                       ? AppColors.accentSoft
                       : AppColors.backgroundSoft,
-                  border: Border.all(
-                    color: isSelected ? AppColors.accent : AppColors.border,
-                    width: 1.5,
-                  ),
                   borderRadius: BorderRadius.circular(AppRadii.md),
                 ),
                 child: Row(

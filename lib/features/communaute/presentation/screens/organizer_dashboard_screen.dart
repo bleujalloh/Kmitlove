@@ -91,7 +91,6 @@ class _OrganizerEventCard extends StatelessWidget {
       child: Container(
         padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
-          border: Border.all(color: AppColors.border),
           borderRadius: BorderRadius.circular(AppRadii.lg),
         ),
         child: Column(

@@ -255,7 +255,6 @@ class _CreatePostScreenState extends ConsumerState<CreatePostScreen> {
                   decoration: BoxDecoration(
                     color: AppColors.backgroundSoft,
                     borderRadius: BorderRadius.circular(AppRadii.md),
-                    border: Border.all(color: AppColors.border),
                     image: _posterFile != null
                         ? DecorationImage(image: FileImage(_posterFile!), fit: BoxFit.cover)
                         : null,

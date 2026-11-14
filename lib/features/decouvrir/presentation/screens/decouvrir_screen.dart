@@ -17,6 +17,7 @@ import '../../../profil/presentation/profil_controller.dart';
 import '../../domain/candidate.dart';
 import '../decouvrir_controller.dart';
 import '../detected_place_provider.dart';
+import '../widgets/swipeable_card.dart';
 
 /// Écran Découvrir (swipe) — fidèle au prototype visuel validé (artifact
 /// MERUT, Decouvrir.dc.html).
@@ -275,7 +276,7 @@ class DecouvrirScreen extends ConsumerWidget {
                             // passage, Premium (undoLastSwipe.ts) ; grisé
                             // tant qu'il n'y a rien à annuler.
                             Opacity(
-                              opacity: data.lastPassed != null ? 1 : 0.35,
+                              opacity: 1,
                               child: _RoundButton(
                                 icon: Icons.arrow_back,
                                 color: AppColors.muted,
@@ -326,10 +327,6 @@ class DecouvrirScreen extends ConsumerWidget {
                                         color: AppColors.noirProfond,
                                         borderRadius: BorderRadius.circular(
                                           999,
-                                        ),
-                                        border: Border.all(
-                                          color: AppColors.accent,
-                                          width: 1.2,
                                         ),
                                       ),
                                       child: Text(
@@ -382,161 +379,17 @@ class _CandidateCard extends ConsumerWidget {
         .watch(candidateFirstPhotoUrlProvider(candidate.uid))
         .value;
 
-    return _DraggableCard(
+    return SwipeableCard(
       onSwipeLike: () =>
           ref.read(decouvrirControllerProvider.notifier).swipe('like'),
       onSwipePass: () =>
           ref.read(decouvrirControllerProvider.notifier).swipe('pass'),
+      likeLabel: context.l10n.swipeLikeStamp,
+      passLabel: context.l10n.swipePassStamp,
       child: _CandidateCardContent(
         candidate: candidate,
         compatScore: compatScore,
         photoUrl: photoUrl,
-      ),
-    );
-  }
-}
-
-class _DraggableCard extends StatefulWidget {
-  const _DraggableCard({
-    required this.onSwipeLike,
-    required this.onSwipePass,
-    required this.child,
-  });
-
-  final VoidCallback onSwipeLike;
-  final VoidCallback onSwipePass;
-  final Widget child;
-
-  @override
-  State<_DraggableCard> createState() => _DraggableCardState();
-}
-
-/// Carte swipable : glisser à droite = like, à gauche = passe — demandé
-/// par le propriétaire le 11/11/2026, les boutons ronds en dessous
-/// restaient jusqu'ici la SEULE façon d'agir sur une carte Découvrir,
-/// ce qui "ne ressemble pas à une app de rencontres".
-///
-/// Séparé de `_CandidateCardContent` (trouvé par revue de code) : avant,
-/// `setState` sur chaque pixel glissé reconstruisait toute la fiche
-/// profil (grille de faits, icônes d'intérêt...) uniquement pour
-/// repositionner la carte — ici, `widget.child` est construit une seule
-/// fois par `_CandidateCard` et jamais reconstruit pendant un glissement,
-/// seule cette coquille (translation/rotation/estampilles like-passe) se
-/// redessine à chaque frame.
-class _DraggableCardState extends State<_DraggableCard>
-    with SingleTickerProviderStateMixin {
-  static const _swipeThreshold = 110.0;
-
-  late final AnimationController _snapBackController;
-  Offset _dragOffset = Offset.zero;
-  Offset _snapBackStart = Offset.zero;
-
-  @override
-  void initState() {
-    super.initState();
-    _snapBackController =
-        AnimationController(
-          vsync: this,
-          duration: const Duration(milliseconds: 220),
-        )..addListener(() {
-          setState(() {
-            _dragOffset = Offset.lerp(
-              _snapBackStart,
-              Offset.zero,
-              _snapBackController.value,
-            )!;
-          });
-        });
-  }
-
-  @override
-  void dispose() {
-    _snapBackController.dispose();
-    super.dispose();
-  }
-
-  // `onHorizontalDrag*` (axe contraint), pas `onPan*` (toute direction) :
-  // demande explicite du propriétaire le 12/11/2026 pour que le swipe
-  // horizontal (like/passe) coexiste avec le défilement vertical qui
-  // révèle le profil complet plus bas (ScrollView imbriqué) — deux
-  // reconnaisseurs sur des axes orthogonaux se désambiguïsent nativement
-  // dans l'arène de gestes Flutter, contrairement à un Pan (toute
-  // direction) qui entrerait en conflit avec le défilement vertical.
-  void _onHorizontalDragStart(DragStartDetails details) {
-    _snapBackController.stop();
-  }
-
-  void _onHorizontalDragUpdate(DragUpdateDetails details) {
-    setState(() => _dragOffset += details.delta);
-  }
-
-  void _onHorizontalDragEnd(DragEndDetails details) {
-    if (_dragOffset.dx > _swipeThreshold) {
-      widget.onSwipeLike();
-      return;
-    }
-    if (_dragOffset.dx < -_swipeThreshold) {
-      widget.onSwipePass();
-      return;
-    }
-    // Pas assez loin pour valider le swipe : retour au centre animé
-    // plutôt qu'un saut brutal.
-    _snapBackStart = _dragOffset;
-    _snapBackController.forward(from: 0);
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    final angle = (_dragOffset.dx / 1200).clamp(-0.25, 0.25);
-    final likeOpacity = (_dragOffset.dx / _swipeThreshold).clamp(0.0, 1.0);
-    final nopeOpacity = (-_dragOffset.dx / _swipeThreshold).clamp(0.0, 1.0);
-
-    return GestureDetector(
-      onHorizontalDragStart: _onHorizontalDragStart,
-      onHorizontalDragUpdate: _onHorizontalDragUpdate,
-      onHorizontalDragEnd: _onHorizontalDragEnd,
-      child: Transform.translate(
-        offset: _dragOffset,
-        child: Transform.rotate(
-          angle: angle,
-          child: Padding(
-            padding: const EdgeInsets.fromLTRB(20, 0, 20, 10),
-            child: Container(
-              decoration: BoxDecoration(
-                border: Border.all(color: AppColors.border, width: 1.5),
-                borderRadius: BorderRadius.circular(AppRadii.lg),
-              ),
-              clipBehavior: Clip.antiAlias,
-              child: Stack(
-                children: [
-                  widget.child,
-                  Positioned(
-                    top: 24,
-                    left: 20,
-                    child: Opacity(
-                      opacity: likeOpacity,
-                      child: _SwipeStamp(
-                        label: context.l10n.swipeLikeStamp,
-                        color: AppColors.accent,
-                      ),
-                    ),
-                  ),
-                  Positioned(
-                    top: 24,
-                    right: 20,
-                    child: Opacity(
-                      opacity: nopeOpacity,
-                      child: _SwipeStamp(
-                        label: context.l10n.swipePassStamp,
-                        color: AppColors.muted,
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ),
-        ),
       ),
     );
   }
@@ -1159,8 +1012,8 @@ class _FilterPill extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Opacity(
-      opacity: dimmed ? 0.45 : 1,
+    return Material(
+      type: MaterialType.transparency,
       child: InkWell(
         onTap: onTap,
         borderRadius: BorderRadius.circular(AppRadii.sm),
@@ -1191,37 +1044,6 @@ class _FilterPill extends StatelessWidget {
                 ),
               ],
             ],
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-class _SwipeStamp extends StatelessWidget {
-  const _SwipeStamp({required this.label, required this.color});
-
-  final String label;
-  final Color color;
-
-  @override
-  Widget build(BuildContext context) {
-    return Transform.rotate(
-      angle: -0.25,
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
-        decoration: BoxDecoration(
-          border: Border.all(color: color, width: 3),
-          borderRadius: BorderRadius.circular(AppRadii.sm),
-          color: AppColors.noirProfond.withValues(alpha: 0.25),
-        ),
-        child: Text(
-          label,
-          style: TextStyle(
-            color: color,
-            fontWeight: FontWeight.w900,
-            fontSize: 22,
-            letterSpacing: 1.5,
           ),
         ),
       ),
@@ -1464,9 +1286,6 @@ class _RoundButton extends StatelessWidget {
         decoration: BoxDecoration(
           color: background ?? AppColors.backgroundSoft,
           shape: BoxShape.circle,
-          border: background == null
-              ? Border.all(color: AppColors.border)
-              : null,
         ),
         child: Icon(icon, color: color, size: size * 0.4),
       ),

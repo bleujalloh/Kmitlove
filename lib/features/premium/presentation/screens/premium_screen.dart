@@ -101,7 +101,6 @@ class PremiumScreen extends ConsumerWidget {
                     return Container(
                       padding: const EdgeInsets.all(16),
                       decoration: BoxDecoration(
-                        border: Border.all(color: AppColors.border),
                         borderRadius: BorderRadius.circular(AppRadii.lg),
                       ),
                       child: Row(

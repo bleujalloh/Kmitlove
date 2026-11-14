@@ -152,7 +152,6 @@ class _AddPhotoTile extends ConsumerWidget {
         width: 90,
         height: 90,
         decoration: BoxDecoration(
-          border: Border.all(color: AppColors.border, style: BorderStyle.solid),
           borderRadius: BorderRadius.circular(AppRadii.md),
         ),
         child: Icon(Icons.add, color: AppColors.muted),

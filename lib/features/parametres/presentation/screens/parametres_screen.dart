@@ -236,7 +236,6 @@ class _ParametresScreenState extends ConsumerState<ParametresScreen> {
                 decoration: BoxDecoration(
                   color: AppColors.backgroundSoft,
                   borderRadius: BorderRadius.circular(AppRadii.md),
-                  border: Border.all(color: AppColors.accent.withValues(alpha: 0.3)),
                 ),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
