@@ -253,6 +253,13 @@ export const getDiscoverCandidates = onCall({ region: REGION, enforceAppCheck: E
       )
     : [];
 
+  // Nombre de réponses au test de compatibilité de chaque candidat restant,
+  // pour le même pourcentage de complétion que celui affiché sur le Profil
+  // (une seule lecture groupée, jamais le contenu des réponses renvoyé).
+  const compatSnaps = statusPassed.length > 0
+    ? await db.getAll(...statusPassed.map(({ doc }) => db.collection("compat_answers").doc(doc.id)))
+    : [];
+
   const eligible: (Record<string, unknown> & { _boosted: boolean; _completionPercent: number })[] = [];
   for (let i = 0; i < statusPassed.length; i += 1) {
     const { doc, status, distance } = statusPassed[i];
@@ -282,6 +289,14 @@ export const getDiscoverCandidates = onCall({ region: REGION, enforceAppCheck: E
       childrenStatus: data.childrenStatus ?? null,
       smokingHabit: data.smokingHabit ?? null,
       drinkingHabit: data.drinkingHabit ?? null,
+      // Contenus que le membre a saisis pour se présenter (valeurs, ce qu'il
+      // recherche, qualités, langues, origines) : montrés sur la carte,
+      // vides quand non renseignés.
+      values: data.values ?? null,
+      lookingFor: data.lookingFor ?? null,
+      qualities: data.qualities ?? [],
+      languages: data.languages ?? [],
+      culturalOrigins: data.culturalOrigins ?? [],
       distanceKm: distance === null ? null : Math.round(distance),
       isVerified: status?.isVerified === true,
       isOnline:
@@ -293,7 +308,12 @@ export const getDiscoverCandidates = onCall({ region: REGION, enforceAppCheck: E
       // d'intérêt, photos, vérification...) remonte — même calcul que
       // l'onglet Profil (shared/profileCompletion.ts), jamais une note
       // recalculée différemment ici.
-      _completionPercent: computeProfileCompletionPercent(data, approvedPhotoCount, status?.isVerified === true),
+      _completionPercent: computeProfileCompletionPercent(
+        data,
+        approvedPhotoCount,
+        status?.isVerified === true,
+        Object.keys((compatSnaps[i].data()?.answers as Record<string, unknown> | undefined) ?? {}).length,
+      ),
     });
   }
 

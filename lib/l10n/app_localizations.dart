@@ -2204,6 +2204,54 @@ abstract class AppLocalizations {
   /// **'Tu as fait beaucoup de signalements récemment. Réessaie plus tard.'**
   String get reportRateLimited;
 
+  /// No description provided for @profileSectionLookingFor.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ce que je recherche chez l\'autre'**
+  String get profileSectionLookingFor;
+
+  /// No description provided for @profileSectionValues.
+  ///
+  /// In fr, this message translates to:
+  /// **'Mes valeurs'**
+  String get profileSectionValues;
+
+  /// No description provided for @profileSectionQualities.
+  ///
+  /// In fr, this message translates to:
+  /// **'Mes qualités'**
+  String get profileSectionQualities;
+
+  /// No description provided for @profileSectionInterests.
+  ///
+  /// In fr, this message translates to:
+  /// **'Centres d\'intérêt'**
+  String get profileSectionInterests;
+
+  /// No description provided for @profileSectionFacts.
+  ///
+  /// In fr, this message translates to:
+  /// **'En bref'**
+  String get profileSectionFacts;
+
+  /// No description provided for @profileSectionOrigins.
+  ///
+  /// In fr, this message translates to:
+  /// **'Origines culturelles'**
+  String get profileSectionOrigins;
+
+  /// No description provided for @factLanguagesLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Langues'**
+  String get factLanguagesLabel;
+
+  /// No description provided for @compatAlignedOn.
+  ///
+  /// In fr, this message translates to:
+  /// **'Vous vous accordez surtout sur : {themes}'**
+  String compatAlignedOn(String themes);
+
   /// Heure d'une conversation dont le dernier message date de la veille (liste Messages)
   ///
   /// In fr, this message translates to:
@@ -3383,7 +3431,7 @@ abstract class AppLocalizations {
   /// No description provided for @aboutMeSectionTitle.
   ///
   /// In fr, this message translates to:
-  /// **'À propos de moi'**
+  /// **'Présentation'**
   String get aboutMeSectionTitle;
 
   /// No description provided for @factAgeValue.

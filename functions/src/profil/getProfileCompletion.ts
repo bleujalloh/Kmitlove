@@ -19,7 +19,7 @@ export const getProfileCompletion = onCall({ region: REGION, enforceAppCheck: EN
   const uid = request.auth.uid;
   const db = getFirestore();
 
-  const [profilSnap, statusSnap, photosCountSnap] = await Promise.all([
+  const [profilSnap, statusSnap, photosCountSnap, compatSnap] = await Promise.all([
     db.collection("users").doc(uid).get(),
     db.collection("user_status").doc(uid).get(),
     db
@@ -29,12 +29,14 @@ export const getProfileCompletion = onCall({ region: REGION, enforceAppCheck: EN
       .where("status", "==", "approved")
       .count()
       .get(),
+    db.collection("compat_answers").doc(uid).get(),
   ]);
 
   const profil = profilSnap.data() ?? {};
   const isVerified = statusSnap.data()?.isVerified === true;
   const approvedPhotoCount = photosCountSnap.data().count;
 
-  const percent = computeProfileCompletionPercent(profil, approvedPhotoCount, isVerified);
+  const compatAnswerCount = Object.keys((compatSnap.data()?.answers as Record<string, unknown> | undefined) ?? {}).length;
+  const percent = computeProfileCompletionPercent(profil, approvedPhotoCount, isVerified, compatAnswerCount);
   return { percent };
 });

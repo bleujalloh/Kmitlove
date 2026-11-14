@@ -19,6 +19,11 @@ class TargetProfile {
     this.childrenStatus,
     this.smokingHabit,
     this.drinkingHabit,
+    this.values,
+    this.lookingFor,
+    this.qualities = const [],
+    this.languages = const [],
+    this.culturalOrigins = const [],
   });
 
   final String uid;
@@ -38,6 +43,11 @@ class TargetProfile {
   final String? childrenStatus;
   final String? smokingHabit;
   final String? drinkingHabit;
+  final String? values;
+  final String? lookingFor;
+  final List<String> qualities;
+  final List<String> languages;
+  final List<String> culturalOrigins;
 }
 
 /// Détail d'un profil tiers (fiche "Détail du profil" — demande du
@@ -85,6 +95,11 @@ final targetProfileProvider = FutureProvider.autoDispose
         childrenStatus: data['childrenStatus'] as String?,
         smokingHabit: data['smokingHabit'] as String?,
         drinkingHabit: data['drinkingHabit'] as String?,
+        values: data['values'] as String?,
+        lookingFor: data['lookingFor'] as String?,
+        qualities: List<String>.from(data['qualities'] as List? ?? const []),
+        languages: List<String>.from(data['languages'] as List? ?? const []),
+        culturalOrigins: List<String>.from(data['culturalOrigins'] as List? ?? const []),
       );
     });
 

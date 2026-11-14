@@ -1,3 +1,5 @@
+import '../../../profil/presentation/profil_detail_controller.dart';
+import '../../../compatibilite/domain/compat_result.dart';
 import 'dart:async';
 
 import 'package:country_picker/country_picker.dart';
@@ -374,7 +376,8 @@ class _CandidateCard extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final compatScore = ref.watch(compatScoreWithProvider(candidate.uid)).value;
+    final compat = ref.watch(compatResultWithProvider(candidate.uid)).value;
+    final compatScore = compat?.score;
     final photoUrl = ref
         .watch(candidateFirstPhotoUrlProvider(candidate.uid))
         .value;
@@ -389,6 +392,7 @@ class _CandidateCard extends ConsumerWidget {
       child: _CandidateCardContent(
         candidate: candidate,
         compatScore: compatScore,
+        compatThemes: compat?.strongest() ?? const [],
         photoUrl: photoUrl,
       ),
     );
@@ -403,11 +407,13 @@ class _CandidateCardContent extends ConsumerWidget {
   const _CandidateCardContent({
     required this.candidate,
     required this.compatScore,
+    required this.compatThemes,
     required this.photoUrl,
   });
 
   final Candidate candidate;
   final int? compatScore;
+  final List<CompatThemeScore> compatThemes;
   final String? photoUrl;
 
   @override
@@ -416,6 +422,11 @@ class _CandidateCardContent extends ConsumerWidget {
     // hauteur avec le nom, l'âge et la ville posés dessus (comme sur les
     // applications de rencontre actuelles), le reste du profil se révèle au
     // défilement. Aucune ligne ni contour.
+    // Les autres photos (la première est en tête de carte) s'intercalent entre
+    // les blocs de la fiche : sans elles, un profil à plusieurs photos n'en
+    // montrait qu'une dans Découvrir.
+    final allPhotos = ref.watch(targetProfilePhotoUrlsProvider(candidate.uid)).value ?? const <String>[];
+    final extraPhotos = allPhotos.length > 1 ? allPhotos.sublist(1) : const <String>[];
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 14),
       child: ClipRRect(
@@ -584,6 +595,13 @@ class _CandidateCardContent extends ConsumerWidget {
                         childrenStatus: candidate.childrenStatus,
                         smokingHabit: candidate.smokingHabit,
                         drinkingHabit: candidate.drinkingHabit,
+                        values: candidate.values,
+                        lookingFor: candidate.lookingFor,
+                        qualities: candidate.qualities,
+                        languages: candidate.languages,
+                        culturalOrigins: candidate.culturalOrigins,
+                        compatThemes: compatThemes,
+                        extraPhotoUrls: extraPhotos,
                       ),
                     ),
                   ],

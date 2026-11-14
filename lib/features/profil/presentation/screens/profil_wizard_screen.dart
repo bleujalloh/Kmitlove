@@ -53,6 +53,7 @@ class _ProfilWizardScreenState extends ConsumerState<ProfilWizardScreen> {
   final _interestsController = TextEditingController();
   final _culturalOriginsController = TextEditingController();
   final _lookingForController = TextEditingController();
+  final _valuesController = TextEditingController();
   final _heightController = TextEditingController();
   final _educationController = TextEditingController();
 
@@ -77,6 +78,7 @@ class _ProfilWizardScreenState extends ConsumerState<ProfilWizardScreen> {
     _interestsController.dispose();
     _culturalOriginsController.dispose();
     _lookingForController.dispose();
+    _valuesController.dispose();
     _heightController.dispose();
     _educationController.dispose();
     super.dispose();
@@ -178,6 +180,7 @@ class _ProfilWizardScreenState extends ConsumerState<ProfilWizardScreen> {
           ? null
           : _lookingForController.text.trim(),
       qualities: _qualities.toList(),
+      values: _valuesController.text.trim().isEmpty ? null : _valuesController.text.trim(),
     );
     await ref.read(profilControllerProvider.notifier).save(profil);
   }
@@ -327,6 +330,7 @@ class _ProfilWizardScreenState extends ConsumerState<ProfilWizardScreen> {
           interestsController: _interestsController,
           culturalOriginsController: _culturalOriginsController,
           lookingForController: _lookingForController,
+          valuesController: _valuesController,
         );
       case _Step.details:
         return _StepDetails(
@@ -481,11 +485,13 @@ class _StepInterets extends StatelessWidget {
     required this.interestsController,
     required this.culturalOriginsController,
     required this.lookingForController,
+    required this.valuesController,
   });
 
   final TextEditingController interestsController;
   final TextEditingController culturalOriginsController;
   final TextEditingController lookingForController;
+  final TextEditingController valuesController;
 
   @override
   Widget build(BuildContext context) {
@@ -510,6 +516,12 @@ class _StepInterets extends StatelessWidget {
           controller: lookingForController,
           maxLines: 3,
           decoration: InputDecoration(labelText: context.l10n.lookingForLabel),
+        ),
+        const SizedBox(height: 14),
+        TextField(
+          controller: valuesController,
+          maxLines: 3,
+          decoration: InputDecoration(labelText: context.l10n.valuesLabel),
         ),
       ],
     );

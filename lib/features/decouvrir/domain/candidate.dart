@@ -17,6 +17,11 @@ class Candidate {
     this.childrenStatus,
     this.smokingHabit,
     this.drinkingHabit,
+    this.values,
+    this.lookingFor,
+    this.qualities = const [],
+    this.languages = const [],
+    this.culturalOrigins = const [],
   });
 
   final String uid;
@@ -39,6 +44,13 @@ class Candidate {
   final String? childrenStatus;
   final String? smokingHabit;
   final String? drinkingHabit;
+  // Contenus de présentation (valeurs, ce qu'il recherche, qualités,
+  // langues, origines) : vides quand non renseignés.
+  final String? values;
+  final String? lookingFor;
+  final List<String> qualities;
+  final List<String> languages;
+  final List<String> culturalOrigins;
 
   factory Candidate.fromMap(Map<String, dynamic> map) => Candidate(
     uid: map['uid'] as String,
@@ -58,6 +70,11 @@ class Candidate {
     childrenStatus: map['childrenStatus'] as String?,
     smokingHabit: map['smokingHabit'] as String?,
     drinkingHabit: map['drinkingHabit'] as String?,
+    values: map['values'] as String?,
+    lookingFor: map['lookingFor'] as String?,
+    qualities: List<String>.from(map['qualities'] as List? ?? const []),
+    languages: List<String>.from(map['languages'] as List? ?? const []),
+    culturalOrigins: List<String>.from(map['culturalOrigins'] as List? ?? const []),
   );
 }
 

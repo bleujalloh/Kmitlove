@@ -1196,6 +1196,32 @@ class AppLocalizationsFr extends AppLocalizations {
       'Tu as fait beaucoup de signalements récemment. Réessaie plus tard.';
 
   @override
+  String get profileSectionLookingFor => 'Ce que je recherche chez l\'autre';
+
+  @override
+  String get profileSectionValues => 'Mes valeurs';
+
+  @override
+  String get profileSectionQualities => 'Mes qualités';
+
+  @override
+  String get profileSectionInterests => 'Centres d\'intérêt';
+
+  @override
+  String get profileSectionFacts => 'En bref';
+
+  @override
+  String get profileSectionOrigins => 'Origines culturelles';
+
+  @override
+  String get factLanguagesLabel => 'Langues';
+
+  @override
+  String compatAlignedOn(String themes) {
+    return 'Vous vous accordez surtout sur : $themes';
+  }
+
+  @override
   String get messageTimeYesterday => 'hier';
 
   @override
@@ -1826,7 +1852,7 @@ class AppLocalizationsFr extends AppLocalizations {
   String get onlineBadgeLabel => 'En ligne';
 
   @override
-  String get aboutMeSectionTitle => 'À propos de moi';
+  String get aboutMeSectionTitle => 'Présentation';
 
   @override
   String factAgeValue(int age) {

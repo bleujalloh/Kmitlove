@@ -1,3 +1,5 @@
+import { COMPAT_ANSWERS_FOR_FULL_COMPLETION } from "../config";
+
 /** Les champs facultatifs qui comptent pour le pourcentage de complétion
  * — seule source de vérité, utilisée à la fois par getProfileCompletion.ts
  * (affichage sur l'onglet Profil) et getDiscoverCandidates.ts (classement) :
@@ -28,6 +30,7 @@ export function computeProfileCompletionPercent(
   profil: ProfilCompletionFields,
   approvedPhotoCount: number,
   isVerified: boolean,
+  compatAnswerCount: number,
 ): number {
   const checks = [
     Boolean(profil.profession),
@@ -44,6 +47,9 @@ export function computeProfileCompletionPercent(
     Boolean(profil.values),
     approvedPhotoCount >= MIN_PHOTOS_FOR_FULL_COMPLETION,
     isVerified,
+    // Test de compatibilité : facultatif, il compte comme le reste (demande
+    // du propriétaire, 14/11/2026 : tout le facultatif compte).
+    compatAnswerCount >= COMPAT_ANSWERS_FOR_FULL_COMPLETION,
   ];
   const filled = checks.filter(Boolean).length;
   return Math.round((filled / checks.length) * 100);

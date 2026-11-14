@@ -207,3 +207,8 @@ export const INACTIVE_PURGE_MAX_PER_RUN = 25;
 // Réponses aux publications du fil (communaute/postInteractions.ts) : même
 // mécanisme que la messagerie et les signalements (shared/rateLimit.ts).
 export const REPLY_RATE_LIMITS = [{ key: "reply_hour", limit: 20, windowSeconds: 60 * 60 }];
+
+// Pourcentage de complétion du profil (shared/profileCompletion.ts) : le test
+// de compatibilité compte quand le membre a répondu à au moins une session
+// complète de questions (COMPAT_QUESTIONS_PER_SESSION).
+export const COMPAT_ANSWERS_FOR_FULL_COMPLETION = COMPAT_QUESTIONS_PER_SESSION;

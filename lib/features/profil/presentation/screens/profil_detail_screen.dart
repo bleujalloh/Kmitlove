@@ -42,7 +42,8 @@ class ProfilDetailScreen extends ConsumerWidget {
     final photoUrls =
         ref.watch(targetProfilePhotoUrlsProvider(uid)).value ??
         const <String>[];
-    final compatScore = isPreview ? null : ref.watch(compatScoreWithProvider(uid)).value;
+    final compat = isPreview ? null : ref.watch(compatResultWithProvider(uid)).value;
+    final compatScore = compat?.score;
 
     return Scaffold(
       body: profileAsync.when(
@@ -177,6 +178,12 @@ class ProfilDetailScreen extends ConsumerWidget {
                         childrenStatus: profile.childrenStatus,
                         smokingHabit: profile.smokingHabit,
                         drinkingHabit: profile.drinkingHabit,
+                        values: profile.values,
+                        lookingFor: profile.lookingFor,
+                        qualities: profile.qualities,
+                        languages: profile.languages,
+                        culturalOrigins: profile.culturalOrigins,
+                        compatThemes: compat?.strongest() ?? const [],
                       ),
                     ],
                   ),

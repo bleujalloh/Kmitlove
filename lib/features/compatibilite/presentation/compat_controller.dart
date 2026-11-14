@@ -4,6 +4,7 @@ import '../../../core/providers/firebase_providers.dart';
 import '../../auth/presentation/auth_controller.dart';
 import '../data/compat_repository.dart';
 import '../domain/compat_question.dart';
+import '../domain/compat_result.dart';
 
 final compatRepositoryProvider = Provider<CompatRepository>((ref) {
   return CompatRepository(ref.watch(firestoreProvider), ref.watch(cloudFunctionsProvider));
@@ -33,8 +34,13 @@ final myCompatAnswersProvider = StreamProvider<Map<String, int>>((ref) {
 /// un profil passé en moins d'une seconde — un vrai correctif demanderait
 /// de mettre en cache la banque côté serveur ou de décaler l'appel,
 /// disproportionné pour un simple badge d'affichage au stade actuel.
-final compatScoreWithProvider = FutureProvider.autoDispose.family<int?, String>((ref, targetUid) {
+final compatResultWithProvider = FutureProvider.autoDispose.family<CompatResult, String>((ref, targetUid) {
   return ref.read(compatRepositoryProvider).computeCompatibilityWith(targetUid);
+});
+
+/// Le score seul, tiré du même résultat (un seul appel serveur par profil).
+final compatScoreWithProvider = FutureProvider.autoDispose.family<int?, String>((ref, targetUid) async {
+  return (await ref.watch(compatResultWithProvider(targetUid).future)).score;
 });
 
 final compatAnswersVisibleProvider = StreamProvider<bool>((ref) {

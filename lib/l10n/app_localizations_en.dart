@@ -1183,6 +1183,32 @@ class AppLocalizationsEn extends AppLocalizations {
       'You\'ve sent a lot of reports recently. Please try again later.';
 
   @override
+  String get profileSectionLookingFor => 'What I\'m looking for in a partner';
+
+  @override
+  String get profileSectionValues => 'My values';
+
+  @override
+  String get profileSectionQualities => 'My qualities';
+
+  @override
+  String get profileSectionInterests => 'Interests';
+
+  @override
+  String get profileSectionFacts => 'At a glance';
+
+  @override
+  String get profileSectionOrigins => 'Cultural origins';
+
+  @override
+  String get factLanguagesLabel => 'Languages';
+
+  @override
+  String compatAlignedOn(String themes) {
+    return 'You agree most on: $themes';
+  }
+
+  @override
   String get messageTimeYesterday => 'yesterday';
 
   @override

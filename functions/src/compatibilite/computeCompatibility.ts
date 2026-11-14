@@ -82,6 +82,7 @@ export const computeCompatibility = onCall({ region: REGION, enforceAppCheck: EN
   const scaleRange = COMPAT_SCALE_MAX - COMPAT_SCALE_MIN;
   let weightedSum = 0;
   let totalWeightUsed = 0;
+  const themeScores: { theme: string; score: number }[] = [];
 
   for (const [theme, questionIds] of questionsByTheme) {
     const similarities: number[] = [];
@@ -97,6 +98,7 @@ export const computeCompatibility = onCall({ region: REGION, enforceAppCheck: EN
     if (coverage < COMPAT_MIN_THEME_COVERAGE) continue;
 
     const themeScore = similarities.reduce((a, b) => a + b, 0) / similarities.length;
+    themeScores.push({ theme, score: Math.round(themeScore * 100) });
     const weight = COMPAT_THEME_WEIGHTS[theme] ?? 0;
     weightedSum += themeScore * weight;
     totalWeightUsed += weight;
@@ -104,7 +106,10 @@ export const computeCompatibility = onCall({ region: REGION, enforceAppCheck: EN
 
   const score = totalWeightUsed === 0 ? null : weightedSum / totalWeightUsed;
 
+  // Score par thème (les thèmes valides seulement) : sert à dire sur quoi deux
+  // membres s'accordent, jamais le détail des réponses.
   return {
     score: score === null ? null : Math.round(score * 100),
+    themes: score === null ? [] : themeScores,
   };
 });

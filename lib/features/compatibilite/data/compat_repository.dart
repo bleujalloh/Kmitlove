@@ -1,3 +1,4 @@
+import '../domain/compat_result.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:cloud_functions/cloud_functions.dart';
 
@@ -34,11 +35,10 @@ class CompatRepository {
     return _firestore.collection('compat_answers').doc(uid).set({'answers': answers});
   }
 
-  Future<int?> computeCompatibilityWith(String targetUid) async {
+  Future<CompatResult> computeCompatibilityWith(String targetUid) async {
     final result =
         await _functions.httpsCallable('computeCompatibility').call({'targetUid': targetUid});
-    final data = result.data as Map<Object?, Object?>;
-    return data['score'] as int?;
+    return CompatResult.fromMap(result.data as Map<Object?, Object?>);
   }
 
   /// Contrôle de visibilité (cahier des charges section 4.3) : stocké sur

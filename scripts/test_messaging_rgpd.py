@@ -138,6 +138,31 @@ try:
     s, r = call("saveProfil", payload, J_TOKEN)
     check("avec consentement : profil enregistré", s == 200, (s, r))
 
+    # ---------- pourcentage du profil : tout le facultatif compte (15 éléments)
+    s, r = call("getProfileCompletion", {}, J_TOKEN)
+    check("pourcentage : profil sans aucun facultatif = 0 %", s == 200 and r["result"]["percent"] == 0, (s, r))
+    s, r = call("saveProfil", {**payload, "values": "La loyauté avant tout."}, J_TOKEN)
+    s, r = call("getProfileCompletion", {}, J_TOKEN)
+    check("pourcentage : « présentation de tes valeurs » compte (1 élément sur 15 = 7 %)", r["result"]["percent"] == 7, r)
+    answers = {"fields": {"answers": {"mapValue": {"fields": {f"q{i}": {"integerValue": "3"} for i in range(18)}}}}}
+    admin("PATCH", f"compat_answers/{J}", answers)
+    s, r = call("getProfileCompletion", {}, J_TOKEN)
+    check("pourcentage : le test de compatibilité compte à partir d'une session complète (2 sur 15 = 13 %)", r["result"]["percent"] == 13, r)
+    admin("PATCH", f"compat_answers/{J}", {"fields": {"answers": {"mapValue": {"fields": {f"q{i}": {"integerValue": "3"} for i in range(17)}}}}})
+    s, r = call("getProfileCompletion", {}, J_TOKEN)
+    check("pourcentage : 17 réponses ne suffisent pas (7 %)", r["result"]["percent"] == 7, r)
+
+    # ---------- carte Découvrir : les contenus de présentation sont renvoyés
+    s, r = call("getDiscoverCandidates", {"maxDistanceKm": 20000}, A_TOKEN)
+    cands = r.get("result", {}).get("candidates", [])
+    keys = {"values", "lookingFor", "qualities", "languages", "culturalOrigins"}
+    check("découverte : chaque carte porte valeurs, recherche, qualités, langues et origines",
+          s == 200 and (len(cands) == 0 or all(keys <= set(c.keys()) for c in cands)), (s, cands[:1]))
+    s, r = call("computeCompatibility", {"targetUid": AMARA}, J_TOKEN)
+    res = r.get("result", {})
+    check("compatibilité : le score s'accompagne de la liste des thèmes",
+          s == 200 and isinstance(res.get("themes", []), list) and (res.get("score") is None or len(res["themes"]) > 0), (s, r))
+
     # ---------- messagerie : envoi serveur
 
     s, r = call("sendMessage", {"matchId": MATCH, "text": "  bonjour  "}, J_TOKEN)
