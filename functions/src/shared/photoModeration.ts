@@ -1,3 +1,4 @@
+import { isProfilePhotoPath } from "./storagePaths";
 import { getStorage } from "firebase-admin/storage";
 import { ImageAnnotatorClient } from "@google-cloud/vision";
 
@@ -44,6 +45,11 @@ export interface PhotoModerationResult {
  * contourner ce contrôle.
  */
 export async function analyzePhotoContent(storagePath: string): Promise<PhotoModerationResult> {
+  // Le chemin vient d'un document écrit par le client : jamais lu tel quel
+  // (shared/storagePaths.ts).
+  if (!isProfilePhotoPath(storagePath)) {
+    throw new Error("Chemin de photo invalide : analyse refusée.");
+  }
   const bucket = getStorage().bucket();
   const [buffer] = await bucket.file(storagePath).download();
 

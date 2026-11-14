@@ -24,13 +24,30 @@ service firebase.storage {
     // par les deux membres du match concerné (docs/regles-messagerie-securite.md
     // section 2). Le flou par défaut à la première réception est géré
     // côté client (pas de notion de statut ici), voir chat_screen.dart.
+    //
+    // Durcie le 14/11/2026 (revue indépendante) : lecture fichier par fichier
+    // seulement (pas de liste du dossier, sinon l'autre membre voyait des
+    // photos jamais envoyées) ; création seule, jamais d'écrasement d'une
+    // photo déjà envoyée ; membre non bloqué ; image JPEG au nom attendu
+    // (identifiant aléatoire) ; l'auteur de l'envoi est inscrit dans les
+    // métadonnées (`uploaderUid`), ce qui lui seul permet de supprimer son
+    // propre fichier si l'envoi du message échoue, et que `sendMessage`
+    // vérifie avant de publier la photo.
     match /chat_photos/{matchId}/{fileName} {
       function isMatchMember() {
         return request.auth != null && request.auth.uid in
           firestore.get(/databases/(default)/documents/matches/$(matchId)).data.members;
       }
-      allow read: if isMatchMember();
-      allow write: if isMatchMember() && request.resource.size < 10 * 1024 * 1024;
+      function notBlocked() {
+        return !firestore.exists(/databases/(default)/documents/blocks/$(matchId));
+      }
+      allow get: if isMatchMember();
+      allow create: if isMatchMember() && notBlocked()
+        && request.resource.size < 10 * 1024 * 1024
+        && request.resource.contentType.matches('image/.*')
+        && fileName.matches('[0-9a-f-]{36}[.]jpg')
+        && request.resource.metadata.uploaderUid == request.auth.uid;
+      allow delete: if isMatchMember() && resource.metadata.uploaderUid == request.auth.uid;
     }
 
     // Affiche/visuel d'un événement Communauté (spec section 6, 11/11/2026) :

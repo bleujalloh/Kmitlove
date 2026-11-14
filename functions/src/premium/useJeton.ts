@@ -2,6 +2,7 @@ import { onCall, HttpsError } from "firebase-functions/v2/https";
 import { getFirestore, FieldValue } from "firebase-admin/firestore";
 
 import { REGION } from "../config";
+import { ENFORCE_APP_CHECK } from "../shared/appCheck";
 
 /**
  * Consomme un jeton pour faire réapparaître un profil précédemment
@@ -11,7 +12,7 @@ import { REGION } from "../config";
  * ça devienne un outil de harcèlement d'un profil qui a clairement
  * ignoré quelqu'un.
  */
-export const useJetonToResurface = onCall({ region: REGION }, async (request) => {
+export const useJetonToResurface = onCall({ region: REGION, enforceAppCheck: ENFORCE_APP_CHECK }, async (request) => {
   if (!request.auth) {
     throw new HttpsError("unauthenticated", "Connexion requise.");
   }

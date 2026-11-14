@@ -1,7 +1,9 @@
+import { hasValidConsent, requireConsent } from "../shared/consent";
 import { onCall, HttpsError } from "firebase-functions/v2/https";
 import { getFirestore } from "firebase-admin/firestore";
 
 import { REGION } from "../config";
+import { ENFORCE_APP_CHECK } from "../shared/appCheck";
 
 /**
  * Qui m'a liké / mes likes (cahier des charges section 4.5). "Qui m'a
@@ -9,7 +11,7 @@ import { REGION } from "../config";
  * Premium n'est pas construit, personne n'y a accès, seul le nombre est
  * communiqué (docs/suivi-developpement.md).
  */
-export const getLikes = onCall({ region: REGION }, async (request) => {
+export const getLikes = onCall({ region: REGION, enforceAppCheck: ENFORCE_APP_CHECK }, async (request) => {
   if (!request.auth) {
     throw new HttpsError("unauthenticated", "Connexion requise.");
   }
@@ -59,6 +61,7 @@ export const getLikes = onCall({ region: REGION }, async (request) => {
 
   const likersWithoutMatch = [...likersUids].filter((u) => !matchedUids.has(u) && !blockedUids.has(u));
   const myLikesWithoutMatch = myLikeUids.filter((u) => !matchedUids.has(u) && !blockedUids.has(u));
+  requireConsent(statusSnap.data());
   const isPremium = statusSnap.data()?.isPremium === true;
 
   // Les deux listes sont indépendantes l'une de l'autre : on les
@@ -92,6 +95,8 @@ async function fetchMiniProfiles(db: ReturnType<typeof getFirestore>, uids: stri
     // likes d'un autre membre, même si le swipe existe toujours en base
     // (même règle que Découvrir, docs/architecture-technique.md).
     if (statusSnaps[i].data()?.filtrageStatus !== "active") continue;
+    // Sans consentement art. 9 valide, le membre n'est montré à personne.
+    if (!hasValidConsent(statusSnaps[i].data())) continue;
 
     const data = profileSnap.data()!;
     // `age` est calculé une fois par saveProfil.ts (règlement permanent

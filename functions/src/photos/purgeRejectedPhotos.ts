@@ -3,6 +3,7 @@ import { getFirestore, Timestamp } from "firebase-admin/firestore";
 import { getStorage } from "firebase-admin/storage";
 
 import { REGION, REJECTED_PHOTO_RETENTION_DAYS } from "../config";
+import { isProfilePhotoPath } from "../shared/storagePaths";
 
 /**
  * Minimisation des données (RGPD, docs/rgpd-registre-des-traitements.md
@@ -45,7 +46,9 @@ export const purgeRejectedPhotos = onSchedule(
         // fichier déjà absent), le document reste et la photo sera
         // retentée demain, au lieu de laisser un fichier orphelin sans
         // plus aucune référence pour le retrouver.
-        if (typeof photo.storagePath === "string") {
+        // Le chemin vient d'un document écrit par le client : on ne supprime
+        // que dans le dossier de photos de CE membre (shared/storagePaths.ts).
+        if (isProfilePhotoPath(photo.storagePath, doc.ref.parent.parent?.id)) {
           await bucket.file(photo.storagePath).delete({ ignoreNotFound: true });
         }
         await doc.ref.delete();

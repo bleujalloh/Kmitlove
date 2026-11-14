@@ -183,11 +183,11 @@ class _ReceivedTab extends ConsumerWidget {
           ),
           itemBuilder: (context, i) => Container(
             decoration: BoxDecoration(
-              color: AppColors.placeholder,
+              color: AppColors.backgroundSoft,
               borderRadius: BorderRadius.circular(AppRadii.lg),
             ),
             child: Center(
-              child: Icon(Icons.lock_outline, color: AppColors.placeholderIcon),
+              child: Icon(Icons.lock_outline, color: AppColors.ink),
             ),
           ),
         ),
@@ -313,38 +313,56 @@ class _ProfileGrid extends ConsumerWidget {
               borderRadius: BorderRadius.circular(AppRadii.lg),
             ),
             clipBehavior: Clip.antiAlias,
-            child: Column(
+            // Photo pleine tuile, nom et ville posés dessus sur un voile bas
+            // (même langage visuel que la carte Découvrir).
+            child: Stack(
+              fit: StackFit.expand,
               children: [
-                Expanded(
-                  child: Container(
-                    width: double.infinity,
-                    color: AppColors.placeholder,
-                    child: photoUrl != null
-                        ? Image.network(photoUrl, fit: BoxFit.cover, width: double.infinity)
-                        : Icon(Icons.person_outline, color: AppColors.placeholderIcon),
+                ColoredBox(
+                  color: AppColors.placeholder,
+                  child: photoUrl != null
+                      ? Image.network(photoUrl, fit: BoxFit.cover)
+                      : Icon(Icons.person_outline, color: AppColors.placeholderIcon),
+                ),
+                const Positioned(
+                  left: 0,
+                  right: 0,
+                  bottom: 0,
+                  height: 90,
+                  child: DecoratedBox(
+                    decoration: BoxDecoration(
+                      gradient: LinearGradient(
+                        begin: Alignment.topCenter,
+                        end: Alignment.bottomCenter,
+                        colors: [Color(0x00000000), Color(0xB3000000)],
+                      ),
+                    ),
                   ),
                 ),
-                Padding(
-                  padding: const EdgeInsets.all(10),
+                Positioned(
+                  left: 12,
+                  right: 12,
+                  bottom: 10,
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisSize: MainAxisSize.min,
                     children: [
                       Row(
                         children: [
                           Flexible(
                             child: Text(
                               '${p.displayName}, ${p.age}',
-                              style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 12.5),
+                              style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 15, color: Colors.white),
                               overflow: TextOverflow.ellipsis,
                             ),
                           ),
                           if (p.isVerified) ...[
-                            const SizedBox(width: 3),
-                            Icon(Icons.verified, color: AppColors.accent, size: 13),
+                            const SizedBox(width: 4),
+                            const Icon(Icons.verified, color: AppColors.orAntique, size: 14),
                           ],
                         ],
                       ),
-                      Text(p.city, style: TextStyle(fontSize: 11, color: AppColors.muted)),
+                      Text(p.city, style: const TextStyle(fontSize: 12, color: Colors.white)),
                     ],
                   ),
                 ),

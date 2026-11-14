@@ -2,6 +2,7 @@ import { onCall } from "firebase-functions/v2/https";
 import { getFirestore } from "firebase-admin/firestore";
 
 import { REGION } from "../config";
+import { ENFORCE_APP_CHECK } from "../shared/appCheck";
 import { requireAdmin } from "../shared/requireAdmin";
 import { logAdminAction } from "../shared/adminLog";
 
@@ -231,7 +232,7 @@ const COMPAT_QUESTIONS: { theme: string; question: string }[] = [
  * Idempotent : réimporter ne crée jamais de doublon (identifiants
  * déterministes), donc rejouable sans risque si le contenu évolue.
  */
-export const adminSeedQuestionBanks = onCall({ region: REGION }, async (request) => {
+export const adminSeedQuestionBanks = onCall({ region: REGION, enforceAppCheck: ENFORCE_APP_CHECK }, async (request) => {
   const adminUid = requireAdmin(request);
   const db = getFirestore();
 

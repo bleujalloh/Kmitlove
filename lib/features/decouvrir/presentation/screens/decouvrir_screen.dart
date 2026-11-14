@@ -412,200 +412,186 @@ class _CandidateCardContent extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    return SingleChildScrollView(
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Stack(
-            children: [
-              Container(
-                height: 340,
-                width: double.infinity,
-                color: AppColors.placeholder,
-                child: photoUrl != null
-                    ? Image.network(
-                        photoUrl!,
-                        fit: BoxFit.cover,
-                        width: double.infinity,
-                        height: 340,
-                      )
-                    : Icon(
-                        Icons.person_outline,
-                        size: 46,
-                        color: AppColors.placeholderIcon,
-                      ),
-              ),
-              Positioned(
-                top: 10,
-                right: 10,
-                child: Row(
-                  // Sans ça, la Row (contraintes lâches du Stack, pas de
-                  // `left` fixé) prend toute la largeur disponible et ses
-                  // enfants se retrouvent alignés à GAUCHE de cette largeur
-                  // au lieu de rester collés au bord droit — badge et menu
-                  // se seraient retrouvés en haut à GAUCHE de la photo au
-                  // lieu d'à droite (trouvé par revue de code).
-                  mainAxisSize: MainAxisSize.min,
+    // Carte « verre » aux grands arrondis : la photo occupe l'essentiel de la
+    // hauteur avec le nom, l'âge et la ville posés dessus (comme sur les
+    // applications de rencontre actuelles), le reste du profil se révèle au
+    // défilement. Aucune ligne ni contour.
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 14),
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(AppRadii.xl),
+        child: ColoredBox(
+          color: AppColors.surfaceSolid,
+          child: LayoutBuilder(
+            builder: (context, box) {
+              final photoHeight = box.maxHeight * 0.74;
+              return SingleChildScrollView(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    // Badge "En ligne" (maquette visuelle validée le
-                    // 12/11/2026) : réutilise lastActiveAt déjà écrit par
-                    // recordActivity.ts (répété toutes les 5 minutes,
-                    // auth_controller.dart), calculé côté serveur dans
-                    // getCandidates.ts — jamais un nouveau système de
-                    // présence temps réel.
-                    if (candidate.isOnline)
-                      Container(
-                        margin: const EdgeInsets.only(right: 8),
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 10,
-                          vertical: 5,
-                        ),
-                        decoration: BoxDecoration(
-                          color: Colors.black.withValues(alpha: 0.55),
-                          borderRadius: BorderRadius.circular(AppRadii.sm),
-                        ),
-                        child: Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            Container(
-                              width: 8,
-                              height: 8,
-                              decoration: const BoxDecoration(
-                                color: AppColors.online,
-                                shape: BoxShape.circle,
+                    SizedBox(
+                      height: photoHeight,
+                      width: double.infinity,
+                      child: Stack(
+                        fit: StackFit.expand,
+                        children: [
+                          ColoredBox(
+                            color: AppColors.placeholder,
+                            child: photoUrl != null
+                                ? Image.network(photoUrl!, fit: BoxFit.cover)
+                                : Icon(Icons.person_outline, size: 56, color: AppColors.placeholderIcon),
+                          ),
+                          // Voile bas : garantit la lisibilité du texte blanc
+                          // quelle que soit la photo.
+                          const Positioned(
+                            left: 0,
+                            right: 0,
+                            bottom: 0,
+                            height: 190,
+                            child: DecoratedBox(
+                              decoration: BoxDecoration(
+                                gradient: LinearGradient(
+                                  begin: Alignment.topCenter,
+                                  end: Alignment.bottomCenter,
+                                  colors: [Color(0x00000000), Color(0xB3000000)],
+                                ),
                               ),
                             ),
-                            const SizedBox(width: 6),
-                            Text(
-                              context.l10n.onlineBadgeLabel,
-                              style: const TextStyle(
-                                color: Colors.white,
-                                fontSize: 11,
-                                fontWeight: FontWeight.w600,
-                              ),
+                          ),
+                          Positioned(
+                            top: 12,
+                            left: 12,
+                            right: 12,
+                            child: Row(
+                              children: [
+                                // Badge "En ligne" : réutilise lastActiveAt
+                                // déjà écrit par recordActivity.ts, calculé
+                                // côté serveur dans getCandidates.ts — jamais
+                                // un nouveau système de présence temps réel.
+                                if (candidate.isOnline)
+                                  Container(
+                                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                                    decoration: BoxDecoration(
+                                      color: Colors.black.withValues(alpha: 0.5),
+                                      borderRadius: BorderRadius.circular(AppRadii.sm),
+                                    ),
+                                    child: Row(
+                                      mainAxisSize: MainAxisSize.min,
+                                      children: [
+                                        Container(
+                                          width: 8,
+                                          height: 8,
+                                          decoration: const BoxDecoration(color: AppColors.online, shape: BoxShape.circle),
+                                        ),
+                                        const SizedBox(width: 6),
+                                        Text(
+                                          context.l10n.onlineBadgeLabel,
+                                          style: const TextStyle(color: Colors.white, fontSize: 11, fontWeight: FontWeight.w600),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                const Spacer(),
+                                Material(
+                                  color: Colors.black.withValues(alpha: 0.4),
+                                  shape: const CircleBorder(),
+                                  child: PopupMenuButton<void>(
+                                    icon: const Icon(Icons.more_vert, color: Colors.white),
+                                    onSelected: (_) {},
+                                    itemBuilder: (menuContext) => [
+                                      PopupMenuItem<void>(
+                                        onTap: () => showBlockProfileSheet(
+                                          context,
+                                          ref,
+                                          targetUid: candidate.uid,
+                                          displayName: candidate.displayName,
+                                          onBlocked: () => ref
+                                              .read(decouvrirControllerProvider.notifier)
+                                              .removeCandidate(candidate.uid),
+                                        ),
+                                        child: Text(context.l10n.blockProfileAction),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ],
                             ),
-                          ],
-                        ),
-                      ),
-                    Material(
-                      color: Colors.black.withValues(alpha: 0.35),
-                      shape: const CircleBorder(),
-                      child: PopupMenuButton<void>(
-                        icon: const Icon(Icons.more_vert, color: Colors.white),
-                        onSelected: (_) {},
-                        itemBuilder: (menuContext) => [
-                          PopupMenuItem<void>(
-                            onTap: () => showBlockProfileSheet(
-                              context,
-                              ref,
-                              targetUid: candidate.uid,
-                              displayName: candidate.displayName,
-                              onBlocked: () => ref
-                                  .read(decouvrirControllerProvider.notifier)
-                                  .removeCandidate(candidate.uid),
+                          ),
+                          Positioned(
+                            left: 18,
+                            right: 18,
+                            bottom: 16,
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                if (compatScore != null)
+                                  Container(
+                                    margin: const EdgeInsets.only(bottom: 8),
+                                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                                    decoration: BoxDecoration(
+                                      color: AppColors.accent,
+                                      borderRadius: BorderRadius.circular(AppRadii.sm),
+                                    ),
+                                    child: Text(
+                                      context.l10n.compatScoreBadge(compatScore!),
+                                      style: const TextStyle(fontSize: 12, color: AppColors.noirProfond, fontWeight: FontWeight.w700),
+                                    ),
+                                  ),
+                                Row(
+                                  children: [
+                                    Flexible(
+                                      child: Text(
+                                        '${candidate.displayName}, ${candidate.age}',
+                                        style: const TextStyle(
+                                          fontSize: 28,
+                                          fontWeight: FontWeight.w800,
+                                          letterSpacing: -0.5,
+                                          color: Colors.white,
+                                        ),
+                                        overflow: TextOverflow.ellipsis,
+                                      ),
+                                    ),
+                                    if (candidate.isVerified) ...[
+                                      const SizedBox(width: 8),
+                                      const Icon(Icons.verified, color: AppColors.orAntique, size: 22),
+                                    ],
+                                  ],
+                                ),
+                                const SizedBox(height: 2),
+                                Text(
+                                  candidate.distanceKm != null
+                                      ? context.l10n.cityCountryWithDistance(candidate.city, candidate.country, candidate.distanceKm!)
+                                      : context.l10n.cityCountry(candidate.city, candidate.country),
+                                  style: const TextStyle(color: Colors.white, fontSize: 14, fontWeight: FontWeight.w500),
+                                ),
+                              ],
                             ),
-                            child: Text(context.l10n.blockProfileAction),
                           ),
                         ],
                       ),
                     ),
+                    Padding(
+                      padding: const EdgeInsets.all(18),
+                      child: ProfileFactSheet(
+                        bio: candidate.bio,
+                        interests: candidate.interests,
+                        age: candidate.age,
+                        heightCm: candidate.heightCm,
+                        educationLevel: candidate.educationLevel,
+                        profession: candidate.profession,
+                        relationshipIntent: candidate.relationshipIntent,
+                        childrenStatus: candidate.childrenStatus,
+                        smokingHabit: candidate.smokingHabit,
+                        drinkingHabit: candidate.drinkingHabit,
+                      ),
+                    ),
                   ],
                 ),
-              ),
-            ],
+              );
+            },
           ),
-          Padding(
-            padding: const EdgeInsets.all(18),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
-                  children: [
-                    Flexible(
-                      child: Text(
-                        '${candidate.displayName}, ${candidate.age}',
-                        style: TextStyle(
-                          fontSize: 22,
-                          fontWeight: FontWeight.bold,
-                          color: AppColors.ink,
-                        ),
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                    ),
-                    if (candidate.isVerified) ...[
-                      const SizedBox(width: 6),
-                      Icon(
-                        Icons.verified,
-                        color: AppColors.accent,
-                        size: 19,
-                      ),
-                    ],
-                    const Spacer(),
-                    if (compatScore != null)
-                      Container(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 10,
-                          vertical: 5,
-                        ),
-                        decoration: BoxDecoration(
-                          color: AppColors.accent,
-                          borderRadius: BorderRadius.circular(AppRadii.sm),
-                        ),
-                        child: Text(
-                          context.l10n.compatScoreBadge(compatScore!),
-                          style: const TextStyle(
-                            fontSize: 12,
-                            color: AppColors.noirProfond,
-                            fontWeight: FontWeight.w700,
-                          ),
-                        ),
-                      ),
-                  ],
-                ),
-                const SizedBox(height: 4),
-                Row(
-                  children: [
-                    Icon(
-                      Icons.place_outlined,
-                      size: 15,
-                      color: AppColors.muted,
-                    ),
-                    const SizedBox(width: 4),
-                    Text(
-                      candidate.distanceKm != null
-                          ? context.l10n.cityCountryWithDistance(
-                              candidate.city,
-                              candidate.country,
-                              candidate.distanceKm!,
-                            )
-                          : context.l10n.cityCountry(
-                              candidate.city,
-                              candidate.country,
-                            ),
-                      style: TextStyle(
-                        color: AppColors.muted,
-                        fontSize: 13,
-                      ),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 18),
-                ProfileFactSheet(
-                  bio: candidate.bio,
-                  interests: candidate.interests,
-                  age: candidate.age,
-                  heightCm: candidate.heightCm,
-                  educationLevel: candidate.educationLevel,
-                  profession: candidate.profession,
-                  relationshipIntent: candidate.relationshipIntent,
-                  childrenStatus: candidate.childrenStatus,
-                  smokingHabit: candidate.smokingHabit,
-                  drinkingHabit: candidate.drinkingHabit,
-                ),
-              ],
-            ),
-          ),
-        ],
+        ),
       ),
     );
   }

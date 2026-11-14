@@ -1125,6 +1125,77 @@ class AppLocalizationsFr extends AppLocalizations {
   String get createPostTooltip => 'Nouvelle publication';
 
   @override
+  String get messageSendFailed => 'Message non envoyé. Réessaie.';
+
+  @override
+  String get messageRateLimited =>
+      'Tu envoies trop de messages à la suite. Patiente un instant.';
+
+  @override
+  String get consentTitle => 'Avant de commencer, ton accord';
+
+  @override
+  String get consentIntro =>
+      'Pour te proposer des rencontres, MERUT traite des informations que la loi (RGPD, article 9) considère comme sensibles. Nous avons besoin de ton accord explicite, séparé des conditions d\'utilisation.';
+
+  @override
+  String get consentItemOrientation =>
+      'Ton genre et les genres que tu recherches : ils laissent deviner ton orientation sexuelle.';
+
+  @override
+  String get consentItemCulture =>
+      'Ton appartenance à la communauté kamite : elle peut révéler une origine ou des convictions.';
+
+  @override
+  String get consentItemPhotos =>
+      'Tes photos, analysées automatiquement pour vérifier qu\'un visage est présent et que le contenu est adapté, puis vues par un modérateur si besoin. Aucune reconnaissance faciale n\'est faite.';
+
+  @override
+  String get consentWithdrawNote =>
+      'Tu peux retirer ton accord à tout moment depuis Paramètres : ton profil disparaît alors de la découverte. Tu peux aussi supprimer ton compte et toutes tes données.';
+
+  @override
+  String get consentReadPrivacy => 'Lire la politique de confidentialité';
+
+  @override
+  String get consentCheckbox =>
+      'Je donne mon accord explicite au traitement de ces données sensibles par MERUT, comme décrit ci-dessus.';
+
+  @override
+  String get consentContinue => 'Continuer';
+
+  @override
+  String get consentRefuseDelete => 'Je refuse et je supprime mon compte';
+
+  @override
+  String get consentSaveFailed =>
+      'Impossible d\'enregistrer ton choix. Réessaie.';
+
+  @override
+  String get consentSettingsRow => 'Consentement aux données sensibles';
+
+  @override
+  String get consentSettingsRowSubtitle =>
+      'Retirer mon accord au traitement de mon orientation et de mon appartenance';
+
+  @override
+  String get consentWithdrawConfirmTitle => 'Retirer ton accord ?';
+
+  @override
+  String get consentWithdrawConfirmBody =>
+      'Ton profil disparaîtra de la découverte et tu ne pourras plus utiliser MERUT tant que tu n\'auras pas redonné ton accord. Tes données ne sont pas supprimées : pour cela, utilise « Supprimer mon compte ».';
+
+  @override
+  String get consentWithdrawButton => 'Retirer mon accord';
+
+  @override
+  String get reportFailed => 'Signalement non envoyé. Réessaie.';
+
+  @override
+  String get reportRateLimited =>
+      'Tu as fait beaucoup de signalements récemment. Réessaie plus tard.';
+
+  @override
   String get messageTimeYesterday => 'hier';
 
   @override
@@ -1744,19 +1815,6 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get wizardPhotosTitle => 'Ajoute tes photos';
-
-  @override
-  String get confirmAdultDialogTitle => 'Confirmation d\'âge';
-
-  @override
-  String get confirmAdultDialogBody =>
-      'MERUT est réservé aux personnes de 18 ans et plus. Confirmes-tu avoir 18 ans ou plus ?';
-
-  @override
-  String get confirmAdultDialogDecline => 'Non, annuler';
-
-  @override
-  String get confirmAdultDialogAccept => 'Oui, je confirme';
 
   @override
   String get discoverSubtitle => 'Des âmes kamites qui partagent tes valeurs.';

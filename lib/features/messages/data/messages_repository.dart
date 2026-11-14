@@ -7,11 +7,11 @@ import 'package:uuid/uuid.dart';
 
 import '../domain/message.dart';
 
-/// La messagerie elle-même (envoi, lecture, blocage) passe en écriture
-/// directe Firestore — les règles de sécurité garantissent déjà
-/// l'appartenance au match et l'absence de blocage
-/// (docs/regles-messagerie-securite.md). Seul le signalement, qui doit
-/// rester anonyme pour la personne signalée, passe par une Cloud Function.
+/// Lecture et blocage passent en accès direct Firestore (les règles de
+/// sécurité garantissent l'appartenance au match et l'absence de blocage,
+/// docs/regles-messagerie-securite.md). L'ENVOI des messages et le
+/// signalement passent par des Cloud Functions : limite de fréquence côté
+/// serveur pour l'un, anonymat de la personne signalée pour l'autre.
 class MessagesRepository {
   MessagesRepository(this._firestore, this._functions, this._storage);
 
@@ -73,28 +73,34 @@ class MessagesRepository {
         .map((snap) => snap.docs.isEmpty ? null : ChatMessage.fromDoc(snap.docs.first));
   }
 
-  Future<void> sendMessage(String matchId, String fromUid, String text) {
-    return _firestore.collection('matches').doc(matchId).collection('messages').add({
-      'fromUid': fromUid,
-      'text': text,
-      'createdAt': FieldValue.serverTimestamp(),
-      'readBy': [fromUid],
-    });
+  Future<void> sendMessage(String matchId, String text) {
+    return _functions.httpsCallable('sendMessage').call({'matchId': matchId, 'text': text});
   }
 
   /// Photo envoyée en conversation : floutée par défaut côté affichage
   /// tant qu'elle n'a pas été révélée (chat_screen.dart) —
-  /// docs/regles-messagerie-securite.md section 2.
-  Future<void> sendImageMessage(String matchId, String fromUid, File file) async {
+  /// docs/regles-messagerie-securite.md section 2. Le fichier est déposé
+  /// dans Storage, puis `sendMessage` crée le message qui le référence.
+  Future<void> sendImageMessage(String matchId, String uid, File file) async {
     final storagePath = 'chat_photos/$matchId/${const Uuid().v4()}.jpg';
-    await _storage.ref(storagePath).putFile(file);
-    await _firestore.collection('matches').doc(matchId).collection('messages').add({
-      'fromUid': fromUid,
-      'text': '',
-      'imageStoragePath': storagePath,
-      'createdAt': FieldValue.serverTimestamp(),
-      'readBy': [fromUid],
-    });
+    final ref = _storage.ref(storagePath);
+    await ref.putFile(
+      file,
+      SettableMetadata(contentType: 'image/jpeg', customMetadata: {'uploaderUid': uid}),
+    );
+    try {
+      await _functions.httpsCallable('sendMessage').call({
+        'matchId': matchId,
+        'imageStoragePath': storagePath,
+      });
+    } catch (_) {
+      // Envoi refusé (limite, blocage, réseau) : la photo n'a jamais été
+      // publiée, on la retire pour ne pas la laisser orpheline dans Storage.
+      try {
+        await ref.delete();
+      } catch (_) {}
+      rethrow;
+    }
   }
 
   Future<String> getImageDownloadUrl(String storagePath) {

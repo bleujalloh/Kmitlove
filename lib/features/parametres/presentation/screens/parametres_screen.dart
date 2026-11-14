@@ -106,6 +106,34 @@ class _ParametresScreenState extends ConsumerState<ParametresScreen> {
     }
   }
 
+  /// Retrait du consentement (art. 7.3 : aussi simple que de le donner) :
+  /// le profil disparaît de la découverte et l'app redemande le consentement.
+  Future<void> _confirmWithdrawConsent() async {
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (dialogContext) => AlertDialog(
+        title: Text(context.l10n.consentWithdrawConfirmTitle),
+        content: Text(context.l10n.consentWithdrawConfirmBody),
+        actions: [
+          TextButton(onPressed: () => Navigator.of(dialogContext).pop(false), child: Text(context.l10n.cancelButton)),
+          TextButton(
+            onPressed: () => Navigator.of(dialogContext).pop(true),
+            child: Text(context.l10n.consentWithdrawButton),
+          ),
+        ],
+      ),
+    );
+    if (confirmed != true) return;
+    try {
+      await ref.read(settingsControllerProvider).setSensitiveConsent(false);
+      if (mounted) Navigator.of(context).popUntil((r) => r.isFirst);
+    } catch (_) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(context.l10n.consentSaveFailed)));
+      }
+    }
+  }
+
   Future<void> _pickLanguage() async {
     final current = ref.read(localeControllerProvider);
     final choice = await showDialog<String>(
@@ -339,6 +367,13 @@ class _ParametresScreenState extends ConsumerState<ParametresScreen> {
               subtitle: Text(context.l10n.gdprPortabilityRight),
               trailing: const Icon(Icons.chevron_right),
               onTap: _exporting ? null : _exportData,
+            ),
+            ListTile(
+              leading: const Icon(Icons.privacy_tip_outlined),
+              title: Text(context.l10n.consentSettingsRow),
+              subtitle: Text(context.l10n.consentSettingsRowSubtitle),
+              trailing: const Icon(Icons.chevron_right),
+              onTap: _confirmWithdrawConsent,
             ),
             ListTile(
               leading: const Icon(Icons.logout),

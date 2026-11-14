@@ -2,6 +2,7 @@ import { onCall, HttpsError } from "firebase-functions/v2/https";
 import { getFirestore, FieldValue } from "firebase-admin/firestore";
 
 import { REGION, EVENT_STATES } from "../config";
+import { ENFORCE_APP_CHECK } from "../shared/appCheck";
 import { requireApprovedOrganizer } from "../shared/requireApprovedOrganizer";
 
 // Sous-ensemble de EVENT_STATES que l'organisateur peut déclencher
@@ -21,7 +22,7 @@ interface UpdateData {
  * Communauté section 8) — jamais "complet", qui se déduit toujours de
  * participantsCount/capacity (espace organisateur, pas un champ libre).
  */
-export const updateEventState = onCall({ region: REGION }, async (request) => {
+export const updateEventState = onCall({ region: REGION, enforceAppCheck: ENFORCE_APP_CHECK }, async (request) => {
   if (!request.auth) {
     throw new HttpsError("unauthenticated", "Connexion requise.");
   }

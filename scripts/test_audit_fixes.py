@@ -48,6 +48,10 @@ def plain(v):
     if k == "mapValue": return {kk: plain(vv) for kk, vv in val.get("fields", {}).items()}
     return val
 
+# saveProfil exige désormais le consentement RGPD art. 9 (14/11/2026) :
+# Awa le donne avant les tests (compte de test, aucun effet sur un vrai membre).
+call("recordSensitiveConsent", {"granted": True, "version": 1})
+
 # --- profil d'Awa tel qu'il est en base (pour rejouer un enregistrement identique)
 s, doc = admin("GET", f"users/{AWA}")
 profile = {k: plain(v) for k, v in doc["fields"].items()}

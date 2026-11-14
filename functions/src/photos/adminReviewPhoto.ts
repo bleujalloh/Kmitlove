@@ -2,12 +2,13 @@ import { onCall, HttpsError } from "firebase-functions/v2/https";
 import { getFirestore, FieldValue } from "firebase-admin/firestore";
 
 import { REGION } from "../config";
+import { ENFORCE_APP_CHECK } from "../shared/appCheck";
 import { requireAdmin } from "../shared/requireAdmin";
 import { logAdminAction } from "../shared/adminLog";
 import { analyzePhotoContent } from "../shared/photoModeration";
 
 /** Photos en attente de validation (docs/regles-messagerie-securite.md section 1). */
-export const adminListPendingPhotos = onCall({ region: REGION }, async (request) => {
+export const adminListPendingPhotos = onCall({ region: REGION, enforceAppCheck: ENFORCE_APP_CHECK }, async (request) => {
   requireAdmin(request);
   const db = getFirestore();
   const snap = await db
@@ -31,7 +32,7 @@ interface ReviewData {
   approve: boolean;
 }
 
-export const adminReviewPhoto = onCall({ region: REGION }, async (request) => {
+export const adminReviewPhoto = onCall({ region: REGION, enforceAppCheck: ENFORCE_APP_CHECK }, async (request) => {
   const adminUid = requireAdmin(request);
   const { userId, photoId, approve } = request.data as ReviewData;
   if (!userId || !photoId) {

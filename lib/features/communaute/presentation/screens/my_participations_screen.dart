@@ -41,7 +41,7 @@ class MyParticipationsScreen extends ConsumerWidget {
           return ListView.separated(
             padding: const EdgeInsets.all(20),
             itemCount: participations.length,
-            separatorBuilder: (_, _) => Divider(height: 1, color: AppColors.border),
+            separatorBuilder: (_, _) => const SizedBox(height: 6),
             itemBuilder: (context, i) => _ParticipationTile(participation: participations[i]),
           );
         },

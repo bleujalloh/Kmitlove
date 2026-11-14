@@ -3,6 +3,7 @@ import { getFirestore, FieldValue } from "firebase-admin/firestore";
 import type { DocumentSnapshot } from "firebase-admin/firestore";
 
 import { REGION } from "../config";
+import { ENFORCE_APP_CHECK } from "../shared/appCheck";
 
 interface EmergencyData {
   eventPostId?: string;
@@ -22,7 +23,7 @@ function otherMember(snap: DocumentSnapshot | null | undefined, uid: string): st
  * plus récent disponible pour qu'elle puisse agir vite sans dépendre
  * uniquement de ce que le membre a eu le temps de taper.
  */
-export const triggerEmergencyAlert = onCall({ region: REGION }, async (request) => {
+export const triggerEmergencyAlert = onCall({ region: REGION, enforceAppCheck: ENFORCE_APP_CHECK }, async (request) => {
   if (!request.auth) {
     throw new HttpsError("unauthenticated", "Connexion requise.");
   }

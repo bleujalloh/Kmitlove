@@ -1,11 +1,13 @@
 import { onCall, HttpsError } from "firebase-functions/v2/https";
 import { getFirestore, FieldValue } from "firebase-admin/firestore";
 
-import { REGION } from "../config";
+import { REGION, REPORT_RATE_LIMITS, MAX_REPORT_DETAILS } from "../config";
+import { ENFORCE_APP_CHECK } from "../shared/appCheck";
 import { REPORT_REASONS, HIGH_SEVERITY_REASONS } from "../shared/reportReasons";
+import { enforceRateLimit } from "../shared/rateLimit";
 
 /** Signalement d'une publication/annonce/événement (section 4.7 + 4.8). */
-export const reportCommunityPost = onCall({ region: REGION }, async (request) => {
+export const reportCommunityPost = onCall({ region: REGION, enforceAppCheck: ENFORCE_APP_CHECK }, async (request) => {
   if (!request.auth) {
     throw new HttpsError("unauthenticated", "Connexion requise.");
   }
@@ -16,7 +18,13 @@ export const reportCommunityPost = onCall({ region: REGION }, async (request) =>
     details?: string;
     replyId?: string;
   };
-  if (!postId || !REPORT_REASONS.includes(reason as (typeof REPORT_REASONS)[number])) {
+  if (
+    typeof postId !== "string" ||
+    !postId ||
+    !REPORT_REASONS.includes(reason as (typeof REPORT_REASONS)[number]) ||
+    (details !== undefined && details !== null && (typeof details !== "string" || details.length > MAX_REPORT_DETAILS)) ||
+    (replyId !== undefined && replyId !== null && typeof replyId !== "string")
+  ) {
     throw new HttpsError("invalid-argument", "Motif de signalement invalide.");
   }
 
@@ -36,6 +44,10 @@ export const reportCommunityPost = onCall({ region: REGION }, async (request) =>
     }
     targetUid = replySnap.data()?.authorUid as string | undefined;
   }
+
+  // La limite de fréquence passe APRÈS les validations : un appel refusé
+  // (réponse introuvable, champ invalide) ne consomme aucun quota.
+  await enforceRateLimit(uid, REPORT_RATE_LIMITS);
 
   const targetStatusSnap = targetUid ? await db.collection("user_status").doc(targetUid).get() : null;
   const alreadyPriority = targetStatusSnap?.data()?.priorityReview === true;

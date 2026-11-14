@@ -37,7 +37,7 @@ class BlockedProfilesScreen extends ConsumerWidget {
           }
           return ListView.separated(
             itemCount: blocks.length,
-            separatorBuilder: (_, _) => Divider(height: 1, color: AppColors.border),
+            separatorBuilder: (_, _) => const SizedBox(height: 6),
             itemBuilder: (context, i) {
               final b = blocks[i];
               return ListTile(

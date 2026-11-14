@@ -2,6 +2,8 @@ import { onCall, HttpsError } from "firebase-functions/v2/https";
 import { getFirestore, FieldValue } from "firebase-admin/firestore";
 
 import { REGION } from "../config";
+import { requireConsent } from "../shared/consent";
+import { ENFORCE_APP_CHECK } from "../shared/appCheck";
 import { computeAge } from "../shared/age";
 import { GENDERS } from "../shared/genders";
 import { VALID_COUNTRY_NAMES } from "../shared/validCountries";
@@ -142,7 +144,7 @@ function capitalizeFirstLetter(value: string): string {
  * vie, qualités) et l'âge minimum soient réellement appliqués côté
  * serveur, pas seulement proposés par les écrans Flutter.
  */
-export const saveProfil = onCall({ region: REGION }, async (request) => {
+export const saveProfil = onCall({ region: REGION, enforceAppCheck: ENFORCE_APP_CHECK }, async (request) => {
   if (!request.auth) {
     throw new HttpsError("unauthenticated", "Connexion requise.");
   }
@@ -183,6 +185,9 @@ export const saveProfil = onCall({ region: REGION }, async (request) => {
   if (existingBirthDate && existingBirthDate.slice(0, 10) !== birthDate.slice(0, 10)) {
     throw new HttpsError("failed-precondition", "birthdate-locked : la date de naissance ne peut plus être modifiée.");
   }
+  // Aucune donnée sensible (genre recherché = orientation, RGPD art. 9) n'est
+  // enregistrée sans consentement explicite valide (account/sensitiveConsent.ts).
+  requireConsent(existingStatusSnap.data());
   const seekingGenders = closedList(data.seekingGenders, "seekingGenders", GENDERS);
   if (seekingGenders.length === 0) invalid("seekingGenders");
 

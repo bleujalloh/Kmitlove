@@ -4,6 +4,7 @@ import { getStorage } from "firebase-admin/storage";
 import * as logger from "firebase-functions/logger";
 
 import { REGION } from "../config";
+import { ENFORCE_APP_CHECK } from "../shared/appCheck";
 import { requireAdmin } from "../shared/requireAdmin";
 import { computeSanctionUpdate } from "../shared/sanctions";
 import type { SanctionAction } from "../shared/sanctions";
@@ -18,7 +19,7 @@ import { logAdminAction } from "../shared/adminLog";
  * à la création (y compris filtrage_review) : un orderBy Firestore exclut
  * silencieusement les documents qui n'ont pas le champ trié.
  */
-export const adminListModerationRequests = onCall({ region: REGION }, async (request) => {
+export const adminListModerationRequests = onCall({ region: REGION, enforceAppCheck: ENFORCE_APP_CHECK }, async (request) => {
   requireAdmin(request);
   const db = getFirestore();
   const snap = await db
@@ -86,7 +87,7 @@ interface ResolveOutcome {
  * écriture (tx.set/update), même piège déjà corrigé dans
  * decouvrir/recordSwipe.ts — Firestore refuse l'inverse.
  */
-export const adminResolveModerationRequest = onCall({ region: REGION }, async (request) => {
+export const adminResolveModerationRequest = onCall({ region: REGION, enforceAppCheck: ENFORCE_APP_CHECK }, async (request) => {
   const adminUid = requireAdmin(request);
   const { requestId, action } = request.data as ResolveData;
   const validActions: ResolveAction[] = ["dismiss", "warn", "suspend", "ban", "handled"];

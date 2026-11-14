@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../../core/theme/app_theme.dart';
+import '../../../../core/widgets/image_viewer.dart';
 import '../../../../l10n/l10n_extensions.dart';
 import '../../domain/profil_photo.dart';
 import '../photo_controller.dart';
@@ -97,22 +98,16 @@ class _PhotoViewerScreenState extends ConsumerState<PhotoViewerScreen> {
       body: Column(
         children: [
           Expanded(
-            child: PageView.builder(
+            child: ZoomPager(
               controller: _controller,
               itemCount: widget.photos.length,
               onPageChanged: (i) => setState(() => _index = i),
               itemBuilder: (context, i) {
                 final url = ref.watch(photoDownloadUrlProvider(widget.photos[i].storagePath));
                 return url.when(
-                  loading: () => const Center(child: CircularProgressIndicator()),
-                  error: (e, st) => Center(
-                    child: Text(context.l10n.photosLoadFailed, style: const TextStyle(color: Colors.white)),
-                  ),
-                  data: (u) => InteractiveViewer(
-                    minScale: 1,
-                    maxScale: 4,
-                    child: Center(child: Image.network(u, fit: BoxFit.contain)),
-                  ),
+                  loading: () => const CircularProgressIndicator(),
+                  error: (e, st) => Text(context.l10n.photosLoadFailed, style: const TextStyle(color: Colors.white)),
+                  data: (u) => Image.network(u, fit: BoxFit.contain),
                 );
               },
             ),

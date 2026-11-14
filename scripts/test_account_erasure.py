@@ -124,8 +124,7 @@ finally:
                 admin("DELETE", f"community_posts/{post_id}/{coll}/" + d["name"].split("/")[-1])
         admin("DELETE", f"community_posts/{post_id}")
     admin("DELETE", f"device_signals/{DEVICE}")
-    admin("PATCH", f"user_status/{AMARA}?updateMask.fieldPaths=communityReplyCount&updateMask.fieldPaths=communityReplyWindowStart",
-          {"fields": {"communityReplyCount": {"integerValue": "0"}, "communityReplyWindowStart": {"nullValue": None}}})
+    admin("DELETE", f"rate_limits/{AMARA}_reply_hour")
 bad = results.count(False)
 print(f"\n{len(results) - bad}/{len(results)} vérifications réussies")
 sys.exit(1 if bad else 0)

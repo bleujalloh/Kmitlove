@@ -107,16 +107,9 @@ class _SignInScreenState extends ConsumerState<SignInScreen> {
                         : Text(context.l10n.signIn),
                   ),
                   const SizedBox(height: 18),
-                  Row(
-                    children: [
-                      Expanded(child: Divider(color: AppColors.border)),
-                      Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 10),
-                        child: Text(context.l10n.orSeparator,
-                            style: TextStyle(color: AppColors.muted, fontSize: 12)),
-                      ),
-                      Expanded(child: Divider(color: AppColors.border)),
-                    ],
+                  Center(
+                    child: Text(context.l10n.orSeparator,
+                        style: TextStyle(color: AppColors.muted, fontSize: 12)),
                   ),
                   const SizedBox(height: 18),
                   OutlinedButton.icon(

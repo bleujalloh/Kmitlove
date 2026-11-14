@@ -3,6 +3,7 @@ import { defineSecret } from "firebase-functions/params";
 import { getFirestore, FieldValue } from "firebase-admin/firestore";
 
 import { REGION, PREMIUM_SUBSCRIPTION_PRODUCT_ID, JETON_PACK_PRODUCTS } from "../config";
+import { ENFORCE_APP_CHECK } from "../shared/appCheck";
 
 /**
  * Infrastructure PayPal — même logique et même réserve que Stripe (voir
@@ -50,7 +51,7 @@ interface CreateOrderData {
 
 /** Crée une commande PayPal — pensée pour un usage web, pas encore branchée à un bouton app. */
 export const createPaypalOrder = onCall(
-  { region: REGION, secrets: [paypalClientId, paypalClientSecret] },
+  { region: REGION, enforceAppCheck: ENFORCE_APP_CHECK, secrets: [paypalClientId, paypalClientSecret] },
   async (request) => {
     if (!request.auth) {
       throw new HttpsError("unauthenticated", "Connexion requise.");
@@ -102,7 +103,7 @@ interface CaptureOrderData {
  * Google Play/Stripe (une commande ne peut être créditée qu'une fois).
  */
 export const capturePaypalOrder = onCall(
-  { region: REGION, secrets: [paypalClientId, paypalClientSecret] },
+  { region: REGION, enforceAppCheck: ENFORCE_APP_CHECK, secrets: [paypalClientId, paypalClientSecret] },
   async (request) => {
     if (!request.auth) {
       throw new HttpsError("unauthenticated", "Connexion requise.");

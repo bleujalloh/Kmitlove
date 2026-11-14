@@ -2,6 +2,7 @@ import { onCall, HttpsError } from "firebase-functions/v2/https";
 import { getFirestore } from "firebase-admin/firestore";
 
 import { REGION } from "../config";
+import { ENFORCE_APP_CHECK } from "../shared/appCheck";
 
 /**
  * Récupère le code de partage privé d'un événement "sur invitation"
@@ -9,7 +10,7 @@ import { REGION } from "../config";
  * rendre l'événement public). Réservé à l'organisateur, jamais exposé
  * sur le document public (règlement permanent section 6).
  */
-export const getEventShareCode = onCall({ region: REGION }, async (request) => {
+export const getEventShareCode = onCall({ region: REGION, enforceAppCheck: ENFORCE_APP_CHECK }, async (request) => {
   if (!request.auth) {
     throw new HttpsError("unauthenticated", "Connexion requise.");
   }

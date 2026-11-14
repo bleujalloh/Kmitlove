@@ -2,11 +2,12 @@ import { onCall, HttpsError } from "firebase-functions/v2/https";
 import { getFirestore, FieldValue } from "firebase-admin/firestore";
 
 import { REGION } from "../config";
+import { ENFORCE_APP_CHECK } from "../shared/appCheck";
 import { requireAdmin } from "../shared/requireAdmin";
 import { logAdminAction } from "../shared/adminLog";
 
 /** Liste les annonces/événements en attente de revue (section 4.7/6). */
-export const adminListPendingCommunityPosts = onCall({ region: REGION }, async (request) => {
+export const adminListPendingCommunityPosts = onCall({ region: REGION, enforceAppCheck: ENFORCE_APP_CHECK }, async (request) => {
   requireAdmin(request);
   const db = getFirestore();
   const snap = await db
@@ -27,7 +28,7 @@ interface ReviewData {
  * Valide ou refuse une publication en attente (docs/regles-annonces-evenements.md
  * section 3 : revue humaine obligatoire pour tout événement physique).
  */
-export const adminReviewCommunityPost = onCall({ region: REGION }, async (request) => {
+export const adminReviewCommunityPost = onCall({ region: REGION, enforceAppCheck: ENFORCE_APP_CHECK }, async (request) => {
   const adminUid = requireAdmin(request);
   const { postId, approve } = request.data as ReviewData;
   if (!postId) {

@@ -2,13 +2,14 @@ import { onCall, HttpsError } from "firebase-functions/v2/https";
 import { getFirestore, FieldValue } from "firebase-admin/firestore";
 
 import { REGION } from "../config";
+import { ENFORCE_APP_CHECK } from "../shared/appCheck";
 
 /**
  * Droit de recours après un échec au filtrage (docs/regles-du-projet.md
  * section 1) : crée une demande visible par un modérateur dans l'espace
  * admin, sans attendre le délai de nouvel essai.
  */
-export const requestFiltrageReview = onCall({ region: REGION }, async (request) => {
+export const requestFiltrageReview = onCall({ region: REGION, enforceAppCheck: ENFORCE_APP_CHECK }, async (request) => {
   if (!request.auth) {
     throw new HttpsError("unauthenticated", "Connexion requise.");
   }

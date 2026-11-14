@@ -2,6 +2,7 @@ import { onCall, HttpsError } from "firebase-functions/v2/https";
 import { getFirestore, FieldValue, Timestamp } from "firebase-admin/firestore";
 
 import { REGION, FILTRAGE_PASS_THRESHOLD, FILTRAGE_RETRY_DELAY_DAYS } from "../config";
+import { ENFORCE_APP_CHECK } from "../shared/appCheck";
 import { requireNotSuspended } from "../shared/requireNotSuspended";
 
 interface SubmitData {
@@ -20,7 +21,7 @@ interface SubmitData {
  * rester marquée "soumise" sans jamais recevoir de score, bloquant
  * l'utilisateur sans résultat et sans possibilité de retenter.
  */
-export const submitFiltrageAttempt = onCall({ region: REGION }, async (request) => {
+export const submitFiltrageAttempt = onCall({ region: REGION, enforceAppCheck: ENFORCE_APP_CHECK }, async (request) => {
   if (!request.auth) {
     throw new HttpsError("unauthenticated", "Connexion requise.");
   }

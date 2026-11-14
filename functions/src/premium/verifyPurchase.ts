@@ -4,6 +4,7 @@ import { getFirestore, FieldValue } from "firebase-admin/firestore";
 import { google } from "googleapis";
 
 import { REGION, ANDROID_PACKAGE_NAME, PREMIUM_SUBSCRIPTION_PRODUCT_ID, JETON_PACK_PRODUCTS } from "../config";
+import { ENFORCE_APP_CHECK } from "../shared/appCheck";
 
 /**
  * Clé de compte de service Google Play Console (JSON), à créer dans
@@ -72,7 +73,7 @@ async function verifyAndroidPurchase(productId: string, purchaseToken: string, k
  * créditer un achat iOS sans elle en attendant.
  */
 export const verifyPurchase = onCall(
-  { region: REGION, secrets: [googlePlayServiceAccountJson] },
+  { region: REGION, enforceAppCheck: ENFORCE_APP_CHECK, secrets: [googlePlayServiceAccountJson] },
   async (request) => {
     if (!request.auth) {
       throw new HttpsError("unauthenticated", "Connexion requise.");

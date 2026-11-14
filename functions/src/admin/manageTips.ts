@@ -2,6 +2,7 @@ import { onCall, HttpsError } from "firebase-functions/v2/https";
 import { getFirestore, FieldValue } from "firebase-admin/firestore";
 
 import { REGION } from "../config";
+import { ENFORCE_APP_CHECK } from "../shared/appCheck";
 import { requireAdmin } from "../shared/requireAdmin";
 import { logAdminAction } from "../shared/adminLog";
 
@@ -21,7 +22,7 @@ interface CreateTipData {
  * les membres : il n'y a pas de modération à faire sur du contenu que
  * seul un admin peut créer.
  */
-export const adminCreateTip = onCall({ region: REGION }, async (request) => {
+export const adminCreateTip = onCall({ region: REGION, enforceAppCheck: ENFORCE_APP_CHECK }, async (request) => {
   const adminUid = requireAdmin(request);
   const { title, body, category } = request.data as CreateTipData;
   if (!title?.trim() || !body?.trim()) {
@@ -47,7 +48,7 @@ export const adminCreateTip = onCall({ region: REGION }, async (request) => {
   return { ok: true, tipId: tipRef.id };
 });
 
-export const adminDeleteTip = onCall({ region: REGION }, async (request) => {
+export const adminDeleteTip = onCall({ region: REGION, enforceAppCheck: ENFORCE_APP_CHECK }, async (request) => {
   const adminUid = requireAdmin(request);
   const { tipId } = request.data as { tipId: string };
   if (!tipId) {

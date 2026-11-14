@@ -8,6 +8,7 @@ import {
   COMPAT_SCALE_MIN,
   COMPAT_SCALE_MAX,
 } from "../config";
+import { ENFORCE_APP_CHECK } from "../shared/appCheck";
 
 interface ComputeData {
   targetUid: string;
@@ -19,7 +20,7 @@ interface ComputeData {
  * détaillées des deux membres ne sortent jamais de cette fonction — seul
  * le score arrondi est renvoyé.
  */
-export const computeCompatibility = onCall({ region: REGION }, async (request) => {
+export const computeCompatibility = onCall({ region: REGION, enforceAppCheck: ENFORCE_APP_CHECK }, async (request) => {
   if (!request.auth) {
     throw new HttpsError("unauthenticated", "Connexion requise.");
   }

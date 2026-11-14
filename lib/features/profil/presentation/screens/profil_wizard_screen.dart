@@ -205,7 +205,7 @@ class _ProfilWizardScreenState extends ConsumerState<ProfilWizardScreen> {
                       child: LinearProgressIndicator(
                         value: (_stepIndex + 1) / _steps.length,
                         minHeight: 5,
-                        backgroundColor: AppColors.border,
+                        backgroundColor: AppColors.accentSoft,
                         color: AppColors.accent,
                       ),
                     ),

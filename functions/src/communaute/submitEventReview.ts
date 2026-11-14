@@ -2,6 +2,7 @@ import { onCall, HttpsError } from "firebase-functions/v2/https";
 import { getFirestore, FieldValue } from "firebase-admin/firestore";
 
 import { REGION } from "../config";
+import { ENFORCE_APP_CHECK } from "../shared/appCheck";
 
 const MAX_COMMENT_LENGTH = 500;
 
@@ -16,7 +17,7 @@ interface ReviewData {
  * membres dont la participation a été acceptée par l'organisateur, pour
  * limiter les faux avis ; jamais une simple vérification côté client.
  */
-export const submitEventReview = onCall({ region: REGION }, async (request) => {
+export const submitEventReview = onCall({ region: REGION, enforceAppCheck: ENFORCE_APP_CHECK }, async (request) => {
   if (!request.auth) {
     throw new HttpsError("unauthenticated", "Connexion requise.");
   }

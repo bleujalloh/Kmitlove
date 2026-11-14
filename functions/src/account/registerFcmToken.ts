@@ -2,6 +2,7 @@ import { onCall, HttpsError } from "firebase-functions/v2/https";
 import { getFirestore, FieldValue } from "firebase-admin/firestore";
 
 import { REGION } from "../config";
+import { ENFORCE_APP_CHECK } from "../shared/appCheck";
 
 const MAX_TOKEN_LENGTH = 4096;
 
@@ -14,7 +15,7 @@ const MAX_TOKEN_LENGTH = 4096;
  * Un même compte peut avoir plusieurs appareils, donc un tableau plutôt
  * qu'un champ unique.
  */
-export const registerFcmToken = onCall({ region: REGION }, async (request) => {
+export const registerFcmToken = onCall({ region: REGION, enforceAppCheck: ENFORCE_APP_CHECK }, async (request) => {
   if (!request.auth) {
     throw new HttpsError("unauthenticated", "Connexion requise.");
   }
@@ -36,7 +37,7 @@ export const registerFcmToken = onCall({ region: REGION }, async (request) => {
  * ne plus notifier un appareil où personne n'est plus connecté avec ce
  * compte.
  */
-export const unregisterFcmToken = onCall({ region: REGION }, async (request) => {
+export const unregisterFcmToken = onCall({ region: REGION, enforceAppCheck: ENFORCE_APP_CHECK }, async (request) => {
   if (!request.auth) {
     throw new HttpsError("unauthenticated", "Connexion requise.");
   }

@@ -168,3 +168,42 @@ export const MULTI_ACCOUNT_DEVICE_THRESHOLD = 3;
 // jamais un nouveau système de présence temps réel — un membre actif
 // dans cette fenêtre récente est considéré "en ligne".
 export const ONLINE_THRESHOLD_MINUTES = 10;
+
+// Messagerie : longueur maximale (la même que firestore.rules l'imposait à
+// l'écriture directe) et fréquence autorisée par membre
+// (messagerie/sendMessage.ts, shared/rateLimit.ts) — un usage humain normal
+// reste très en dessous, seul un script ou un abus les atteint.
+export const MESSAGE_MAX_LENGTH = 2000;
+export const MESSAGE_RATE_LIMITS = [
+  { key: "msg_min", limit: 20, windowSeconds: 60 },
+  { key: "msg_day", limit: 600, windowSeconds: 24 * 60 * 60 },
+];
+
+// Signalements (membre ou publication) : un seul quota partagé entre les
+// deux fonctions, pour qu'on ne puisse pas saturer la file de modération en
+// alternant l'une et l'autre.
+// Longueur maximale du texte libre d'un signalement.
+export const MAX_REPORT_DETAILS = 1000;
+export const REPORT_RATE_LIMITS = [
+  { key: "report_hour", limit: 10, windowSeconds: 60 * 60 },
+  { key: "report_day", limit: 30, windowSeconds: 24 * 60 * 60 },
+];
+
+// Consentement explicite au traitement des données sensibles (RGPD art. 9 :
+// orientation déduite de « genre + genres recherchés », appartenance
+// culturelle, photos) — account/sensitiveConsent.ts. À incrémenter quand le
+// texte du consentement change : les membres doivent alors le redonner.
+export const SENSITIVE_CONSENT_VERSION = 1;
+
+// Purge des comptes inactifs (scheduled/purgeInactiveAccounts.ts,
+// docs/rgpd-registre-des-traitements.md §7) : avertissement après
+// INACTIVE_ACCOUNT_WARNING_MONTHS mois sans activité, suppression
+// INACTIVE_ACCOUNT_GRACE_DAYS jours plus tard si le membre n'est pas revenu
+// (donc 24 mois d'inactivité au total environ).
+export const INACTIVE_ACCOUNT_WARNING_MONTHS = 23;
+export const INACTIVE_ACCOUNT_GRACE_DAYS = 30;
+export const INACTIVE_PURGE_MAX_PER_RUN = 25;
+
+// Réponses aux publications du fil (communaute/postInteractions.ts) : même
+// mécanisme que la messagerie et les signalements (shared/rateLimit.ts).
+export const REPLY_RATE_LIMITS = [{ key: "reply_hour", limit: 20, windowSeconds: 60 * 60 }];

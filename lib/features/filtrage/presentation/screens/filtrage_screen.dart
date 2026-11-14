@@ -115,7 +115,7 @@ class _QuestionView extends ConsumerWidget {
                     child: LinearProgressIndicator(
                       value: attempt.progress,
                       minHeight: 6,
-                      backgroundColor: AppColors.border,
+                      backgroundColor: AppColors.accentSoft,
                       color: AppColors.accent,
                     ),
                   ),

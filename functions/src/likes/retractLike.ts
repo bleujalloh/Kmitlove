@@ -2,6 +2,7 @@ import { onCall, HttpsError } from "firebase-functions/v2/https";
 import { getFirestore } from "firebase-admin/firestore";
 
 import { REGION } from "../config";
+import { ENFORCE_APP_CHECK } from "../shared/appCheck";
 
 interface RetractData {
   targetUid: string;
@@ -12,7 +13,7 @@ interface RetractData {
  * si ça n'a pas déjà donné lieu à un match — on ne défait jamais un
  * match déjà créé depuis cette fonction.
  */
-export const retractLike = onCall({ region: REGION }, async (request) => {
+export const retractLike = onCall({ region: REGION, enforceAppCheck: ENFORCE_APP_CHECK }, async (request) => {
   if (!request.auth) {
     throw new HttpsError("unauthenticated", "Connexion requise.");
   }

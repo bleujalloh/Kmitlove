@@ -68,7 +68,7 @@ class MessagesController {
   Future<void> send(String matchId, String text) async {
     final user = ref.read(firebaseAuthProvider).currentUser;
     if (user == null || text.trim().isEmpty) return;
-    await ref.read(messagesRepositoryProvider).sendMessage(matchId, user.uid, text.trim());
+    await ref.read(messagesRepositoryProvider).sendMessage(matchId, text.trim());
   }
 
   Future<void> sendImage(String matchId, File file) async {

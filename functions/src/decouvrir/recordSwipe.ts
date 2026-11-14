@@ -1,7 +1,9 @@
+import { hasValidConsent, requireConsent } from "../shared/consent";
 import { onCall, HttpsError } from "firebase-functions/v2/https";
 import { getFirestore, FieldValue } from "firebase-admin/firestore";
 
 import { REGION, FREE_DAILY_LIKE_LIMIT, SUPER_LIKE_JETON_COST } from "../config";
+import { ENFORCE_APP_CHECK } from "../shared/appCheck";
 import { sendPushToUser } from "../shared/push";
 
 interface SwipeData {
@@ -19,7 +21,7 @@ function todayKey(): string {
  * détection de match toujours côté serveur
  * (docs/regles-complementaires-concurrents.md section 3).
  */
-export const recordSwipe = onCall({ region: REGION }, async (request) => {
+export const recordSwipe = onCall({ region: REGION, enforceAppCheck: ENFORCE_APP_CHECK }, async (request) => {
   if (!request.auth) {
     throw new HttpsError("unauthenticated", "Connexion requise.");
   }
@@ -36,6 +38,7 @@ export const recordSwipe = onCall({ region: REGION }, async (request) => {
   const db = getFirestore();
   const swipeRef = db.collection("swipes").doc(`${uid}_${targetUid}`);
   const statusRef = db.collection("user_status").doc(uid);
+  const targetStatusRef = db.collection("user_status").doc(targetUid);
   const reverseSwipeRef = db.collection("swipes").doc(`${targetUid}_${uid}`);
   const blockRef = db.collection("blocks").doc([uid, targetUid].sort().join("_"));
   const isLikeAction = action === "like" || action === "super_like";
@@ -47,12 +50,21 @@ export const recordSwipe = onCall({ region: REGION }, async (request) => {
     // lecture préalable et la validation de cette transaction aurait pu
     // laisser passer un match malgré un blocage tout juste posé
     // (docs/suivi-developpement.md section du 11/11/2026).
-    const [existingSwipeSnap, statusSnap, reverseSnap, blockSnap] = await Promise.all([
+    const [existingSwipeSnap, statusSnap, reverseSnap, blockSnap, targetStatusSnap] = await Promise.all([
       tx.get(swipeRef),
       tx.get(statusRef),
       tx.get(reverseSwipeRef),
       tx.get(blockRef),
+      tx.get(targetStatusRef),
     ]);
+
+    // Consentement art. 9 (shared/consent.ts) : ni swiper sans l'avoir donné,
+    // ni swiper un membre qui l'a retiré (carte restée affichée sur un autre
+    // téléphone) — jamais de match avec un profil retiré de la découverte.
+    requireConsent(statusSnap.data());
+    if (!hasValidConsent(targetStatusSnap.data())) {
+      throw new HttpsError("failed-precondition", "Ce profil n'est plus disponible.");
+    }
 
     if (blockSnap.exists) {
       throw new HttpsError("permission-denied", "Impossible d'interagir avec ce profil.");

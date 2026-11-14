@@ -1,3 +1,4 @@
+import { hasValidConsent, requireConsent } from "../shared/consent";
 import { onCall, HttpsError } from "firebase-functions/v2/https";
 import { getFirestore } from "firebase-admin/firestore";
 
@@ -9,6 +10,7 @@ import {
   MIN_APPROVED_PHOTOS_TO_BE_DISCOVERABLE,
   ONLINE_THRESHOLD_MINUTES,
 } from "../config";
+import { ENFORCE_APP_CHECK } from "../shared/appCheck";
 import { distanceKm } from "../shared/distance";
 import { GENDERS } from "../shared/genders";
 import { computeProfileCompletionPercent } from "../shared/profileCompletion";
@@ -50,7 +52,7 @@ const MAX_LOCATION_FILTER_LENGTH = 60;
  * de distance (docs/regles-complementaires-concurrents.md section 3) —
  * jamais côté client (docs/architecture-technique.md section 4).
  */
-export const getDiscoverCandidates = onCall({ region: REGION }, async (request) => {
+export const getDiscoverCandidates = onCall({ region: REGION, enforceAppCheck: ENFORCE_APP_CHECK }, async (request) => {
   if (!request.auth) {
     throw new HttpsError("unauthenticated", "Connexion requise.");
   }
@@ -62,6 +64,7 @@ export const getDiscoverCandidates = onCall({ region: REGION }, async (request) 
     db.collection("users").doc(uid).get(),
     db.collection("user_status").doc(uid).get(),
   ]);
+  requireConsent(myStatusSnap.data());
   const myProfil = mySnap.data();
   if (!myProfil) {
     throw new HttpsError("failed-precondition", "Profil manquant.");
@@ -184,6 +187,9 @@ export const getDiscoverCandidates = onCall({ region: REGION }, async (request) 
     // Profil masqué par son propriétaire (Paramètres → Visibilité de mon
     // profil) : n'apparaît dans la découverte de personne.
     if (status?.profileHidden === true) continue;
+    // Sans consentement art. 9 valide (jamais donné, retiré, ou texte
+    // changé — shared/consent.ts) : le membre n'est montré à personne.
+    if (!hasValidConsent(status)) continue;
 
     // Masquage des comptes inactifs depuis 30 jours
     // (docs/regles-complementaires-concurrents.md section 3).

@@ -2,6 +2,7 @@ import { onCall, HttpsError } from "firebase-functions/v2/https";
 import { getFirestore, FieldValue, Timestamp } from "firebase-admin/firestore";
 
 import { REGION, FILTRAGE_RETRY_DELAY_DAYS } from "../config";
+import { ENFORCE_APP_CHECK } from "../shared/appCheck";
 import { requireAdmin } from "../shared/requireAdmin";
 import { logAdminAction } from "../shared/adminLog";
 
@@ -14,7 +15,7 @@ interface ResolveData {
  * Traite une demande de révision humaine après échec du questionnaire
  * de filtrage (docs/regles-du-projet.md section 1 — droit de recours).
  */
-export const resolveFiltrageReview = onCall({ region: REGION }, async (request) => {
+export const resolveFiltrageReview = onCall({ region: REGION, enforceAppCheck: ENFORCE_APP_CHECK }, async (request) => {
   const adminUid = requireAdmin(request);
   const { requestId, approve } = request.data as ResolveData;
   if (!requestId) {

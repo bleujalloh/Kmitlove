@@ -2,6 +2,7 @@ import { onCall, HttpsError } from "firebase-functions/v2/https";
 import { getFirestore, FieldValue } from "firebase-admin/firestore";
 
 import { REGION, MULTI_ACCOUNT_DEVICE_THRESHOLD } from "../config";
+import { ENFORCE_APP_CHECK } from "../shared/appCheck";
 
 interface Data {
   deviceId?: string;
@@ -17,7 +18,7 @@ interface Data {
  * signalement classique (adminResolveModerationRequest le traite déjà via
  * son chemin générique dismiss/warn/suspend/ban).
  */
-export const registerDeviceSignal = onCall({ region: REGION }, async (request) => {
+export const registerDeviceSignal = onCall({ region: REGION, enforceAppCheck: ENFORCE_APP_CHECK }, async (request) => {
   if (!request.auth) {
     throw new HttpsError("unauthenticated", "Connexion requise.");
   }

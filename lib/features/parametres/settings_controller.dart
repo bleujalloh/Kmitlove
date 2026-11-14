@@ -37,6 +37,20 @@ final profileHiddenProvider = Provider<bool>((ref) {
   return ref.watch(userStatusProvider).value?['profileHidden'] == true;
 });
 
+/// Vrai quand le membre a donné un consentement valide au traitement de ses
+/// données sensibles (RGPD art. 9) — voir recordSensitiveConsent côté serveur.
+bool hasSensitiveConsent(Map<String, dynamic>? status) {
+  final c = status?['sensitiveConsent'];
+  return c is Map && c['granted'] == true && c['version'] == kSensitiveConsentVersion;
+}
+
+/// Version du texte de consentement affichée par l'application — miroir de
+/// `SENSITIVE_CONSENT_VERSION` (functions/src/config.ts), à changer ENSEMBLE.
+/// Une version différente de celle du serveur fait redemander le consentement
+/// (porte de l'écran) et le serveur refuse un consentement donné sur un autre
+/// texte (recordSensitiveConsent).
+const kSensitiveConsentVersion = 1;
+
 final myReportsProvider = FutureProvider.autoDispose<List<MyReport>>((ref) async {
   final result = await ref.watch(cloudFunctionsProvider).httpsCallable('listMyReports').call();
   final data = Map<String, dynamic>.from(result.data as Map);
@@ -62,6 +76,13 @@ class SettingsController {
 
   Future<void> setNotificationPreference(String key, bool enabled) {
     return ref.read(cloudFunctionsProvider).httpsCallable('setNotificationPreferences').call({key: enabled});
+  }
+
+  Future<void> setSensitiveConsent(bool granted) {
+    return ref
+        .read(cloudFunctionsProvider)
+        .httpsCallable('recordSensitiveConsent')
+        .call({'granted': granted, 'version': kSensitiveConsentVersion});
   }
 
   Future<void> setProfileHidden(bool hidden) {

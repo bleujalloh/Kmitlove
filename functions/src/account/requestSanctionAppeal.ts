@@ -2,6 +2,7 @@ import { onCall, HttpsError } from "firebase-functions/v2/https";
 import { getFirestore, FieldValue, Timestamp } from "firebase-admin/firestore";
 
 import { REGION } from "../config";
+import { ENFORCE_APP_CHECK } from "../shared/appCheck";
 
 /**
  * Droit de recours après une sanction — avertissement, suspension
@@ -18,7 +19,7 @@ import { REGION } from "../config";
  * créer deux demandes de recours en double (même raisonnement que
  * shared/sanctions.ts et admin/bootstrapFirstAdmin.ts).
  */
-export const requestSanctionAppeal = onCall({ region: REGION }, async (request) => {
+export const requestSanctionAppeal = onCall({ region: REGION, enforceAppCheck: ENFORCE_APP_CHECK }, async (request) => {
   if (!request.auth) {
     throw new HttpsError("unauthenticated", "Connexion requise.");
   }

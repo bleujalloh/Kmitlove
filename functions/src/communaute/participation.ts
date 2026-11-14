@@ -3,6 +3,7 @@ import { getFirestore, FieldValue } from "firebase-admin/firestore";
 import * as crypto from "crypto";
 
 import { REGION } from "../config";
+import { ENFORCE_APP_CHECK } from "../shared/appCheck";
 import { requireApprovedOrganizer } from "../shared/requireApprovedOrganizer";
 
 /**
@@ -10,7 +11,7 @@ import { requireApprovedOrganizer } from "../shared/requireApprovedOrganizer";
  * (cahier des charges section 4.7). L'adresse exacte reste masquée
  * jusqu'à acceptation (docs/regles-annonces-evenements.md section 2).
  */
-export const requestParticipation = onCall({ region: REGION }, async (request) => {
+export const requestParticipation = onCall({ region: REGION, enforceAppCheck: ENFORCE_APP_CHECK }, async (request) => {
   if (!request.auth) {
     throw new HttpsError("unauthenticated", "Connexion requise.");
   }
@@ -133,7 +134,7 @@ interface RespondData {
  * l'acceptation (simplifié : un code à saisir, pas un vrai QR scanné —
  * voir docs/suivi-developpement.md pour la limite assumée).
  */
-export const respondToParticipation = onCall({ region: REGION }, async (request) => {
+export const respondToParticipation = onCall({ region: REGION, enforceAppCheck: ENFORCE_APP_CHECK }, async (request) => {
   if (!request.auth) {
     throw new HttpsError("unauthenticated", "Connexion requise.");
   }
@@ -195,7 +196,7 @@ interface CheckInData {
 }
 
 /** Vérification à l'entrée (section 4.7) via le code de présence. */
-export const checkInParticipant = onCall({ region: REGION }, async (request) => {
+export const checkInParticipant = onCall({ region: REGION, enforceAppCheck: ENFORCE_APP_CHECK }, async (request) => {
   if (!request.auth) {
     throw new HttpsError("unauthenticated", "Connexion requise.");
   }

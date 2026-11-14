@@ -2,6 +2,7 @@ import { onCall, HttpsError } from "firebase-functions/v2/https";
 import { getFirestore } from "firebase-admin/firestore";
 
 import { REGION } from "../config";
+import { ENFORCE_APP_CHECK } from "../shared/appCheck";
 
 /**
  * « Retour » de Découvrir (prototype Decouvrir.dc.html, flèche gauche) :
@@ -15,7 +16,7 @@ import { REGION } from "../config";
  * - uniquement le dernier swipe (recordSwipe mémorise
  *   `lastPassTargetUid`, effacé par tout swipe suivant).
  */
-export const undoLastSwipe = onCall({ region: REGION }, async (request) => {
+export const undoLastSwipe = onCall({ region: REGION, enforceAppCheck: ENFORCE_APP_CHECK }, async (request) => {
   if (!request.auth) {
     throw new HttpsError("unauthenticated", "Connexion requise.");
   }

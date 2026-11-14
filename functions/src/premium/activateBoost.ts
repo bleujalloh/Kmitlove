@@ -2,6 +2,7 @@ import { onCall, HttpsError } from "firebase-functions/v2/https";
 import { getFirestore, Timestamp } from "firebase-admin/firestore";
 
 import { REGION, BOOST_DURATION_MINUTES, BOOST_FREE_WEEKLY_FOR_PREMIUM } from "../config";
+import { ENFORCE_APP_CHECK } from "../shared/appCheck";
 
 /**
  * Active le Boost inclus dans Premium — une fois par semaine, 30 minutes
@@ -9,7 +10,7 @@ import { REGION, BOOST_DURATION_MINUTES, BOOST_FREE_WEEKLY_FOR_PREMIUM } from ".
  * l'unité est une fonctionnalité de paiement, volontairement pas
  * construite ici pour l'instant (décision du 2026-11-10).
  */
-export const activateBoost = onCall({ region: REGION }, async (request) => {
+export const activateBoost = onCall({ region: REGION, enforceAppCheck: ENFORCE_APP_CHECK }, async (request) => {
   if (!request.auth) {
     throw new HttpsError("unauthenticated", "Connexion requise.");
   }

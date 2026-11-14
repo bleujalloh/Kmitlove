@@ -20,6 +20,9 @@ const PREFERENCE_BY_TYPE: Record<string, string> = {
  * registerFcmToken.ts — jamais écrit directement par le client). Best-
  * effort : une erreur d'envoi ne doit jamais faire échouer l'opération
  * métier qui déclenche la notification (nouveau message, match, like).
+ * Renvoie le nombre d'appareils réellement atteints (0 si aucun jeton, si le
+ * type est coupé par le membre ou si l'envoi échoue) : la purge des comptes
+ * inactifs s'en sert pour ne jamais supprimer un compte non prévenu.
  * Les jetons devenus invalides (désinstallation, etc.) sont retirés au
  * passage pour ne pas les retenter indéfiniment.
  */
@@ -27,16 +30,16 @@ export async function sendPushToUser(
   uid: string,
   notification: { title: string; body: string },
   data?: Record<string, string>,
-): Promise<void> {
+): Promise<number> {
   try {
     const db = getFirestore();
     const statusSnap = await db.collection("user_status").doc(uid).get();
     const tokens: string[] = statusSnap.data()?.fcmTokens ?? [];
-    if (tokens.length === 0) return;
+    if (tokens.length === 0) return 0;
     // Préférences par type : `notificationPrefs.<clé> === false` coupe ce
     // type de notification (par défaut tout est envoyé).
     const preferenceKey = data?.type ? PREFERENCE_BY_TYPE[data.type] : undefined;
-    if (preferenceKey && statusSnap.data()?.notificationPrefs?.[preferenceKey] === false) return;
+    if (preferenceKey && statusSnap.data()?.notificationPrefs?.[preferenceKey] === false) return 0;
 
     const response = await getMessaging().sendEachForMulticast({
       tokens,
@@ -60,8 +63,10 @@ export async function sendPushToUser(
         .doc(uid)
         .update({ fcmTokens: FieldValue.arrayRemove(...invalidTokens) });
     }
+    return response.successCount;
   } catch (err) {
     // eslint-disable-next-line no-console
     console.error("sendPushToUser failed", { uid, err });
+    return 0;
   }
 }

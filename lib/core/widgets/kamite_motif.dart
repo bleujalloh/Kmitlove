@@ -62,13 +62,9 @@ class _KamiteMotifPainter extends CustomPainter {
     }
 
     if (!compact) {
-      // Silhouette de trois pyramides sous le disque, posées sur une ligne
-      // d'horizon fine.
+      // Silhouette de trois pyramides sous le disque, posées sans trait
+      // d'horizon (le propriétaire ne veut aucune ligne dans l'interface).
       final baseY = size.height * 0.86;
-      final horizonPaint = Paint()
-        ..color = AppColors.border
-        ..strokeWidth = 1.5;
-      canvas.drawLine(Offset(0, baseY), Offset(size.width, baseY), horizonPaint);
 
       _drawPyramid(canvas, Offset(centerX, baseY), size.height * 0.26, ink);
       _drawPyramid(canvas, Offset(centerX - size.height * 0.34, baseY), size.height * 0.17, soft);

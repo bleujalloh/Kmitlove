@@ -2,13 +2,14 @@ import { onCall, HttpsError } from "firebase-functions/v2/https";
 import { getFirestore } from "firebase-admin/firestore";
 
 import { REGION } from "../config";
+import { ENFORCE_APP_CHECK } from "../shared/appCheck";
 
 /**
  * Révèle le lieu précis d'un événement/d'une annonce privée uniquement
  * à l'organisateur ou à un participant accepté (cahier des charges
  * section 4.7, docs/regles-annonces-evenements.md section 2).
  */
-export const getEventLocation = onCall({ region: REGION }, async (request) => {
+export const getEventLocation = onCall({ region: REGION, enforceAppCheck: ENFORCE_APP_CHECK }, async (request) => {
   if (!request.auth) {
     throw new HttpsError("unauthenticated", "Connexion requise.");
   }

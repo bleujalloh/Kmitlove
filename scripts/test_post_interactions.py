@@ -160,8 +160,7 @@ try:
         admin("PATCH", f"user_status/{UIDS['awa']}?updateMask.fieldPaths=filtrageStatus", {"fields": {"filtrageStatus": {"stringValue": original or "active"}}})
 
     # --- 7. limite de fréquence (Awa : 20 réponses par heure)
-    admin("PATCH", f"user_status/{UIDS['awa']}?updateMask.fieldPaths=communityReplyCount&updateMask.fieldPaths=communityReplyWindowStart",
-          {"fields": {"communityReplyCount": {"integerValue": "0"}, "communityReplyWindowStart": {"nullValue": None}}})
+    admin("DELETE", f"rate_limits/{UIDS['awa']}_reply_hour")
     ok_count, limited = 0, False
     for i in range(22):
         s, r = call("replyToPost", {"postId": post_id, "text": f"rafale {i}"}, "awa")
@@ -198,8 +197,7 @@ for coll in ("replies", "likes"):
     for d in docs.get("documents", []):
         admin("DELETE", f"community_posts/{post_id}/{coll}/" + d["name"].split("/")[-1])
 print("nettoyage publication de test :", admin("DELETE", f"community_posts/{post_id}")[0])
-admin("PATCH", f"user_status/{UIDS['awa']}?updateMask.fieldPaths=communityReplyCount&updateMask.fieldPaths=communityReplyWindowStart",
-      {"fields": {"communityReplyCount": {"integerValue": "0"}, "communityReplyWindowStart": {"nullValue": None}}})
+admin("DELETE", f"rate_limits/{UIDS['awa']}_reply_hour")
 bad = [n for n, ok in results if not ok]
 print(f"\n{len(results) - len(bad)}/{len(results)} vérifications réussies" + (f" — ÉCHECS : {bad}" if bad else ""))
 sys.exit(1 if bad else 0)

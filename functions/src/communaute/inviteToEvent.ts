@@ -2,6 +2,7 @@ import { onCall, HttpsError } from "firebase-functions/v2/https";
 import { getFirestore, FieldValue } from "firebase-admin/firestore";
 
 import { REGION } from "../config";
+import { ENFORCE_APP_CHECK } from "../shared/appCheck";
 import { requireApprovedOrganizer } from "../shared/requireApprovedOrganizer";
 
 interface InviteData {
@@ -14,7 +15,7 @@ interface InviteData {
  * section 2) — seul l'organisateur peut inviter, jamais le membre
  * lui-même (sinon l'accès sur invitation n'aurait aucun sens).
  */
-export const inviteToEvent = onCall({ region: REGION }, async (request) => {
+export const inviteToEvent = onCall({ region: REGION, enforceAppCheck: ENFORCE_APP_CHECK }, async (request) => {
   if (!request.auth) {
     throw new HttpsError("unauthenticated", "Connexion requise.");
   }

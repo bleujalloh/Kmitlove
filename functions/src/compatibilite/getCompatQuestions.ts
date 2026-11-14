@@ -2,6 +2,7 @@ import { onCall, HttpsError } from "firebase-functions/v2/https";
 import { getFirestore } from "firebase-admin/firestore";
 
 import { REGION, COMPAT_QUESTIONS_PER_SESSION } from "../config";
+import { ENFORCE_APP_CHECK } from "../shared/appCheck";
 
 /**
  * Tire un sous-ensemble aléatoire de la banque de compatibilité à chaque
@@ -13,7 +14,7 @@ import { REGION, COMPAT_QUESTIONS_PER_SESSION } from "../config";
  * répondu, retombe sur un tirage aléatoire classique (permet de revoir/
  * changer d'anciennes réponses).
  */
-export const getCompatQuestions = onCall({ region: REGION }, async (request) => {
+export const getCompatQuestions = onCall({ region: REGION, enforceAppCheck: ENFORCE_APP_CHECK }, async (request) => {
   if (!request.auth) {
     throw new HttpsError("unauthenticated", "Connexion requise.");
   }

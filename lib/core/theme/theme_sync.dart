@@ -34,6 +34,6 @@ class _ThemeSyncState extends State<ThemeSync> {
       });
     }
     _applied = brightness;
-    return widget.child;
+    return ColoredBox(color: AppColors.background, child: widget.child);
   }
 }

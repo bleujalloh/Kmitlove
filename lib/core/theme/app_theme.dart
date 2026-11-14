@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
+import 'app_background.dart';
+
 /// Système de design MERUT — identité afro-contemporaine inspirée de
 /// l'héritage kamite (règlement permanent de qualité, section 7,
 /// `docs/reglement-permanent-qualite-execution.md`, 2026-11-11).
@@ -44,16 +46,16 @@ class AppPalette {
   /// Thème sombre : gris anthracite neutre (plus de noir presque pur ni de
   /// brun), l'or reste l'unique couleur d'accent.
   static const dark = AppPalette(
-    background: Color(0xFF161618),
-    backgroundSoft: Color(0xFF202024),
+    background: Color(0xFF171C22),
+    backgroundSoft: Color(0x1FFFFFFF),
     ink: Color(0xFFF4F4F5),
     muted: Color(0xFFF4F4F5),
-    border: Color(0xFF202024),
+    border: Color(0x1FFFFFFF),
     accent: AppColors.orAntique,
     accentSoft: Color(0xFF2E2819),
     placeholder: Color(0xFF2E2819),
     placeholderIcon: Color(0xFFF4F4F5),
-    navBackground: Color(0xFF161618),
+    navBackground: Color(0xE6171C22),
     navUnselected: Color(0xFFF4F4F5),
   );
 
@@ -61,16 +63,16 @@ class AppPalette {
   /// texte presque noir ; l'or est plus profond pour rester lisible comme
   /// texte sur blanc (contrastes vérifiés par test/theme_contrast_test.dart).
   static const light = AppPalette(
-    background: Color(0xFFFFFFFF),
-    backgroundSoft: Color(0xFFF5F5F6),
+    background: Color(0xFFF2F7F8),
+    backgroundSoft: Color(0xB8FFFFFF),
     ink: Color(0xFF18181B),
     muted: Color(0xFF18181B),
-    border: Color(0xFFF5F5F6),
+    border: Color(0xB8FFFFFF),
     accent: Color(0xFF9E7416),
     accentSoft: Color(0xFFF3ECD9),
     placeholder: Color(0xFFF3ECD9),
     placeholderIcon: Color(0xFF18181B),
-    navBackground: Color(0xFFFFFFFF),
+    navBackground: Color(0xE6FFFFFF),
     navUnselected: Color(0xFF18181B),
   );
 }
@@ -102,6 +104,10 @@ class AppColors {
 
   static Color get background => _palette.background;
   static Color get backgroundSoft => _palette.backgroundSoft;
+  /// Surface pleine (carte posée sur le fond) pour tout ce qui flotte au-dessus
+  /// du contenu — menus, notifications — et ne doit jamais laisser voir ce
+  /// qu'il y a derrière.
+  static Color get surfaceSolid => Color.alphaBlend(_palette.backgroundSoft, _palette.background);
   static Color get ink => _palette.ink;
   static Color get muted => _palette.muted;
   static Color get border => _palette.border;
@@ -149,7 +155,11 @@ class AppRadii {
   static const xs = 4.0;
   static const sm = 6.0;
   static const md = 8.0;
-  static const lg = 12.0;
+  // Champs de saisie et boutons : arrondi plus généreux (14) que les petits
+  // éléments (md = 8), plus discret que les cartes (lg = 20).
+  static const field = 14.0;
+  static const lg = 20.0;
+  static const xl = 28.0;
   // Réservé aux éléments réellement ronds (point, avatar) : plus aucun
   // onglet, bouton ni puce en forme de pilule.
   static const pill = 999.0;
@@ -184,7 +194,17 @@ ThemeData buildAppTheme(Brightness brightness) {
   AppColors.use(brightness);
   return ThemeData(
     useMaterial3: true,
-    scaffoldBackgroundColor: AppColors.background,
+    scaffoldBackgroundColor: Colors.transparent,
+    pageTransitionsTheme: const PageTransitionsTheme(
+      builders: {
+        TargetPlatform.android: AppPageTransitionsBuilder(),
+        TargetPlatform.iOS: AppPageTransitionsBuilder(),
+        TargetPlatform.fuchsia: AppPageTransitionsBuilder(),
+        TargetPlatform.linux: AppPageTransitionsBuilder(),
+        TargetPlatform.macOS: AppPageTransitionsBuilder(),
+        TargetPlatform.windows: AppPageTransitionsBuilder(),
+      },
+    ),
     colorScheme: ColorScheme.fromSeed(
       seedColor: AppColors.accent,
       primary: AppColors.accent,
@@ -200,9 +220,9 @@ ThemeData buildAppTheme(Brightness brightness) {
       outlineVariant: AppColors.border,
       surfaceContainerLowest: AppColors.background,
       surfaceContainerLow: AppColors.backgroundSoft,
-      surfaceContainer: AppColors.backgroundSoft,
-      surfaceContainerHigh: AppColors.backgroundSoft,
-      surfaceContainerHighest: AppColors.backgroundSoft,
+      surfaceContainer: AppColors.surfaceSolid,
+      surfaceContainerHigh: AppColors.surfaceSolid,
+      surfaceContainerHighest: AppColors.surfaceSolid,
       brightness: brightness,
     ),
     disabledColor: AppColors.ink,
@@ -223,10 +243,10 @@ ThemeData buildAppTheme(Brightness brightness) {
         elevation: 0,
         disabledBackgroundColor: AppColors.accentSoft,
         disabledForegroundColor: AppColors.ink,
-        padding: const EdgeInsets.symmetric(vertical: 15),
+        padding: const EdgeInsets.symmetric(vertical: 16),
         textStyle: const TextStyle(fontWeight: FontWeight.w600, letterSpacing: 0.1),
         shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(AppRadii.md),
+          borderRadius: BorderRadius.circular(AppRadii.field),
         ),
       ),
     ),
@@ -237,7 +257,7 @@ ThemeData buildAppTheme(Brightness brightness) {
         side: BorderSide.none,
         padding: const EdgeInsets.symmetric(vertical: 14),
         textStyle: const TextStyle(fontWeight: FontWeight.w600),
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(AppRadii.md)),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(AppRadii.field)),
       ),
     ),
     textButtonTheme: TextButtonThemeData(
@@ -255,24 +275,24 @@ ThemeData buildAppTheme(Brightness brightness) {
       hintStyle: TextStyle(color: AppColors.ink),
       helperStyle: TextStyle(color: AppColors.ink),
       border: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(AppRadii.md),
+        borderRadius: BorderRadius.circular(AppRadii.field),
         borderSide: BorderSide.none,
       ),
       enabledBorder: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(AppRadii.md),
+        borderRadius: BorderRadius.circular(AppRadii.field),
         borderSide: BorderSide(color: AppColors.border),
       ),
       focusedBorder: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(AppRadii.md),
+        borderRadius: BorderRadius.circular(AppRadii.field),
         borderSide: BorderSide(color: AppColors.accent, width: 1.6),
       ),
       errorBorder: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(AppRadii.md),
+        borderRadius: BorderRadius.circular(AppRadii.field),
         borderSide: BorderSide(color: AppColors.accent),
       ),
     ),
     appBarTheme: AppBarTheme(
-      backgroundColor: AppColors.background,
+      backgroundColor: Colors.transparent,
       foregroundColor: AppColors.ink,
       elevation: 0,
       titleTextStyle: GoogleFonts.manrope(color: AppColors.ink, fontSize: 20, fontWeight: FontWeight.w700, letterSpacing: -0.3),
@@ -354,8 +374,22 @@ ThemeData buildAppTheme(Brightness brightness) {
         borderRadius: BorderRadius.vertical(top: Radius.circular(AppRadii.lg)),
       ),
     ),
+    // Cartes « verre » : translucides sur le dégradé, sans ombre (une ombre
+    // se verrait à travers la carte) ni teinte Material.
+    cardTheme: CardThemeData(
+      color: AppColors.backgroundSoft,
+      elevation: 0,
+      shadowColor: Colors.transparent,
+      surfaceTintColor: Colors.transparent,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(AppRadii.lg)),
+    ),
+    popupMenuTheme: PopupMenuThemeData(
+      color: AppColors.surfaceSolid,
+      surfaceTintColor: Colors.transparent,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(AppRadii.md)),
+    ),
     snackBarTheme: SnackBarThemeData(
-      backgroundColor: AppColors.backgroundSoft,
+      backgroundColor: AppColors.surfaceSolid,
       contentTextStyle: TextStyle(color: AppColors.ink),
       behavior: SnackBarBehavior.floating,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(AppRadii.sm)),

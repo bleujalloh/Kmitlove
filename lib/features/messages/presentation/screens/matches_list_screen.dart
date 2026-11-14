@@ -41,7 +41,8 @@ class MatchesListScreen extends ConsumerWidget {
       ),
       body: matchesAsync.when(
         loading: () => const Center(child: CircularProgressIndicator()),
-        error: (e, st) => Center(child: Text(context.l10n.conversationsLoadFailed)),
+        error: (e, st) =>
+            Center(child: Text(context.l10n.conversationsLoadFailed)),
         data: (matches) {
           if (matches.isEmpty) {
             return Center(
@@ -66,15 +67,17 @@ class MatchesListScreen extends ConsumerWidget {
                   padding: const EdgeInsets.fromLTRB(20, 4, 20, 14),
                   itemCount: matches.length,
                   separatorBuilder: (_, _) => const SizedBox(width: 14),
-                  itemBuilder: (context, i) => _MatchBubble(match: matches[i], myUid: myUid),
+                  itemBuilder: (context, i) =>
+                      _MatchBubble(match: matches[i], myUid: myUid),
                 ),
               ),
-              Divider(height: 1, color: AppColors.border),
               Expanded(
                 child: ListView.separated(
+                  padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
                   itemCount: matches.length,
-                  separatorBuilder: (_, _) => Divider(height: 1, color: AppColors.border),
-                  itemBuilder: (context, i) => _ConversationRow(match: matches[i], myUid: myUid),
+                  separatorBuilder: (_, _) => const SizedBox(height: 10),
+                  itemBuilder: (context, i) =>
+                      _ConversationRow(match: matches[i], myUid: myUid),
                 ),
               ),
             ],
@@ -118,10 +121,17 @@ class _MemberAvatar extends ConsumerWidget {
       width: size,
       height: size,
       clipBehavior: Clip.antiAlias,
-      decoration: BoxDecoration(color: AppColors.placeholder, borderRadius: BorderRadius.circular(size * 0.26)),
+      decoration: BoxDecoration(
+        color: AppColors.placeholder,
+        borderRadius: BorderRadius.circular(size * 0.26),
+      ),
       child: url != null
           ? Image.network(url, fit: BoxFit.cover)
-          : Icon(Icons.person_outline, size: size * 0.42, color: AppColors.placeholderIcon),
+          : Icon(
+              Icons.person_outline,
+              size: size * 0.42,
+              color: AppColors.placeholderIcon,
+            ),
     );
   }
 }
@@ -188,42 +198,54 @@ class _ConversationRow extends ConsumerWidget {
             locale: Localizations.localeOf(context).toLanguageTag(),
             yesterdayLabel: context.l10n.messageTimeYesterday,
           );
-    return ListTile(
-      contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 4),
-      leading: _MemberAvatar(uid: match.otherUid, size: 52),
-      title: Row(
-        children: [
-          Expanded(
-            child: Text(
-              match.otherDisplayName,
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
-              style: const TextStyle(fontWeight: FontWeight.bold),
+    // Chaque conversation est une carte « verre » aux grands arrondis.
+    return Material(
+      color: AppColors.backgroundSoft,
+      borderRadius: BorderRadius.circular(AppRadii.lg),
+      clipBehavior: Clip.antiAlias,
+      child: ListTile(
+        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
+        leading: _MemberAvatar(uid: match.otherUid, size: 52),
+        title: Row(
+          children: [
+            Expanded(
+              child: Text(
+                match.otherDisplayName,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: const TextStyle(fontWeight: FontWeight.bold),
+              ),
             ),
-          ),
-          if (time != null)
-            Text(time, style: TextStyle(fontSize: 11, color: AppColors.muted)),
-        ],
-      ),
-      subtitle: Text(
-        match.lastMessagePreview?.isNotEmpty == true
-            ? match.lastMessagePreview!
-            : context.l10n.sayHelloPreview,
-        maxLines: 1,
-        overflow: TextOverflow.ellipsis,
-        style: TextStyle(
-          fontWeight: unread ? FontWeight.w600 : FontWeight.normal,
-          color: unread ? null : AppColors.muted,
+            if (time != null)
+              Text(
+                time,
+                style: TextStyle(fontSize: 11, color: AppColors.muted),
+              ),
+          ],
         ),
+        subtitle: Text(
+          match.lastMessagePreview?.isNotEmpty == true
+              ? match.lastMessagePreview!
+              : context.l10n.sayHelloPreview,
+          maxLines: 1,
+          overflow: TextOverflow.ellipsis,
+          style: TextStyle(
+            fontWeight: unread ? FontWeight.w600 : FontWeight.normal,
+            color: unread ? null : AppColors.muted,
+          ),
+        ),
+        trailing: unread
+            ? Container(
+                width: 9,
+                height: 9,
+                decoration: BoxDecoration(
+                  color: AppColors.accent,
+                  shape: BoxShape.circle,
+                ),
+              )
+            : null,
+        onTap: () => _openChat(context, match),
       ),
-      trailing: unread
-          ? Container(
-              width: 9,
-              height: 9,
-              decoration: BoxDecoration(color: AppColors.accent, shape: BoxShape.circle),
-            )
-          : null,
-      onTap: () => _openChat(context, match),
     );
   }
 }

@@ -1,8 +1,10 @@
 import { onCall, HttpsError } from "firebase-functions/v2/https";
 import { getFirestore, FieldValue } from "firebase-admin/firestore";
 
-import { REGION } from "../config";
+import { REGION, REPORT_RATE_LIMITS, MAX_REPORT_DETAILS } from "../config";
+import { ENFORCE_APP_CHECK } from "../shared/appCheck";
 import { REPORT_REASONS, HIGH_SEVERITY_REASONS } from "../shared/reportReasons";
+import { enforceRateLimit } from "../shared/rateLimit";
 
 interface ReportData {
   targetUid: string;
@@ -20,14 +22,21 @@ interface ReportData {
  * est une Cloud Function et pas une écriture directe dans une collection
  * lisible.
  */
-export const reportUser = onCall({ region: REGION }, async (request) => {
+export const reportUser = onCall({ region: REGION, enforceAppCheck: ENFORCE_APP_CHECK }, async (request) => {
   if (!request.auth) {
     throw new HttpsError("unauthenticated", "Connexion requise.");
   }
   const uid = request.auth.uid;
   const { targetUid, reason, details, matchId, messageId } = request.data as ReportData;
 
-  if (!targetUid || !REPORT_REASONS.includes(reason as (typeof REPORT_REASONS)[number])) {
+  if (
+    typeof targetUid !== "string" ||
+    !targetUid ||
+    !REPORT_REASONS.includes(reason as (typeof REPORT_REASONS)[number]) ||
+    (details !== undefined && details !== null && (typeof details !== "string" || details.length > MAX_REPORT_DETAILS)) ||
+    (matchId !== undefined && matchId !== null && typeof matchId !== "string") ||
+    (messageId !== undefined && messageId !== null && typeof messageId !== "string")
+  ) {
     throw new HttpsError("invalid-argument", "Motif de signalement invalide.");
   }
 
@@ -48,6 +57,10 @@ export const reportUser = onCall({ region: REGION }, async (request) => {
       throw new HttpsError("invalid-argument", "Ce message ne correspond pas au membre signalé.");
     }
   }
+
+  // La limite de fréquence passe APRÈS les validations : un appel refusé
+  // (message qui ne correspond pas, champ invalide) ne consomme aucun quota.
+  await enforceRateLimit(uid, REPORT_RATE_LIMITS);
 
   const targetStatusSnap = await db.collection("user_status").doc(targetUid).get();
   const alreadyPriority = targetStatusSnap.data()?.priorityReview === true;

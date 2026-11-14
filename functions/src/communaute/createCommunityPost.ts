@@ -12,6 +12,7 @@ import {
   EVENT_RECURRENCE_FREQUENCIES,
   EVENT_RECURRENCE_MAX_OCCURRENCES,
 } from "../config";
+import { ENFORCE_APP_CHECK } from "../shared/appCheck";
 import { isValidTimeZone } from "../shared/timezone";
 import { VALID_COUNTRY_NAMES } from "../shared/validCountries";
 
@@ -94,7 +95,7 @@ function containsFlaggedKeyword(text: string): boolean {
  * membres vérifiés (docs/regles-annonces-evenements.md) — jamais une
  * écriture directe depuis le client (firestore.rules).
  */
-export const createCommunityPost = onCall({ region: REGION }, async (request) => {
+export const createCommunityPost = onCall({ region: REGION, enforceAppCheck: ENFORCE_APP_CHECK }, async (request) => {
   if (!request.auth) {
     throw new HttpsError("unauthenticated", "Connexion requise.");
   }

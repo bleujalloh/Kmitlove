@@ -3,6 +3,7 @@ import { getAuth } from "firebase-admin/auth";
 import { getFirestore, FieldValue } from "firebase-admin/firestore";
 
 import { REGION } from "../config";
+import { ENFORCE_APP_CHECK } from "../shared/appCheck";
 import { logAdminAction } from "../shared/adminLog";
 
 /**
@@ -19,7 +20,7 @@ import { logAdminAction } from "../shared/adminLog";
  * admin tous les deux, cassant l'invariant "un seul premier admin"
  * (même raisonnement que functions/src/premium/useJeton.ts).
  */
-export const bootstrapFirstAdmin = onCall({ region: REGION }, async (request) => {
+export const bootstrapFirstAdmin = onCall({ region: REGION, enforceAppCheck: ENFORCE_APP_CHECK }, async (request) => {
   if (!request.auth) {
     throw new HttpsError("unauthenticated", "Connexion requise.");
   }

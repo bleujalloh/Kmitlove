@@ -2,6 +2,7 @@ import { onCall, HttpsError } from "firebase-functions/v2/https";
 import { getFirestore, FieldValue, Timestamp } from "firebase-admin/firestore";
 
 import { REGION, FILTRAGE_QUESTIONS_PER_ATTEMPT } from "../config";
+import { ENFORCE_APP_CHECK } from "../shared/appCheck";
 import { requireNotSuspended } from "../shared/requireNotSuspended";
 
 /**
@@ -41,7 +42,7 @@ function assertFiltrageStartAllowed(status: Record<string, unknown> | undefined)
  * questionnaire de filtrage (docs/regles-du-projet.md section 1). Les
  * bonnes réponses ne sont jamais envoyées au client.
  */
-export const startFiltrageAttempt = onCall({ region: REGION }, async (request) => {
+export const startFiltrageAttempt = onCall({ region: REGION, enforceAppCheck: ENFORCE_APP_CHECK }, async (request) => {
   if (!request.auth) {
     throw new HttpsError("unauthenticated", "Connexion requise.");
   }

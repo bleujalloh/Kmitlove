@@ -47,13 +47,10 @@ class _PostDetailScreenState extends ConsumerState<PostDetailScreen> {
                   ref.read(communauteControllerProvider).toggleFavorite(widget.post.id, !isFavorite),
             ),
           PopupMenuButton<String>(
-            onSelected: (reason) async {
-              await ref.read(communauteControllerProvider).report(widget.post.id, reason);
-              if (context.mounted) {
-                ScaffoldMessenger.of(context)
-                    .showSnackBar(SnackBar(content: Text(context.l10n.reportSent)));
-              }
-            },
+            onSelected: (reason) => sendReportWithFeedback(
+              context,
+              () => ref.read(communauteControllerProvider).report(widget.post.id, reason),
+            ),
             itemBuilder: (_) => reportReasonLabels(context.l10n)
                 .entries
                 .map((e) => PopupMenuItem(value: e.key, child: Text(context.l10n.reportWithReason(e.value))))

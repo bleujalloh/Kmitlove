@@ -2084,6 +2084,126 @@ abstract class AppLocalizations {
   /// **'Nouvelle publication'**
   String get createPostTooltip;
 
+  /// No description provided for @messageSendFailed.
+  ///
+  /// In fr, this message translates to:
+  /// **'Message non envoyé. Réessaie.'**
+  String get messageSendFailed;
+
+  /// No description provided for @messageRateLimited.
+  ///
+  /// In fr, this message translates to:
+  /// **'Tu envoies trop de messages à la suite. Patiente un instant.'**
+  String get messageRateLimited;
+
+  /// No description provided for @consentTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Avant de commencer, ton accord'**
+  String get consentTitle;
+
+  /// No description provided for @consentIntro.
+  ///
+  /// In fr, this message translates to:
+  /// **'Pour te proposer des rencontres, MERUT traite des informations que la loi (RGPD, article 9) considère comme sensibles. Nous avons besoin de ton accord explicite, séparé des conditions d\'utilisation.'**
+  String get consentIntro;
+
+  /// No description provided for @consentItemOrientation.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ton genre et les genres que tu recherches : ils laissent deviner ton orientation sexuelle.'**
+  String get consentItemOrientation;
+
+  /// No description provided for @consentItemCulture.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ton appartenance à la communauté kamite : elle peut révéler une origine ou des convictions.'**
+  String get consentItemCulture;
+
+  /// No description provided for @consentItemPhotos.
+  ///
+  /// In fr, this message translates to:
+  /// **'Tes photos, analysées automatiquement pour vérifier qu\'un visage est présent et que le contenu est adapté, puis vues par un modérateur si besoin. Aucune reconnaissance faciale n\'est faite.'**
+  String get consentItemPhotos;
+
+  /// No description provided for @consentWithdrawNote.
+  ///
+  /// In fr, this message translates to:
+  /// **'Tu peux retirer ton accord à tout moment depuis Paramètres : ton profil disparaît alors de la découverte. Tu peux aussi supprimer ton compte et toutes tes données.'**
+  String get consentWithdrawNote;
+
+  /// No description provided for @consentReadPrivacy.
+  ///
+  /// In fr, this message translates to:
+  /// **'Lire la politique de confidentialité'**
+  String get consentReadPrivacy;
+
+  /// No description provided for @consentCheckbox.
+  ///
+  /// In fr, this message translates to:
+  /// **'Je donne mon accord explicite au traitement de ces données sensibles par MERUT, comme décrit ci-dessus.'**
+  String get consentCheckbox;
+
+  /// No description provided for @consentContinue.
+  ///
+  /// In fr, this message translates to:
+  /// **'Continuer'**
+  String get consentContinue;
+
+  /// No description provided for @consentRefuseDelete.
+  ///
+  /// In fr, this message translates to:
+  /// **'Je refuse et je supprime mon compte'**
+  String get consentRefuseDelete;
+
+  /// No description provided for @consentSaveFailed.
+  ///
+  /// In fr, this message translates to:
+  /// **'Impossible d\'enregistrer ton choix. Réessaie.'**
+  String get consentSaveFailed;
+
+  /// No description provided for @consentSettingsRow.
+  ///
+  /// In fr, this message translates to:
+  /// **'Consentement aux données sensibles'**
+  String get consentSettingsRow;
+
+  /// No description provided for @consentSettingsRowSubtitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Retirer mon accord au traitement de mon orientation et de mon appartenance'**
+  String get consentSettingsRowSubtitle;
+
+  /// No description provided for @consentWithdrawConfirmTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Retirer ton accord ?'**
+  String get consentWithdrawConfirmTitle;
+
+  /// No description provided for @consentWithdrawConfirmBody.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ton profil disparaîtra de la découverte et tu ne pourras plus utiliser MERUT tant que tu n\'auras pas redonné ton accord. Tes données ne sont pas supprimées : pour cela, utilise « Supprimer mon compte ».'**
+  String get consentWithdrawConfirmBody;
+
+  /// No description provided for @consentWithdrawButton.
+  ///
+  /// In fr, this message translates to:
+  /// **'Retirer mon accord'**
+  String get consentWithdrawButton;
+
+  /// No description provided for @reportFailed.
+  ///
+  /// In fr, this message translates to:
+  /// **'Signalement non envoyé. Réessaie.'**
+  String get reportFailed;
+
+  /// No description provided for @reportRateLimited.
+  ///
+  /// In fr, this message translates to:
+  /// **'Tu as fait beaucoup de signalements récemment. Réessaie plus tard.'**
+  String get reportRateLimited;
+
   /// Heure d'une conversation dont le dernier message date de la veille (liste Messages)
   ///
   /// In fr, this message translates to:
@@ -3241,30 +3361,6 @@ abstract class AppLocalizations {
   /// In fr, this message translates to:
   /// **'Ajoute tes photos'**
   String get wizardPhotosTitle;
-
-  /// No description provided for @confirmAdultDialogTitle.
-  ///
-  /// In fr, this message translates to:
-  /// **'Confirmation d\'âge'**
-  String get confirmAdultDialogTitle;
-
-  /// No description provided for @confirmAdultDialogBody.
-  ///
-  /// In fr, this message translates to:
-  /// **'MERUT est réservé aux personnes de 18 ans et plus. Confirmes-tu avoir 18 ans ou plus ?'**
-  String get confirmAdultDialogBody;
-
-  /// No description provided for @confirmAdultDialogDecline.
-  ///
-  /// In fr, this message translates to:
-  /// **'Non, annuler'**
-  String get confirmAdultDialogDecline;
-
-  /// No description provided for @confirmAdultDialogAccept.
-  ///
-  /// In fr, this message translates to:
-  /// **'Oui, je confirme'**
-  String get confirmAdultDialogAccept;
 
   /// No description provided for @discoverSubtitle.
   ///

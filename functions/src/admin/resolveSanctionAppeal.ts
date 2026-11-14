@@ -2,6 +2,7 @@ import { onCall, HttpsError } from "firebase-functions/v2/https";
 import { getFirestore, FieldValue, Timestamp } from "firebase-admin/firestore";
 
 import { REGION, SANCTION_APPEAL_RETRY_DELAY_DAYS } from "../config";
+import { ENFORCE_APP_CHECK } from "../shared/appCheck";
 import { requireAdmin } from "../shared/requireAdmin";
 import { logAdminAction } from "../shared/adminLog";
 
@@ -16,7 +17,7 @@ interface ResolveData {
  * même raisonnement que admin/moderationRequests.ts : sans ça, un double
  * clic/retry pourrait traiter deux fois le même recours.
  */
-export const resolveSanctionAppeal = onCall({ region: REGION }, async (request) => {
+export const resolveSanctionAppeal = onCall({ region: REGION, enforceAppCheck: ENFORCE_APP_CHECK }, async (request) => {
   const adminUid = requireAdmin(request);
   const { requestId, approve } = request.data as ResolveData;
   if (!requestId) {

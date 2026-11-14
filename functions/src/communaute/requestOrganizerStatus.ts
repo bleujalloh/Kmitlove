@@ -2,6 +2,7 @@ import { onCall, HttpsError } from "firebase-functions/v2/https";
 import { getFirestore, FieldValue } from "firebase-admin/firestore";
 
 import { REGION, ORGANIZER_MAX_NAME_LENGTH, ORGANIZER_MAX_DESCRIPTION_LENGTH } from "../config";
+import { ENFORCE_APP_CHECK } from "../shared/appCheck";
 
 interface RequestData {
   organizerName: string;
@@ -16,7 +17,7 @@ interface RequestData {
  * du membre. Même principe que l'identité (user_status.identityVerificationStatus) :
  * un seul champ de statut, pas de collection séparée.
  */
-export const requestOrganizerStatus = onCall({ region: REGION }, async (request) => {
+export const requestOrganizerStatus = onCall({ region: REGION, enforceAppCheck: ENFORCE_APP_CHECK }, async (request) => {
   if (!request.auth) {
     throw new HttpsError("unauthenticated", "Connexion requise.");
   }

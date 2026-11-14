@@ -2,6 +2,7 @@ import { onCall, HttpsError } from "firebase-functions/v2/https";
 import { getFirestore, FieldValue } from "firebase-admin/firestore";
 
 import { REGION } from "../config";
+import { ENFORCE_APP_CHECK } from "../shared/appCheck";
 
 /**
  * Enregistre la position approximative du membre pour calculer une
@@ -11,7 +12,7 @@ import { REGION } from "../config";
  * section 4.4, docs/regles-du-projet.md section 2 : position précise
  * jamais exposée publiquement).
  */
-export const updateMyLocation = onCall({ region: REGION }, async (request) => {
+export const updateMyLocation = onCall({ region: REGION, enforceAppCheck: ENFORCE_APP_CHECK }, async (request) => {
   if (!request.auth) {
     throw new HttpsError("unauthenticated", "Connexion requise.");
   }

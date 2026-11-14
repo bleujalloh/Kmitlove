@@ -2,6 +2,7 @@ import { onCall, HttpsError } from "firebase-functions/v2/https";
 import { getFirestore } from "firebase-admin/firestore";
 
 import { REGION } from "../config";
+import { ENFORCE_APP_CHECK } from "../shared/appCheck";
 import { requireAdmin } from "../shared/requireAdmin";
 import { logAdminAction } from "../shared/adminLog";
 
@@ -15,7 +16,7 @@ interface SearchData {
  * ET le statut (filtrage, Premium, suspension) croisés, jamais
  * accessible depuis le client autrement.
  */
-export const adminListUsers = onCall({ region: REGION }, async (request) => {
+export const adminListUsers = onCall({ region: REGION, enforceAppCheck: ENFORCE_APP_CHECK }, async (request) => {
   requireAdmin(request);
   const { query } = (request.data ?? {}) as SearchData;
   const db = getFirestore();
@@ -66,7 +67,7 @@ interface SuspendData {
 }
 
 /** Suspendre/réactiver un compte directement (section 6 : "gérer les suspensions"). */
-export const adminSetSuspension = onCall({ region: REGION }, async (request) => {
+export const adminSetSuspension = onCall({ region: REGION, enforceAppCheck: ENFORCE_APP_CHECK }, async (request) => {
   const adminUid = requireAdmin(request);
   const { uid, suspend } = request.data as SuspendData;
   if (!uid) {

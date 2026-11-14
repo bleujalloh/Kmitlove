@@ -27,26 +27,33 @@ class PremiumScreen extends ConsumerWidget {
         children: [
           if (isPremium)
             Padding(
-              padding: const EdgeInsets.fromLTRB(20, 16, 20, 0),
-              child: Row(
-                children: [
-                  Icon(Icons.workspace_premium, color: AppColors.accent),
-                  const SizedBox(width: 10),
-                  Expanded(
-                    child: Text(
-                      context.l10n.youArePremium,
-                      style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 15),
+              padding: const EdgeInsets.fromLTRB(16, 8, 16, 0),
+              child: Container(
+                padding: const EdgeInsets.all(18),
+                decoration: BoxDecoration(
+                  color: AppColors.accentSoft,
+                  borderRadius: BorderRadius.circular(AppRadii.lg),
+                ),
+                child: Row(
+                  children: [
+                    Icon(Icons.workspace_premium, color: AppColors.accent, size: 26),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: Text(
+                        context.l10n.youArePremium,
+                        style: const TextStyle(fontWeight: FontWeight.w800, fontSize: 17, letterSpacing: -0.2),
+                      ),
                     ),
-                  ),
-                ],
+                  ],
+                ),
               ),
             ),
           Padding(
-            padding: const EdgeInsets.fromLTRB(20, 16, 20, 4),
+            padding: const EdgeInsets.fromLTRB(16, 12, 16, 4),
             child: Container(
-              padding: const EdgeInsets.all(16),
+              padding: const EdgeInsets.all(18),
               decoration: BoxDecoration(
-                color: AppColors.accentSoft,
+                color: AppColors.backgroundSoft,
                 borderRadius: BorderRadius.circular(AppRadii.lg),
               ),
               child: Row(
@@ -55,10 +62,11 @@ class PremiumScreen extends ConsumerWidget {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text(context.l10n.boostTitle, style: const TextStyle(fontWeight: FontWeight.bold)),
+                        Text(context.l10n.boostTitle, style: const TextStyle(fontWeight: FontWeight.w800, fontSize: 16)),
+                        const SizedBox(height: 4),
                         Text(
                           context.l10n.boostDescription,
-                          style: TextStyle(fontSize: 12, color: AppColors.muted),
+                          style: TextStyle(fontSize: 13, color: AppColors.muted, height: 1.35),
                         ),
                       ],
                     ),
@@ -93,14 +101,15 @@ class PremiumScreen extends ConsumerWidget {
                   );
                 }
                 return ListView.separated(
-                  padding: const EdgeInsets.all(20),
+                  padding: const EdgeInsets.all(16),
                   itemCount: products.length,
                   separatorBuilder: (_, _) => const SizedBox(height: 12),
                   itemBuilder: (context, i) {
                     final product = products[i];
                     return Container(
-                      padding: const EdgeInsets.all(16),
+                      padding: const EdgeInsets.all(18),
                       decoration: BoxDecoration(
+                        color: AppColors.backgroundSoft,
                         borderRadius: BorderRadius.circular(AppRadii.lg),
                       ),
                       child: Row(

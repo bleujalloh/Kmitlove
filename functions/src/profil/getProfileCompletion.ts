@@ -2,6 +2,7 @@ import { onCall, HttpsError } from "firebase-functions/v2/https";
 import { getFirestore } from "firebase-admin/firestore";
 
 import { REGION } from "../config";
+import { ENFORCE_APP_CHECK } from "../shared/appCheck";
 import { computeProfileCompletionPercent } from "../shared/profileCompletion";
 
 /**
@@ -11,7 +12,7 @@ import { computeProfileCompletionPercent } from "../shared/profileCompletion";
  * jamais seulement côté client (même logique que getDiscoverCandidates.ts,
  * via shared/profileCompletion.ts, pour que les deux ne divergent jamais).
  */
-export const getProfileCompletion = onCall({ region: REGION }, async (request) => {
+export const getProfileCompletion = onCall({ region: REGION, enforceAppCheck: ENFORCE_APP_CHECK }, async (request) => {
   if (!request.auth) {
     throw new HttpsError("unauthenticated", "Connexion requise.");
   }

@@ -2,6 +2,7 @@ import { onCall, HttpsError } from "firebase-functions/v2/https";
 import { getFirestore, FieldValue } from "firebase-admin/firestore";
 
 import { REGION } from "../config";
+import { ENFORCE_APP_CHECK } from "../shared/appCheck";
 
 /**
  * Déclare une pièce de vérification d'identité (selfie) déjà déposée
@@ -9,7 +10,7 @@ import { REGION } from "../config";
  * membre qui le souhaite, pas réservée aux organisateurs d'événements
  * (docs/regles-complementaires-concurrents.md section 1).
  */
-export const submitIdentityVerification = onCall({ region: REGION }, async (request) => {
+export const submitIdentityVerification = onCall({ region: REGION, enforceAppCheck: ENFORCE_APP_CHECK }, async (request) => {
   if (!request.auth) {
     throw new HttpsError("unauthenticated", "Connexion requise.");
   }

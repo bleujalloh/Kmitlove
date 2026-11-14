@@ -184,15 +184,12 @@ class _PostRepliesSectionState extends ConsumerState<PostRepliesSection> {
                       ? null
                       : PopupMenuButton<String>(
                           icon: Icon(Icons.flag_outlined, size: 18, color: AppColors.muted),
-                          onSelected: (reason) async {
-                            await ref
+                          onSelected: (reason) => sendReportWithFeedback(
+                            context,
+                            () => ref
                                 .read(communauteControllerProvider)
-                                .report(widget.post.id, reason, replyId: r.id);
-                            if (context.mounted) {
-                              ScaffoldMessenger.of(context)
-                                  .showSnackBar(SnackBar(content: Text(context.l10n.reportSent)));
-                            }
-                          },
+                                .report(widget.post.id, reason, replyId: r.id),
+                          ),
                           itemBuilder: (_) => reportReasonLabels(context.l10n)
                               .entries
                               .map((e) => PopupMenuItem(

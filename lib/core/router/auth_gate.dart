@@ -2,9 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_riverpod/legacy.dart';
 
-import '../../features/auth/presentation/auth_controller.dart';
-import '../../features/auth/presentation/screens/adult_confirmation_screen.dart';
 import '../../features/auth/presentation/screens/reset_password_screen.dart';
+import '../../features/auth/presentation/screens/sensitive_consent_screen.dart';
 import '../../features/auth/presentation/screens/sign_in_screen.dart';
 import '../../features/auth/presentation/screens/sign_up_screen.dart';
 import '../../features/auth/presentation/screens/verify_email_screen.dart';
@@ -14,6 +13,7 @@ import '../../features/filtrage/presentation/screens/filtrage_result_screen.dart
 import '../../features/filtrage/presentation/screens/filtrage_screen.dart';
 import '../../features/filtrage/presentation/screens/sanction_screen.dart';
 import '../../features/onboarding/presentation/screens/onboarding_screen.dart';
+import '../../features/parametres/settings_controller.dart';
 import '../../features/profil/presentation/profil_controller.dart';
 import '../../features/profil/presentation/screens/profil_wizard_screen.dart';
 import '../../l10n/l10n_extensions.dart';
@@ -64,14 +64,6 @@ class AuthGate extends ConsumerWidget {
           }
         }
 
-        if (ref.watch(pendingAdultConfirmationProvider)) {
-          // Priorité absolue sur tout le reste, y compris la vérification
-          // d'e-mail (déjà acquise automatiquement pour un compte Google/
-          // Apple) — voir auth_controller.dart pour pourquoi ce contrôle
-          // doit vivre ici plutôt que dans l'écran d'origine.
-          return const AdultConfirmationScreen();
-        }
-
         if (!user.emailVerified) {
           return VerifyEmailScreen(
             onVerified: () => ref.invalidate(authStateProvider),
@@ -100,6 +92,11 @@ class AuthGate extends ConsumerWidget {
                 error: (e, st) =>
                     Scaffold(body: Center(child: Text(context.l10n.unexpectedError(e.toString())))),
                 data: (profil) {
+                  // Consentement explicite aux données sensibles (RGPD art. 9) :
+                  // avant l'assistant de profil comme pour un compte existant,
+                  // ou après un retrait (Paramètres). Le serveur le vérifie de
+                  // toute façon (saveProfil).
+                  if (!hasSensitiveConsent(status)) return const SensitiveConsentScreen();
                   if (profil == null) return const ProfilWizardScreen();
                   return const MainShell();
                 },

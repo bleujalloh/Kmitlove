@@ -1,6 +1,7 @@
 import 'dart:io';
 import 'dart:ui';
 
+import 'package:cloud_functions/cloud_functions.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:image_picker/image_picker.dart';
@@ -65,7 +66,34 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
 
     final picked = await ImagePicker().pickImage(source: ImageSource.gallery, imageQuality: 85);
     if (picked == null) return;
-    await ref.read(messagesControllerProvider).sendImage(widget.matchId, File(picked.path));
+    try {
+      await ref.read(messagesControllerProvider).sendImage(widget.matchId, File(picked.path));
+    } catch (e) {
+      _showSendError(e);
+    }
+  }
+
+  /// Envoi du texte : le message n'est effacé du champ qu'une fois parti, et
+  /// remis dans le champ s'il échoue (limite de fréquence, réseau...), pour
+  /// ne jamais perdre ce que le membre vient d'écrire.
+  Future<void> _sendText() async {
+    final text = _controller.text;
+    if (text.trim().isEmpty) return;
+    _controller.clear();
+    try {
+      await ref.read(messagesControllerProvider).send(widget.matchId, text);
+    } catch (e) {
+      if (mounted && _controller.text.isEmpty) _controller.text = text;
+      _showSendError(e);
+    }
+  }
+
+  void _showSendError(Object error) {
+    if (!mounted) return;
+    final rateLimited = error is FirebaseFunctionsException && error.code == 'resource-exhausted';
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text(rateLimited ? context.l10n.messageRateLimited : context.l10n.messageSendFailed)),
+    );
   }
 
   @override
@@ -224,7 +252,7 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
                       Expanded(
                         child: TextField(
                           controller: _controller,
-                          // Même plafond que firestore.rules (2000 caractères).
+                          // Même plafond que le serveur (MESSAGE_MAX_LENGTH, 2000 caractères).
                           maxLength: 2000,
                           decoration: InputDecoration(
                             hintText: context.l10n.messageHint,
@@ -234,10 +262,7 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
                       ),
                       IconButton(
                         icon: Icon(Icons.send, color: AppColors.accent),
-                        onPressed: () {
-                          ref.read(messagesControllerProvider).send(widget.matchId, _controller.text);
-                          _controller.clear();
-                        },
+                        onPressed: _sendText,
                       ),
                     ],
                   ),
@@ -282,17 +307,15 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
                     title: Text(entry.value),
                     onTap: () async {
                       Navigator.of(sheetContext).pop();
-                      await ref.read(messagesControllerProvider).report(
-                            targetUid: widget.otherUid,
-                            reason: entry.key,
-                            matchId: widget.matchId,
-                            messageId: messageId,
-                          );
-                      if (context.mounted) {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(content: Text(context.l10n.reportSent)),
-                        );
-                      }
+                      await sendReportWithFeedback(
+                        context,
+                        () => ref.read(messagesControllerProvider).report(
+                              targetUid: widget.otherUid,
+                              reason: entry.key,
+                              matchId: widget.matchId,
+                              messageId: messageId,
+                            ),
+                      );
                     },
                   ))
               .toList(),

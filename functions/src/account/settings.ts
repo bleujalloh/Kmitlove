@@ -2,6 +2,7 @@ import { onCall, HttpsError } from "firebase-functions/v2/https";
 import { getFirestore, Timestamp } from "firebase-admin/firestore";
 
 import { REGION } from "../config";
+import { ENFORCE_APP_CHECK } from "../shared/appCheck";
 
 /**
  * Réglages de compte de l'écran Paramètres du prototype : préférences de
@@ -13,7 +14,7 @@ import { REGION } from "../config";
 const NOTIFICATION_KEYS = ["likes", "messages", "matches", "community", "events"] as const;
 
 /** Active ou coupe chaque type de notification (clés absentes : inchangées). */
-export const setNotificationPreferences = onCall({ region: REGION }, async (request) => {
+export const setNotificationPreferences = onCall({ region: REGION, enforceAppCheck: ENFORCE_APP_CHECK }, async (request) => {
   if (!request.auth) throw new HttpsError("unauthenticated", "Connexion requise.");
   const data = (request.data ?? {}) as Record<string, unknown>;
   const update: Record<string, boolean> = {};
@@ -35,7 +36,7 @@ export const setNotificationPreferences = onCall({ region: REGION }, async (requ
 });
 
 /** Masque ou réaffiche le profil dans la découverte des autres membres. */
-export const setProfileVisibility = onCall({ region: REGION }, async (request) => {
+export const setProfileVisibility = onCall({ region: REGION, enforceAppCheck: ENFORCE_APP_CHECK }, async (request) => {
   if (!request.auth) throw new HttpsError("unauthenticated", "Connexion requise.");
   const hidden = request.data?.hidden;
   if (typeof hidden !== "boolean") {
@@ -52,7 +53,7 @@ export const setProfileVisibility = onCall({ region: REGION }, async (request) =
  * Mes propres signalements (type, motif, date, traité ou non). Jamais le
  * détail interne de la modération ni la décision prise.
  */
-export const listMyReports = onCall({ region: REGION }, async (request) => {
+export const listMyReports = onCall({ region: REGION, enforceAppCheck: ENFORCE_APP_CHECK }, async (request) => {
   if (!request.auth) throw new HttpsError("unauthenticated", "Connexion requise.");
   const snap = await getFirestore()
     .collection("moderation_requests")

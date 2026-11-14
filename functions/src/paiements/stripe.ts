@@ -4,6 +4,7 @@ import { getFirestore, FieldValue } from "firebase-admin/firestore";
 import Stripe from "stripe";
 
 import { REGION, PREMIUM_SUBSCRIPTION_PRODUCT_ID, JETON_PACK_PRODUCTS } from "../config";
+import { ENFORCE_APP_CHECK } from "../shared/appCheck";
 
 /**
  * Infrastructure Stripe — prête pour un futur site web ou une
@@ -28,7 +29,7 @@ interface CreateCheckoutData {
 
 /** Crée une session Stripe Checkout — pensée pour un usage web. */
 export const createStripeCheckoutSession = onCall(
-  { region: REGION, secrets: [stripeSecretKey] },
+  { region: REGION, enforceAppCheck: ENFORCE_APP_CHECK, secrets: [stripeSecretKey] },
   async (request) => {
     if (!request.auth) {
       throw new HttpsError("unauthenticated", "Connexion requise.");

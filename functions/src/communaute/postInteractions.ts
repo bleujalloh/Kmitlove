@@ -1,8 +1,10 @@
 import { onCall, HttpsError } from "firebase-functions/v2/https";
-import { getFirestore, FieldValue, Timestamp } from "firebase-admin/firestore";
+import { getFirestore, FieldValue } from "firebase-admin/firestore";
 
-import { REGION } from "../config";
+import { REGION, REPLY_RATE_LIMITS } from "../config";
+import { ENFORCE_APP_CHECK } from "../shared/appCheck";
 import { sendPushToUser } from "../shared/push";
+import { enforceRateLimit } from "../shared/rateLimit";
 
 /**
  * J'aime et réponses sur les publications du fil (prototype
@@ -14,8 +16,6 @@ import { sendPushToUser } from "../shared/push";
  */
 
 const MAX_REPLY_LENGTH = 500;
-const MAX_REPLIES_PER_HOUR = 20;
-const WINDOW_MS = 60 * 60 * 1000;
 
 /**
  * Seuls les membres dont le compte est activé (questionnaire de filtrage
@@ -55,7 +55,7 @@ async function assertNotBlocked(uid: string, authorUid: string): Promise<void> {
 }
 
 /** Bascule le j'aime du membre sur une publication ; renvoie le nouvel état. */
-export const togglePostLike = onCall({ region: REGION }, async (request) => {
+export const togglePostLike = onCall({ region: REGION, enforceAppCheck: ENFORCE_APP_CHECK }, async (request) => {
   if (!request.auth) throw new HttpsError("unauthenticated", "Connexion requise.");
   const uid = request.auth.uid;
   const db = getFirestore();
@@ -80,7 +80,7 @@ export const togglePostLike = onCall({ region: REGION }, async (request) => {
 });
 
 /** Ajoute une réponse à une publication et prévient son auteur (push). */
-export const replyToPost = onCall({ region: REGION }, async (request) => {
+export const replyToPost = onCall({ region: REGION, enforceAppCheck: ENFORCE_APP_CHECK }, async (request) => {
   if (!request.auth) throw new HttpsError("unauthenticated", "Connexion requise.");
   const uid = request.auth.uid;
   const db = getFirestore();
@@ -95,25 +95,8 @@ export const replyToPost = onCall({ region: REGION }, async (request) => {
   const { postRef, post } = await loadReplyablePost(request.data?.postId);
   await assertNotBlocked(uid, post.authorUid as string);
 
-  // Fréquence : 20 réponses par heure et par membre, fenêtre posée sur
-  // user_status (écriture serveur uniquement).
-  await db.runTransaction(async (tx) => {
-    const status = (await tx.get(statusRef)).data() ?? {};
-    const start = (status.communityReplyWindowStart as Timestamp | undefined)?.toMillis() ?? 0;
-    const inWindow = Date.now() - start < WINDOW_MS;
-    const count = inWindow ? ((status.communityReplyCount as number | undefined) ?? 0) : 0;
-    if (count >= MAX_REPLIES_PER_HOUR) {
-      throw new HttpsError("resource-exhausted", "Trop de réponses, réessaie plus tard.");
-    }
-    tx.set(
-      statusRef,
-      {
-        communityReplyWindowStart: inWindow ? Timestamp.fromMillis(start) : Timestamp.now(),
-        communityReplyCount: count + 1,
-      },
-      { merge: true },
-    );
-  });
+  // Fréquence : REPLY_RATE_LIMITS (mécanisme commun, shared/rateLimit.ts).
+  await enforceRateLimit(uid, REPLY_RATE_LIMITS);
 
   const profile = (await db.collection("users").doc(uid).get()).data();
   const authorName = (profile?.displayName as string | undefined) ?? "Membre";

@@ -2,11 +2,12 @@ import { onCall, HttpsError } from "firebase-functions/v2/https";
 import { getFirestore, FieldValue } from "firebase-admin/firestore";
 
 import { REGION } from "../config";
+import { ENFORCE_APP_CHECK } from "../shared/appCheck";
 import { requireAdmin } from "../shared/requireAdmin";
 import { logAdminAction } from "../shared/adminLog";
 
 /** Liste les demandes de statut organisateur en attente (spec Communauté section 3). */
-export const adminListOrganizerRequests = onCall({ region: REGION }, async (request) => {
+export const adminListOrganizerRequests = onCall({ region: REGION, enforceAppCheck: ENFORCE_APP_CHECK }, async (request) => {
   requireAdmin(request);
   const db = getFirestore();
   const snap = await db
@@ -34,7 +35,7 @@ interface ReviewData {
  * d'événement (spec Communauté section 3) — aucun abonnement ne permet
  * de contourner ce contrôle, il n'y en a d'ailleurs pas pour l'instant.
  */
-export const adminReviewOrganizerRequest = onCall({ region: REGION }, async (request) => {
+export const adminReviewOrganizerRequest = onCall({ region: REGION, enforceAppCheck: ENFORCE_APP_CHECK }, async (request) => {
   const adminUid = requireAdmin(request);
   const { uid, approve } = request.data as ReviewData;
   if (!uid) {
@@ -71,7 +72,7 @@ export const adminReviewOrganizerRequest = onCall({ region: REGION }, async (req
  * membre, ne peut plus publier/gérer d'événements) — distinct de
  * adminSetSuspension (account/listUsers.ts), qui coupe tout accès.
  */
-export const adminSuspendOrganizer = onCall({ region: REGION }, async (request) => {
+export const adminSuspendOrganizer = onCall({ region: REGION, enforceAppCheck: ENFORCE_APP_CHECK }, async (request) => {
   const adminUid = requireAdmin(request);
   const { uid } = request.data as { uid: string };
   if (!uid) {
