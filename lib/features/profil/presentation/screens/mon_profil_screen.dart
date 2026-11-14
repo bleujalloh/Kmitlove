@@ -25,7 +25,7 @@ import '../profil_controller.dart';
 import 'photo_viewer_screen.dart';
 import 'photos_section.dart';
 import 'profil_detail_screen.dart';
-import 'profil_edit_screen.dart';
+import 'profil_wizard_screen.dart';
 
 /// Onglet « Profil » — présentation inspirée d'un profil de réseau social
 /// moderne (demande du propriétaire, 14/11/2026, capture d'un profil
@@ -81,7 +81,7 @@ class MonProfilScreen extends ConsumerWidget {
           // même règle que celle qui influence le classement dans Découvrir.
           final completionPercent = ref.watch(profileCompletionPercentProvider).value ?? 0;
           void edit() => Navigator.of(context).push(
-                MaterialPageRoute(builder: (_) => ProfilEditScreen(existing: profil)),
+                MaterialPageRoute(builder: (_) => ProfilWizardScreen(existing: profil)),
               );
 
           return SafeArea(

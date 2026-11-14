@@ -7,6 +7,7 @@ import {
   INACTIVE_ACCOUNT_WARNING_MONTHS,
   INACTIVE_ACCOUNT_GRACE_DAYS,
   INACTIVE_PURGE_MAX_PER_RUN,
+  INACTIVE_WARNING_EMAIL_ENABLED,
 } from "../config";
 import { eraseAccount } from "../shared/eraseAccount";
 import { sendPushToUser } from "../shared/push";
@@ -106,6 +107,20 @@ async function processAccount(uid: string, now: number, warnCutoff: number): Pro
   }
 
   if (warnedAt === undefined) {
+    // E-mail déjà demandé lors d'un passage précédent : on attend (ou constate)
+    // la confirmation de l'extension d'envoi avant de lancer le compte à rebours.
+    const mailId = fresh?.inactivityWarnMailId as string | undefined;
+    if (INACTIVE_WARNING_EMAIL_ENABLED && mailId) {
+      const state = ((await db.collection("mail").doc(mailId).get()).data()?.delivery as { state?: string } | undefined)?.state;
+      if (state === "SUCCESS") {
+        await statusRef.update({ inactivityWarnedAt: FieldValue.serverTimestamp(), inactivityWarnMailId: FieldValue.delete() });
+        return 1;
+      }
+      if (state === "ERROR") {
+        await statusRef.update({ inactivityWarnMailId: FieldValue.delete(), inactivityWarnUndeliveredAt: FieldValue.serverTimestamp() });
+      }
+      return 0; // en attente de remise (ou échec noté) : pas de compte à rebours
+    }
     const delivered = await sendPushToUser(
       uid,
       {
@@ -118,7 +133,23 @@ async function processAccount(uid: string, now: number, warnCutoff: number): Pro
       await statusRef.update({ inactivityWarnedAt: FieldValue.serverTimestamp() });
       return 1;
     }
-    // Aucun appareil atteint : pas de compte à rebours, donc pas de suppression.
+    // Aucun appareil atteint par la notification : second canal, l'e-mail.
+    if (INACTIVE_WARNING_EMAIL_ENABLED && authUser.email) {
+      const mailRef = db.collection("mail").doc();
+      await mailRef.set({
+        to: authUser.email,
+        message: {
+          subject: "Ton compte MERUT sera supprimé s'il reste inactif",
+          text:
+            `Bonjour,\n\nTu ne t'es pas connecté·e à MERUT depuis longtemps. Sans connexion de ta part d'ici ` +
+            `${INACTIVE_ACCOUNT_GRACE_DAYS} jours, ton compte et toutes tes données seront supprimés définitivement.\n\n` +
+            `Pour le garder, ouvre simplement l'application MERUT.\n\nL'équipe MERUT`,
+        },
+      });
+      await statusRef.update({ inactivityWarnMailId: mailRef.id });
+      return 0; // le compte à rebours ne démarre qu'à la confirmation de remise
+    }
+    // Aucun canal fiable : pas de compte à rebours, donc pas de suppression.
     await statusRef.update({ inactivityWarnUndeliveredAt: FieldValue.serverTimestamp() });
     return 0;
   }

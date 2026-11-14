@@ -1,6 +1,9 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { onCall as baseOnCall, HttpsError } from "firebase-functions/v2/https";
 import type { CallableOptions, CallableRequest } from "firebase-functions/v2/https";
+import { getFirestore } from "firebase-admin/firestore";
+
+import { requireConsent } from "./consent";
 
 /**
  * `onCall` de toute l'application : même chose que celui de Firebase, avec une
@@ -23,6 +26,15 @@ import type { CallableOptions, CallableRequest } from "firebase-functions/v2/htt
  *    être du texte, de longueur raisonnable ;
  *  - les décisions oui/non (`approve`, `accept`, `suspend`...) doivent être de
  *    vrais booléens.
+ *
+ * CONSENTEMENT (RGPD art. 9, 14/11/2026) : `onCall` EXIGE par défaut un
+ * consentement valide (shared/consent.ts) pour toute fonction de membre — avant
+ * cela, seules cinq fonctions le vérifiaient une par une (test
+ * `scripts/test_consent_enforced.py` : 26 fonctions sur 31 laissaient agir un
+ * membre sans consentement, dont publier dans la Communauté). Un oubli sur une
+ * future fonction est ainsi impossible : c'est l'exception, pas la règle, qui
+ * doit être déclarée, avec `onCallNoConsent` (gestion du compte, sécurité).
+ * Les administrateurs en sont dispensés (ils agissent en tant qu'opérateurs).
  */
 const ID_FIELDS = [
   "postId",
@@ -77,6 +89,28 @@ function sanitizeRequestData(request: CallableRequest<any>): void {
 }
 
 export function onCall<T = any, Return = any>(
+  options: CallableOptions<T>,
+  handler: (request: CallableRequest<T>) => Return,
+) {
+  return baseOnCall<T, any>(options, async (request) => {
+    sanitizeRequestData(request);
+    if (request.auth && request.auth.token.admin !== true) {
+      const status = (await getFirestore().collection("user_status").doc(request.auth.uid).get()).data();
+      requireConsent(status);
+    }
+    return handler(request);
+  });
+}
+
+/**
+ * Comme `onCall`, SANS exiger le consentement : réservé aux fonctions qui
+ * doivent rester ouvertes à un membre qui n'a pas (ou plus) consenti — donner
+ * ou retirer son consentement, supprimer son compte, exporter ses données,
+ * signaler, alerte d'urgence, recours contre une sanction, réglages de
+ * notification, jeton de notification, activité. Toute nouvelle fonction de ce
+ * type doit être justifiée dans docs/rgpd-registre-des-traitements.md §3.
+ */
+export function onCallNoConsent<T = any, Return = any>(
   options: CallableOptions<T>,
   handler: (request: CallableRequest<T>) => Return,
 ) {

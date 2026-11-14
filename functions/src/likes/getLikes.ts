@@ -1,4 +1,4 @@
-import { hasValidConsent, requireConsent } from "../shared/consent";
+import { hasValidConsent } from "../shared/consent";
 import { HttpsError } from "firebase-functions/v2/https";
 import { onCall } from "../shared/callable";
 import { getFirestore } from "firebase-admin/firestore";
@@ -62,7 +62,6 @@ export const getLikes = onCall({ region: REGION, enforceAppCheck: ENFORCE_APP_CH
 
   const likersWithoutMatch = [...likersUids].filter((u) => !matchedUids.has(u) && !blockedUids.has(u));
   const myLikesWithoutMatch = myLikeUids.filter((u) => !matchedUids.has(u) && !blockedUids.has(u));
-  requireConsent(statusSnap.data());
   const isPremium = statusSnap.data()?.isPremium === true;
 
   // Les deux listes sont indépendantes l'une de l'autre : on les

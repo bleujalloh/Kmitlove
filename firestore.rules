@@ -15,6 +15,13 @@ service cloud.firestore {
       return isSignedIn() && request.auth.uid == userId;
     }
 
+    // Consentement RGPD art. 9 valide — même règle que storage.rules et que
+    // functions/src/shared/consent.ts (version 1 à changer en même temps).
+    function hasConsent(userId) {
+      let c = get(/databases/$(database)/documents/user_status/$(userId)).data.sensitiveConsent;
+      return c.granted == true && c.version == 1;
+    }
+
     // Profil public d'un membre : lisible par les membres connectés,
     // modifiable uniquement par son propriétaire. Les champs sensibles
     // (position précise, résultat du questionnaire de filtrage) ne sont
@@ -52,7 +59,8 @@ service cloud.firestore {
         // il ne doit donc jamais pouvoir désigner le fichier d'un autre membre.
         allow create: if isOwner(userId) && request.resource.data.status == 'pending'
           && request.resource.data.uploadedAt == request.time
-          && request.resource.data.storagePath == 'profile_photos/' + userId + '/' + photoId + '.jpg';
+          && request.resource.data.storagePath == 'profile_photos/' + userId + '/' + photoId + '.jpg'
+          && hasConsent(userId);
         allow update: if false;
         allow delete: if isOwner(userId);
       }

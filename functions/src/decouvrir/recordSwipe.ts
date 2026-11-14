@@ -1,4 +1,4 @@
-import { hasValidConsent, requireConsent } from "../shared/consent";
+import { hasValidConsent } from "../shared/consent";
 import { HttpsError } from "firebase-functions/v2/https";
 import { onCall } from "../shared/callable";
 import { getFirestore, FieldValue } from "firebase-admin/firestore";
@@ -62,7 +62,6 @@ export const recordSwipe = onCall({ region: REGION, enforceAppCheck: ENFORCE_APP
     // Consentement art. 9 (shared/consent.ts) : ni swiper sans l'avoir donné,
     // ni swiper un membre qui l'a retiré (carte restée affichée sur un autre
     // téléphone) — jamais de match avec un profil retiré de la découverte.
-    requireConsent(statusSnap.data());
     if (!hasValidConsent(targetStatusSnap.data())) {
       throw new HttpsError("failed-precondition", "Ce profil n'est plus disponible.");
     }

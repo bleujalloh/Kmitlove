@@ -169,6 +169,23 @@ try:
     E3, err = create_event(O_T, type="evenement_prive", accessMode="sur_invitation", capacity=5, invitedUids=[P1])
     check("création d'un événement sur invitation", E3 is not None, err)
     if E3:
+        # recherche d'un membre par prénom pour l'inviter
+        s, r = call("searchMembersToInvite", {"query": "Test ev-p"}, O_T)
+        found = {m["uid"] for m in r.get("result", {}).get("members", [])}
+        check("recherche par prénom : l'organisateur trouve les membres (sans lui-même)", s == 200 and {P1, P2, P3} <= found and O not in found, (s, found))
+        s, r = call("searchMembersToInvite", {"query": "tes"}, O_T)
+        check("recherche : la casse de la saisie n'empêche pas de trouver", s == 200 and len(r["result"]["members"]) >= 3, (s, r))
+        s, r = call("searchMembersToInvite", {"query": "ab"}, O_T)
+        check("recherche : moins de 3 lettres refusé", code(r) == "INVALID_ARGUMENT", (s, r))
+        s, r = call("searchMembersToInvite", {"query": "Test ev-p"}, P1_T)
+        check("recherche : réservée aux organisateurs approuvés", code(r) == "PERMISSION_DENIED", (s, r))
+        admin("PATCH", f"blocks/{'_'.join(sorted([O, P2]))}", {"fields": {"blockerUid": fv(O), "blockedUid": fv(P2)}})
+        admin("PATCH", f"user_status/{P3}?updateMask.fieldPaths=profileHidden", {"fields": {"profileHidden": {"booleanValue": True}}})
+        s, r = call("searchMembersToInvite", {"query": "Test ev-p"}, O_T)
+        found = {m["uid"] for m in r.get("result", {}).get("members", [])}
+        check("recherche : un membre bloqué ou au profil masqué n'apparaît pas", found == {P1}, found)
+        admin("DELETE", f"blocks/{'_'.join(sorted([O, P2]))}")
+        admin("PATCH", f"user_status/{P3}?updateMask.fieldPaths=profileHidden", {"fields": {"profileHidden": {"booleanValue": False}}})
         s, r = call("requestParticipation", {"postId": E3}, P2_T)
         check("sur invitation : un membre non invité est refusé", code(r) == "PERMISSION_DENIED", (s, r))
         s, r = call("requestParticipation", {"postId": E3}, P1_T)

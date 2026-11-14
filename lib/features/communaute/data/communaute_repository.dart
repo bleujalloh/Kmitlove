@@ -247,6 +247,16 @@ class CommunauteRepository {
     return _functions.httpsCallable('inviteToEvent').call({'postId': postId, 'targetUid': targetUid});
   }
 
+  /// Recherche de membres par prénom pour les inviter (organisateur seulement).
+  Future<List<InvitableMember>> searchMembersToInvite(String query) async {
+    final result = await _functions.httpsCallable('searchMembersToInvite').call({'query': query});
+    final data = Map<String, dynamic>.from(result.data as Map);
+    return [
+      for (final m in (data['members'] as List? ?? const []))
+        InvitableMember.fromMap(Map<String, dynamic>.from(m as Map)),
+    ];
+  }
+
   Future<void> updateEventState(String postId, String eventState) {
     return _functions.httpsCallable('updateEventState').call({'postId': postId, 'eventState': eventState});
   }
@@ -344,4 +354,21 @@ class CommunauteRepository {
         .snapshots()
         .map((snap) => snap.docs.map((d) => {'id': d.id, ...d.data()}).toList());
   }
+}
+
+/// Un membre proposé à l'invitation (prénom, âge et ville seulement).
+class InvitableMember {
+  const InvitableMember({required this.uid, required this.displayName, this.age, this.city});
+
+  final String uid;
+  final String displayName;
+  final int? age;
+  final String? city;
+
+  factory InvitableMember.fromMap(Map<String, dynamic> map) => InvitableMember(
+        uid: map['uid'] as String,
+        displayName: map['displayName'] as String? ?? '',
+        age: (map['age'] as num?)?.toInt(),
+        city: map['city'] as String?,
+      );
 }

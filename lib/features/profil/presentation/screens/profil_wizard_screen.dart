@@ -9,19 +9,25 @@ import '../../domain/profil.dart';
 import '../profil_controller.dart';
 import 'photos_section.dart';
 
-/// Création du profil en plusieurs étapes, une question à la fois —
-/// remarqué le 11/11 : l'ancien formulaire (un seul grand écran à faire
-/// défiler) ne ressemblait à aucune application de rencontre connue.
+/// UNIQUE éditeur du profil (règlement permanent, section 19 : pas de doublon).
+///
+/// Création : une question à la fois — l'ancien formulaire (un seul grand écran
+/// à défilement) ne ressemblait à aucune application de rencontre connue.
 /// Structure inspirée des parcours d'inscription courants (Tinder, Happn,
-/// Meetic), adaptée à l'identité visuelle de MERUT et aux valeurs du
-/// cahier des charges : genre limité à Homme/Femme, aucune option
-/// contraire aux valeurs kamites (pas de "relation libre", pas de tags
-/// hors sujet) n'a jamais existé dans ce modèle de données pour commencer.
-/// Réservé à la création initiale — modifier un profil existant reste
-/// sur l'écran à défilement unique (profil_edit_screen.dart), plus adapté
-/// à un ajustement ponctuel qu'à un nouveau parcours complet.
+/// Meetic), adaptée à l'identité visuelle de MERUT et aux valeurs du cahier des
+/// charges : genre limité à Homme/Femme, aucune option contraire aux valeurs
+/// kamites.
+///
+/// Modification (`existing` fourni, 14/11/2026) : au lieu d'un second formulaire
+/// qui saisissait les mêmes champs avec du code recopié, la MÊME liste d'étapes
+/// s'ouvre sur une vue d'ensemble (une ligne par rubrique, avec son résumé) ;
+/// toucher une rubrique ouvre exactement l'écran de l'étape correspondante. Le
+/// genre et la date de naissance restent figés (saveProfil.ts les refuse après
+/// l'inscription).
 class ProfilWizardScreen extends ConsumerStatefulWidget {
-  const ProfilWizardScreen({super.key});
+  const ProfilWizardScreen({super.key, this.existing});
+
+  final Profil? existing;
 
   @override
   ConsumerState<ProfilWizardScreen> createState() => _ProfilWizardScreenState();
@@ -43,6 +49,11 @@ enum _Step {
 
 class _ProfilWizardScreenState extends ConsumerState<ProfilWizardScreen> {
   int _stepIndex = 0;
+
+  bool get _editMode => widget.existing != null;
+
+  /// Rubrique ouverte en modification (null = vue d'ensemble).
+  _Step? _editingStep;
 
   final _nameController = TextEditingController();
   String? _country;
@@ -67,6 +78,36 @@ class _ProfilWizardScreenState extends ConsumerState<ProfilWizardScreen> {
   final Set<String> _qualities = {};
 
   static const _steps = _Step.values;
+
+  /// Rubriques proposées en modification : toutes sauf le genre (figé).
+  static final _editSteps = _Step.values.where((s) => s != _Step.genre).toList();
+
+  @override
+  void initState() {
+    super.initState();
+    final e = widget.existing;
+    if (e == null) return;
+    _nameController.text = e.displayName;
+    _birthDate = e.birthDate;
+    _gender = e.gender;
+    _seekingGenders.addAll(e.seekingGenders);
+    _relationshipIntent = e.relationshipIntent;
+    _country = e.country;
+    _cityController.text = e.city;
+    _bioController.text = e.bio;
+    _professionController.text = e.profession ?? '';
+    _languagesController.text = e.languages.join(', ');
+    _interestsController.text = e.interests.join(', ');
+    _culturalOriginsController.text = e.culturalOrigins.join(', ');
+    _lookingForController.text = e.lookingFor ?? '';
+    _valuesController.text = e.values ?? '';
+    _heightController.text = e.heightCm?.toString() ?? '';
+    _educationController.text = e.educationLevel ?? '';
+    _smokingHabit = e.smokingHabit;
+    _drinkingHabit = e.drinkingHabit;
+    _childrenStatus = e.childrenStatus;
+    _qualities.addAll(e.qualities);
+  }
 
   @override
   void dispose() {
@@ -104,8 +145,10 @@ class _ProfilWizardScreenState extends ConsumerState<ProfilWizardScreen> {
     if (picked != null) setState(() => _birthDate = picked);
   }
 
-  bool get _canProceed {
-    switch (_steps[_stepIndex]) {
+  bool get _canProceed => _canProceedFor(_steps[_stepIndex]);
+
+  bool _canProceedFor(_Step step) {
+    switch (step) {
       case _Step.identite:
         return _nameController.text.trim().isNotEmpty &&
             _birthDate != null &&
@@ -182,11 +225,187 @@ class _ProfilWizardScreenState extends ConsumerState<ProfilWizardScreen> {
       qualities: _qualities.toList(),
       values: _valuesController.text.trim().isEmpty ? null : _valuesController.text.trim(),
     );
-    await ref.read(profilControllerProvider.notifier).save(profil);
+    final ok = await ref.read(profilControllerProvider.notifier).save(profil);
+    // En modification : confirmation visible et retour à l'écran précédent (un
+    // enregistrement réussi doit se voir). En création, AuthGate bascule seul
+    // vers l'appli dès que le profil existe.
+    if (ok && _editMode && mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(context.l10n.profileSaved)));
+      Navigator.of(context).pop();
+    }
+  }
+
+  /// Résumé d'une rubrique (ligne de la vue d'ensemble) ; vide si rien à dire.
+  String _summaryOf(_Step step) {
+    final l10n = context.l10n;
+    String join(Iterable<String> parts) => parts.where((p) => p.trim().isNotEmpty).join(' · ');
+    switch (step) {
+      case _Step.identite:
+        return join([_nameController.text.trim()]);
+      case _Step.genre:
+        return _gender == null ? '' : Gender.label(_gender!, l10n);
+      case _Step.recherche:
+        return join(_seekingGenders.map((g) => Gender.label(g, l10n)));
+      case _Step.intention:
+        return _relationshipIntent == null ? '' : RelationshipIntent.label(_relationshipIntent!, l10n);
+      case _Step.lieu:
+        return join([_cityController.text.trim(), _country ?? '']);
+      case _Step.bio:
+        final bio = _bioController.text.trim();
+        return bio.length > 70 ? '${bio.substring(0, 70)}…' : bio;
+      case _Step.qualites:
+        return _qualities.isEmpty ? '' : join(_qualities.map((q) => PersonalQuality.label(q, l10n)));
+      case _Step.interets:
+        return join([_interestsController.text.trim(), _culturalOriginsController.text.trim()]);
+      case _Step.details:
+        return join([_professionController.text.trim(), _languagesController.text.trim(), _educationController.text.trim()]);
+      case _Step.modeDeVie:
+        return join([
+          if (_smokingHabit != null) LifestyleHabit.label(_smokingHabit!, l10n),
+          if (_drinkingHabit != null) LifestyleHabit.label(_drinkingHabit!, l10n),
+          if (_childrenStatus != null) ChildrenStatus.label(_childrenStatus!, l10n),
+        ]);
+      case _Step.photos:
+        return '';
+    }
+  }
+
+  String _sectionTitleOf(_Step step) {
+    final l10n = context.l10n;
+    switch (step) {
+      case _Step.identite:
+        return l10n.profileSectionIdentity;
+      case _Step.genre:
+        return l10n.profileSectionGender;
+      case _Step.recherche:
+        return l10n.profileSectionSeeking;
+      case _Step.intention:
+        return l10n.profileSectionIntent;
+      case _Step.lieu:
+        return l10n.profileSectionPlace;
+      case _Step.bio:
+        return l10n.aboutMeSectionTitle;
+      case _Step.qualites:
+        return l10n.profileSectionQualities;
+      case _Step.interets:
+        return l10n.profileSectionInterestsEtc;
+      case _Step.details:
+        return l10n.profileSectionDetails;
+      case _Step.modeDeVie:
+        return l10n.profileSectionLifestyle;
+      case _Step.photos:
+        return l10n.photosSectionTitle;
+    }
+  }
+
+  Widget _buildEditor(BuildContext context) {
+    final state = ref.watch(profilControllerProvider);
+    final l10n = context.l10n;
+    final step = _editingStep;
+
+    if (step != null) {
+      // Une rubrique : exactement l'écran de l'étape de création.
+      return Scaffold(
+        appBar: AppBar(
+          title: Text(_sectionTitleOf(step)),
+          leading: IconButton(icon: const Icon(Icons.arrow_back), onPressed: () => setState(() => _editingStep = null)),
+        ),
+        body: SafeArea(
+          child: Column(
+            children: [
+              Expanded(
+                child: SingleChildScrollView(
+                  padding: const EdgeInsets.fromLTRB(28, 12, 28, 12),
+                  child: _buildStep(context, step),
+                ),
+              ),
+              Padding(
+                padding: const EdgeInsets.fromLTRB(28, 8, 28, 24),
+                child: SizedBox(
+                  width: double.infinity,
+                  child: ElevatedButton(
+                    onPressed: _canProceedFor(step) ? () => setState(() => _editingStep = null) : null,
+                    child: Text(l10n.profileSectionDone),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+      );
+    }
+
+    // Vue d'ensemble : une ligne par rubrique.
+    final allValid = _editSteps.every(_canProceedFor);
+    return Scaffold(
+      appBar: AppBar(title: Text(l10n.yourProfile)),
+      body: SafeArea(
+        child: Column(
+          children: [
+            Expanded(
+              child: ListView(
+                padding: const EdgeInsets.fromLTRB(16, 4, 16, 16),
+                children: [
+                  for (final s in _editSteps)
+                    Padding(
+                      padding: const EdgeInsets.only(bottom: 10),
+                      child: Material(
+                        color: AppColors.backgroundSoft,
+                        borderRadius: BorderRadius.circular(AppRadii.lg),
+                        clipBehavior: Clip.antiAlias,
+                        child: ListTile(
+                          contentPadding: const EdgeInsets.symmetric(horizontal: 18, vertical: 6),
+                          title: Text(_sectionTitleOf(s), style: const TextStyle(fontWeight: FontWeight.w700)),
+                          subtitle: Text(
+                            _canProceedFor(s)
+                                ? _summaryOf(s)
+                                : l10n.profileSectionIncomplete,
+                            maxLines: 2,
+                            overflow: TextOverflow.ellipsis,
+                            style: TextStyle(color: _canProceedFor(s) ? AppColors.ink : AppColors.accent),
+                          ),
+                          trailing: const Icon(Icons.chevron_right),
+                          onTap: () => setState(() => _editingStep = s),
+                        ),
+                      ),
+                    ),
+                ],
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.fromLTRB(20, 8, 20, 24),
+              child: Column(
+                children: [
+                  if (state.hasError)
+                    Padding(
+                      padding: const EdgeInsets.only(bottom: 10),
+                      child: Text(l10n.profileSaveFailed, style: TextStyle(color: AppColors.accent, fontSize: 13)),
+                    ),
+                  SizedBox(
+                    width: double.infinity,
+                    child: ElevatedButton(
+                      onPressed: (allValid && !state.isLoading) ? _finish : null,
+                      child: state.isLoading
+                          ? const SizedBox(
+                              height: 18,
+                              width: 18,
+                              child: CircularProgressIndicator(strokeWidth: 2, color: AppColors.noirProfond),
+                            )
+                          : Text(l10n.saveMyProfile),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
   }
 
   @override
   Widget build(BuildContext context) {
+    if (_editMode) return _buildEditor(context);
     final state = ref.watch(profilControllerProvider);
     final isLast = _stepIndex == _steps.length - 1;
 
@@ -219,7 +438,7 @@ class _ProfilWizardScreenState extends ConsumerState<ProfilWizardScreen> {
             Expanded(
               child: Padding(
                 padding: const EdgeInsets.fromLTRB(28, 12, 28, 0),
-                child: SingleChildScrollView(child: _buildStep(context)),
+                child: SingleChildScrollView(child: _buildStep(context, _steps[_stepIndex])),
               ),
             ),
             Padding(
@@ -268,13 +487,14 @@ class _ProfilWizardScreenState extends ConsumerState<ProfilWizardScreen> {
     );
   }
 
-  Widget _buildStep(BuildContext context) {
-    switch (_steps[_stepIndex]) {
+  Widget _buildStep(BuildContext context, _Step step) {
+    switch (step) {
       case _Step.identite:
         return _StepIdentite(
           nameController: _nameController,
           birthDate: _birthDate,
-          onPickBirthDate: _pickBirthDate,
+          // Fixée à l'inscription (saveProfil.ts refuse tout changement ensuite).
+          onPickBirthDate: _editMode ? null : _pickBirthDate,
           onChanged: () => setState(() {}),
         );
       case _Step.genre:
@@ -378,7 +598,9 @@ class _StepIdentite extends StatelessWidget {
 
   final TextEditingController nameController;
   final DateTime? birthDate;
-  final VoidCallback onPickBirthDate;
+
+  /// null = date figée (modification : saveProfil.ts refuse tout changement).
+  final VoidCallback? onPickBirthDate;
   final VoidCallback onChanged;
 
   @override
@@ -397,11 +619,13 @@ class _StepIdentite extends StatelessWidget {
         ),
         const SizedBox(height: 18),
         InkWell(
-          onTap: () async {
-            onPickBirthDate();
-          },
+          onTap: onPickBirthDate,
           child: InputDecorator(
-            decoration: InputDecoration(labelText: context.l10n.birthDateLabel),
+            decoration: InputDecoration(
+              labelText: context.l10n.birthDateLabel,
+              helperText: onPickBirthDate == null ? context.l10n.identityFieldLocked : null,
+              helperMaxLines: 2,
+            ),
             child: Text(
               birthDate == null
                   ? context.l10n.chooseDate

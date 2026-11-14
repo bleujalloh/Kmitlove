@@ -302,6 +302,10 @@ class CommunauteController {
     return ref.read(communauteRepositoryProvider).inviteToEvent(postId, targetUid);
   }
 
+  Future<List<InvitableMember>> searchMembersToInvite(String query) {
+    return ref.read(communauteRepositoryProvider).searchMembersToInvite(query);
+  }
+
   Future<void> updateEventState(String postId, String eventState) {
     return ref.read(communauteRepositoryProvider).updateEventState(postId, eventState);
   }

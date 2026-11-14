@@ -2252,6 +2252,78 @@ abstract class AppLocalizations {
   /// **'Vous vous accordez surtout sur : {themes}'**
   String compatAlignedOn(String themes);
 
+  /// No description provided for @inviteSearchHint.
+  ///
+  /// In fr, this message translates to:
+  /// **'Prénom du membre (3 lettres au moins)'**
+  String get inviteSearchHint;
+
+  /// No description provided for @inviteSearchNoResult.
+  ///
+  /// In fr, this message translates to:
+  /// **'Aucun membre trouvé.'**
+  String get inviteSearchNoResult;
+
+  /// No description provided for @profileSectionIdentity.
+  ///
+  /// In fr, this message translates to:
+  /// **'Prénom et date de naissance'**
+  String get profileSectionIdentity;
+
+  /// No description provided for @profileSectionGender.
+  ///
+  /// In fr, this message translates to:
+  /// **'Genre'**
+  String get profileSectionGender;
+
+  /// No description provided for @profileSectionSeeking.
+  ///
+  /// In fr, this message translates to:
+  /// **'Je recherche'**
+  String get profileSectionSeeking;
+
+  /// No description provided for @profileSectionIntent.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ce que je cherche'**
+  String get profileSectionIntent;
+
+  /// No description provided for @profileSectionPlace.
+  ///
+  /// In fr, this message translates to:
+  /// **'Où j\'habite'**
+  String get profileSectionPlace;
+
+  /// No description provided for @profileSectionInterestsEtc.
+  ///
+  /// In fr, this message translates to:
+  /// **'Intérêts, origines et valeurs'**
+  String get profileSectionInterestsEtc;
+
+  /// No description provided for @profileSectionDetails.
+  ///
+  /// In fr, this message translates to:
+  /// **'Métier, langues, taille, études'**
+  String get profileSectionDetails;
+
+  /// No description provided for @profileSectionLifestyle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Mode de vie'**
+  String get profileSectionLifestyle;
+
+  /// No description provided for @profileSectionDone.
+  ///
+  /// In fr, this message translates to:
+  /// **'Terminé'**
+  String get profileSectionDone;
+
+  /// No description provided for @profileSectionIncomplete.
+  ///
+  /// In fr, this message translates to:
+  /// **'À compléter'**
+  String get profileSectionIncomplete;
+
   /// Heure d'une conversation dont le dernier message date de la veille (liste Messages)
   ///
   /// In fr, this message translates to:
@@ -2857,12 +2929,6 @@ abstract class AppLocalizations {
   /// In fr, this message translates to:
   /// **'Inviter un membre'**
   String get inviteMemberButton;
-
-  /// No description provided for @inviteMemberHint.
-  ///
-  /// In fr, this message translates to:
-  /// **'Identifiant (uid) du membre à inviter'**
-  String get inviteMemberHint;
 
   /// No description provided for @inviteSentSuccess.
   ///

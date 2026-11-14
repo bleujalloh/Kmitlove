@@ -26,6 +26,7 @@ export { reportCommunityPost } from "./communaute/reportCommunityPost";
 export { togglePostLike, replyToPost } from "./communaute/postInteractions";
 export { requestOrganizerStatus } from "./communaute/requestOrganizerStatus";
 export { inviteToEvent } from "./communaute/inviteToEvent";
+export { searchMembersToInvite } from "./communaute/searchMembersToInvite";
 export { updateEventState } from "./communaute/updateEventState";
 export { submitEventReview } from "./communaute/submitEventReview";
 export { getEventShareCode } from "./communaute/getEventShareCode";

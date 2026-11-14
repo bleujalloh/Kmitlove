@@ -1,5 +1,5 @@
 import { HttpsError } from "firebase-functions/v2/https";
-import { onCall } from "../shared/callable";
+import { onCallNoConsent as onCall } from "../shared/callable";
 import { getFirestore, FieldValue } from "firebase-admin/firestore";
 
 import { REGION } from "../config";
@@ -28,6 +28,7 @@ export const recordActivity = onCall({ region: REGION, enforceAppCheck: ENFORCE_
         // redonné avant toute suppression.
         inactivityWarnedAt: FieldValue.delete(),
         inactivityWarnUndeliveredAt: FieldValue.delete(),
+        inactivityWarnMailId: FieldValue.delete(),
       });
   } catch (err) {
     if ((err as { code?: number }).code === 5) {

@@ -1,5 +1,5 @@
 import { HttpsError } from "firebase-functions/v2/https";
-import { onCall } from "../shared/callable";
+import { onCallNoConsent as onCall } from "../shared/callable";
 import { getFirestore, FieldValue } from "firebase-admin/firestore";
 import type { DocumentSnapshot } from "firebase-admin/firestore";
 

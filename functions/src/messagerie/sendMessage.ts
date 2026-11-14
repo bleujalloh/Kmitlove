@@ -6,7 +6,6 @@ import { getStorage } from "firebase-admin/storage";
 import { REGION, MESSAGE_MAX_LENGTH, MESSAGE_RATE_LIMITS } from "../config";
 import { ENFORCE_APP_CHECK } from "../shared/appCheck";
 import { enforceRateLimit } from "../shared/rateLimit";
-import { requireConsent } from "../shared/consent";
 
 /**
  * Envoi d'un message (texte ou photo de conversation). Jusqu'au 14/11/2026
@@ -63,7 +62,6 @@ export const sendMessage = onCall({ region: REGION, enforceAppCheck: ENFORCE_APP
   if (statusSnap.data()?.filtrageStatus !== "active") {
     throw new HttpsError("permission-denied", "Ton compte n'est pas actif.");
   }
-  requireConsent(statusSnap.data());
   const members = (matchSnap.data()?.members as string[] | undefined) ?? [];
   if (!matchSnap.exists || !members.includes(uid)) {
     throw new HttpsError("permission-denied", "Tu ne fais pas partie de cette conversation.");

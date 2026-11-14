@@ -212,3 +212,20 @@ export const REPLY_RATE_LIMITS = [{ key: "reply_hour", limit: 20, windowSeconds:
 // de compatibilité compte quand le membre a répondu à au moins une session
 // complète de questions (COMPAT_QUESTIONS_PER_SESSION).
 export const COMPAT_ANSWERS_FOR_FULL_COMPLETION = COMPAT_QUESTIONS_PER_SESSION;
+
+// Avertissement d'inactivité par E-MAIL (scheduled/purgeInactiveAccounts.ts), en
+// complément de la notification : après des mois sans activité, le jeton de
+// notification d'un téléphone est presque toujours périmé, donc sans e-mail un
+// compte inactif ne pourrait jamais être supprimé (le compte à rebours ne
+// démarre que si l'avertissement est RÉELLEMENT remis).
+//
+// L'envoi passe par l'extension Firebase « Trigger Email from Firestore » : le
+// serveur écrit un document dans la collection `mail`, l'extension l'envoie et y
+// inscrit `delivery.state` (SUCCESS ou ERROR) — c'est cette confirmation, et non
+// la simple mise en file, qui lance le compte à rebours.
+// DÉSACTIVÉ tant que l'extension n'est pas installée et configurée (il faut un
+// fournisseur d'envoi : adresse SMTP, ou clé SendGrid/Mailgun/Resend). Pour
+// l'activer : installer l'extension (console Firebase > Extensions, collection
+// `mail`), envoyer un e-mail de test, puis passer cette constante à `true` et
+// redéployer `purgeInactiveAccounts`. Voir docs/rgpd-registre-des-traitements.md §7.
+export const INACTIVE_WARNING_EMAIL_ENABLED = false;

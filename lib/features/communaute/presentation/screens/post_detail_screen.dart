@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:qr_flutter/qr_flutter.dart';
@@ -11,6 +13,7 @@ import '../../../../core/widgets/image_viewer.dart';
 import '../../../../core/widgets/report_reasons.dart';
 import '../../../../l10n/l10n_extensions.dart';
 import '../../../profil/presentation/profil_detail_controller.dart';
+import '../../data/communaute_repository.dart';
 import '../../domain/community_post.dart';
 import '../communaute_controller.dart';
 import 'post_interactions.dart';
@@ -560,33 +563,17 @@ class _OrganizerEventControls extends ConsumerWidget {
   }
 
   void _inviteDialog(BuildContext context, WidgetRef ref, String postId) {
-    final uidController = TextEditingController();
-    showDialog(
+    showDialog<InvitableMember>(
       context: context,
-      builder: (dialogContext) => AlertDialog(
-        title: Text(context.l10n.inviteMemberButton),
-        content: TextField(
-          controller: uidController,
-          decoration: InputDecoration(labelText: context.l10n.inviteMemberHint),
-        ),
-        actions: [
-          TextButton(onPressed: () => Navigator.of(dialogContext).pop(), child: Text(context.l10n.cancelButton)),
-          TextButton(
-            onPressed: () async {
-              Navigator.of(dialogContext).pop();
-              if (uidController.text.trim().isEmpty) return;
-              if (!context.mounted) return;
-              await runWithFeedback(
-                context,
-                () => ref.read(communauteControllerProvider).inviteToEvent(postId, uidController.text.trim()),
-                success: context.l10n.inviteSentSuccess,
-              );
-            },
-            child: Text(context.l10n.validateButton),
-          ),
-        ],
-      ),
-    );
+      builder: (_) => const _InviteSearchDialog(),
+    ).then((member) async {
+      if (member == null || !context.mounted) return;
+      await runWithFeedback(
+        context,
+        () => ref.read(communauteControllerProvider).inviteToEvent(postId, member.uid),
+        success: context.l10n.inviteSentSuccess,
+      );
+    });
   }
 }
 
@@ -708,4 +695,116 @@ void _checkInDialog(BuildContext context, WidgetRef ref, String postId, String t
       ],
     ),
   );
+}
+
+/// Recherche d'un membre par prénom (au moins 3 lettres) pour l'inviter : plus
+/// d'identifiant technique à saisir à la main.
+class _InviteSearchDialog extends ConsumerStatefulWidget {
+  const _InviteSearchDialog();
+
+  @override
+  ConsumerState<_InviteSearchDialog> createState() => _InviteSearchDialogState();
+}
+
+class _InviteSearchDialogState extends ConsumerState<_InviteSearchDialog> {
+  final _controller = TextEditingController();
+  Timer? _debounce;
+  List<InvitableMember> _results = const [];
+  bool _searching = false;
+  bool _failed = false;
+  String _lastQuery = '';
+
+  @override
+  void dispose() {
+    _debounce?.cancel();
+    _controller.dispose();
+    super.dispose();
+  }
+
+  void _onChanged(String value) {
+    _debounce?.cancel();
+    final query = value.trim();
+    if (query.length < 3) {
+      setState(() {
+        _results = const [];
+        _failed = false;
+        _searching = false;
+        _lastQuery = '';
+      });
+      return;
+    }
+    _debounce = Timer(const Duration(milliseconds: 400), () => _search(query));
+  }
+
+  Future<void> _search(String query) async {
+    setState(() {
+      _searching = true;
+      _failed = false;
+    });
+    try {
+      final found = await ref.read(communauteControllerProvider).searchMembersToInvite(query);
+      if (!mounted || _controller.text.trim() != query) return;
+      setState(() {
+        _results = found;
+        _lastQuery = query;
+        _searching = false;
+      });
+    } catch (_) {
+      if (mounted) {
+        setState(() {
+          _failed = true;
+          _searching = false;
+        });
+      }
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = context.l10n;
+    return AlertDialog(
+      title: Text(l10n.inviteMemberButton),
+      content: SizedBox(
+        width: double.maxFinite,
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            TextField(
+              controller: _controller,
+              autofocus: true,
+              onChanged: _onChanged,
+              decoration: InputDecoration(labelText: l10n.inviteSearchHint),
+            ),
+            const SizedBox(height: 12),
+            if (_searching)
+              const Padding(padding: EdgeInsets.all(8), child: Center(child: CircularProgressIndicator(strokeWidth: 2)))
+            else if (_failed)
+              Text(l10n.genericError)
+            else if (_lastQuery.isNotEmpty && _results.isEmpty)
+              Text(l10n.inviteSearchNoResult)
+            else
+              Flexible(
+                child: ListView(
+                  shrinkWrap: true,
+                  children: [
+                    for (final m in _results)
+                      ListTile(
+                        contentPadding: EdgeInsets.zero,
+                        title: Text(m.displayName, style: const TextStyle(fontWeight: FontWeight.w600)),
+                        subtitle: Text([
+                          if (m.age != null) '${m.age}',
+                          if (m.city != null && m.city!.isNotEmpty) m.city!,
+                        ].join(' · ')),
+                        onTap: () => Navigator.of(context).pop(m),
+                      ),
+                  ],
+                ),
+              ),
+          ],
+        ),
+      ),
+      actions: [TextButton(onPressed: () => Navigator.of(context).pop(), child: Text(l10n.cancelButton))],
+    );
+  }
 }

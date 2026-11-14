@@ -75,6 +75,13 @@ class AuthGate extends ConsumerWidget {
           loading: () => const Scaffold(body: Center(child: CircularProgressIndicator())),
           error: (e, st) => Scaffold(body: Center(child: Text(context.l10n.unexpectedError(e.toString())))),
           data: (status) {
+            // Consentement explicite aux données sensibles (RGPD art. 9) : TOUT
+            // en premier, avant même le questionnaire de filtrage (qui révèle
+            // l'appartenance à la communauté), pour un compte neuf comme pour
+            // un compte existant ou après un retrait (Paramètres). Le serveur
+            // l'exige de toute façon pour chaque fonction de membre
+            // (functions/src/shared/callable.ts).
+            if (!hasSensitiveConsent(status)) return const SensitiveConsentScreen();
             final filtrageStatus = status?['filtrageStatus'] as String?;
             if (filtrageStatus == 'active') {
               // Le serveur a déjà activé le compte au moment où il répond
@@ -92,11 +99,6 @@ class AuthGate extends ConsumerWidget {
                 error: (e, st) =>
                     Scaffold(body: Center(child: Text(context.l10n.unexpectedError(e.toString())))),
                 data: (profil) {
-                  // Consentement explicite aux données sensibles (RGPD art. 9) :
-                  // avant l'assistant de profil comme pour un compte existant,
-                  // ou après un retrait (Paramètres). Le serveur le vérifie de
-                  // toute façon (saveProfil).
-                  if (!hasSensitiveConsent(status)) return const SensitiveConsentScreen();
                   if (profil == null) return const ProfilWizardScreen();
                   return const MainShell();
                 },

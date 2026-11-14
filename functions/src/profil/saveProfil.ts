@@ -3,7 +3,6 @@ import { onCall } from "../shared/callable";
 import { getFirestore, FieldValue } from "firebase-admin/firestore";
 
 import { REGION } from "../config";
-import { requireConsent } from "../shared/consent";
 import { ENFORCE_APP_CHECK } from "../shared/appCheck";
 import { computeAge } from "../shared/age";
 import { GENDERS } from "../shared/genders";
@@ -186,9 +185,6 @@ export const saveProfil = onCall({ region: REGION, enforceAppCheck: ENFORCE_APP_
   if (existingBirthDate && existingBirthDate.slice(0, 10) !== birthDate.slice(0, 10)) {
     throw new HttpsError("failed-precondition", "birthdate-locked : la date de naissance ne peut plus être modifiée.");
   }
-  // Aucune donnée sensible (genre recherché = orientation, RGPD art. 9) n'est
-  // enregistrée sans consentement explicite valide (account/sensitiveConsent.ts).
-  requireConsent(existingStatusSnap.data());
   const seekingGenders = closedList(data.seekingGenders, "seekingGenders", GENDERS);
   if (seekingGenders.length === 0) invalid("seekingGenders");
 

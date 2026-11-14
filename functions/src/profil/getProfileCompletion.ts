@@ -1,5 +1,5 @@
 import { HttpsError } from "firebase-functions/v2/https";
-import { onCall } from "../shared/callable";
+import { onCallNoConsent as onCall } from "../shared/callable";
 import { getFirestore } from "firebase-admin/firestore";
 
 import { REGION } from "../config";

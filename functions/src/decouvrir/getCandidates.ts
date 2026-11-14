@@ -1,4 +1,4 @@
-import { hasValidConsent, requireConsent } from "../shared/consent";
+import { hasValidConsent } from "../shared/consent";
 import { HttpsError } from "firebase-functions/v2/https";
 import { onCall } from "../shared/callable";
 import { getFirestore } from "firebase-admin/firestore";
@@ -65,7 +65,6 @@ export const getDiscoverCandidates = onCall({ region: REGION, enforceAppCheck: E
     db.collection("users").doc(uid).get(),
     db.collection("user_status").doc(uid).get(),
   ]);
-  requireConsent(myStatusSnap.data());
   const myProfil = mySnap.data();
   if (!myProfil) {
     throw new HttpsError("failed-precondition", "Profil manquant.");

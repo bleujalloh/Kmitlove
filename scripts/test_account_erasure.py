@@ -62,7 +62,7 @@ UID, TOKEN = r["localId"], r["idToken"]
 s, r = sign("accounts:signInWithPassword", {"email": AMARA_EMAIL, "password": PASSWORD, "returnSecureToken": True})
 AMARA_TOKEN = r["idToken"]
 admin("PATCH", f"users/{UID}", {"fields": {"displayName": fv("Test Effacement"), "age": {"integerValue": "30"}}})
-admin("PATCH", f"user_status/{UID}", {"fields": {"filtrageStatus": fv("active")}})
+admin("PATCH", f"user_status/{UID}", {"fields": {"filtrageStatus": fv("active"), "sensitiveConsent": {"mapValue": {"fields": {"granted": {"booleanValue": True}, "version": {"integerValue": "1"}}}}}})
 
 post_id = None
 match_id = "_".join(sorted([UID, AMARA]))

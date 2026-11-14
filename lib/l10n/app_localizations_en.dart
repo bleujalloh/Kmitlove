@@ -1209,6 +1209,42 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
+  String get inviteSearchHint => 'Member\'s first name (at least 3 letters)';
+
+  @override
+  String get inviteSearchNoResult => 'No member found.';
+
+  @override
+  String get profileSectionIdentity => 'First name and birth date';
+
+  @override
+  String get profileSectionGender => 'Gender';
+
+  @override
+  String get profileSectionSeeking => 'I\'m looking for';
+
+  @override
+  String get profileSectionIntent => 'What I\'m after';
+
+  @override
+  String get profileSectionPlace => 'Where I live';
+
+  @override
+  String get profileSectionInterestsEtc => 'Interests, origins and values';
+
+  @override
+  String get profileSectionDetails => 'Job, languages, height, studies';
+
+  @override
+  String get profileSectionLifestyle => 'Lifestyle';
+
+  @override
+  String get profileSectionDone => 'Done';
+
+  @override
+  String get profileSectionIncomplete => 'To complete';
+
+  @override
   String get messageTimeYesterday => 'yesterday';
 
   @override
@@ -1522,9 +1558,6 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get inviteMemberButton => 'Invite a member';
-
-  @override
-  String get inviteMemberHint => 'Member ID (uid) to invite';
 
   @override
   String get inviteSentSuccess => 'Invitation sent.';

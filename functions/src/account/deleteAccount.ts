@@ -1,5 +1,5 @@
 import { HttpsError } from "firebase-functions/v2/https";
-import { onCall } from "../shared/callable";
+import { onCallNoConsent as onCall } from "../shared/callable";
 
 import { REGION } from "../config";
 import { ENFORCE_APP_CHECK } from "../shared/appCheck";
